@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+/* ─── BIOME Design Tokens (Tailwind v4 theme) ─────────────── */
+@theme {
+  --color-bg:           #070c07;
+  --color-bg2:          #0b120b;
+  --color-bg3:          #101a10;
+  --color-green:        #4dff80;
+  --color-green-dim:    #1f8c3b;
+  --color-cyan:         #00e5ff;
+  --color-amber:        #ffb300;
+  --color-text:         #c0d4c4;
+  --color-text-dim:     #4a6050;
+  --color-text-bright:  #e4f0e8;
+  --color-text-white:   #f2faf4;
+
+  --font-heading: 'Syne', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+}
+
+/* ─── CSS Variables (for use in custom CSS below) ─────────── */
+:root {
+  --bg:           #070c07;
+  --bg2:          #0b120b;
+  --bg3:          #101a10;
+  --green:        #4dff80;
+  --green-dim:    #1f8c3b;
+  --cyan:         #00e5ff;
+  --amber:        #ffb300;
+  --text:         #c0d4c4;
+  --text-dim:     #4a6050;
+  --text-bright:  #e4f0e8;
+  --text-white:   #f2faf4;
+}
+
+/* ─── Base ────────────────────────────────────────────────── */
+html {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+body {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  font-family: var(--font-heading);
+}
+
+/* ─── Grid background ─────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(77, 255, 128, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(77, 255, 128, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ─── Scan-line overlay ───────────────────────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+}
+
+/* ─── Content sits above overlays ────────────────────────── */
+main, header, footer, #app-root {
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── Typography ──────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-white);
+}
+
+code, pre, .mono {
+  font-family: var(--font-mono);
+}
+
+/* ─── Blinking status dot ─────────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.blink {
+  animation: blink 1.2s step-end infinite;
+}
+
+/* ─── Ticker bar ──────────────────────────────────────────── */
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  display: flex;
+  white-space: nowrap;
+  animation: ticker 30s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+/* ─── Card: top border reveal on hover ───────────────────── */
+.biome-card {
+  background: var(--bg2);
+  border: 1px solid rgba(77, 255, 128, 0.08);
+  border-top: 2px solid transparent;
+  transition: border-top-color 0.2s ease, background 0.2s ease;
+}
+
+.biome-card:hover {
+  border-top-color: var(--green);
+  background: var(--bg3);
+}
+
+/* ─── Corner bracket decoration ──────────────────────────── */
+.corner-bracket {
+  position: relative;
+}
+
+.corner-bracket::before,
+.corner-bracket::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--green-dim);
+  border-style: solid;
+  opacity: 0.4;
+}
+
+.corner-bracket::before {
+  top: 0; left: 0;
+  border-width: 1px 0 0 1px;
+}
+
+.corner-bracket::after {
+  bottom: 0; right: 0;
+  border-width: 0 1px 1px 0;
+}
+
+/* ─── BIOME VERIFIED badge ────────────────────────────────── */
+.badge-verified {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  color: var(--green);
+  border: 1px solid var(--green-dim);
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: rgba(77, 255, 128, 0.06);
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--green-dim); border-radius: 3px; }
