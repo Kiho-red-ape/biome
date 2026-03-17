@@ -114,6 +114,7 @@ export interface ParticipantProfile {
   completion_rate: number | null;
   dropout_count: number;
   no_show_count: number;
+  reliability_score: number;    // 0–100, auto-calculated: completion_rate×0.6 + study_depth×0.4
   onboarding_step: number;
   created_at: string;
   updated_at: string;
