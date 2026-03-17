@@ -42,12 +42,11 @@ const STATUS_CONFIG: Record<ExperimentStatus, { label: string; color: string; bl
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Longevity:   'var(--green)',
-  Neuroscience:'var(--cyan)',
-  Sleep:       'var(--cyan)',
-  Microbiome:  'var(--green-dim)',
-  Metabolic:   'var(--amber)',
-  Cognitive:   'var(--cyan)',
+  Sleep:     'var(--cyan)',
+  Energy:    'var(--green)',
+  Mood:      'var(--amber)',
+  Nutrition: 'var(--green)',
+  Focus:     'var(--cyan)',
 };
 
 function categoryColor(cat: string): string {
@@ -57,9 +56,7 @@ function categoryColor(cat: string): string {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function SortIcon({ field, current, dir }: { field: SortField; current: SortField; dir: SortDir }) {
-  if (field !== current) {
-    return <span style={{ color: 'var(--text-dim)', opacity: 0.3 }}>⇅</span>;
-  }
+  if (field !== current) return <span style={{ color: 'var(--text-dim)', opacity: 0.3 }}>⇅</span>;
   return <span style={{ color: 'var(--green)' }}>{dir === 'asc' ? '↑' : '↓'}</span>;
 }
 
@@ -83,26 +80,24 @@ function SlotBar({ filled, total }: { filled: number; total: number }) {
 export function ExperimentDashboard({ experiments, stats }: Props) {
   const router = useRouter();
 
-  // ── Filter/sort state ────────────────────────────────────────
-  const [search,     setSearch]     = useState('');
-  const [catFilter,  setCatFilter]  = useState('all');
-  const [statFilter, setStatFilter] = useState('all');
-  const [verified,   setVerified]   = useState(false);
-  const [sortField,  setSortField]  = useState<SortField>('created_at');
-  const [sortDir,    setSortDir]    = useState<SortDir>('desc');
+  const [expandedId,  setExpandedId]  = useState<string | null>(null);
+  const [search,      setSearch]      = useState('');
+  const [catFilter,   setCatFilter]   = useState('all');
+  const [statFilter,  setStatFilter]  = useState('all');
+  const [verified,    setVerified]    = useState(false);
+  const [sortField,   setSortField]   = useState<SortField>('created_at');
+  const [sortDir,     setSortDir]     = useState<SortDir>('desc');
 
-  // ── Derived data ─────────────────────────────────────────────
   const categories = useMemo(() => {
-    const cats = [...new Set(experiments.map((e) => e.category))].sort();
-    return cats;
+    return [...new Set(experiments.map((e) => e.category))].sort();
   }, [experiments]);
 
   const filtered = useMemo(() => {
     return experiments
       .filter((e) => {
-        if (catFilter  !== 'all' && e.category !== catFilter)      return false;
-        if (statFilter !== 'all' && e.status   !== statFilter)     return false;
-        if (verified && !e.is_verified)                            return false;
+        if (catFilter  !== 'all' && e.category !== catFilter)  return false;
+        if (statFilter !== 'all' && e.status   !== statFilter) return false;
+        if (verified && !e.is_verified)                        return false;
         if (search) {
           const q = search.toLowerCase();
           if (!e.title.toLowerCase().includes(q) &&
@@ -131,7 +126,6 @@ export function ExperimentDashboard({ experiments, stats }: Props) {
     }
   }
 
-  // ── Column header helper ─────────────────────────────────────
   function ColHead({ field, label, align = 'left', className = '' }: {
     field: SortField; label: string; align?: 'left' | 'right'; className?: string;
   }) {
@@ -160,10 +154,10 @@ export function ExperimentDashboard({ experiments, stats }: Props) {
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
-            { label: 'TOTAL POOL',    value: fmt(stats.totalBountyPool),   sub: 'bounties posted'     },
-            { label: 'EARNED',        value: fmt(stats.totalEarned),        sub: 'paid to participants'},
-            { label: 'ACTIVE',        value: String(stats.activeCount),     sub: 'experiments open'   },
-            { label: 'PARTICIPANTS',  value: String(stats.totalParticipants),sub: 'slots filled'       },
+            { label: 'TOTAL POOL',   value: fmt(stats.totalBountyPool),    sub: 'bounties posted'     },
+            { label: 'EARNED',       value: fmt(stats.totalEarned),         sub: 'paid to participants'},
+            { label: 'ACTIVE',       value: String(stats.activeCount),      sub: 'experiments open'   },
+            { label: 'PARTICIPANTS', value: String(stats.totalParticipants), sub: 'slots filled'      },
           ].map((s) => (
             <div key={s.label} className="corner-bracket p-4" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
               <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>{s.label}</p>
@@ -183,104 +177,66 @@ export function ExperimentDashboard({ experiments, stats }: Props) {
           </span>
         </p>
         <p className="mono text-xs hidden md:block" style={{ color: 'var(--text-dim)' }}>
-          click column header to sort — click row to open
+          click row to preview — click READ MORE to open
         </p>
       </div>
 
       {/* ── Filter bar ──────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
-
-        {/* Search */}
         <div className="relative flex-1 min-w-48">
-          <span
-            className="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs pointer-events-none"
-            style={{ color: 'var(--text-dim)' }}
-          >
-            ⌕
-          </span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs pointer-events-none" style={{ color: 'var(--text-dim)' }}>⌕</span>
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="search experiments..."
             className="w-full pl-7 pr-3 py-2 mono text-xs outline-none rounded"
-            style={{
-              background: 'var(--bg2)',
-              border: '1px solid rgba(77,255,128,0.1)',
-              color: 'var(--text-bright)',
-            }}
+            style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.1)', color: 'var(--text-bright)' }}
           />
         </div>
-
-        {/* Category */}
-        <select
-          value={catFilter}
-          onChange={(e) => setCatFilter(e.target.value)}
+        <select value={catFilter} onChange={(e) => setCatFilter(e.target.value)}
           className="mono text-xs px-3 py-2 rounded outline-none cursor-pointer"
-          style={{
-            background: 'var(--bg2)',
-            border: '1px solid rgba(77,255,128,0.1)',
-            color: catFilter !== 'all' ? 'var(--text-bright)' : 'var(--text-dim)',
-          }}
-        >
+          style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.1)', color: catFilter !== 'all' ? 'var(--text-bright)' : 'var(--text-dim)' }}>
           <option value="all">ALL CATEGORIES</option>
           {categories.map((c) => <option key={c} value={c}>{c.toUpperCase()}</option>)}
         </select>
-
-        {/* Status */}
-        <select
-          value={statFilter}
-          onChange={(e) => setStatFilter(e.target.value)}
+        <select value={statFilter} onChange={(e) => setStatFilter(e.target.value)}
           className="mono text-xs px-3 py-2 rounded outline-none cursor-pointer"
-          style={{
-            background: 'var(--bg2)',
-            border: '1px solid rgba(77,255,128,0.1)',
-            color: statFilter !== 'all' ? 'var(--text-bright)' : 'var(--text-dim)',
-          }}
-        >
+          style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.1)', color: statFilter !== 'all' ? 'var(--text-bright)' : 'var(--text-dim)' }}>
           <option value="all">ALL STATUS</option>
           <option value="recruiting">RECRUITING</option>
           <option value="active">ACTIVE</option>
           <option value="completed">COMPLETED</option>
           <option value="draft">DRAFT</option>
         </select>
-
-        {/* Verified toggle */}
-        <button
-          onClick={() => setVerified((v) => !v)}
+        <button onClick={() => setVerified((v) => !v)}
           className="mono text-xs px-3 py-2 rounded transition-all flex items-center gap-2"
           style={{
             background: verified ? 'rgba(77,255,128,0.08)' : 'var(--bg2)',
             border: `1px solid ${verified ? 'var(--green-dim)' : 'rgba(77,255,128,0.1)'}`,
             color: verified ? 'var(--green)' : 'var(--text-dim)',
-          }}
-        >
+          }}>
           {verified ? '✓' : '○'} VERIFIED ONLY
         </button>
       </div>
 
       {/* ── Table ───────────────────────────────────────────────── */}
-      <div
-        className="overflow-x-auto rounded"
-        style={{ border: '1px solid rgba(77,255,128,0.07)' }}
-      >
-        <table className="w-full border-collapse" style={{ minWidth: '900px' }}>
+      <div className="overflow-x-auto rounded" style={{ border: '1px solid rgba(77,255,128,0.07)' }}>
+        <table className="w-full border-collapse" style={{ minWidth: '860px' }}>
 
-          {/* Column headers */}
           <thead>
             <tr style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.08)' }}>
               <th className="mono text-xs font-normal px-3 py-3 w-10" style={{ color: 'var(--text-dim)' }}>#</th>
               <ColHead field="title"                  label="EXPERIMENT"    className="text-left" />
               <th className="mono text-xs font-normal px-3 py-3 w-28 text-center whitespace-nowrap" style={{ color: 'var(--text-dim)' }}>VERIFIED</th>
-              <ColHead field="bounty_per_participant" label="BOUNTY / PART" align="right" className="w-32" />
-              <ColHead field="total_bounty_pool"      label="POOL"          align="right" className="w-28" />
-              <th className="mono text-xs font-normal px-3 py-3 w-44 whitespace-nowrap" style={{ color: 'var(--text-dim)' }}>SLOTS</th>
+              <ColHead field="bounty_per_participant" label="REWARD"        align="right" className="w-28" />
+              <ColHead field="total_bounty_pool"      label="POOL"          align="right" className="w-24" />
+              <th className="mono text-xs font-normal px-3 py-3 w-40 whitespace-nowrap" style={{ color: 'var(--text-dim)' }}>SLOTS</th>
               <ColHead field="status"                 label="STATUS"        className="w-32" />
-              <th className="mono text-xs font-normal px-3 py-3 w-28 whitespace-nowrap" style={{ color: 'var(--text-dim)' }}>REGION</th>
+              <th className="mono text-xs font-normal px-3 py-3 w-24 whitespace-nowrap" style={{ color: 'var(--text-dim)' }}>REGION</th>
             </tr>
           </thead>
 
-          {/* Rows */}
           <tbody>
             {filtered.length === 0 && (
               <tr>
@@ -289,85 +245,151 @@ export function ExperimentDashboard({ experiments, stats }: Props) {
                 </td>
               </tr>
             )}
+
             {filtered.map((exp, i) => {
               const st = STATUS_CONFIG[exp.status] ?? STATUS_CONFIG.draft;
+              const isOpen = expandedId === exp.id;
+
               return (
-                <tr
-                  key={exp.id}
-                  onClick={() => router.push(`/experiments/${exp.id}`)}
-                  className="cursor-pointer transition-colors group"
-                  style={{ borderBottom: '1px solid rgba(77,255,128,0.05)' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg3)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                >
-                  {/* Row number */}
-                  <td className="px-3 py-4 mono text-xs text-center tabular-nums" style={{ color: 'var(--text-dim)' }}>
-                    {String(i + 1).padStart(2, '0')}
-                  </td>
+                <>
+                  {/* ── Main row ── */}
+                  <tr
+                    key={exp.id}
+                    onClick={() => setExpandedId(isOpen ? null : exp.id)}
+                    className="cursor-pointer transition-colors group"
+                    style={{
+                      borderBottom: isOpen ? 'none' : '1px solid rgba(77,255,128,0.05)',
+                      background: isOpen ? 'var(--bg3)' : 'transparent',
+                    }}
+                    onMouseEnter={(e) => { if (!isOpen) e.currentTarget.style.background = 'var(--bg3)'; }}
+                    onMouseLeave={(e) => { if (!isOpen) e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    {/* Row number */}
+                    <td className="px-3 py-4 mono text-xs text-center tabular-nums" style={{ color: 'var(--text-dim)' }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </td>
 
-                  {/* Experiment name + category */}
-                  <td className="px-3 py-4">
-                    <div className="flex flex-col gap-1">
-                      <span
-                        className="text-sm font-semibold leading-tight transition-colors group-hover:text-white"
-                        style={{ color: 'var(--text-bright)', maxWidth: '340px' }}
-                      >
-                        {exp.title}
+                    {/* Experiment name + category + expand chevron */}
+                    <td className="px-3 py-4">
+                      <div className="flex items-start gap-2">
+                        <span className="mono text-xs mt-0.5 flex-shrink-0 transition-transform"
+                          style={{ color: 'var(--text-dim)', display: 'inline-block', transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                          ▶
+                        </span>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-semibold leading-tight transition-colors group-hover:text-white"
+                            style={{ color: 'var(--text-bright)', maxWidth: '300px' }}>
+                            {exp.title}
+                          </span>
+                          <span className="mono text-xs inline-flex items-center gap-1 self-start px-1.5 py-px rounded"
+                            style={{
+                              color: categoryColor(exp.category),
+                              border: `1px solid ${categoryColor(exp.category)}30`,
+                              background: `${categoryColor(exp.category)}08`,
+                            }}>
+                            {exp.category.toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Verified */}
+                    <td className="px-3 py-4 text-center">
+                      {exp.is_verified
+                        ? <span className="badge-verified">✓ VERIFIED</span>
+                        : <span className="mono text-xs" style={{ color: 'var(--text-dim)', opacity: 0.3 }}>—</span>}
+                    </td>
+
+                    {/* Reward */}
+                    <td className="px-3 py-4 text-right mono text-sm tabular-nums font-medium" style={{ color: 'var(--green)' }}>
+                      {fmtFull(exp.bounty_per_participant)}
+                    </td>
+
+                    {/* Pool */}
+                    <td className="px-3 py-4 text-right mono text-sm tabular-nums" style={{ color: 'var(--text-bright)' }}>
+                      {fmt(exp.total_bounty_pool)}
+                    </td>
+
+                    {/* Slots */}
+                    <td className="px-3 py-4">
+                      <SlotBar filled={exp.slots_filled} total={exp.slots_total} />
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-3 py-4">
+                      <span className="mono text-xs flex items-center gap-1.5 whitespace-nowrap" style={{ color: st.color }}>
+                        <span className={st.blink ? 'blink' : ''}>●</span>
+                        {st.label}
                       </span>
-                      <span
-                        className="mono text-xs inline-flex items-center gap-1 self-start px-1.5 py-px rounded"
-                        style={{
-                          color: categoryColor(exp.category),
-                          border: `1px solid ${categoryColor(exp.category)}30`,
-                          background: `${categoryColor(exp.category)}08`,
-                        }}
-                      >
-                        {exp.category.toUpperCase()}
-                      </span>
-                    </div>
-                  </td>
+                    </td>
 
-                  {/* Verified badge */}
-                  <td className="px-3 py-4 text-center">
-                    {exp.is_verified ? (
-                      <span className="badge-verified">✓ VERIFIED</span>
-                    ) : (
-                      <span className="mono text-xs" style={{ color: 'var(--text-dim)', opacity: 0.3 }}>—</span>
-                    )}
-                  </td>
+                    {/* Region */}
+                    <td className="px-3 py-4 mono text-xs whitespace-nowrap" style={{ color: 'var(--text-dim)' }}>
+                      {exp.is_remote ? 'REMOTE' : (exp.region ?? '—')}
+                    </td>
+                  </tr>
 
-                  {/* Bounty per participant */}
-                  <td className="px-3 py-4 text-right mono text-sm tabular-nums font-medium" style={{ color: 'var(--green)' }}>
-                    {fmtFull(exp.bounty_per_participant)}
-                  </td>
+                  {/* ── Accordion row ── */}
+                  {isOpen && (
+                    <tr key={`${exp.id}-accordion`} style={{ borderBottom: '2px solid rgba(77,255,128,0.12)', background: 'var(--bg3)' }}>
+                      <td colSpan={8}>
+                        <div className="px-8 pt-3 pb-6 flex flex-col md:flex-row md:items-start gap-6">
 
-                  {/* Total pool */}
-                  <td className="px-3 py-4 text-right mono text-sm tabular-nums" style={{ color: 'var(--text-bright)' }}>
-                    {fmt(exp.total_bounty_pool)}
-                  </td>
+                          {/* Description + tests */}
+                          <div className="flex-1 min-w-0">
+                            <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)' }}>// OVERVIEW</p>
+                            <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-bright)', maxWidth: '500px' }}>
+                              {exp.short_description ?? exp.description.slice(0, 160) + '…'}
+                            </p>
+                            {exp.tests_needed && (
+                              <p className="mono text-xs leading-relaxed" style={{ color: 'var(--text-dim)', maxWidth: '500px' }}>
+                                <span style={{ color: 'var(--cyan)' }}>TESTS REQUIRED: </span>
+                                {exp.tests_needed}
+                              </p>
+                            )}
+                          </div>
 
-                  {/* Slots */}
-                  <td className="px-3 py-4">
-                    <SlotBar filled={exp.slots_filled} total={exp.slots_total} />
-                  </td>
+                          {/* Stats strip */}
+                          <div className="flex items-start gap-6 flex-shrink-0">
+                            <div>
+                              <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>SLOTS OPEN</p>
+                              <p className="mono text-lg font-black tabular-nums" style={{ color: exp.slots_filled >= exp.slots_total ? 'var(--amber)' : 'var(--text-bright)' }}>
+                                {exp.slots_total - exp.slots_filled}
+                              </p>
+                              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>{exp.slots_filled}/{exp.slots_total} filled</p>
+                            </div>
+                            <div>
+                              <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>REWARD</p>
+                              <p className="mono text-lg font-black tabular-nums" style={{ color: 'var(--green)' }}>
+                                ${exp.bounty_per_participant}
+                              </p>
+                              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>per person</p>
+                            </div>
+                            {exp.duration_weeks && (
+                              <div>
+                                <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>DURATION</p>
+                                <p className="mono text-lg font-black tabular-nums" style={{ color: 'var(--text-bright)' }}>
+                                  {exp.duration_weeks}
+                                </p>
+                                <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>weeks</p>
+                              </div>
+                            )}
+                            <div className="self-center">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); router.push(`/experiments/${exp.id}`); }}
+                                className="mono text-xs px-5 py-2.5 rounded font-bold transition-all hover:opacity-90 whitespace-nowrap"
+                                style={{ background: 'var(--green)', color: 'var(--bg)' }}
+                              >
+                                READ MORE →
+                              </button>
+                            </div>
+                          </div>
 
-                  {/* Status */}
-                  <td className="px-3 py-4">
-                    <span className="mono text-xs flex items-center gap-1.5 whitespace-nowrap" style={{ color: st.color }}>
-                      <span className={st.blink ? 'blink' : ''}>●</span>
-                      {st.label}
-                    </span>
-                  </td>
-
-                  {/* Region */}
-                  <td className="px-3 py-4 mono text-xs whitespace-nowrap" style={{ color: 'var(--text-dim)' }}>
-                    {exp.is_remote ? (
-                      <span style={{ color: 'var(--text-dim)' }}>REMOTE</span>
-                    ) : (
-                      <span>{exp.region ?? '—'}</span>
-                    )}
-                  </td>
-                </tr>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </>
               );
             })}
           </tbody>

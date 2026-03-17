@@ -25,6 +25,7 @@ export interface Experiment {
   id: string;
   experimenter_id: string;
   title: string;
+  short_description: string | null;
   description: string;
   category: string;
   status: ExperimentStatus;
@@ -38,6 +39,10 @@ export interface Experiment {
   is_verified: boolean;
   verification_level: VerificationLevel;
   external_comms_url: string | null;
+  tests_needed: string | null;
+  inclusion_criteria: string | null;
+  exclusion_criteria: string | null;
+  iec_approval: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -59,6 +64,7 @@ export interface Comment {
   author_id: string;
   content: string;
   parent_id: string | null;
+  upvotes: number;
   created_at: string;
 }
 
