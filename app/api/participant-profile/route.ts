@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ profile: data as ParticipantProfile });
+  return NextResponse.json({ profile: data as unknown as ParticipantProfile });
 }
 
 // ─── POST /api/participant-profile ────────────────────────────────────────────
@@ -143,5 +143,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ profile: data as ParticipantProfile }, { status: 201 });
+  return NextResponse.json({ profile: data as unknown as ParticipantProfile }, { status: 201 });
 }
