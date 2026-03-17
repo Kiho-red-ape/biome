@@ -13,8 +13,15 @@ const STATUS_CONFIG: Record<ExperimentStatus, { label: string; color: string }> 
   cancelled:  { label: 'CANCELLED',  color: 'var(--amber)'    },
 };
 
+type ParticipantMeta = { participant_id: string; pseudonym: string };
+
 type CommentWithProfile = Comment & {
-  profiles: { display_name: string | null; region: string | null } | null;
+  profiles: {
+    display_name: string | null;
+    region: string | null;
+    // participant_profiles is an array in Supabase nested select (1-to-many FK direction)
+    participant_profiles: ParticipantMeta[] | null;
+  } | null;
 };
 
 interface Props {
@@ -61,7 +68,7 @@ export default async function ExperimentPage({ params }: Props) {
       .single(),
     supabase
       .from('comments')
-      .select('*, profiles!author_id(display_name, region)')
+      .select('*, profiles!author_id(display_name, region, participant_profiles(participant_id, pseudonym))')
       .eq('experiment_id', id)
       .order('upvotes', { ascending: false }),
   ]);
@@ -323,9 +330,12 @@ export default async function ExperimentPage({ params }: Props) {
 // ─── Comment components ───────────────────────────────────────────────────────
 
 function CommentBubble({ comment, indent = false }: { comment: CommentWithProfile; indent?: boolean }) {
-  const name = comment.profiles?.display_name ?? 'anon';
-  const region = comment.profiles?.region;
-  const color = handleColor(name);
+  // Prefer pseudonym (participant) over display_name (experimenter / anon)
+  const pp          = comment.profiles?.participant_profiles?.[0] ?? null;
+  const displayName = pp?.pseudonym ?? comment.profiles?.display_name ?? 'anon';
+  const profileHref = pp ? `/profile/${pp.participant_id}` : null;
+  const region      = comment.profiles?.region;
+  const color       = handleColor(displayName);
 
   return (
     <div
@@ -338,9 +348,13 @@ function CommentBubble({ comment, indent = false }: { comment: CommentWithProfil
     >
       {/* Meta row */}
       <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-        <span className="mono text-xs font-bold" style={{ color }}>
-          {name}
-        </span>
+        {profileHref ? (
+          <Link href={profileHref} className="mono text-xs font-bold no-underline hover:underline" style={{ color }}>
+            {displayName}
+          </Link>
+        ) : (
+          <span className="mono text-xs font-bold" style={{ color }}>{displayName}</span>
+        )}
         {region && (
           <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>{region}</span>
         )}

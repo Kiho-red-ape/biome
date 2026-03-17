@@ -2,7 +2,9 @@ import { createAnonClient } from '@/lib/supabase/anon';
 import { SiteHeader } from '@/components/nav/header';
 import { TickerBar } from '@/components/dashboard/ticker-bar';
 import { ExperimentDashboard } from '@/components/dashboard/experiment-dashboard';
+import { Leaderboard } from '@/components/dashboard/leaderboard';
 import type { Experiment } from '@/lib/types';
+import type { LeaderRow } from '@/components/dashboard/leaderboard';
 
 function computeStats(experiments: Experiment[]) {
   const totalBountyPool = experiments.reduce((s, e) => s + e.total_bounty_pool, 0);
@@ -18,13 +20,21 @@ function computeStats(experiments: Experiment[]) {
 
 export default async function HomePage() {
   const supabase = createAnonClient();
-  const { data } = await supabase
-    .from('experiments')
-    .select('*')
-    .order('created_at', { ascending: false });
 
-  const experiments = (data ?? []) as Experiment[];
-  const stats = computeStats(experiments);
+  const [expResult, leaderResult] = await Promise.all([
+    supabase.from('experiments').select('*').order('created_at', { ascending: false }),
+    supabase
+      .from('participant_profiles')
+      .select('participant_id, pseudonym, country, previous_study_count, completion_rate, reliability_score')
+      .not('completion_rate', 'is', null)
+      .gte('previous_study_count', 3)
+      .order('reliability_score', { ascending: false })
+      .limit(10),
+  ]);
+
+  const experiments = (expResult.data ?? []) as Experiment[];
+  const leaders     = (leaderResult.data ?? []) as LeaderRow[];
+  const stats       = computeStats(experiments);
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -37,6 +47,7 @@ export default async function HomePage() {
       />
       <div className="flex-1 max-w-screen-xl mx-auto w-full">
         <ExperimentDashboard experiments={experiments} stats={stats} />
+        <Leaderboard leaders={leaders} />
       </div>
       <footer
         className="text-center py-4 mono text-xs"
