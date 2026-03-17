@@ -6,6 +6,8 @@ export type PayoutStatus = 'pending' | 'paid' | 'failed';
 export type VerificationLevel = 'none' | 'biome' | 'institutional';
 export type UserRole = 'experimenter' | 'participant' | 'both';
 export type AuthType = 'email' | 'wallet';
+export type VerificationStatus = 'pending' | 'email_verified' | 'phone_verified' | 'fully_verified';
+export type ScreeningStatus = 'pending' | 'approved' | 'rejected';
 
 // ─── Row types ────────────────────────────────────────────────────────────────
 
@@ -75,6 +77,63 @@ export interface ExperimentUpdate {
   title: string;
   content: string;
   created_at: string;
+}
+
+// ─── Extended profile types ────────────────────────────────────────────────────
+
+export interface ParticipantProfile {
+  id: string;
+  user_id: string;
+  participant_id: string;       // P-XXXX-XXXX, immutable
+  pseudonym: string;            // AdjectiveNoun123, immutable
+  email_verified: boolean;
+  phone_number: string | null;
+  phone_verified: boolean;
+  country: string;
+  payout_country: string | null;
+  payout_currency: string | null;
+  verification_status: VerificationStatus;
+  // device_fingerprint, duplicate_score, flagged intentionally omitted — internal only
+  year_of_birth: number | null;
+  sex_assigned_at_birth: 'male' | 'female' | 'intersex' | 'prefer_not_to_say' | null;
+  gender_identity: string | null;
+  ethnicity: string | null;
+  nationality: string | null;
+  state_region: string | null;
+  urbanicity: 'urban' | 'suburban' | 'rural' | null;
+  smartphone_os: 'ios' | 'android' | 'both' | 'none' | null;
+  wearable_devices: string[] | null;
+  internet_reliability: 'stable' | 'intermittent' | 'limited' | null;
+  can_receive_kits: boolean | null;
+  sample_comfort: string[] | null;
+  language_fluency: string[] | null;
+  weekly_availability_hours: number | null;
+  previous_study_count: number;
+  recent_interventions: string | null;
+  washout_sensitive: boolean;
+  completion_rate: number | null;
+  dropout_count: number;
+  no_show_count: number;
+  onboarding_step: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExperimenterProfile {
+  id: string;
+  user_id: string;
+  org_name: string;
+  org_website: string | null;
+  org_description: string | null;
+  role_title: string | null;
+  expertise_areas: string[] | null;
+  screening_status: ScreeningStatus;
+  screened_at: string | null;
+  screened_by: string | null;
+  experiments_posted: number;
+  verified_experiments: number;
+  created_at: string;
+  updated_at: string;
 }
 
 // ─── Supabase Database type ────────────────────────────────────────────────────

@@ -79,7 +79,13 @@ export default function OnboardingPage() {
         throw new Error(data.error ?? 'Failed to create profile');
       }
 
-      router.replace('/');
+      // Route to role-specific onboarding next
+      if (selectedRole === 'experimenter') {
+        router.replace('/onboarding/experimenter');
+      } else {
+        // participant and both both go through participant onboarding first
+        router.replace('/onboarding/participant');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
