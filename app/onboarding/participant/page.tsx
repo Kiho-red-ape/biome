@@ -137,14 +137,11 @@ export default function ParticipantOnboardingPage() {
     void checkExisting(user.id);
   }, [ready, authenticated, user, checkExisting, router]);
 
-  // Derive phone from Privy linked accounts
-  const phoneAccount = user?.linkedAccounts?.find(
-    (a): a is { type: 'phone'; phoneNumber: string } => a.type === 'phone'
-  );
-  const linkedPhone = phoneAccount?.phoneNumber ?? null;
-  const emailAddress =
-    user?.linkedAccounts?.find((a): a is { type: 'email'; address: string } => a.type === 'email')
-      ?.address ?? null;
+  // Derive phone/email from Privy linked accounts
+  const phoneAccount = user?.linkedAccounts?.find(a => a.type === 'phone');
+  const linkedPhone = phoneAccount && 'number' in phoneAccount ? (phoneAccount as { number: string }).number : null;
+  const emailAccount = user?.linkedAccounts?.find(a => a.type === 'email');
+  const emailAddress = emailAccount && 'address' in emailAccount ? (emailAccount as { address: string }).address : null;
   const emailVerified = !!emailAddress;
   const phoneVerified = !!linkedPhone;
 

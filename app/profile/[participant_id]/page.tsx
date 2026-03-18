@@ -6,6 +6,18 @@ import { ageRange, reputationBadge, memberSince, countryFlag, categoryColor } fr
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+type ProfileRow = {
+  participant_id: string;
+  pseudonym: string;
+  country: string | null;
+  year_of_birth: number | null;
+  completion_rate: number | null;
+  reliability_score: number | null;
+  previous_study_count: number | null;
+  created_at: string;
+  user_id: string;
+};
+
 type AppRow = {
   id: string;
   status: string;
@@ -34,7 +46,7 @@ export default async function PublicProfilePage({
 
   const supabase = createAnonClient();
 
-  const { data: profile } = await supabase
+  const { data: profileData, error: profileError } = await supabase
     .from('participant_profiles')
     .select(
       'participant_id, pseudonym, country, year_of_birth, ' +
@@ -44,15 +56,17 @@ export default async function PublicProfilePage({
     .eq('participant_id', pid)
     .single();
 
-  if (!profile) notFound();
+  if (profileError || !profileData) notFound();
 
-  const { data: apps } = await supabase
+  const profile = profileData as unknown as ProfileRow;
+
+  const { data: appsData } = await supabase
     .from('applications')
     .select('id, status, applied_at, experiments(id, title, category, bounty_per_participant)')
     .eq('participant_id', profile.user_id)
     .order('applied_at', { ascending: false });
 
-  const applications = (apps ?? []) as AppRow[];
+  const applications = (appsData ?? []) as unknown as AppRow[];
   const completed    = applications.filter((a) => a.status === 'completed');
   const totalEarned  = completed.reduce((s, a) => s + (a.experiments?.bounty_per_participant ?? 0), 0);
   const badge        = reputationBadge(profile.completion_rate);
@@ -90,7 +104,7 @@ export default async function PublicProfilePage({
               </p>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
                 <span className="text-sm" style={{ color: 'var(--text-dim)' }}>
-                  {countryFlag(profile.country)} {profile.country}
+                  {countryFlag(profile.country ?? '')} {profile.country}
                 </span>
                 {profile.year_of_birth && (
                   <span
