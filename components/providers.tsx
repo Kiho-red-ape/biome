@@ -13,6 +13,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
           accentColor: '#4dff80',
           logo: '/logo.png',
         },
+        // Disable automatic embedded wallet creation — user must explicitly connect
+        embeddedWallets: {
+          ethereum: { createOnLogin: 'off' },
+          solana: { createOnLogin: 'off' },
+        },
       }}
     >
       {children}

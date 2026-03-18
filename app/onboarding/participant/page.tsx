@@ -169,6 +169,12 @@ export default function ParticipantOnboardingPage() {
 
       const data = (await res.json()) as { profile?: ParticipantProfile; error?: unknown };
 
+      // 409 = profile already exists — just go to dashboard
+      if (res.status === 409) {
+        router.replace('/dashboard');
+        return;
+      }
+
       if (!res.ok) {
         throw new Error(typeof data.error === 'string' ? data.error : 'Failed to create profile');
       }

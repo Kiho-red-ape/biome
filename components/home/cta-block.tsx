@@ -172,25 +172,11 @@ export function CtaBlock() {
             >
               Have a study? We find the right participants.
             </h2>
-            <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--text-dim)' }}>
+            <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--text-dim)' }}>
               Post an experiment, define your screening criteria, and run the cohort through
               a cleaner application workflow. BIOME handles the participant funnel — you focus
               on the science.
             </p>
-
-            <ul className="flex flex-col gap-2 mb-8">
-              {[
-                'Screened, verified participant pool',
-                'Bounty-based incentive structure',
-                'Optional BIOME Verified badge for credibility',
-                '2.5% platform fee on completed payouts',
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm" style={{ color: 'var(--text-dim)' }}>
-                  <span style={{ color: 'var(--green)', flexShrink: 0 }}>✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
           </div>
 
           <div className="flex flex-wrap gap-3">

@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ profile: data as Profile });
 }
 
-// POST /api/profile — create profile on first login
+// POST /api/profile — upsert profile on login (handles re-onboarding gracefully)
 export async function POST(request: NextRequest) {
   const body: unknown = await request.json();
   const parsed = createProfileSchema.safeParse(body);
@@ -50,16 +50,19 @@ export async function POST(request: NextRequest) {
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('profiles')
-    .insert({
-      id: privyDid,
-      auth_type: authType,
-      wallet_address: walletAddress ?? null,
-      display_name: displayName,
-      bio: null,
-      role,
-      region: region ?? null,
-      avatar_url: null,
-    })
+    .upsert(
+      {
+        id: privyDid,
+        auth_type: authType,
+        wallet_address: walletAddress ?? null,
+        display_name: displayName,
+        bio: null,
+        role,
+        region: region ?? null,
+        avatar_url: null,
+      },
+      { onConflict: 'id' }
+    )
     .select()
     .single();
 
@@ -67,5 +70,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ profile: data as Profile }, { status: 201 });
+  return NextResponse.json({ profile: data as Profile }, { status: 200 });
 }

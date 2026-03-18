@@ -2,6 +2,7 @@ import { createAnonClient } from '@/lib/supabase/anon';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Identicon } from '@/components/identicon';
+import { ProfileEditSections } from '@/components/profile/edit-sections';
 import { ageRange, reputationBadge, memberSince, countryFlag, categoryColor } from '@/lib/utils/profile';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -224,6 +225,9 @@ export default async function PublicProfilePage({
             </div>
           )}
         </div>
+
+        {/* Edit sections — only visible to profile owner (client-side auth check) */}
+        <ProfileEditSections participantId={pid} />
 
       </div>
     </main>
