@@ -164,7 +164,7 @@ export function CtaBlock() {
         >
           <div>
             <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)' }}>
-              // FOR_BRANDS_AND_RESEARCHERS
+              // FOR_RESEARCHERS
             </p>
             <h2
               className="text-lg font-black mb-3 leading-snug"
@@ -173,9 +173,8 @@ export function CtaBlock() {
               Have a study? We find the right participants.
             </h2>
             <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--text-dim)' }}>
-              Post an experiment, define your screening criteria, and run the cohort through
-              a cleaner application workflow. BIOME handles the participant funnel — you focus
-              on the science.
+              Post your study, define eligibility criteria, and get a shortlist of screened,
+              verified participants — not a pile of junk applications.
             </p>
           </div>
 
@@ -185,7 +184,7 @@ export function CtaBlock() {
               className="mono text-xs px-5 py-2.5 rounded font-bold no-underline transition-all hover:opacity-90"
               style={{ background: 'var(--green)', color: '#050709' }}
             >
-              Post a bounty →
+              Post a study →
             </a>
             <a
               href="mailto:kishore@biome.to"

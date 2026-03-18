@@ -27,7 +27,7 @@ export default async function HomePage() {
   const supabase = createAnonClient();
 
   const [expResult, leaderResult, orgResult] = await Promise.all([
-    supabase.from('experiments').select('*').order('created_at', { ascending: false }),
+    supabase.from('experiments').select('*').neq('status', 'draft').order('created_at', { ascending: false }),
     supabase
       .from('participant_profiles')
       .select('participant_id, pseudonym, country, previous_study_count, completion_rate, reliability_score')

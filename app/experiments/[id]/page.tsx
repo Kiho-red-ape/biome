@@ -1,8 +1,10 @@
 import { createAnonClient } from '@/lib/supabase/anon';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { Identicon } from '@/components/identicon';
-import type { Experiment, ExperimentStatus, Comment } from '@/lib/types';
+import type { Experiment, ExperimentStatus } from '@/lib/types';
+import { QASection } from '@/components/qa/qa-section';
+import type { Question, QAComment } from '@/components/qa/qa-section';
+import { DraftBanner } from '@/components/experiments/draft-banner';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -14,40 +16,8 @@ const STATUS_CONFIG: Record<ExperimentStatus, { label: string; color: string }> 
   cancelled:  { label: 'CANCELLED',  color: 'var(--amber)'    },
 };
 
-type ParticipantMeta = { participant_id: string; pseudonym: string };
-
-type CommentWithProfile = Comment & {
-  profiles: {
-    display_name: string | null;
-    region: string | null;
-    // participant_profiles is an array in Supabase nested select (1-to-many FK direction)
-    participant_profiles: ParticipantMeta[] | null;
-  } | null;
-};
-
 interface Props {
   params: Promise<{ id: string }>;
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function relativeTime(dateStr: string): string {
-  const diffMs = Date.now() - new Date(dateStr).getTime();
-  const diffDays = Math.floor(diffMs / 86_400_000);
-  if (diffDays === 0) return 'today';
-  if (diffDays === 1) return '1d ago';
-  if (diffDays < 30) return `${diffDays}d ago`;
-  const diffMonths = Math.floor(diffDays / 30);
-  return `${diffMonths}mo ago`;
-}
-
-const HANDLE_COLORS = [
-  'var(--green)', 'var(--cyan)', 'var(--amber)', '#a78bfa', '#f97316', '#34d399',
-];
-function handleColor(name: string): string {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffff;
-  return HANDLE_COLORS[h % HANDLE_COLORS.length];
 }
 
 function criteriaList(text: string | null) {
@@ -71,7 +41,7 @@ export default async function ExperimentPage({ params }: Props) {
       .from('comments')
       .select('*, profiles!author_id(display_name, region, participant_profiles(participant_id, pseudonym))')
       .eq('experiment_id', id)
-      .order('upvotes', { ascending: false }),
+      .order('created_at', { ascending: true }),
   ]);
 
   if (!expResult.data) notFound();
@@ -80,20 +50,29 @@ export default async function ExperimentPage({ params }: Props) {
     profiles: { display_name: string | null; bio: string | null; region: string | null } | null;
   };
 
-  // Fetch experimenter org profile (separate query — no direct FK between experiments and experimenter_profiles)
+  // Fetch experimenter org profile
   const { data: orgData } = await supabase
     .from('experimenter_profiles')
     .select('id, org_name')
     .eq('user_id', exp.experimenter_id)
     .maybeSingle();
   const orgProfile = orgData as { id: string; org_name: string } | null;
-  const allComments = (commentsResult.data ?? []) as CommentWithProfile[];
-  const topLevel = allComments.filter((c) => !c.parent_id);
-  const repliesFor = (parentId: string) =>
-    allComments.filter((c) => c.parent_id === parentId);
 
-  const st = STATUS_CONFIG[exp.status] ?? STATUS_CONFIG.draft;
-  const slotPct = exp.slots_total > 0 ? (exp.slots_filled / exp.slots_total) * 100 : 0;
+  // Build Q&A structure: top-level = questions, children = replies
+  const allComments = (commentsResult.data ?? []) as QAComment[];
+  const replyMap: Record<string, QAComment[]> = {};
+  for (const c of allComments) {
+    if (c.parent_id) {
+      if (!replyMap[c.parent_id]) replyMap[c.parent_id] = [];
+      replyMap[c.parent_id].push(c);
+    }
+  }
+  const questions: Question[] = allComments
+    .filter((c) => !c.parent_id)
+    .map((c) => ({ ...c, replies: replyMap[c.id] ?? [] }));
+
+  const st        = STATUS_CONFIG[exp.status] ?? STATUS_CONFIG.draft;
+  const slotPct   = exp.slots_total > 0 ? (exp.slots_filled / exp.slots_total) * 100 : 0;
   const slotsLeft = exp.slots_total - exp.slots_filled;
   const inclusion = criteriaList(exp.inclusion_criteria);
   const exclusion = criteriaList(exp.exclusion_criteria);
@@ -104,13 +83,23 @@ export default async function ExperimentPage({ params }: Props) {
       {/* ── Top nav ── */}
       <header
         className="sticky top-0 z-50 flex items-center justify-between px-6 py-3"
-        style={{ background: 'rgba(7,12,7,0.92)', borderBottom: '1px solid rgba(77,255,128,0.08)', backdropFilter: 'blur(12px)' }}
+        style={{
+          background: 'rgba(7,12,7,0.92)',
+          borderBottom: '1px solid rgba(77,255,128,0.08)',
+          backdropFilter: 'blur(12px)',
+        }}
       >
-        <Link href="/" className="mono text-xs flex items-center gap-2 no-underline" style={{ color: 'var(--text-dim)' }}>
+        <Link href="/" className="mono text-xs flex items-center gap-2 no-underline"
+          style={{ color: 'var(--text-dim)' }}>
           ← <span style={{ color: 'var(--green)', fontWeight: 800, letterSpacing: '0.18em' }}>BIOME</span>
         </Link>
         <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// EXPERIMENT_DETAIL</span>
       </header>
+
+      {/* ── Draft banner (client component — detects experimenter ownership) ── */}
+      {exp.status === 'draft' && (
+        <DraftBanner experimentId={exp.id} experimenterUserId={exp.experimenter_id} />
+      )}
 
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-10">
 
@@ -122,7 +111,8 @@ export default async function ExperimentPage({ params }: Props) {
         </p>
 
         {/* ── Title block ── */}
-        <div className="corner-bracket p-6 rounded mb-8" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}>
+        <div className="corner-bracket p-6 rounded mb-8"
+          style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}>
           <div className="flex flex-wrap items-center gap-3 mb-3">
             <span className="mono text-xs px-2 py-0.5 rounded"
               style={{ color: 'var(--text-dim)', border: '1px solid rgba(77,255,128,0.1)' }}>
@@ -135,31 +125,29 @@ export default async function ExperimentPage({ params }: Props) {
           </div>
           <h1 className="text-2xl md:text-3xl mb-2">{exp.title}</h1>
           <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-            by {orgProfile?.org_name ?? exp.profiles?.display_name ?? 'Unknown'} · {exp.is_remote ? 'Remote' : (exp.region ?? 'In-person')}
+            by {orgProfile?.org_name ?? exp.profiles?.display_name ?? 'Unknown'}
+            {' · '}{exp.is_remote ? 'Remote' : (exp.region ?? 'In-person')}
           </p>
         </div>
 
         {/* ── Two-column layout ── */}
         <div className="grid md:grid-cols-3 gap-8">
 
-          {/* ════════════════════════════════════════
-              LEFT PANEL — experiment detail
-          ════════════════════════════════════════ */}
+          {/* ════ LEFT PANEL ════ */}
           <div className="md:col-span-2 flex flex-col gap-6">
 
             {/* Who's running this */}
-            <section className="p-6 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
+            <section className="p-6 rounded"
+              style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
               <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// WHO&apos;S RUNNING THIS</p>
               <div className="flex items-start justify-between gap-3 mb-1">
                 <p className="font-semibold" style={{ color: 'var(--text-white)' }}>
                   {orgProfile?.org_name ?? exp.profiles?.display_name ?? 'Unknown'}
                 </p>
                 {orgProfile && (
-                  <Link
-                    href={`/org/${orgProfile.id}`}
+                  <Link href={`/org/${orgProfile.id}`}
                     className="mono text-xs no-underline transition-opacity hover:opacity-80 flex-shrink-0"
-                    style={{ color: 'var(--cyan)' }}
-                  >
+                    style={{ color: 'var(--cyan)' }}>
                     View org profile ↗
                   </Link>
                 )}
@@ -184,16 +172,18 @@ export default async function ExperimentPage({ params }: Props) {
             </section>
 
             {/* About */}
-            <section className="p-6 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
-              <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// ABOUT THIS EXPERIMENT</p>
+            <section className="p-6 rounded"
+              style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
+              <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// ABOUT THIS STUDY</p>
               <p className="text-sm leading-relaxed" style={{ color: 'var(--text-bright)' }}>
                 {exp.description}
               </p>
             </section>
 
-            {/* What you'll do */}
+            {/* What you'll need to do */}
             {exp.tests_needed && (
-              <section className="p-6 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
+              <section className="p-6 rounded"
+                style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
                 <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// WHAT YOU&apos;LL NEED TO DO</p>
                 <p className="text-sm leading-relaxed" style={{ color: 'var(--text-bright)' }}>
                   {exp.tests_needed}
@@ -201,9 +191,10 @@ export default async function ExperimentPage({ params }: Props) {
               </section>
             )}
 
-            {/* Inclusion criteria */}
+            {/* Inclusion */}
             {inclusion && (
-              <section className="p-6 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
+              <section className="p-6 rounded"
+                style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
                 <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// WHO CAN JOIN</p>
                 <ul className="flex flex-col gap-2">
                   {inclusion.map((line, i) => (
@@ -216,9 +207,10 @@ export default async function ExperimentPage({ params }: Props) {
               </section>
             )}
 
-            {/* Exclusion criteria */}
+            {/* Exclusion */}
             {exclusion && (
-              <section className="p-6 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
+              <section className="p-6 rounded"
+                style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
                 <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// WHO CANNOT JOIN</p>
                 <ul className="flex flex-col gap-2">
                   {exclusion.map((line, i) => (
@@ -231,19 +223,10 @@ export default async function ExperimentPage({ params }: Props) {
               </section>
             )}
 
-            {/* Ethics & Approval */}
-            {exp.iec_approval && (
-              <section className="p-6 rounded" style={{ background: 'rgba(77,255,128,0.02)', border: '1px solid rgba(77,255,128,0.1)' }}>
-                <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// ETHICS &amp; APPROVAL</p>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-bright)' }}>
-                  {exp.iec_approval}
-                </p>
-              </section>
-            )}
-
-            {/* Eligibility + Sign up CTA */}
+            {/* Sign up CTA */}
             {exp.status === 'recruiting' && (
-              <section className="p-6 rounded" style={{ background: 'rgba(77,255,128,0.04)', border: '1px solid var(--green-dim)' }}>
+              <section className="p-6 rounded"
+                style={{ background: 'rgba(77,255,128,0.04)', border: '1px solid var(--green-dim)' }}>
                 <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// PARTICIPATE</p>
                 <p className="text-sm mb-4" style={{ color: 'var(--text-bright)' }}>
                   Earn{' '}
@@ -272,13 +255,12 @@ export default async function ExperimentPage({ params }: Props) {
 
           </div>
 
-          {/* ════════════════════════════════════════
-              RIGHT PANEL — stats + discussion
-          ════════════════════════════════════════ */}
+          {/* ════ RIGHT PANEL ════ */}
           <div className="flex flex-col gap-5">
 
             {/* Reward */}
-            <div className="p-5 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
+            <div className="p-5 rounded"
+              style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
               <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>BOUNTY / PARTICIPANT</p>
               <p className="text-3xl font-black mono" style={{ color: 'var(--green)' }}>
                 ${exp.bounty_per_participant.toFixed(0)}
@@ -289,10 +271,13 @@ export default async function ExperimentPage({ params }: Props) {
             </div>
 
             {/* Slots */}
-            <div className="p-5 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
+            <div className="p-5 rounded"
+              style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
               <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)' }}>SLOTS</p>
-              <div className="w-full h-1.5 rounded overflow-hidden mb-2" style={{ background: 'rgba(77,255,128,0.08)' }}>
-                <div className="h-1.5 rounded" style={{ width: `${slotPct}%`, background: slotPct >= 90 ? 'var(--amber)' : 'var(--green-dim)' }} />
+              <div className="w-full h-1.5 rounded overflow-hidden mb-2"
+                style={{ background: 'rgba(77,255,128,0.08)' }}>
+                <div className="h-1.5 rounded"
+                  style={{ width: `${slotPct}%`, background: slotPct >= 90 ? 'var(--amber)' : 'var(--green-dim)' }} />
               </div>
               <p className="mono text-sm tabular-nums" style={{ color: 'var(--text-bright)' }}>
                 {exp.slots_filled} / {exp.slots_total}
@@ -304,7 +289,8 @@ export default async function ExperimentPage({ params }: Props) {
 
             {/* Duration */}
             {exp.duration_weeks && (
-              <div className="p-5 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
+              <div className="p-5 rounded"
+                style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
                 <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>DURATION</p>
                 <p className="mono text-lg font-black" style={{ color: 'var(--text-bright)' }}>
                   {exp.duration_weeks} weeks
@@ -312,102 +298,17 @@ export default async function ExperimentPage({ params }: Props) {
               </div>
             )}
 
-            {/* ─── Discussion ─────────────────────────────────── */}
-            <div className="rounded overflow-hidden" style={{ border: '1px solid rgba(77,255,128,0.06)' }}>
-              <div className="px-4 py-3" style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.06)' }}>
-                <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                  // DISCUSSION
-                  <span className="ml-2" style={{ color: 'var(--green)' }}>[{allComments.length}]</span>
-                </p>
-              </div>
-
-              {allComments.length === 0 ? (
-                <div className="px-4 py-8 text-center" style={{ background: 'var(--bg)' }}>
-                  <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                    No comments yet. Be the first.
-                  </p>
-                </div>
-              ) : (
-                <div className="flex flex-col divide-y" style={{ background: 'var(--bg)', borderColor: 'rgba(77,255,128,0.04)' }}>
-                  {topLevel.map((comment) => (
-                    <CommentThread
-                      key={comment.id}
-                      comment={comment}
-                      replies={repliesFor(comment.id)}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Q&A */}
+            <QASection
+              experimentId={exp.id}
+              experimenterUserId={exp.experimenter_id}
+              orgName={orgProfile?.org_name ?? null}
+              initialQuestions={questions}
+            />
 
           </div>
         </div>
       </div>
     </main>
-  );
-}
-
-// ─── Comment components ───────────────────────────────────────────────────────
-
-function CommentBubble({ comment, indent = false }: { comment: CommentWithProfile; indent?: boolean }) {
-  // Prefer pseudonym (participant) over display_name (experimenter / anon)
-  const pp          = comment.profiles?.participant_profiles?.[0] ?? null;
-  const displayName = pp?.pseudonym ?? comment.profiles?.display_name ?? 'anon';
-  const profileHref = pp ? `/profile/${pp.participant_id}` : null;
-  const region      = comment.profiles?.region;
-  const color       = handleColor(displayName);
-
-  return (
-    <div
-      className="px-4 py-3"
-      style={{
-        background: indent ? 'rgba(77,255,128,0.015)' : 'transparent',
-        borderLeft: indent ? '2px solid rgba(77,255,128,0.12)' : 'none',
-        marginLeft: indent ? '12px' : '0',
-      }}
-    >
-      {/* Meta row */}
-      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-        {pp && <Identicon participantId={pp.participant_id} size={24} />}
-        {profileHref ? (
-          <Link href={profileHref} className="mono text-xs font-bold no-underline hover:underline" style={{ color }}>
-            {displayName}
-          </Link>
-        ) : (
-          <span className="mono text-xs font-bold" style={{ color }}>{displayName}</span>
-        )}
-        {region && (
-          <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>{region}</span>
-        )}
-        <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-          · {relativeTime(comment.created_at)}
-        </span>
-        <span className="mono text-xs ml-auto flex items-center gap-1" style={{ color: 'var(--text-dim)' }}>
-          <span style={{ color: 'var(--green)', fontSize: '10px' }}>▲</span>
-          {comment.upvotes}
-        </span>
-      </div>
-
-      {/* Content */}
-      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-bright)', fontSize: '0.82rem' }}>
-        {comment.content}
-      </p>
-
-      {/* Reply stub */}
-      <button className="mono mt-2 transition-opacity hover:opacity-80" style={{ color: 'var(--text-dim)', fontSize: '0.7rem' }}>
-        reply ↩
-      </button>
-    </div>
-  );
-}
-
-function CommentThread({ comment, replies }: { comment: CommentWithProfile; replies: CommentWithProfile[] }) {
-  return (
-    <div>
-      <CommentBubble comment={comment} />
-      {replies.map((r) => (
-        <CommentBubble key={r.id} comment={r} indent />
-      ))}
-    </div>
   );
 }

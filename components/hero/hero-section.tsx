@@ -162,13 +162,13 @@ export function HeroSection({ stats }: Props) {
               textShadow: '0 0 48px rgba(77,255,128,0.28)',
             }}
           >
-            Earn from your biology.
+            Get paid to participate.
           </span>
         </h1>
 
         <p className="text-sm leading-relaxed mb-8 max-w-lg" style={{ color: 'var(--text-dim)' }}>
-          Your body generates data every day. Biome turns that into structured participation
-          in paid experiments — from sleep research to longevity trials.
+          Biome helps modern studies recruit better-fit participants and run cleaner
+          screening workflows.
         </p>
 
         {/* Stat pills */}
@@ -203,7 +203,7 @@ export function HeroSection({ stats }: Props) {
             className="mono text-xs px-6 py-2.5 rounded font-bold no-underline transition-all hover:opacity-80"
             style={{ border: '1px solid var(--green-dim)', color: 'var(--green)', background: 'transparent' }}
           >
-            POST A BOUNTY
+            POST A STUDY →
           </Link>
         </div>
       </div>

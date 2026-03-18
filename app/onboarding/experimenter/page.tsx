@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 
 const EXPERTISE_OPTIONS = [
-  'Microbiome', 'Nutrition', 'Sleep', 'Psychedelics', 'Fitness',
-  'Longevity', 'Mental Health', 'Metabolomics', 'Genetics', 'Clinical',
-  'DeSci', 'Other',
+  'Microbiome', 'Nutrition', 'Sleep', 'Wearables',
+  'Longevity', 'Quantified Self', 'Mental Health', 'Metabolomics',
 ];
 
 export default function ExperimenterOnboardingPage() {
