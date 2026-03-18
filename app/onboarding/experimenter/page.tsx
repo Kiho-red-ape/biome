@@ -32,7 +32,7 @@ export default function ExperimenterOnboardingPage() {
           <button
             onClick={() => router.replace('/')}
             className="w-full py-3 rounded font-semibold text-sm transition-all hover:opacity-90"
-            style={{ background: 'var(--green)', color: 'var(--bg)' }}
+            style={{ background: 'var(--green)', color: '#050709' }}
           >
             Go to dashboard →
           </button>

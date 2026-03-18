@@ -205,7 +205,7 @@ export default function OnboardingPage() {
               className="w-full py-3 rounded font-semibold text-sm transition-all disabled:opacity-40"
               style={{
                 background: 'var(--green)',
-                color: 'var(--bg)',
+                color: '#050709',
               }}
             >
               {loading ? 'Creating profile...' : 'Enter BIOME →'}

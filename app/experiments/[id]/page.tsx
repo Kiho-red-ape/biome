@@ -1,6 +1,7 @@
 import { createAnonClient } from '@/lib/supabase/anon';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { Identicon } from '@/components/identicon';
 import type { Experiment, ExperimentStatus, Comment } from '@/lib/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -78,6 +79,14 @@ export default async function ExperimentPage({ params }: Props) {
   const exp = expResult.data as Experiment & {
     profiles: { display_name: string | null; bio: string | null; region: string | null } | null;
   };
+
+  // Fetch experimenter org profile (separate query — no direct FK between experiments and experimenter_profiles)
+  const { data: orgData } = await supabase
+    .from('experimenter_profiles')
+    .select('id, org_name')
+    .eq('user_id', exp.experimenter_id)
+    .maybeSingle();
+  const orgProfile = orgData as { id: string; org_name: string } | null;
   const allComments = (commentsResult.data ?? []) as CommentWithProfile[];
   const topLevel = allComments.filter((c) => !c.parent_id);
   const repliesFor = (parentId: string) =>
@@ -126,7 +135,7 @@ export default async function ExperimentPage({ params }: Props) {
           </div>
           <h1 className="text-2xl md:text-3xl mb-2">{exp.title}</h1>
           <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-            by {exp.profiles?.display_name ?? 'Unknown'} · {exp.is_remote ? 'Remote' : (exp.region ?? 'In-person')}
+            by {orgProfile?.org_name ?? exp.profiles?.display_name ?? 'Unknown'} · {exp.is_remote ? 'Remote' : (exp.region ?? 'In-person')}
           </p>
         </div>
 
@@ -141,9 +150,20 @@ export default async function ExperimentPage({ params }: Props) {
             {/* Who's running this */}
             <section className="p-6 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
               <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// WHO&apos;S RUNNING THIS</p>
-              <p className="font-semibold mb-1" style={{ color: 'var(--text-white)' }}>
-                {exp.profiles?.display_name ?? 'Unknown'}
-              </p>
+              <div className="flex items-start justify-between gap-3 mb-1">
+                <p className="font-semibold" style={{ color: 'var(--text-white)' }}>
+                  {orgProfile?.org_name ?? exp.profiles?.display_name ?? 'Unknown'}
+                </p>
+                {orgProfile && (
+                  <Link
+                    href={`/org/${orgProfile.id}`}
+                    className="mono text-xs no-underline transition-opacity hover:opacity-80 flex-shrink-0"
+                    style={{ color: 'var(--cyan)' }}
+                  >
+                    View org profile ↗
+                  </Link>
+                )}
+              </div>
               {exp.profiles?.bio && (
                 <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-dim)' }}>
                   {exp.profiles.bio}
@@ -235,7 +255,7 @@ export default async function ExperimentPage({ params }: Props) {
                 <div className="flex flex-wrap gap-3">
                   <button
                     className="px-5 py-2.5 rounded font-bold mono text-sm transition-all hover:opacity-90"
-                    style={{ background: 'var(--green)', color: 'var(--bg)' }}>
+                    style={{ background: 'var(--green)', color: '#050709' }}>
                     SIGN UP →
                   </button>
                   <button
@@ -348,6 +368,7 @@ function CommentBubble({ comment, indent = false }: { comment: CommentWithProfil
     >
       {/* Meta row */}
       <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+        {pp && <Identicon participantId={pp.participant_id} size={24} />}
         {profileHref ? (
           <Link href={profileHref} className="mono text-xs font-bold no-underline hover:underline" style={{ color }}>
             {displayName}

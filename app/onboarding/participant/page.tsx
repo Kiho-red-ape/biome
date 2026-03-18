@@ -53,7 +53,7 @@ function StepIndicator({ current }: { current: number }) {
                 className="mono text-xs w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
                 style={{
                   background: active ? 'var(--green)' : done ? 'var(--green-dim)' : 'var(--bg3)',
-                  color: active ? 'var(--bg)' : done ? 'var(--text-dim)' : 'var(--text-dim)',
+                  color: active ? '#050709' : done ? 'var(--text-dim)' : 'var(--text-dim)',
                   border: active ? 'none' : '1px solid rgba(77,255,128,0.12)',
                 }}
               >
@@ -253,7 +253,7 @@ export default function ParticipantOnboardingPage() {
             <button
               onClick={() => router.replace('/dashboard')}
               className="w-full py-3 rounded font-semibold text-sm transition-all hover:opacity-90"
-              style={{ background: 'var(--green)', color: 'var(--bg)' }}
+              style={{ background: 'var(--green)', color: '#050709' }}
             >
               Enter BIOME →
             </button>
@@ -403,7 +403,7 @@ export default function ParticipantOnboardingPage() {
               type="submit"
               disabled={!canSubmit}
               className="w-full py-3 rounded font-semibold text-sm transition-all disabled:opacity-40 hover:opacity-90"
-              style={{ background: 'var(--green)', color: 'var(--bg)' }}
+              style={{ background: 'var(--green)', color: '#050709' }}
             >
               {loading ? '// GENERATING_IDENTITY...' : 'Confirm & generate my participant ID →'}
             </button>

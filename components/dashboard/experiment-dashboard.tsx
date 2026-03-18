@@ -2,7 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import type { Experiment, ExperimentStatus } from '@/lib/types';
+import type { OrgMap } from '@/app/page';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -19,6 +21,7 @@ interface Stats {
 interface Props {
   experiments: Experiment[];
   stats: Stats;
+  orgMap: OrgMap;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -77,7 +80,7 @@ function SlotBar({ filled, total }: { filled: number; total: number }) {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
-export function ExperimentDashboard({ experiments, stats }: Props) {
+export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
   const router = useRouter();
 
   const [expandedId,  setExpandedId]  = useState<string | null>(null);
@@ -281,14 +284,26 @@ export function ExperimentDashboard({ experiments, stats }: Props) {
                             style={{ color: 'var(--text-bright)', maxWidth: '300px' }}>
                             {exp.title}
                           </span>
-                          <span className="mono text-xs inline-flex items-center gap-1 self-start px-1.5 py-px rounded"
-                            style={{
-                              color: categoryColor(exp.category),
-                              border: `1px solid ${categoryColor(exp.category)}30`,
-                              background: `${categoryColor(exp.category)}08`,
-                            }}>
-                            {exp.category.toUpperCase()}
-                          </span>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="mono text-xs inline-flex items-center gap-1 self-start px-1.5 py-px rounded"
+                              style={{
+                                color: categoryColor(exp.category),
+                                border: `1px solid ${categoryColor(exp.category)}30`,
+                                background: `${categoryColor(exp.category)}08`,
+                              }}>
+                              {exp.category.toUpperCase()}
+                            </span>
+                            {orgMap[exp.experimenter_id] && (
+                              <Link
+                                href={`/org/${orgMap[exp.experimenter_id].id}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="mono text-xs no-underline transition-opacity hover:opacity-80"
+                                style={{ color: 'var(--text-dim)' }}
+                              >
+                                {orgMap[exp.experimenter_id].org_name} ↗
+                              </Link>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -378,7 +393,7 @@ export function ExperimentDashboard({ experiments, stats }: Props) {
                               <button
                                 onClick={(e) => { e.stopPropagation(); router.push(`/experiments/${exp.id}`); }}
                                 className="mono text-xs px-5 py-2.5 rounded font-bold transition-all hover:opacity-90 whitespace-nowrap"
-                                style={{ background: 'var(--green)', color: 'var(--bg)' }}
+                                style={{ background: 'var(--green)', color: '#050709' }}
                               >
                                 READ MORE →
                               </button>
