@@ -54,7 +54,10 @@ export async function POST(request: NextRequest) {
         org_description: org_description ?? null,
         role_title: role_title ?? null,
         expertise_areas: expertise_areas ?? null,
-        screening_status: 'pending',
+        // DEMO MODE: auto-approve. Remove this and implement manual review for production.
+        screening_status: 'approved',
+        screened_at: new Date().toISOString(),
+        screened_by: 'auto',
       },
       { onConflict: 'user_id' }
     )

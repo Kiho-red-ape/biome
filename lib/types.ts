@@ -1,7 +1,7 @@
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
 export type ExperimentStatus = 'draft' | 'recruiting' | 'active' | 'completed' | 'cancelled';
-export type ApplicationStatus = 'applied' | 'approved' | 'rejected' | 'completed' | 'withdrawn';
+export type ApplicationStatus = 'applied' | 'approved' | 'rejected' | 'waitlisted' | 'completed' | 'withdrawn';
 export type PayoutStatus = 'pending' | 'paid' | 'failed';
 export type VerificationLevel = 'none' | 'biome' | 'institutional';
 export type UserRole = 'experimenter' | 'participant' | 'both';
@@ -45,8 +45,18 @@ export interface Experiment {
   inclusion_criteria: string | null;
   exclusion_criteria: string | null;
   iec_approval: string | null;
+  launch_date: string | null;
+  amendment_log: AmendmentEntry[];
   created_at: string;
   updated_at: string;
+}
+
+export interface AmendmentEntry {
+  ts: string;
+  field: string;
+  old_value: string;
+  new_value: string;
+  edited_by: string;
 }
 
 export interface Application {

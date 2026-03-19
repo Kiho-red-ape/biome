@@ -173,6 +173,18 @@ export function SiteHeader() {
                     DASHBOARD
                   </Link>
                 )}
+                {navProfile?.kind === 'experimenter' && (
+                  <Link
+                    href="/dashboard/experiments"
+                    onClick={() => setDropOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 mono text-xs no-underline transition-colors"
+                    style={{ color: 'var(--text-dim)' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(77,255,128,0.04)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    MY STUDIES
+                  </Link>
+                )}
                 {!navProfile && (
                   <Link
                     href="/onboarding"

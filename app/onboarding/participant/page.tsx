@@ -263,6 +263,13 @@ export default function ParticipantOnboardingPage() {
             >
               Enter BIOME →
             </button>
+            <button
+              onClick={() => router.replace('/onboarding/experimenter')}
+              className="w-full py-2.5 rounded text-sm mono transition-all hover:opacity-80"
+              style={{ color: 'var(--text-dim)', border: '1px solid rgba(77,255,128,0.12)' }}
+            >
+              Also set up an organization →
+            </button>
           </div>
         </div>
       </main>

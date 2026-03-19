@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 
@@ -33,6 +34,7 @@ export default function OnboardingPage() {
   const [region, setRegion] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState<Role | null>(null); // role after success
 
   if (!ready) {
     return (
@@ -79,18 +81,59 @@ export default function OnboardingPage() {
         throw new Error(data.error ?? 'Failed to create profile');
       }
 
-      // Route to role-specific onboarding next
-      if (selectedRole === 'experimenter') {
-        router.replace('/onboarding/experimenter');
-      } else {
-        // participant and both both go through participant onboarding first
-        router.replace('/onboarding/participant');
-      }
+      // Show success panel — user picks their next step
+      setDone(selectedRole);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setLoading(false);
     }
+  }
+
+  // ── Success panel ───────────────────────────────────────────────────────────
+  if (done) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4 py-16">
+        <div className="w-full max-w-lg rounded p-px" style={{ background: 'var(--green-dim)' }}>
+          <div className="rounded p-8 flex flex-col gap-5" style={{ background: 'var(--bg2)' }}>
+            <p className="mono text-xs" style={{ color: 'var(--green)' }}>// PROFILE_CREATED</p>
+            <h2 className="text-xl font-black" style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}>
+              Basic profile created. Complete your setup.
+            </h2>
+            <p className="text-sm" style={{ color: 'var(--text-dim)' }}>
+              Choose what to set up next. You can do both if you selected &ldquo;Both&rdquo;.
+            </p>
+            <div className="flex flex-col gap-3 pt-1">
+              {(done === 'participant' || done === 'both') && (
+                <Link
+                  href="/onboarding/participant"
+                  className="w-full py-3 rounded font-semibold text-sm text-center mono no-underline transition-all hover:opacity-90"
+                  style={{ background: 'var(--green)', color: '#050709' }}
+                >
+                  Set up participant identity →
+                </Link>
+              )}
+              {(done === 'experimenter' || done === 'both') && (
+                <Link
+                  href="/onboarding/experimenter"
+                  className="w-full py-3 rounded font-semibold text-sm text-center mono no-underline transition-all hover:opacity-90"
+                  style={{ background: done === 'experimenter' ? 'var(--green)' : 'transparent', color: done === 'experimenter' ? '#050709' : 'var(--green)', border: done === 'both' ? '1px solid var(--green-dim)' : 'none' }}
+                >
+                  Set up organization profile →
+                </Link>
+              )}
+              <button
+                onClick={() => router.push('/')}
+                className="w-full py-2.5 rounded text-sm mono transition-all hover:opacity-70"
+                style={{ color: 'var(--text-dim)', border: '1px solid rgba(77,255,128,0.1)' }}
+              >
+                Skip — explore BIOME first
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   return (

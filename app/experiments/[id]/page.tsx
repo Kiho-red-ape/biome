@@ -1,7 +1,7 @@
 import { createAnonClient } from '@/lib/supabase/anon';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import type { Experiment, ExperimentStatus } from '@/lib/types';
+import type { Experiment, ExperimentStatus, AmendmentEntry } from '@/lib/types';
 import { QASection } from '@/components/qa/qa-section';
 import type { Question, QAComment } from '@/components/qa/qa-section';
 import { DraftBanner } from '@/components/experiments/draft-banner';
@@ -48,6 +48,7 @@ export default async function ExperimentPage({ params }: Props) {
 
   const exp = expResult.data as Experiment & {
     profiles: { display_name: string | null; bio: string | null; region: string | null } | null;
+    amendment_log: AmendmentEntry[] | null;
   };
 
   // Fetch experimenter org profile
@@ -220,6 +221,33 @@ export default async function ExperimentPage({ params }: Props) {
                     </li>
                   ))}
                 </ul>
+              </section>
+            )}
+
+            {/* Amendment log */}
+            {exp.amendment_log && exp.amendment_log.length > 0 && (
+              <section className="p-6 rounded"
+                style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
+                <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// AMENDMENTS</p>
+                <div className="flex flex-col gap-2">
+                  {[...exp.amendment_log].reverse().map((a, i) => (
+                    <div key={i} className="flex flex-wrap items-center gap-2 text-xs">
+                      <span className="mono" style={{ color: 'var(--text-dim)' }}>
+                        {new Date(a.ts).toLocaleDateString()}
+                      </span>
+                      <span className="mono px-1.5 py-0.5 rounded"
+                        style={{ background: 'rgba(77,255,128,0.06)', border: '1px solid rgba(77,255,128,0.1)', color: 'var(--green)' }}>
+                        {a.field}
+                      </span>
+                      <span className="mono" style={{ color: 'var(--text-dim)' }}>
+                        changed from{' '}
+                        <span style={{ color: 'var(--amber)' }}>{a.old_value || '—'}</span>
+                        {' to '}
+                        <span style={{ color: 'var(--text-bright)' }}>{a.new_value || '—'}</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </section>
             )}
 
