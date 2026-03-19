@@ -66,6 +66,7 @@ interface Props {
   privyDid: string;
   initialApplicants: ApplicantRow[];
   experiment: ExpInfo;
+  demoMode?: boolean;
 }
 
 // ─── Scoring ──────────────────────────────────────────────────────────────────
@@ -312,22 +313,24 @@ function Row({ label, value, valueColor }: { label: string; value: string; value
 type ActionStatus = 'approved' | 'rejected' | 'waitlisted' | 'applied';
 
 function ActionBtn({
-  label, activeLabel, color, textColor, isActive, onClick, loading,
+  label, activeLabel, color, textColor, isActive, onClick, loading, demo,
 }: {
   label: string; activeLabel: string; color: string; textColor: string;
-  isActive: boolean; onClick: () => void; loading: boolean;
+  isActive: boolean; onClick: () => void; loading: boolean; demo?: boolean;
 }) {
   return (
     <button
-      onClick={onClick}
-      disabled={loading}
-      className="mono text-xs px-2.5 py-1 rounded font-bold transition-all disabled:opacity-40"
+      onClick={demo ? undefined : onClick}
+      disabled={loading || demo}
+      title={demo ? 'Demo mode — read only' : undefined}
+      className="mono text-xs px-2.5 py-1 rounded font-bold transition-all disabled:opacity-30"
       style={{
-        background:   isActive ? color : 'transparent',
-        color:        isActive ? textColor : color,
-        border:       `1px solid ${color}60`,
-        opacity:      loading ? 0.5 : 1,
-        whiteSpace:   'nowrap',
+        background:  isActive ? color : 'transparent',
+        color:       isActive ? textColor : color,
+        border:      `1px solid ${color}60`,
+        opacity:     loading ? 0.5 : 1,
+        whiteSpace:  'nowrap',
+        cursor:      demo ? 'not-allowed' : 'pointer',
       }}
     >
       {loading ? '...' : isActive ? activeLabel : label}
@@ -337,7 +340,7 @@ function ActionBtn({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, experiment }: Props) {
+export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, experiment, demoMode }: Props) {
   const [applicants,   setApplicants]   = useState<ApplicantRow[]>(initialApplicants);
   const [expandedId,   setExpandedId]   = useState<string | null>(null);
   const [loadingId,    setLoadingId]    = useState<string | null>(null);
@@ -566,21 +569,21 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
                       color="var(--green)" textColor="#050709"
                       isActive={curStatus === 'approved'}
                       onClick={() => updateStatus(row.id, curStatus === 'approved' ? 'applied' : 'approved')}
-                      loading={isLoading}
+                      loading={isLoading} demo={demoMode}
                     />
                     <ActionBtn
                       label="WAIT" activeLabel="WAITLISTED"
                       color="var(--amber)" textColor="#050709"
                       isActive={curStatus === 'waitlisted'}
                       onClick={() => updateStatus(row.id, curStatus === 'waitlisted' ? 'applied' : 'waitlisted')}
-                      loading={isLoading}
+                      loading={isLoading} demo={demoMode}
                     />
                     <ActionBtn
                       label="DENY" activeLabel="DENIED"
                       color="var(--amber)" textColor="#050709"
                       isActive={curStatus === 'rejected'}
                       onClick={() => updateStatus(row.id, curStatus === 'rejected' ? 'applied' : 'rejected')}
-                      loading={isLoading}
+                      loading={isLoading} demo={demoMode}
                     />
                   </div>
                 </div>
