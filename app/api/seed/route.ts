@@ -48,6 +48,61 @@ const EXPERIMENTER_PROFILES = [
   },
 ];
 
+// ─── experimenter_profiles rows (fixed UUIDs for predictable demo URLs) ──────
+
+const EXPERIMENTER_ORG_PROFILES = [
+  {
+    id: 'aaaaaaaa-0001-0001-0001-000000000001',
+    user_id: 'did:privy:seed-pure-enc',
+    org_name: 'Pure Encapsulations × VitaDAO',
+    org_description: 'Pure Encapsulations produces hypoallergenic, research-grade supplements. This sleep study runs in partnership with the VitaDAO longevity research network.',
+    expertise_areas: ['Supplements', 'Sleep', 'Longevity'],
+    screening_status: 'approved',
+    experiments_posted: 1,
+    verified_experiments: 1,
+  },
+  {
+    id: 'aaaaaaaa-0002-0002-0002-000000000002',
+    user_id: 'did:privy:seed-biohackers',
+    org_name: 'Biohackers DAO',
+    org_description: 'Open-science community running low-cost, self-tracked habit experiments that anyone can join. No clinic visits, no equipment.',
+    expertise_areas: ['Biohacking', 'Self-Tracking', 'Nutrition', 'Energy'],
+    screening_status: 'approved',
+    experiments_posted: 3,
+    verified_experiments: 0,
+  },
+  {
+    id: 'aaaaaaaa-0003-0003-0003-000000000003',
+    user_id: 'did:privy:seed-stanford',
+    org_name: 'Stanford Longevity Lab',
+    org_description: 'Academic research group at Stanford University studying healthy aging, metabolic health, and lifestyle interventions.',
+    expertise_areas: ['Longevity', 'Metabolic Health', 'Nutrition', 'Exercise'],
+    screening_status: 'approved',
+    experiments_posted: 2,
+    verified_experiments: 2,
+  },
+  {
+    id: 'aaaaaaaa-0004-0004-0004-000000000004',
+    user_id: 'did:privy:seed-thorne',
+    org_name: 'Thorne Research × VitaDAO',
+    org_description: 'Thorne Research manufactures clinical-grade supplements used by professional sports teams and academic labs. Fish oil trial conducted in partnership with VitaDAO.',
+    expertise_areas: ['Supplements', 'Sports Recovery', 'Inflammation'],
+    screening_status: 'approved',
+    experiments_posted: 1,
+    verified_experiments: 1,
+  },
+  {
+    id: 'aaaaaaaa-0005-0005-0005-000000000005',
+    user_id: 'did:privy:seed-cerebrum',
+    org_name: 'Cerebrum DAO',
+    org_description: 'Decentralised neuroscience collective. Partners include Double Wood Supplements and licensed clinical psychologists who review all mental health protocols.',
+    expertise_areas: ['Neuroscience', 'Mental Health', 'Focus', 'Stress'],
+    screening_status: 'approved',
+    experiments_posted: 1,
+    verified_experiments: 1,
+  },
+];
+
 // ─── Participant profiles (for seeded forum comments) ─────────────────────────
 
 const PARTICIPANT_PROFILES = [
@@ -269,6 +324,11 @@ export async function POST(request: NextRequest) {
     .upsert([...EXPERIMENTER_PROFILES, ...PARTICIPANT_PROFILES], { onConflict: 'id' });
   if (expErr) return NextResponse.json({ error: `profiles: ${expErr.message}` }, { status: 500 });
 
+  const { error: orgErr } = await supabase
+    .from('experimenter_profiles')
+    .upsert(EXPERIMENTER_ORG_PROFILES, { onConflict: 'id' });
+  if (orgErr) return NextResponse.json({ error: `experimenter_profiles: ${orgErr.message}` }, { status: 500 });
+
   const { error: expErrExp } = await supabase
     .from('experiments')
     .upsert(EXPERIMENTS, { onConflict: 'id' });
@@ -282,6 +342,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     ok: true,
     profiles: EXPERIMENTER_PROFILES.length + PARTICIPANT_PROFILES.length,
+    experimenter_org_profiles: EXPERIMENTER_ORG_PROFILES.length,
     experiments: EXPERIMENTS.length,
     comments: COMMENTS.length,
   });
