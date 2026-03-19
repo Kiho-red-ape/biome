@@ -326,7 +326,7 @@ export async function POST(request: NextRequest) {
 
   const { error: orgErr } = await supabase
     .from('experimenter_profiles')
-    .upsert(EXPERIMENTER_ORG_PROFILES, { onConflict: 'id' });
+    .upsert(EXPERIMENTER_ORG_PROFILES, { onConflict: 'user_id' });
   if (orgErr) return NextResponse.json({ error: `experimenter_profiles: ${orgErr.message}` }, { status: 500 });
 
   const { error: expErrExp } = await supabase
