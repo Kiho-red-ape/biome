@@ -7,7 +7,7 @@ import { reputationBadge, countryFlag } from '@/lib/utils/profile';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type PP = {
+export type PP = {
   user_id: string;
   participant_id: string;
   pseudonym: string;
@@ -31,7 +31,7 @@ type PP = {
   verification_status: string;
 };
 
-type HistRow = {
+export type HistRow = {
   participant_id: string;
   status: string;
   applied_at: string;
@@ -67,6 +67,7 @@ interface Props {
   initialApplicants: ApplicantRow[];
   experiment: ExpInfo;
   demoMode?: boolean;
+  interactiveDemoMode?: boolean;
 }
 
 // ─── Scoring ──────────────────────────────────────────────────────────────────
@@ -340,7 +341,7 @@ function ActionBtn({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, experiment, demoMode }: Props) {
+export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, experiment, demoMode, interactiveDemoMode }: Props) {
   const [applicants,   setApplicants]   = useState<ApplicantRow[]>(initialApplicants);
   const [expandedId,   setExpandedId]   = useState<string | null>(null);
   const [loadingId,    setLoadingId]    = useState<string | null>(null);
@@ -371,6 +372,18 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
 
   async function updateStatus(appId: string, newStatus: ActionStatus) {
     setLoadingId(appId);
+    if (interactiveDemoMode) {
+      await new Promise((r) => setTimeout(r, 280));
+      setApplicants((prev) =>
+        prev.map((a) =>
+          a.id === appId
+            ? { ...a, status: newStatus, approved_at: newStatus === 'approved' ? new Date().toISOString() : null }
+            : a
+        )
+      );
+      setLoadingId(null);
+      return;
+    }
     try {
       const res = await fetch(`/api/applications/${appId}`, {
         method:  'PATCH',
@@ -569,21 +582,21 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
                       color="var(--green)" textColor="#050709"
                       isActive={curStatus === 'approved'}
                       onClick={() => updateStatus(row.id, curStatus === 'approved' ? 'applied' : 'approved')}
-                      loading={isLoading} demo={demoMode}
+                      loading={isLoading} demo={demoMode && !interactiveDemoMode}
                     />
                     <ActionBtn
                       label="WAIT" activeLabel="WAITLISTED"
                       color="var(--amber)" textColor="#050709"
                       isActive={curStatus === 'waitlisted'}
                       onClick={() => updateStatus(row.id, curStatus === 'waitlisted' ? 'applied' : 'waitlisted')}
-                      loading={isLoading} demo={demoMode}
+                      loading={isLoading} demo={demoMode && !interactiveDemoMode}
                     />
                     <ActionBtn
                       label="DENY" activeLabel="DENIED"
                       color="var(--amber)" textColor="#050709"
                       isActive={curStatus === 'rejected'}
                       onClick={() => updateStatus(row.id, curStatus === 'rejected' ? 'applied' : 'rejected')}
-                      loading={isLoading} demo={demoMode}
+                      loading={isLoading} demo={demoMode && !interactiveDemoMode}
                     />
                   </div>
                 </div>

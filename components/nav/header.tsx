@@ -73,8 +73,8 @@ export function SiteHeader() {
     <header
       className="sticky top-0 z-50 flex items-center justify-between px-6 py-3"
       style={{
-        background: 'rgba(7, 12, 7, 0.92)',
-        borderBottom: '1px solid rgba(77, 255, 128, 0.08)',
+        background: 'rgba(10, 18, 8, 0.94)',
+        borderBottom: '1px solid rgba(77, 255, 128, 0.14)',
         backdropFilter: 'blur(12px)',
       }}
     >
@@ -101,6 +101,9 @@ export function SiteHeader() {
         </Link>
         <Link href="/post" className="mono text-xs transition-colors" style={{ color: 'var(--text-dim)' }}>
           POST BOUNTY
+        </Link>
+        <Link href="/demo/biome" className="mono text-xs transition-colors" style={{ color: 'var(--cyan)' }}>
+          DEMO
         </Link>
       </nav>
 
