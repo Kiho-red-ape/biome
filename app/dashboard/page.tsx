@@ -18,14 +18,48 @@ type AppRow = {
   experiments: { id: string; title: string; category: string; bounty_per_participant: number; status: string } | null;
 };
 
+type MilestoneRow = {
+  id: string;
+  study_milestone_id: string;
+  status: string;
+  completed_at: string | null;
+  submitted_at: string | null;
+  week_number: number;
+  title: string;
+  description: string | null;
+  milestone_type: string;
+  sort_order: number;
+};
+
+type ActiveStudy = {
+  applicationId: string;
+  applicationStatus: string;
+  experiment: {
+    id: string;
+    title: string;
+    category: string;
+    bounty_per_participant: number;
+    duration_weeks: number | null;
+    compliance_threshold: number;
+    commenced_at: string | null;
+    status: string;
+  };
+  currentWeek: number;
+  milestones: MilestoneRow[];
+  complianceScore: number;
+  payoutEligible: boolean;
+};
+
 type DashboardData = {
   profile: ParticipantProfile | null;
   applications: AppRow[];
+  activeStudies: ActiveStudy[];
 };
 
 const STATUS_COLORS: Record<string, string> = {
   applied:   'var(--text-dim)',
   approved:  'var(--cyan)',
+  enrolled:  'var(--cyan)',
   active:    'var(--cyan)',
   completed: 'var(--green)',
   withdrawn: 'var(--text-dim)',
@@ -56,6 +90,241 @@ function relDate(dateStr: string): string {
   if (d === 1) return '1d ago';
   if (d < 30)  return `${d}d ago`;
   return `${Math.floor(d / 30)}mo ago`;
+}
+
+function complianceColor(score: number, threshold: number): string {
+  if (score >= threshold)          return 'var(--green)';
+  if (score >= threshold - 10)     return 'var(--amber)';
+  return 'var(--amber)';
+}
+
+// ─── Active Study Card ────────────────────────────────────────────────────────
+
+function ActiveStudyCard({
+  study,
+  privyDid,
+  onRefresh,
+}: {
+  study: ActiveStudy;
+  privyDid: string;
+  onRefresh: () => void;
+}) {
+  const [submitting, setSubmitting] = useState<string | null>(null);
+  const { experiment: exp, milestones, complianceScore, payoutEligible, currentWeek } = study;
+
+  // Group milestones by week
+  const weekMap = new Map<number, MilestoneRow[]>();
+  for (const m of milestones) {
+    if (!weekMap.has(m.week_number)) weekMap.set(m.week_number, []);
+    weekMap.get(m.week_number)!.push(m);
+  }
+  const weeks = Array.from(weekMap.entries()).sort(([a], [b]) => a - b);
+
+  const totalWeeks    = exp.duration_weeks ?? weeks.length;
+  const progressPct   = totalWeeks > 0 ? Math.min(100, Math.round((currentWeek / totalWeeks) * 100)) : 0;
+  const scoreColor    = complianceColor(complianceScore, exp.compliance_threshold);
+  const cc            = categoryColor(exp.category);
+
+  async function submit(milestoneId: string) {
+    setSubmitting(milestoneId);
+    try {
+      const res = await fetch(`/api/milestones/${milestoneId}/submit`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ privyDid }),
+      });
+      if (res.ok) onRefresh();
+    } finally {
+      setSubmitting(null);
+    }
+  }
+
+  return (
+    <div className="rounded overflow-hidden mb-4" style={{ border: '1px solid rgba(77,255,128,0.10)' }}>
+      {/* Card header */}
+      <div className="px-4 py-3 flex items-center justify-between gap-3" style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.06)' }}>
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            className="mono text-xs px-1.5 py-0.5 rounded shrink-0"
+            style={{ color: cc, border: `1px solid ${cc}30`, background: `${cc}08` }}
+          >
+            {exp.category.toUpperCase()}
+          </span>
+          <Link
+            href={`/experiments/${exp.id}`}
+            className="text-sm font-medium no-underline truncate hover:opacity-80 transition-opacity"
+            style={{ color: 'var(--text-bright)' }}
+          >
+            {exp.title}
+          </Link>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          {payoutEligible ? (
+            <span className="mono text-xs" style={{ color: 'var(--green)' }}>✓ payout eligible</span>
+          ) : (
+            <span className="mono text-xs" style={{ color: 'var(--amber)' }}>⚠ compliance at risk</span>
+          )}
+          <span className="mono text-xs font-bold" style={{ color: 'var(--green)' }}>{fmt(exp.bounty_per_participant)}</span>
+        </div>
+      </div>
+
+      {/* Metrics bar */}
+      <div className="px-4 py-3 grid grid-cols-3 gap-4" style={{ background: 'var(--bg)', borderBottom: '1px solid rgba(77,255,128,0.04)' }}>
+        {/* Compliance score */}
+        <div>
+          <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>COMPLIANCE</p>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1 rounded overflow-hidden" style={{ background: 'rgba(77,255,128,0.08)' }}>
+              <div
+                className="h-1 rounded transition-all"
+                style={{ width: `${complianceScore}%`, background: scoreColor }}
+              />
+            </div>
+            <span className="mono text-xs tabular-nums" style={{ color: scoreColor }}>{complianceScore}%</span>
+          </div>
+          <p className="mono text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>
+            threshold {exp.compliance_threshold}%
+          </p>
+        </div>
+
+        {/* Study progress */}
+        <div>
+          <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>PROGRESS</p>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1 rounded overflow-hidden" style={{ background: 'rgba(77,255,128,0.08)' }}>
+              <div
+                className="h-1 rounded transition-all"
+                style={{ width: `${progressPct}%`, background: 'var(--cyan)' }}
+              />
+            </div>
+            <span className="mono text-xs tabular-nums" style={{ color: 'var(--cyan)' }}>
+              W{currentWeek}/{totalWeeks}
+            </span>
+          </div>
+          <p className="mono text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>
+            {progressPct}% elapsed
+          </p>
+        </div>
+
+        {/* Milestones summary */}
+        <div>
+          <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>MILESTONES</p>
+          <p className="mono text-sm tabular-nums" style={{ color: 'var(--text-white)' }}>
+            {milestones.filter((m) => m.status === 'completed').length}
+            <span style={{ color: 'var(--text-dim)' }}>/{milestones.length}</span>
+          </p>
+          <p className="mono text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>
+            {milestones.filter((m) => m.status === 'missed').length} missed
+          </p>
+        </div>
+      </div>
+
+      {/* Milestone timeline */}
+      {weeks.length > 0 && (
+        <div className="px-4 py-4" style={{ background: 'var(--bg)' }}>
+          {weeks.map(([weekNum, wMilestones], wi) => {
+            const isCurrentWeek = weekNum === currentWeek;
+            const isPast        = weekNum < currentWeek;
+            return (
+              <div key={weekNum} className="flex gap-3">
+                {/* Spine */}
+                <div className="flex flex-col items-center" style={{ width: 20 }}>
+                  <div
+                    className="w-3 h-3 rounded-full shrink-0 mt-0.5"
+                    style={{
+                      background: isCurrentWeek ? 'var(--cyan)' : isPast ? 'var(--green-dim)' : 'rgba(77,255,128,0.15)',
+                      border:     isCurrentWeek ? '2px solid var(--cyan)' : 'none',
+                    }}
+                  />
+                  {wi < weeks.length - 1 && (
+                    <div className="flex-1 w-px mt-1" style={{ background: 'rgba(77,255,128,0.10)', minHeight: 16 }} />
+                  )}
+                </div>
+
+                {/* Week content */}
+                <div className="flex-1 pb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span
+                      className="mono text-xs"
+                      style={{ color: isCurrentWeek ? 'var(--cyan)' : isPast ? 'var(--text-dim)' : 'var(--text-dim)' }}
+                    >
+                      Week {weekNum}
+                    </span>
+                    {isCurrentWeek && (
+                      <span className="mono text-xs px-1.5 py-0.5 rounded" style={{ color: 'var(--cyan)', background: 'rgba(0,229,255,0.08)', border: '1px solid rgba(0,229,255,0.20)' }}>
+                        current
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    {wMilestones.map((m) => {
+                      const isPending   = m.status === 'pending';
+                      const isCompleted = m.status === 'completed';
+                      const isMissed    = m.status === 'missed';
+                      const isSelfReport = m.milestone_type === 'self_report';
+
+                      return (
+                        <div key={m.id} className="flex items-center justify-between gap-3 px-3 py-2 rounded" style={{ background: 'var(--bg2)' }}>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span style={{
+                              color:    isCompleted ? 'var(--green)' : isMissed ? 'var(--amber)' : 'var(--text-dim)',
+                              fontSize: 12,
+                            }}>
+                              {isCompleted ? '✓' : isMissed ? '✗' : '○'}
+                            </span>
+                            <div className="min-w-0">
+                              <p
+                                className="text-xs truncate"
+                                style={{ color: isCompleted ? 'var(--text-dim)' : 'var(--text-bright)' }}
+                              >
+                                {m.title}
+                              </p>
+                              <p className="mono text-xs" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
+                                {isSelfReport ? 'you report' : 'experimenter confirms'}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="shrink-0">
+                            {isCompleted && (
+                              <span className="mono text-xs" style={{ color: 'var(--green)' }}>done</span>
+                            )}
+                            {isMissed && (
+                              <span className="mono text-xs" style={{ color: 'var(--amber)' }}>missed</span>
+                            )}
+                            {isPending && isSelfReport && (
+                              <button
+                                onClick={() => void submit(m.id)}
+                                disabled={submitting === m.id}
+                                className="mono text-xs transition-opacity hover:opacity-80 disabled:opacity-40"
+                                style={{ color: 'var(--green)', cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                              >
+                                {submitting === m.id ? '...' : 'Submit →'}
+                              </button>
+                            )}
+                            {isPending && !isSelfReport && (
+                              <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>awaiting</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {weeks.length === 0 && (
+        <div className="px-4 py-6 text-center" style={{ background: 'var(--bg)' }}>
+          <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// MILESTONES_NOT_YET_GENERATED — study not yet commenced</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ─── Main page ────────────────────────────────────────────────────────────────
@@ -106,12 +375,11 @@ export default function DashboardPage() {
   }
 
   if (!data?.profile) {
-    // No participant profile yet → redirect to onboarding
     router.replace('/onboarding/participant');
     return null;
   }
 
-  const { profile, applications } = data;
+  const { profile, applications, activeStudies } = data;
 
   // ── Derived stats ─────────────────────────────────────────────────────────
 
@@ -205,6 +473,24 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+
+        {/* ── Active studies ────────────────────────────────────────── */}
+        {activeStudies.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// ACTIVE_STUDIES</p>
+              <span className="mono text-xs" style={{ color: 'var(--cyan)' }}>[{activeStudies.length}]</span>
+            </div>
+            {activeStudies.map((study) => (
+              <ActiveStudyCard
+                key={study.applicationId}
+                study={study}
+                privyDid={user!.id}
+                onRefresh={() => void loadDashboard(user!.id)}
+              />
+            ))}
+          </div>
+        )}
 
         {/* ── Applications table ───────────────────────────────────── */}
         <div className="rounded overflow-hidden mb-6" style={{ border: '1px solid rgba(77,255,128,0.08)' }}>
