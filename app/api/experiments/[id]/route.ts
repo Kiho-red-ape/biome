@@ -20,37 +20,68 @@ export async function GET(_req: NextRequest, { params }: Props) {
   return NextResponse.json({ experiment: data });
 }
 
-// PATCH /api/experiments/[id] — publish draft (action: 'publish')
+// PATCH /api/experiments/[id]
+// action: 'publish'   — move draft → recruiting
+// action: 'commence'  — move recruiting/active → active, generate milestones, notify enrolled participants
 export async function PATCH(req: NextRequest, { params }: Props) {
   const { id } = await params;
   const body = await req.json() as { privyDid?: string; action?: string };
   const { privyDid, action } = body;
 
-  if (!privyDid || action !== 'publish') {
-    return NextResponse.json({ error: 'Missing privyDid or action' }, { status: 400 });
+  if (!privyDid || !['publish', 'commence'].includes(action ?? '')) {
+    return NextResponse.json({ error: 'Missing privyDid or invalid action' }, { status: 400 });
   }
 
   const supabase = createServiceClient();
 
   const { data: exp } = await supabase
     .from('experiments')
-    .select('id, status, experimenter_id')
+    .select('id, status, experimenter_id, commenced, title')
     .eq('id', id)
     .single();
 
   if (!exp) return NextResponse.json({ error: 'Experiment not found' }, { status: 404 });
   if (exp.experimenter_id !== privyDid) return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
-  if (exp.status !== 'draft') return NextResponse.json({ error: 'Only draft experiments can be published' }, { status: 400 });
 
-  const { data: updated, error: updateErr } = await supabase
-    .from('experiments')
-    .update({ status: 'recruiting' })
-    .eq('id', id)
-    .select()
-    .single();
+  // ── Publish ────────────────────────────────────────────────────────────────
+  if (action === 'publish') {
+    if (exp.status !== 'draft') {
+      return NextResponse.json({ error: 'Only draft experiments can be published' }, { status: 400 });
+    }
+    const { data: updated, error: updateErr } = await supabase
+      .from('experiments')
+      .update({ status: 'recruiting' })
+      .eq('id', id)
+      .select()
+      .single();
+    if (updateErr) return NextResponse.json({ error: updateErr.message }, { status: 500 });
+    return NextResponse.json({ experiment: updated });
+  }
 
-  if (updateErr) return NextResponse.json({ error: updateErr.message }, { status: 500 });
-  return NextResponse.json({ experiment: updated });
+  // ── Commence ───────────────────────────────────────────────────────────────
+  if (action === 'commence') {
+    if (exp.commenced) {
+      return NextResponse.json({ error: 'Study already commenced' }, { status: 400 });
+    }
+    if (!['recruiting', 'active'].includes(exp.status)) {
+      return NextResponse.json({ error: 'Study must be recruiting or active to commence' }, { status: 400 });
+    }
+
+    // Setting commenced = true triggers:
+    //   1. BEFORE trigger sets commenced_at + status = 'active'
+    //   2. AFTER trigger generates milestones for all enrolled participants + notifies them
+    const { data: updated, error: updateErr } = await supabase
+      .from('experiments')
+      .update({ commenced: true })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (updateErr) return NextResponse.json({ error: updateErr.message }, { status: 500 });
+    return NextResponse.json({ experiment: updated, commenced: true });
+  }
+
+  return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
 }
 
 // PUT /api/experiments/[id] — edit experiment fields + log amendments

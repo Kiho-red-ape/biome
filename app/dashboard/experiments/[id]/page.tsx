@@ -30,6 +30,10 @@ type FullExperiment = {
   experimenter_id: string;
   created_at: string;
   updated_at: string;
+  commenced: boolean;
+  commenced_at: string | null;
+  enrollment_url: string | null;
+  compliance_threshold: number | null;
 };
 
 type AmendLog = {
@@ -85,6 +89,7 @@ export default function ExperimentManagePage() {
   const [editing,    setEditing]    = useState(false);
   const [saving,     setSaving]     = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [commencing, setCommencing] = useState(false);
   const [saveMsg,    setSaveMsg]    = useState<string | null>(null);
 
   // Edit form state
@@ -189,6 +194,34 @@ export default function ExperimentManagePage() {
     }
   }
 
+  async function commence() {
+    if (!exp || !user) return;
+    setCommencing(true);
+    try {
+      const res  = await fetch(`/api/experiments/${id}`, {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ privyDid: user.id, action: 'commence' }),
+      });
+      const data = await res.json() as { experiment?: FullExperiment; error?: string };
+      if (!res.ok) { setSaveMsg(`Error: ${data.error ?? 'Commence failed'}`); return; }
+      if (data.experiment) setExp(data.experiment);
+      setSaveMsg('✓ Study commenced — milestones generated for all enrolled participants');
+    } finally {
+      setCommencing(false);
+    }
+  }
+
+  async function confirmEnrolled(appId: string) {
+    if (!user) return;
+    await fetch(`/api/applications/${appId}`, {
+      method:  'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ privyDid: user.id, status: 'enrolled' }),
+    });
+    void load();
+  }
+
   if (!ready || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -261,7 +294,7 @@ export default function ExperimentManagePage() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center gap-3 flex-shrink-0 flex-wrap">
               {exp.status === 'draft' && (
                 <button
                   onClick={publish}
@@ -270,6 +303,27 @@ export default function ExperimentManagePage() {
                   style={{ background: 'var(--green)', color: '#050709' }}>
                   {publishing ? '...' : 'Publish →'}
                 </button>
+              )}
+              {/* Commence button — shown when study not yet commenced and has enrolled participants */}
+              {!exp.commenced && ['recruiting', 'active'].includes(exp.status) && (
+                (() => {
+                  const enrolledCount = applicants.filter((a) => a.status === 'enrolled').length;
+                  return enrolledCount > 0 ? (
+                    <button
+                      onClick={commence}
+                      disabled={commencing}
+                      className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-50"
+                      style={{ background: 'var(--cyan)', color: '#050709' }}>
+                      {commencing ? '...' : `COMMENCE STUDY → (${enrolledCount} enrolled)`}
+                    </button>
+                  ) : null;
+                })()
+              )}
+              {exp.commenced && exp.commenced_at && (
+                <span className="mono text-xs px-3 py-2 rounded"
+                  style={{ color: 'var(--cyan)', border: '1px solid rgba(0,229,255,0.2)' }}>
+                  ✓ Commenced {new Date(exp.commenced_at).toLocaleDateString()}
+                </span>
               )}
               {!editing && !['completed', 'cancelled'].includes(exp.status) && (
                 <button
@@ -473,6 +527,73 @@ export default function ExperimentManagePage() {
             </div>
           </div>
         )}
+
+        {/* ── Enrolled participants (shown when experiment has enrollment_url) ── */}
+        {(() => {
+          const enrolled  = applicants.filter((a) => a.status === 'enrolled');
+          const approved  = applicants.filter((a) => a.status === 'approved');
+          const hasEnrollUrl = !!exp.enrollment_url;
+          if (!hasEnrollUrl && enrolled.length === 0 && approved.length === 0) return null;
+          return (
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// ENROLLED_PARTICIPANTS</p>
+                <span className="mono text-xs" style={{ color: 'var(--green)' }}>[{enrolled.length}]</span>
+              </div>
+
+              {/* Enrollment URL callout */}
+              {hasEnrollUrl && (
+                <div className="rounded px-4 py-3 mb-3 mono text-xs"
+                  style={{ border: '1px solid rgba(0,229,255,0.2)', color: 'var(--cyan)', background: 'rgba(0,229,255,0.04)' }}>
+                  Enrollment URL set: participants visit{' '}
+                  <a href={exp.enrollment_url!} target="_blank" rel="noopener noreferrer"
+                    className="underline">{exp.enrollment_url}</a>
+                  {' '}after approval. Click "Confirm enrolled" once they complete it.
+                </div>
+              )}
+
+              {enrolled.length === 0 && approved.length === 0 ? (
+                <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+                  No enrolled participants yet. Approve applicants below.
+                </p>
+              ) : (
+                <div className="rounded overflow-hidden" style={{ border: '1px solid rgba(77,255,128,0.1)' }}>
+                  {/* Approved but awaiting enrollment confirmation */}
+                  {hasEnrollUrl && approved.map((a) => (
+                    <div key={a.id} className="flex items-center justify-between px-4 py-3 gap-4"
+                      style={{ borderBottom: '1px solid rgba(77,255,128,0.06)', background: 'var(--bg)' }}>
+                      <div className="flex items-center gap-3">
+                        <span className="mono text-xs" style={{ color: 'var(--text-bright)' }}>
+                          {a.participantProfile?.pseudonym ?? a.participant_id}
+                        </span>
+                        <span className="mono text-xs px-1.5 py-0.5 rounded"
+                          style={{ color: 'var(--amber)', border: '1px solid rgba(255,179,0,0.2)' }}>
+                          Awaiting enrollment
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => confirmEnrolled(a.id)}
+                        className="mono text-xs px-3 py-1.5 rounded transition-all hover:opacity-80"
+                        style={{ background: 'var(--green)', color: '#050709' }}>
+                        Confirm enrolled ✓
+                      </button>
+                    </div>
+                  ))}
+                  {/* Already enrolled */}
+                  {enrolled.map((a) => (
+                    <div key={a.id} className="flex items-center justify-between px-4 py-3 gap-4"
+                      style={{ borderBottom: '1px solid rgba(77,255,128,0.04)', background: 'var(--bg)' }}>
+                      <span className="mono text-xs" style={{ color: 'var(--text-bright)' }}>
+                        {a.participantProfile?.pseudonym ?? a.participant_id}
+                      </span>
+                      <span className="mono text-xs" style={{ color: 'var(--green)' }}>● enrolled</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* ── Screening dashboard ── */}
         {user && (
