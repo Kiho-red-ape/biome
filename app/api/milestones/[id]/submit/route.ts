@@ -45,7 +45,7 @@ export async function POST(req: NextRequest, { params }: Props) {
   const now = new Date().toISOString();
   const { data: updated, error } = await supabase
     .from('participant_milestones')
-    .update({ status: 'completed', completed_at: now, submitted_at: now })
+    .update({ status: 'submitted', submitted_at: now })
     .eq('id', id)
     .select()
     .single();

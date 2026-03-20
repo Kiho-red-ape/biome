@@ -260,8 +260,8 @@ function ActiveStudyCard({
                   <div className="flex flex-col gap-1.5">
                     {wMilestones.map((m) => {
                       const isPending   = m.status === 'pending';
-                      const isCompleted = m.status === 'completed';
-                      const isMissed    = m.status === 'missed';
+                      const isCompleted = ['submitted', 'completed', 'verified'].includes(m.status);
+                      const isMissed    = ['missed', 'rejected'].includes(m.status);
                       const isSelfReport = m.milestone_type === 'self_report';
 
                       return (
@@ -288,7 +288,9 @@ function ActiveStudyCard({
 
                           <div className="shrink-0">
                             {isCompleted && (
-                              <span className="mono text-xs" style={{ color: 'var(--green)' }}>done</span>
+                              <span className="mono text-xs" style={{ color: 'var(--green)' }}>
+                                {m.status === 'submitted' ? 'submitted' : 'done'}
+                              </span>
                             )}
                             {isMissed && (
                               <span className="mono text-xs" style={{ color: 'var(--amber)' }}>missed</span>

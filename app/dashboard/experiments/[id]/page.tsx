@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { ScreeningDashboard } from '@/components/screening/screening-dashboard';
 import type { ApplicantRow, ExpInfo } from '@/components/screening/screening-dashboard';
+import { ComplianceDashboard } from '@/components/compliance/compliance-dashboard';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -594,6 +595,21 @@ export default function ExperimentManagePage() {
             </div>
           );
         })()}
+
+        {/* ── Compliance dashboard ── (shown once study has commenced) */}
+        {exp.commenced && user && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// COMPLIANCE</p>
+              {exp.commenced_at && (
+                <span className="mono text-xs" style={{ color: 'var(--cyan)' }}>
+                  commenced {new Date(exp.commenced_at).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+            <ComplianceDashboard experimentId={exp.id} privyDid={user.id} />
+          </div>
+        )}
 
         {/* ── Screening dashboard ── */}
         {user && (

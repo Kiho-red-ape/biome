@@ -146,8 +146,8 @@ export async function GET(request: NextRequest) {
       const milestones = (milestonesByExp.get(expId) ?? [])
         .sort((x, y) => x.week_number - y.week_number || x.sort_order - y.sort_order);
 
-      const completed = milestones.filter((m) => m.status === 'completed').length;
-      const missed    = milestones.filter((m) => m.status === 'missed').length;
+      const completed = milestones.filter((m) => ['submitted', 'completed', 'verified'].includes(m.status)).length;
+      const missed    = milestones.filter((m) => ['missed', 'rejected'].includes(m.status)).length;
       const judged    = completed + missed;
       const score     = judged > 0 ? Math.round((completed / judged) * 100) : 100;
       const threshold = (exp.compliance_threshold as number | null) ?? 80;
