@@ -3,11 +3,19 @@ import { createServiceClient } from '@/lib/supabase/server';
 import type { Experiment } from '@/lib/types';
 import { z } from 'zod';
 
+const milestoneSchema = z.object({
+  week_number:  z.number().int().positive(),
+  title:        z.string().min(1).max(200),
+  description:  z.string().max(500).optional(),
+  type:         z.enum(['self_report', 'experimenter_confirm']),
+  sort_order:   z.number().int().default(0),
+});
+
 const createSchema = z.object({
   privyDid:               z.string().min(1),
   title:                  z.string().min(3).max(200),
   description:            z.string().min(10),
-  category:               z.enum(['Microbiome','Nutrition','Sleep','Psychedelics','Fitness','Longevity','Mental Health','Metabolomics','Other']),
+  category:               z.enum(['Microbiome','Nutrition','Sleep','Psychedelics','Fitness','Longevity','Mental Health','Metabolomics','Cognitive','Wearables','Behavioral','Quantified Self','Other']),
   study_type:             z.string().optional(),
   bounty_per_participant: z.number().positive(),
   slots_total:            z.number().int().positive(),
@@ -21,6 +29,10 @@ const createSchema = z.object({
   external_comms_url:     z.string().url().nullable().optional(),
   short_description:      z.string().max(300).nullable().optional(),
   apply_for_verification: z.boolean().default(false),
+  // New fields
+  milestones:             z.array(milestoneSchema).optional(),
+  compliance_threshold:   z.number().min(0).max(100).default(80),
+  enrollment_url:         z.string().url().nullable().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -30,7 +42,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { privyDid, apply_for_verification, ...fields } = parsed.data;
+  const { privyDid, apply_for_verification, milestones, compliance_threshold, enrollment_url, ...fields } = parsed.data;
   const supabase = createServiceClient();
 
   // Verify the experimenter has an approved profile
@@ -72,12 +84,29 @@ export async function POST(request: NextRequest) {
       exclusion_criteria:     fields.exclusion_criteria ?? null,
       iec_approval:           fields.iec_approval ?? null,
       external_comms_url:     fields.external_comms_url ?? null,
+      enrollment_url:         enrollment_url ?? null,
+      compliance_threshold:   compliance_threshold ?? 80,
     })
     .select()
     .single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Insert study milestones if provided
+  if (milestones && milestones.length > 0 && data) {
+    const milestoneRows = milestones.map((m, i) => ({
+      experiment_id:  (data as { id: string }).id,
+      title:          m.title,
+      description:    m.description ?? null,
+      week_number:    m.week_number,
+      milestone_type: m.type,
+      sort_order:     m.sort_order ?? i,
+    }));
+
+    await supabase.from('study_milestones').insert(milestoneRows);
+    // Non-fatal: form submission succeeds even if milestone insert fails
   }
 
   // Increment experiments_posted on experimenter profile

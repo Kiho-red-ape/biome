@@ -1,11 +1,34 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 
-const CATEGORIES = ['Microbiome', 'Nutrition', 'Sleep', 'Wearables', 'Longevity', 'Quantified Self'];
-const STUDY_TYPES = ['Observational', 'Interventional', 'Survey-only', 'Self-experiment'];
+const CATEGORIES = [
+  'Microbiome', 'Nutrition', 'Sleep', 'Wearables', 'Longevity',
+  'Quantified Self', 'Cognitive', 'Behavioral', 'Fitness', 'Mental Health',
+  'Metabolomics', 'Psychedelics', 'Other',
+];
+const STUDY_TYPES  = ['Observational', 'Interventional', 'Survey-only', 'Self-experiment'];
+const APPROVAL_OPTIONS = [
+  'Ethics approved',
+  'IRB pending',
+  'Self-governed',
+  'Not required for this study type',
+];
+
+// ─── Milestone types ──────────────────────────────────────────────────────────
+
+type MilestoneInput = {
+  _key:  string;
+  title: string;
+  desc:  string;
+  type:  'self_report' | 'experimenter_confirm';
+};
+
+function mkMilestone(title = '', type: MilestoneInput['type'] = 'self_report'): MilestoneInput {
+  return { _key: crypto.randomUUID(), title, desc: '', type };
+}
 
 // ─── Shared input components ──────────────────────────────────────────────────
 
@@ -17,19 +40,12 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 
-function SectionHeader({ label }: { label: string }) {
+function SectionHeader({ label, sub }: { label: string; sub?: string }) {
   return (
-    <p
-      className="mono text-xs"
-      style={{
-        color: 'var(--text-dim)',
-        borderTop: '1px solid rgba(77,255,128,0.08)',
-        paddingTop: '1.5rem',
-        marginTop: '0.5rem',
-      }}
-    >
-      {label}
-    </p>
+    <div style={{ borderTop: '1px solid rgba(77,255,128,0.1)', paddingTop: '1.5rem', marginTop: '0.5rem' }}>
+      <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>{label}</p>
+      {sub && <p className="text-xs" style={{ color: 'var(--text-dim)', opacity: 0.7 }}>{sub}</p>}
+    </div>
   );
 }
 
@@ -84,6 +100,137 @@ function Textarea({
   );
 }
 
+// ─── Week milestone editor ────────────────────────────────────────────────────
+
+function WeekMilestoneRow({
+  ms, onChange, onRemove,
+}: {
+  ms: MilestoneInput;
+  onChange: (updated: MilestoneInput) => void;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="rounded p-3 flex flex-col gap-2"
+      style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.1)' }}>
+
+      {/* Title + remove */}
+      <div className="flex items-center gap-2">
+        <input
+          value={ms.title}
+          onChange={(e) => onChange({ ...ms, title: e.target.value })}
+          placeholder="Milestone title…"
+          className="flex-1 px-2.5 py-1.5 rounded mono text-xs outline-none"
+          style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+        />
+        <button
+          type="button"
+          onClick={onRemove}
+          className="mono text-xs transition-opacity hover:opacity-60 flex-shrink-0"
+          style={{ color: 'var(--text-dim)' }}
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Description (optional) */}
+      <input
+        value={ms.desc}
+        onChange={(e) => onChange({ ...ms, desc: e.target.value })}
+        placeholder="Description (optional)"
+        className="w-full px-2.5 py-1.5 rounded mono text-xs outline-none"
+        style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.08)', color: 'var(--text-dim)' }}
+      />
+
+      {/* Type toggle */}
+      <div className="flex items-center gap-1.5">
+        {(['self_report', 'experimenter_confirm'] as const).map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => onChange({ ...ms, type: t })}
+            className="mono text-xs px-2.5 py-1 rounded transition-all"
+            style={{
+              background: ms.type === t ? 'rgba(77,255,128,0.12)' : 'transparent',
+              border: `1px solid ${ms.type === t ? 'rgba(77,255,128,0.3)' : 'rgba(77,255,128,0.1)'}`,
+              color: ms.type === t ? 'var(--green)' : 'var(--text-dim)',
+            }}
+          >
+            {t === 'self_report' ? 'Participant reports' : 'You confirm'}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function WeekSection({
+  week, milestones, onChange,
+}: {
+  week: number;
+  milestones: MilestoneInput[];
+  onChange: (week: number, updated: MilestoneInput[]) => void;
+}) {
+  const canAdd = milestones.length < 4;
+
+  function addMilestone() {
+    if (!canAdd) return;
+    onChange(week, [...milestones, mkMilestone()]);
+  }
+
+  function updateMs(idx: number, updated: MilestoneInput) {
+    const next = milestones.map((m, i) => (i === idx ? updated : m));
+    onChange(week, next);
+  }
+
+  function removeMs(idx: number) {
+    onChange(week, milestones.filter((_, i) => i !== idx));
+  }
+
+  return (
+    <div className="rounded overflow-hidden"
+      style={{ border: '1px solid rgba(77,255,128,0.1)' }}>
+
+      {/* Week header */}
+      <div className="px-4 py-2.5 flex items-center justify-between"
+        style={{ background: 'var(--bg2)', borderBottom: milestones.length > 0 ? '1px solid rgba(77,255,128,0.08)' : 'none' }}>
+        <span className="mono text-xs font-bold" style={{ color: 'var(--green)' }}>
+          WEEK {week}
+        </span>
+        <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+          {milestones.length}/4 milestones
+        </span>
+      </div>
+
+      {/* Milestones */}
+      {milestones.length > 0 && (
+        <div className="px-4 pt-3 pb-2 flex flex-col gap-2" style={{ background: 'var(--bg)' }}>
+          {milestones.map((ms, i) => (
+            <WeekMilestoneRow
+              key={ms._key}
+              ms={ms}
+              onChange={(u) => updateMs(i, u)}
+              onRemove={() => removeMs(i)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Add button */}
+      <div className="px-4 py-2.5" style={{ background: 'var(--bg)' }}>
+        <button
+          type="button"
+          onClick={addMilestone}
+          disabled={!canAdd}
+          className="mono text-xs transition-opacity disabled:opacity-30"
+          style={{ color: canAdd ? 'var(--cyan)' : 'var(--text-dim)' }}
+        >
+          {canAdd ? '+ Add milestone' : '— Max 4 per week'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function PostStudyPage() {
@@ -102,8 +249,8 @@ export default function PostStudyPage() {
   const [region,      setRegion]      = useState('Remote / Global');
 
   // Section B
-  const [reward,    setReward]    = useState('');
-  const [slots,     setSlots]     = useState('');
+  const [reward, setReward] = useState('');
+  const [slots,  setSlots]  = useState('');
 
   const totalPool   = (parseFloat(reward) || 0) * (parseInt(slots) || 0);
   const platformFee = totalPool * 0.025;
@@ -114,9 +261,47 @@ export default function PostStudyPage() {
   const [ageMin,    setAgeMin]    = useState('');
   const [ageMax,    setAgeMax]    = useState('');
 
-  // Section D — Dropout prevention
-  const [depositEnabled,  setDepositEnabled]  = useState(false);
-  const [depositAmount,   setDepositAmount]   = useState('');
+  // Section D — Protocol
+  const [weekMilestones, setWeekMilestones] = useState<Record<number, MilestoneInput[]>>({});
+  const [complianceThreshold, setComplianceThreshold] = useState('80');
+  const [enrollmentUrl,       setEnrollmentUrl]       = useState('');
+  const [approvalStatus,      setApprovalStatus]      = useState('');
+
+  // Regenerate week structure when duration changes
+  const buildWeeks = useCallback((weeks: number) => {
+    setWeekMilestones((prev) => {
+      const next: Record<number, MilestoneInput[]> = {};
+      for (let w = 1; w <= weeks; w++) {
+        if (prev[w] && prev[w].length > 0) {
+          next[w] = prev[w];
+        } else {
+          // Pre-populate week 1
+          if (w === 1) {
+            next[w] = [mkMilestone('Complete enrollment checklist', 'self_report')];
+          // Pre-populate final week
+          } else if (w === weeks) {
+            next[w] = [mkMilestone('Complete final assessment', 'self_report')];
+          } else {
+            next[w] = [];
+          }
+        }
+      }
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    const weeks = parseInt(duration) || 0;
+    if (weeks >= 1 && weeks <= 52) {
+      buildWeeks(weeks);
+    } else {
+      setWeekMilestones({});
+    }
+  }, [duration, buildWeeks]);
+
+  // Section E — Dropout prevention
+  const [depositEnabled, setDepositEnabled] = useState(false);
+  const [depositAmount,  setDepositAmount]  = useState('');
 
   const autoDeposit = reward ? String(Math.round(parseFloat(reward) / 5)) : '';
   useEffect(() => {
@@ -125,10 +310,10 @@ export default function PostStudyPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [depositEnabled, autoDeposit]);
 
-  // Section E — Verification
+  // Section F — Verification
   const [applyVerif, setApplyVerif] = useState(false);
 
-  // Section F — Agreement + submit
+  // Section G — Agreement + submit
   const [agreed,  setAgreed]  = useState(false);
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState<string | null>(null);
@@ -157,6 +342,19 @@ export default function PostStudyPage() {
       ageMin && ageMax ? `Age: ${ageMin}–${ageMax}` : ageMin ? `Age: ${ageMin}+` : '',
     ].filter(Boolean).join('\n');
 
+    // Flatten milestones into a sorted list
+    const flatMilestones = Object.entries(weekMilestones).flatMap(([week, msList]) =>
+      msList
+        .filter((m) => m.title.trim())
+        .map((m, i) => ({
+          week_number: parseInt(week),
+          title:       m.title.trim(),
+          description: m.desc.trim() || undefined,
+          type:        m.type,
+          sort_order:  i,
+        }))
+    );
+
     const res = await fetch('/api/experiments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -173,15 +371,19 @@ export default function PostStudyPage() {
         inclusion_criteria:     inclusionFull || null,
         exclusion_criteria:     exclusion || null,
         apply_for_verification: applyVerif,
+        iec_approval:           approvalStatus || null,
+        milestones:             flatMilestones,
+        compliance_threshold:   parseFloat(complianceThreshold) || 80,
+        enrollment_url:         enrollmentUrl.trim() || null,
       }),
     });
 
     const data = await res.json() as { experiment?: { id: string }; error?: string };
-    if (!res.ok) { setError(data.error ?? 'Submission failed'); setLoading(false); return; }
+    if (!res.ok) { setError(typeof data.error === 'string' ? data.error : 'Submission failed'); setLoading(false); return; }
     router.push(`/experiments/${data.experiment!.id}`);
   }
 
-  // ── Gate screens ─────────────────────────────────────────────────────────────
+  // ── Gate screens ──────────────────────────────────────────────────────────────
 
   if (gate === 'loading') {
     return (
@@ -244,7 +446,10 @@ export default function PostStudyPage() {
     );
   }
 
-  // ── Main form ─────────────────────────────────────────────────────────────────
+  const durationWeeks = parseInt(duration) || 0;
+  const weekNums = durationWeeks >= 1 ? Array.from({ length: durationWeeks }, (_, i) => i + 1) : [];
+
+  // ── Main form ──────────────────────────────────────────────────────────────────
 
   return (
     <main className="min-h-screen px-4 py-8">
@@ -257,7 +462,7 @@ export default function PostStudyPage() {
           <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// POST_A_STUDY</span>
         </div>
 
-        <div className="rounded p-8" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.1)' }}>
+        <div className="rounded p-8" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.12)' }}>
           <h1 className="text-2xl font-black mb-1"
             style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}>
             Post a study
@@ -302,7 +507,7 @@ export default function PostStudyPage() {
               <div>
                 <Label>DURATION (weeks)</Label>
                 <TextInput type="number" value={duration} onChange={setDuration}
-                  placeholder="e.g. 8" min="1" />
+                  placeholder="e.g. 8" min="1" max="52" />
               </div>
               <div>
                 <Label>REGION / LOCATION</Label>
@@ -326,7 +531,6 @@ export default function PostStudyPage() {
               </div>
             </div>
 
-            {/* Auto-calculated summary */}
             <div className="p-4 rounded" style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.1)' }}>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -373,8 +577,64 @@ export default function PostStudyPage() {
               </div>
             </div>
 
-            {/* ── D: Dropout prevention ── */}
-            <SectionHeader label="// SECTION_D — DROPOUT_PREVENTION (optional)" />
+            {/* ── D: Study Protocol ── */}
+            <SectionHeader
+              label="// SECTION_D — STUDY_PROTOCOL"
+              sub="Define what participants must complete each week. Milestones are shown on the experiment page and tracked during the study."
+            />
+
+            {/* Compliance + Enrollment URL */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>COMPLIANCE THRESHOLD (%)</Label>
+                <TextInput type="number" value={complianceThreshold} onChange={setComplianceThreshold}
+                  placeholder="80" min="0" max="100" />
+                <p className="mono text-xs mt-1" style={{ color: 'var(--text-dim)', opacity: 0.7 }}>
+                  Minimum milestone completion % for payout
+                </p>
+              </div>
+              <div>
+                <Label>APPROVAL STATUS</Label>
+                <SelectInput value={approvalStatus} onChange={setApprovalStatus}
+                  options={APPROVAL_OPTIONS} placeholder="Select status" />
+              </div>
+            </div>
+
+            <div>
+              <Label>ENROLLMENT URL (optional)</Label>
+              <TextInput value={enrollmentUrl} onChange={setEnrollmentUrl}
+                placeholder="https://your-typeform.com/to/xxxxx" />
+              <p className="mono text-xs mt-1" style={{ color: 'var(--text-dim)', opacity: 0.7 }}>
+                Link to external onboarding (Typeform, Google Form, etc.). Participants are sent here after approval.
+              </p>
+            </div>
+
+            {/* Weekly milestones */}
+            {weekNums.length > 0 ? (
+              <div className="flex flex-col gap-2">
+                <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+                  WEEKLY MILESTONES — {weekNums.length}-week study
+                </p>
+                {weekNums.map((w) => (
+                  <WeekSection
+                    key={w}
+                    week={w}
+                    milestones={weekMilestones[w] ?? []}
+                    onChange={(week, updated) =>
+                      setWeekMilestones((prev) => ({ ...prev, [week]: updated }))
+                    }
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded p-4 mono text-xs"
+                style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.08)', color: 'var(--text-dim)' }}>
+                Enter a study duration above to configure weekly milestones.
+              </div>
+            )}
+
+            {/* ── E: Dropout prevention ── */}
+            <SectionHeader label="// SECTION_E — DROPOUT_PREVENTION (optional)" />
 
             <label
               className="flex items-start gap-3 cursor-pointer p-4 rounded"
@@ -407,8 +667,8 @@ export default function PostStudyPage() {
               </div>
             )}
 
-            {/* ── E: Verification ── */}
-            <SectionHeader label="// SECTION_E — VERIFICATION (optional)" />
+            {/* ── F: Verification ── */}
+            <SectionHeader label="// SECTION_F — VERIFICATION (optional)" />
 
             <label
               className="flex items-start gap-3 cursor-pointer p-4 rounded"
@@ -432,8 +692,8 @@ export default function PostStudyPage() {
               </div>
             </label>
 
-            {/* ── F: Agreement ── */}
-            <SectionHeader label="// SECTION_F — AGREEMENT" />
+            {/* ── G: Agreement ── */}
+            <SectionHeader label="// SECTION_G — AGREEMENT" />
 
             <label className="flex items-start gap-3 cursor-pointer">
               <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)}
