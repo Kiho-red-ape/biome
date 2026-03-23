@@ -3,6 +3,7 @@
 import { usePrivy } from '@privy-io/react-auth';
 import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
+import { NotificationBell } from '@/components/nav/notification-bell';
 
 type NavProfile =
   | { kind: 'participant'; pseudonym: string; participantId: string }
@@ -123,6 +124,10 @@ export function SiteHeader() {
           </button>
         )}
 
+        {ready && authenticated && user && (
+          <NotificationBell privyDid={user.id} />
+        )}
+
         {ready && authenticated && (
           <div className="relative flex items-center gap-3" ref={dropRef}>
 
@@ -165,16 +170,28 @@ export function SiteHeader() {
                   </Link>
                 )}
                 {navProfile?.kind === 'participant' && (
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setDropOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 mono text-xs no-underline transition-colors"
-                    style={{ color: 'var(--text-dim)' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(77,255,128,0.04)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    DASHBOARD
-                  </Link>
+                  <>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setDropOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 mono text-xs no-underline transition-colors"
+                      style={{ color: 'var(--text-dim)' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(77,255,128,0.04)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      DASHBOARD
+                    </Link>
+                    <Link
+                      href="/dashboard/preferences"
+                      onClick={() => setDropOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 mono text-xs no-underline transition-colors"
+                      style={{ color: 'var(--text-dim)' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(77,255,128,0.04)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      PREFERENCES
+                    </Link>
+                  </>
                 )}
                 {navProfile?.kind === 'experimenter' && (
                   <Link
