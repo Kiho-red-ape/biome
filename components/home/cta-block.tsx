@@ -127,7 +127,7 @@ function NotifyPanel() {
             You&apos;re on the list.
           </p>
           <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055' }}>
-            We&apos;ll notify you when relevant experiments open near you.
+            We&apos;ll notify you when relevant studies open near you.
           </p>
         </div>
       </div>
@@ -147,14 +147,14 @@ function NotifyPanel() {
         fontFamily: 'var(--font-heading)', fontSize: 22, fontWeight: 700,
         color: '#eef4f0', marginBottom: 10, lineHeight: 1.25,
       }}>
-        Get notified when experiments open near you.
+        Get notified when studies open near you.
       </h2>
       <p style={{
         fontFamily: 'var(--font-heading)', fontSize: 14, color: '#7f8e87',
         lineHeight: 1.65, marginBottom: 20,
       }}>
         Choose your region and interests so we can send you relevant alerts when new
-        experiments, trials, and paid research studies become available near you or online.
+        studies, trials, and paid research opportunities become available near you or online.
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>

@@ -81,6 +81,7 @@ export default async function HomePage() {
           <a href="/legal/participant-agreement" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Participant Agreement</a>
           <a href="/legal/experimenter-agreement" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Experimenter Agreement</a>
           <a href="/payout-policy" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Payout Policy</a>
+          <a href="/disputes/new" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Report an Issue</a>
         </div>
       </footer>
     </main>

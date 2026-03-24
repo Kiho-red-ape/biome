@@ -16,11 +16,10 @@ export function HeroCompact({ stats, experimentCount }: Props) {
   return (
     <section
       style={{
-        padding: '20px 40px',
+        padding: '20px 40px 40px',
         borderBottom: '1px solid rgba(183,255,97,0.08)',
         position: 'relative',
         zIndex: 2,
-        maxHeight: 160,
       }}
     >
       {/* Eyebrow */}
@@ -50,16 +49,19 @@ export function HeroCompact({ stats, experimentCount }: Props) {
         <span style={{ color: '#b7ff61' }}>Get paid.</span>
       </h1>
 
-      {/* Subhead */}
+      {/* Subhead — one line on desktop */}
       <p style={{
         fontFamily: 'var(--font-heading)',
-        fontSize: 15,
+        fontSize: 14,
         color: '#7f8e87',
         lineHeight: 1.4,
         marginBottom: 14,
-        maxWidth: 680,
+        maxWidth: 800,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
       }}>
-        Browse paid clinical trials, surveys, and observational studies — or recruit screened participants for your next study.
+        Browse paid research studies and clinical trials — or recruit screened participants for your next study.
       </p>
 
       {/* CTA buttons */}
@@ -105,7 +107,7 @@ export function HeroCompact({ stats, experimentCount }: Props) {
       </div>
 
       {/* Chips row */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 0 }}>
         {['Paid participation', 'Remote studies', 'Screened applicants'].map((chip) => (
           <span
             key={chip}

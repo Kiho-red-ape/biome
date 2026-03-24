@@ -220,7 +220,7 @@ export default async function ExperimentPage({ params }: Props) {
 
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px' }}>
 
-        {/* ── Identicon banner (120px) ── */}
+        {/* ── Identicon strip (auto-height) ── */}
         <div style={{ marginTop: 0 }}>
           <ThickDivider color={cc} />
           <ExperimentIdenticon
@@ -228,8 +228,6 @@ export default async function ExperimentPage({ params }: Props) {
             category={rk}
             orgName={orgName}
             experimentNumber={1}
-            width="100%"
-            height={120}
           />
           <ThickDivider color={cc} />
         </div>

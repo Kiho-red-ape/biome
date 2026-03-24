@@ -139,15 +139,13 @@ function ExperimentCard({ exp, orgName, expNumber }: {
         (e.currentTarget as HTMLElement).style.boxShadow = '';
       }}
     >
-      {/* ZONE 1 — Identicon banner (80px) */}
-      <div style={{ position: 'relative', height: 80, overflow: 'hidden', flexShrink: 0 }}>
+      {/* ZONE 1 — Identicon strip (auto-height, square cells) */}
+      <div style={{ position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
         <ExperimentIdenticon
           experimentId={exp.id}
           category={rk}
           orgName={orgName}
           experimentNumber={expNumber}
-          width="100%"
-          height={80}
         />
         {/* Status badge */}
         <span
@@ -346,10 +344,11 @@ export function ExperimentGrid({ experiments, orgMap }: Props) {
   };
 
   return (
-    <div style={{ padding: '0 40px 48px' }}>
+    <div style={{ padding: '32px 40px 48px' }}>
 
       {rowRecruiting.length > 0 && (
         <>
+          <div style={{ marginTop: 8 }} />
           <SectionHeader label="RECRUITING STUDIES" color="#b7ff61" />
           <div style={gridCols}>
             {rowRecruiting.map((exp) => (
