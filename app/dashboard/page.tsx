@@ -292,7 +292,19 @@ function ActiveStudyCard({
                                 {m.status === 'submitted' ? 'submitted' : 'done'}
                               </span>
                             )}
-                            {isMissed && (
+                            {isMissed && m.status === 'rejected' && (
+                              <div className="flex items-center gap-2">
+                                <span className="mono text-xs" style={{ color: 'var(--amber)' }}>rejected</span>
+                                <Link
+                                  href={`/disputes/raise?milestone_id=${m.id}&application_id=${study.applicationId}&experiment_id=${study.experiment.id}`}
+                                  className="mono text-xs no-underline transition-opacity hover:opacity-80"
+                                  style={{ color: 'var(--cyan)', fontSize: 10 }}
+                                >
+                                  DISPUTE →
+                                </Link>
+                              </div>
+                            )}
+                            {isMissed && m.status === 'missed' && (
                               <span className="mono text-xs" style={{ color: 'var(--amber)' }}>missed</span>
                             )}
                             {isPending && isSelfReport && (

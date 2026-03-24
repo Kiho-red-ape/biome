@@ -66,10 +66,14 @@ export default async function HomePage() {
         <CtaBlock />
       </div>
       <footer
-        className="text-center py-4 mono text-xs"
+        className="py-4 mono text-xs flex flex-wrap items-center justify-center gap-4 px-4"
         style={{ color: 'var(--text-dim)', borderTop: '1px solid rgba(77,255,128,0.06)' }}
       >
-        // BIOME_PROTOCOL — experiment aggregator — not financial advice
+        <span>// BIOME_PROTOCOL — experiment aggregator — not financial advice</span>
+        <span style={{ opacity: 0.3 }}>·</span>
+        <a href="/legal/tos" className="no-underline hover:underline" style={{ color: 'var(--text-dim)' }}>Terms</a>
+        <a href="/legal/participant-agreement" className="no-underline hover:underline" style={{ color: 'var(--text-dim)' }}>Participant Agreement</a>
+        <a href="/legal/experimenter-agreement" className="no-underline hover:underline" style={{ color: 'var(--text-dim)' }}>Experimenter Agreement</a>
       </footer>
     </main>
   );
