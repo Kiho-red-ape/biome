@@ -1,54 +1,40 @@
-export function BiomeLogo({ width = 130, className }: { width?: number; className?: string }) {
-  // TT Carvist Bold-inspired: thick strokes, geometric construction, white
-  // viewBox 0 0 263 58 — rendered at ~130px wide gives ~29px tall (nav-appropriate)
+// BIOME wordmark — exact geometric stroke SVG
+// viewBox 0 0 420 90 · stroke #b7ff61 · round linecap/join
+export function BiomeLogo({ width = 120, className }: { width?: number; className?: string }) {
   return (
     <svg
-      viewBox="0 0 263 58"
+      viewBox="0 0 420 90"
       width={width}
       aria-label="BIOME"
       className={className}
       fill="none"
-      stroke="white"
-      strokeWidth="10"
-      strokeLinecap="square"
-      strokeLinejoin="miter"
+      stroke="#b7ff61"
+      strokeWidth="4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* ── B ─────────────────────────────────────────────────────── */}
-      {/* left vertical stem */}
-      <line x1="10" y1="5" x2="10" y2="53" />
-      {/* top bump — smaller */}
-      <path
-        d="M 10,5 L 28,5 Q 56,5 56,17 Q 56,29 28,29 L 10,29"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-      {/* bottom bump — slightly larger */}
-      <path
-        d="M 28,29 Q 60,29 60,41 Q 60,53 28,53 L 10,53"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
+      {/* B */}
+      <polyline points="15,8 15,82" />
+      <polyline points="15,8 42,8 58,22 42,40 15,40" />
+      <polyline points="15,42 45,42 62,58 42,82 15,82" />
 
-      {/* ── I ─────────────────────────────────────────────────────── */}
-      <line x1="78" y1="5" x2="78" y2="53" />
+      {/* I */}
+      <line x1="82" y1="8" x2="86" y2="82" />
 
-      {/* ── O ─────────────────────────────────────────────────────── */}
-      {/* clean oval — stroke gives the ring weight */}
-      <ellipse cx="113" cy="29" rx="20" ry="24" />
+      {/* O — diamond with slash */}
+      <polygon points="110,45 138,8 168,45 138,82" />
+      <line x1="118" y1="68" x2="158" y2="22" />
 
-      {/* ── M ─────────────────────────────────────────────────────── */}
-      {/* V-notch at ~60% down (y ≈ 34) */}
-      <polyline points="150,53 150,5 175,34 200,5 200,53" />
+      {/* M */}
+      <polyline points="192,82 196,8 228,62 260,8 264,82" />
 
-      {/* ── E ─────────────────────────────────────────────────────── */}
-      <line x1="218" y1="5" x2="218" y2="53" />
-      {/* top bar — full width */}
-      <line x1="218" y1="5" x2="258" y2="5" />
-      {/* middle bar — slightly shorter */}
-      <line x1="218" y1="29" x2="250" y2="29" />
-      {/* bottom bar — full width */}
-      <line x1="218" y1="53" x2="258" y2="53" />
+      {/* E */}
+      <polyline points="350,8 290,8" />
+      <line x1="290" y1="8" x2="292" y2="82" />
+      <line x1="292" y1="82" x2="350" y2="82" />
+      <line x1="290" y1="44" x2="340" y2="44" />
+      <line x1="350" y1="8" x2="368" y2="28" />
     </svg>
   );
 }

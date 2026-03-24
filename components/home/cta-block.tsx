@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 const REGIONS = [
   'Global / Remote', 'North America', 'Europe', 'South Asia', 'East Asia',
@@ -8,8 +9,7 @@ const REGIONS = [
 ];
 
 const INTERESTS = [
-  'Any type', 'Microbiome', 'Diet & Nutrition', 'Sleep', 'Psychedelics',
-  'Fitness & Performance', 'Longevity', 'Neuroscience', 'Metabolomics',
+  'Any type', 'Microbiome', 'Nutrition', 'Sleep', 'Wearables', 'Longevity', 'Quantified-self',
 ];
 
 export function CtaBlock() {
@@ -23,12 +23,10 @@ export function CtaBlock() {
     if (!email) return;
     setStatus('sending');
     try {
-      const form = e.currentTarget;
-      const body = new FormData(form);
       const res = await fetch('/', {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(body as unknown as Record<string, string>).toString(),
+        body:    new URLSearchParams(new FormData(e.currentTarget) as unknown as Record<string, string>).toString(),
       });
       setStatus(res.ok ? 'done' : 'error');
     } catch {
@@ -36,162 +34,193 @@ export function CtaBlock() {
     }
   }
 
+  const inputStyle = {
+    background: 'var(--bg3)',
+    border: '1px solid rgba(77,255,128,0.14)',
+    color: 'var(--text-bright)',
+    outline: 'none',
+    width: '100%',
+    padding: '8px 12px',
+    borderRadius: 4,
+    fontFamily: 'var(--font-mono)',
+    fontSize: 12,
+  } as const;
+
+  const labelStyle = {
+    display: 'block',
+    fontFamily: 'var(--font-mono)',
+    fontSize: 10,
+    letterSpacing: '0.18em',
+    color: 'var(--text-dim)',
+    marginBottom: 5,
+    textTransform: 'uppercase' as const,
+  };
+
   return (
-    <section className="px-4 md:px-6 pb-16 pt-4">
+    <section className="px-4 md:px-8 pb-20 pt-2">
       <div className="grid md:grid-cols-2 gap-4">
 
-        {/* ── LEFT: Waitlist form ── */}
+        {/* ── LEFT: Notify me ── */}
         <div
           className="rounded p-6 flex flex-col"
-          style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.1)' }}
+          style={{
+            background: 'var(--bg2)',
+            border: '1px solid rgba(77,255,128,0.1)',
+            borderTop: '1px solid rgba(183,255,97,0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(183,255,97,0.08)',
+          }}
         >
-          <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)' }}>
+          {/* Eyebrow */}
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.22em', color: 'var(--text-dim)', marginBottom: 8 }}>
             // NOTIFY_ME
           </p>
+
           <h2
-            className="text-lg font-black mb-2 leading-snug"
-            style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}
+            className="font-black leading-snug mb-3"
+            style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)', fontSize: 'clamp(18px, 3vw, 22px)' }}
           >
             Get notified when experiments open near you.
           </h2>
-          <p className="text-sm mb-6" style={{ color: 'var(--text-dim)' }}>
-            Tell Biome where you are and what you care about. Fewer irrelevant messages,
-            tighter matching, faster screening.
+
+          <p className="mb-6 leading-relaxed" style={{ fontSize: 14, color: 'var(--text-dim)' }}>
+            Choose your region and interests so we can send you relevant alerts when new
+            experiments, trials, and paid research studies become available near you or online.
           </p>
 
           {status === 'done' ? (
-            <div className="flex-1 flex items-center">
-              <p className="mono text-sm" style={{ color: 'var(--green)' }}>
-                ✓ You&apos;re on the list. We&apos;ll notify you when relevant experiments open.
-              </p>
-            </div>
+            <p className="mono" style={{ color: '#b7ff61', fontSize: 13 }}>
+              ✓ You&apos;re on the list. We&apos;ll notify you when relevant experiments open.
+            </p>
           ) : (
-            /* Netlify form — the hidden form-name field makes Netlify detect this at build time */
             <form
               name="waitlist"
               method="POST"
               data-netlify="true"
-              onSubmit={handleSubmit}
+              onSubmit={(e) => void handleSubmit(e)}
               className="flex flex-col gap-3"
             >
               <input type="hidden" name="form-name" value="waitlist" />
 
-              {/* Email */}
               <div>
-                <label className="mono text-xs block mb-1.5" style={{ color: 'var(--text-dim)' }}>
-                  EMAIL
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@email.com"
-                  className="w-full px-3 py-2 rounded mono text-sm outline-none"
-                  style={{
-                    background: 'var(--bg3)',
-                    border: '1px solid rgba(77,255,128,0.15)',
-                    color: 'var(--text-bright)',
-                  }}
-                />
+                <label style={labelStyle}>EMAIL</label>
+                <input type="email" name="email" required placeholder="you@email.com"
+                  value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
               </div>
-
-              {/* Region */}
               <div>
-                <label className="mono text-xs block mb-1.5" style={{ color: 'var(--text-dim)' }}>
-                  REGION
-                </label>
-                <select
-                  name="region"
-                  value={region}
-                  onChange={(e) => setRegion(e.target.value)}
-                  className="w-full px-3 py-2 rounded mono text-sm outline-none cursor-pointer"
-                  style={{
-                    background: 'var(--bg3)',
-                    border: '1px solid rgba(77,255,128,0.15)',
-                    color: region ? 'var(--text-bright)' : 'var(--text-dim)',
-                  }}
-                >
+                <label style={labelStyle}>REGION</label>
+                <select name="region" value={region} onChange={(e) => setRegion(e.target.value)} style={inputStyle}>
                   <option value="">Select region</option>
                   {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
-
-              {/* Interests */}
               <div>
-                <label className="mono text-xs block mb-1.5" style={{ color: 'var(--text-dim)' }}>
-                  INTERESTS
-                </label>
-                <select
-                  name="interest"
-                  value={interest}
-                  onChange={(e) => setInterest(e.target.value)}
-                  className="w-full px-3 py-2 rounded mono text-sm outline-none cursor-pointer"
-                  style={{
-                    background: 'var(--bg3)',
-                    border: '1px solid rgba(77,255,128,0.15)',
-                    color: interest ? 'var(--text-bright)' : 'var(--text-dim)',
-                  }}
-                >
-                  <option value="">Any type</option>
+                <label style={labelStyle}>INTERESTS</label>
+                <select name="interest" value={interest} onChange={(e) => setInterest(e.target.value)} style={inputStyle}>
                   {INTERESTS.map((i) => <option key={i} value={i}>{i}</option>)}
                 </select>
               </div>
 
               {status === 'error' && (
-                <p className="mono text-xs" style={{ color: 'var(--amber)' }}>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--amber)' }}>
                   Something went wrong. Try again.
                 </p>
               )}
 
-              <button
-                type="submit"
-                disabled={status === 'sending' || !email}
-                className="mono text-sm py-2.5 px-5 rounded font-bold transition-all disabled:opacity-40 hover:opacity-90 self-start"
-                style={{ background: 'var(--green)', color: '#050709' }}
-              >
-                {status === 'sending' ? 'Sending...' : 'Notify me →'}
-              </button>
+              <div className="flex gap-2 mt-1">
+                <button
+                  type="submit"
+                  disabled={status === 'sending' || !email}
+                  className="flex-1 font-bold rounded transition-all disabled:opacity-40"
+                  style={{
+                    background: '#b7ff61', color: '#050709',
+                    fontFamily: 'var(--font-mono)', fontSize: 12, padding: '10px 16px',
+                    transition: 'transform 150ms ease, opacity 150ms ease',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
+                >
+                  {status === 'sending' ? 'SENDING…' : 'ENABLE NOTIFICATIONS →'}
+                </button>
+                <Link
+                  href="/onboarding"
+                  className="no-underline rounded font-bold"
+                  style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 12, padding: '10px 16px',
+                    border: '1px solid rgba(77,255,128,0.2)', color: 'var(--text-dim)',
+                    transition: 'transform 150ms ease, opacity 150ms ease',
+                    display: 'flex', alignItems: 'center',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
+                >
+                  CREATE PROFILE →
+                </Link>
+              </div>
+
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', marginTop: 4, lineHeight: 1.6 }}>
+                Creating your BIOME profile helps you get matched with relevant paid studies
+                and research opportunities.
+              </p>
             </form>
           )}
         </div>
 
-        {/* ── RIGHT: Brand / researcher panel ── */}
+        {/* ── RIGHT: For researchers ── */}
         <div
           className="rounded p-6 flex flex-col justify-between"
-          style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.1)' }}
+          style={{
+            background: 'var(--bg2)',
+            border: '1px solid rgba(77,255,128,0.1)',
+            borderTop: '1px solid rgba(0,229,255,0.2)',
+            boxShadow: 'inset 0 1px 0 rgba(0,229,255,0.06)',
+          }}
         >
           <div>
-            <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)' }}>
+            {/* Eyebrow */}
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.22em', color: 'var(--text-dim)', marginBottom: 8 }}>
               // FOR_RESEARCHERS
             </p>
+
             <h2
-              className="text-lg font-black mb-3 leading-snug"
-              style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}
+              className="font-black leading-snug mb-3"
+              style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)', fontSize: 'clamp(18px, 3vw, 22px)' }}
             >
-              Have a study? We find the right participants.
+              Post studies and recruit participants.
             </h2>
-            <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--text-dim)' }}>
-              Post your study, define eligibility criteria, and get a shortlist of screened,
-              verified participants — not a pile of junk applications.
+
+            <p className="leading-relaxed mb-8" style={{ fontSize: 14, color: 'var(--text-dim)' }}>
+              We help you recruit screened participants for health studies, remote trials, product
+              testing, and observational research. Define eligibility, review matched applicants,
+              and enroll qualified participants faster.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <a
-              href="/post"
-              className="mono text-xs px-5 py-2.5 rounded font-bold no-underline transition-all hover:opacity-90"
-              style={{ background: 'var(--green)', color: '#050709' }}
+          <div className="flex flex-col gap-3">
+            <Link
+              href="/onboarding?role=experimenter"
+              className="no-underline font-bold rounded text-center"
+              style={{
+                background: '#b7ff61', color: '#050709',
+                fontFamily: 'var(--font-mono)', fontSize: 12, padding: '11px 20px',
+                transition: 'transform 150ms ease',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
             >
-              Post a study →
-            </a>
+              SIGN UP AS RESEARCHER →
+            </Link>
+
             <a
               href="mailto:kishore@biome.to"
-              className="mono text-xs px-5 py-2.5 rounded font-bold no-underline transition-all hover:opacity-80"
-              style={{ border: '1px solid rgba(77,255,128,0.2)', color: 'var(--text-bright)', background: 'transparent' }}
+              className="no-underline"
+              style={{
+                fontFamily: 'var(--font-mono)', fontSize: 11,
+                color: 'var(--text-dim)', textAlign: 'center',
+                borderTop: '1px solid rgba(77,255,128,0.06)', paddingTop: 12,
+              }}
             >
-              Talk to us →
+              Need help designing your study?{' '}
+              <span style={{ color: 'var(--cyan)', textDecoration: 'underline' }}>Talk to us →</span>
             </a>
           </div>
         </div>

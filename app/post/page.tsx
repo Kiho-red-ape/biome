@@ -467,9 +467,27 @@ export default function PostStudyPage() {
             style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}>
             Post a study
           </h1>
-          <p className="text-sm mb-6" style={{ color: 'var(--text-dim)' }}>
+          <p className="text-sm mb-4" style={{ color: 'var(--text-dim)' }}>
             Saved as draft. Review and publish from the study page when ready.
           </p>
+
+          {/* Activation fee notice */}
+          <div
+            className="rounded p-3 mb-4 flex items-start gap-3"
+            style={{ background: 'rgba(183,255,97,0.04)', border: '1px solid rgba(183,255,97,0.15)' }}
+          >
+            <span className="mono" style={{ color: 'var(--green)', fontSize: 14, flexShrink: 0 }}>◆</span>
+            <div>
+              <p className="mono font-bold" style={{ fontSize: 11, color: 'var(--green)', letterSpacing: '0.1em', marginBottom: 3 }}>
+                STUDY ACTIVATION FEE
+              </p>
+              <p className="mono" style={{ fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.6 }}>
+                Your <strong style={{ color: 'var(--text-bright)' }}>first study is free</strong>.
+                Subsequent studies require a one-time <strong style={{ color: 'var(--text-bright)' }}>$99 activation fee</strong> per study,
+                invoiced before publishing. Fee status is shown on your experimenter dashboard.
+              </p>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
@@ -699,8 +717,16 @@ export default function PostStudyPage() {
               <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)}
                 required className="mt-1 w-4 h-4 flex-shrink-0" />
               <span className="text-sm" style={{ color: 'var(--text-dim)' }}>
-                I agree to the BIOME Platform Terms. A 2.5% platform fee is collected on completed
-                participant payouts.
+                I agree to the{' '}
+                <a href="/legal/tos" target="_blank" rel="noreferrer"
+                   style={{ color: 'var(--cyan)', textDecoration: 'underline' }}>
+                  BIOME Platform Terms
+                </a>
+                {' '}and the{' '}
+                <a href="/legal/experimenter-agreement" target="_blank" rel="noreferrer"
+                   style={{ color: 'var(--cyan)', textDecoration: 'underline' }}>
+                  Experimenter Study Agreement
+                </a>.
               </span>
             </label>
 

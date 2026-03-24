@@ -79,7 +79,7 @@ export function LegalAcceptance({ docKey, title, content, onAccept, onDecline, l
             color: progress >= 98 ? 'var(--green)' : 'var(--text-dim)',
           }}
         >
-          {progress >= 98 ? '✓' : `${progress}%`} read
+          {progress >= 98 ? '✓ Read' : `Scroll to read (${progress}%)`}
         </div>
       </div>
 
@@ -120,6 +120,16 @@ export function LegalAcceptance({ docKey, title, content, onAccept, onDecline, l
             ↓ Scroll to the bottom to enable acceptance
           </p>
         )}
+
+        {/* Translation note */}
+        <div
+          className="rounded p-2.5"
+          style={{ background: 'rgba(183,255,97,0.03)', border: '1px solid rgba(183,255,97,0.08)' }}
+        >
+          <p className="mono text-xs leading-relaxed" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
+            ⚠ These terms are in English. If English is not your primary language, please translate and review the full text before accepting. By checking the box, you confirm you have understood the terms regardless of language.
+          </p>
+        </div>
 
         {/* Checkbox */}
         <label

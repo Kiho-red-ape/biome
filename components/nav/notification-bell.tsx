@@ -96,7 +96,7 @@ export function NotificationBell({ privyDid }: Props) {
       {/* Bell button */}
       <button
         onClick={handleOpen}
-        className="relative flex items-center justify-center w-8 h-8 rounded transition-all hover:opacity-80"
+        className={`relative flex items-center justify-center w-8 h-8 rounded transition-all hover:opacity-80${unread > 0 ? ' bell-has-unread' : ''}`}
         style={{ color: unread > 0 ? 'var(--green)' : 'var(--text-dim)', background: 'none', border: 'none', cursor: 'pointer' }}
         title="Notifications"
       >
