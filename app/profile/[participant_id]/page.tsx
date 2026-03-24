@@ -209,28 +209,23 @@ export default async function PublicProfilePage({
                 return (
                   <div
                     key={app.id}
+                    className="row-hover"
                     style={{
                       display: 'grid', gridTemplateColumns: '1fr 120px 100px 80px',
                       padding: '12px 16px', alignItems: 'center',
                       borderBottom: '1px solid rgba(255,255,255,0.04)',
-                      transition: 'background 150ms ease',
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)'; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                   >
                     <div style={{ paddingRight: 16, overflow: 'hidden' }}>
                       {exp ? (
                         <Link
                           href={`/experiments/${exp.id}`}
+                          className="hover-bright"
                           style={{
                             fontFamily: 'var(--font-heading)', fontSize: 14,
-                            color: '#aab8b1', textDecoration: 'none',
                             display: 'block', overflow: 'hidden',
                             textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                            transition: 'color 150ms ease',
                           }}
-                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#eef4f0'; }}
-                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '#aab8b1'; }}
                         >
                           {exp.title}
                         </Link>

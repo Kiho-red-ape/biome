@@ -254,6 +254,26 @@ code, pre, .mono { font-family: var(--font-mono); }
 /* ─── Micro-interactions ───────────────────────────────────── */
 a { transition: color 150ms ease; }
 
+/* ─── Hover utility classes (safe in server components) ────── */
+.hover-green          { color: #7f8e87; text-decoration: none; transition: color 150ms ease; }
+.hover-green:hover    { color: #b7ff61; }
+.hover-bright         { color: #aab8b1; text-decoration: none; transition: color 150ms ease; }
+.hover-bright:hover   { color: #eef4f0; }
+.row-hover            { transition: background 150ms ease; }
+.row-hover:hover      { background: rgba(255,255,255,0.02); }
+
+/* ─── CTA apply button (server-safe, CSS-only hover) ────────── */
+.cta-apply-btn {
+  width: 100%; height: 48px;
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 13px; text-transform: uppercase; letter-spacing: 3px;
+  background: #b7ff61; color: #050709;
+  border: none; cursor: pointer; border-radius: 2px;
+  transition: transform 150ms ease, background 150ms ease;
+  display: block;
+}
+.cta-apply-btn:hover { transform: scale(1.01); background: #ffffff; }
+
 /* ─── Scrollbar ────────────────────────────────────────────── */
 ::-webkit-scrollbar       { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg); }

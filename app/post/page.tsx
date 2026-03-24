@@ -702,10 +702,9 @@ export default function PostStudyPage() {
                   Apply for ✓ BIOME VERIFIED status
                 </p>
                 <p className="text-xs" style={{ color: 'var(--text-dim)' }}>
-                  Our science team reviews your protocol, safety measures, and compliance framework.
-                  Contact{' '}
-                  <a href="mailto:kishore@biome.to" style={{ color: 'var(--cyan)' }}>kishore@biome.to</a>
-                  {' '}for details. Sets a flag — we reach out to begin the review.
+                  Our science team reviews your protocol, safety measures, and compliance framework.{' '}
+                  <a href="/contact" style={{ color: 'var(--cyan)' }}>Contact us</a>
+                  {' '}for more details. Sets a flag — we reach out to begin the review.
                 </p>
               </div>
             </label>

@@ -203,15 +203,10 @@ export default async function ExperimentPage({ params }: Props) {
         backdropFilter: 'blur(16px)',
         borderBottom: '1px solid rgba(183,255,97,0.12)',
       }}>
-        <Link href="/experiments" style={{
+        <Link href="/experiments" className="hover-green" style={{
           fontFamily: 'var(--font-mono)', fontSize: 11,
           textTransform: 'uppercase', letterSpacing: '2px',
-          color: '#7f8e87', textDecoration: 'none',
-          transition: 'color 150ms ease',
-        }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#b7ff61'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '#7f8e87'; }}
-        >
+        }}>
           ← Back to experiments
         </Link>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px', color: '#4a7055' }}>
@@ -496,26 +491,7 @@ export default async function ExperimentPage({ params }: Props) {
         {/* ── CTA button ── */}
         <div style={{ padding: '28px 0 48px' }}>
           {exp.status === 'recruiting' && (
-            <button
-              style={{
-                width: '100%', height: 48,
-                fontFamily: 'var(--font-mono)', fontWeight: 700,
-                fontSize: 13, textTransform: 'uppercase', letterSpacing: '3px',
-                background: '#b7ff61', color: '#050709',
-                border: 'none', cursor: 'pointer', borderRadius: 2,
-                transition: 'transform 150ms ease, background 150ms ease',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLElement;
-                el.style.transform = 'scale(1.01)';
-                el.style.background = '#ffffff';
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLElement;
-                el.style.transform = 'scale(1)';
-                el.style.background = '#b7ff61';
-              }}
-            >
+            <button className="cta-apply-btn">
               Apply to this study → ({slotsLeft} slot{slotsLeft !== 1 ? 's' : ''} remaining)
             </button>
           )}
