@@ -109,19 +109,14 @@ export function NotificationBell({ privyDid }: Props) {
         </svg>
         {unread > 0 && (
           <span
-            className="absolute -top-0.5 -right-0.5 mono text-xs flex items-center justify-center rounded-full"
+            className="absolute rounded-full"
             style={{
-              background: 'var(--green)',
-              color:      '#050709',
-              minWidth:   16,
-              height:     16,
-              fontSize:   9,
-              fontWeight: 700,
-              padding:    '0 3px',
+              top: 1, right: 1,
+              width: 6, height: 6,
+              background: '#ff8f8f',
+              display: 'block',
             }}
-          >
-            {unread > 9 ? '9+' : unread}
-          </span>
+          />
         )}
       </button>
 

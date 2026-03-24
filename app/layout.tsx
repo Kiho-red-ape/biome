@@ -1,16 +1,16 @@
 import type { Metadata } from 'next';
-import { Syne, JetBrains_Mono } from 'next/font/google';
+import { Familjen_Grotesk, DM_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
 
-const syne = Syne({
+const familjenGrotesk = Familjen_Grotesk({
   subsets: ['latin'],
-  weight: ['400', '600', '700', '800'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-heading',
   display: 'swap',
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const dmMono = DM_Mono({
   subsets: ['latin'],
   weight: ['400', '500'],
   variable: '--font-mono',
@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${syne.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${familjenGrotesk.variable} ${dmMono.variable}`}>
       <body>
         <Providers>
           <div id="app-root">

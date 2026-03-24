@@ -5,24 +5,47 @@ import type { Experiment, ExperimentStatus, AmendmentEntry } from '@/lib/types';
 import { QASection } from '@/components/qa/qa-section';
 import type { Question, QAComment } from '@/components/qa/qa-section';
 import { DraftBanner } from '@/components/experiments/draft-banner';
+import { ExperimentIdenticon } from '@/components/ui/experiment-identicon';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Category helpers ──────────────────────────────────────────────────────────
 
-const STATUS_CONFIG: Record<ExperimentStatus, { label: string; color: string }> = {
-  recruiting: { label: 'RECRUITING', color: 'var(--green)'    },
-  active:     { label: 'ACTIVE',     color: 'var(--cyan)'     },
-  draft:      { label: 'DRAFT',      color: 'var(--text-dim)' },
-  completed:  { label: 'COMPLETED',  color: 'var(--text-dim)' },
-  cancelled:  { label: 'CANCELLED',  color: 'var(--amber)'    },
+function rampKey(cat: string): string {
+  const n = (cat ?? '').toLowerCase().replace(/\s+/g, '-');
+  if (n.includes('micro') || n.includes('gut'))  return 'microbiome';
+  if (n.includes('nutri') || n.includes('diet')) return 'nutrition';
+  if (n.includes('sleep') || n.includes('recov')) return 'sleep';
+  if (n.includes('wear') || n.includes('device')) return 'wearables';
+  if (n.includes('longev') || n.includes('aging')) return 'longevity';
+  if (n.includes('quant') || n.includes('self'))  return 'quantified-self';
+  const KEYS = ['microbiome','nutrition','sleep','wearables','longevity','quantified-self'];
+  return KEYS.includes(n) ? n : 'microbiome';
+}
+
+const CAT_COLORS: Record<string, string> = {
+  microbiome: '#b7ff61', nutrition: '#8ee7ff', sleep: '#ffd166',
+  wearables: '#ff8f8f', longevity: '#d8c4ff', 'quantified-self': '#88bbff',
+};
+function catColor(cat: string): string { return CAT_COLORS[rampKey(cat)] ?? '#b7ff61'; }
+
+// ─── Status config ─────────────────────────────────────────────────────────────
+
+const STATUS_CONFIG: Record<ExperimentStatus, { label: string; color: string; bg: string; border: string }> = {
+  recruiting: { label: 'RECRUITING', color: '#b7ff61', bg: 'rgba(183,255,97,0.08)', border: '1px solid rgba(183,255,97,0.3)' },
+  active:     { label: 'ACTIVE',     color: '#8ee7ff', bg: 'rgba(142,231,255,0.08)', border: '1px solid rgba(142,231,255,0.25)' },
+  draft:      { label: 'DRAFT',      color: '#7f8e87', bg: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' },
+  completed:  { label: 'COMPLETED',  color: '#7f8e87', bg: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' },
+  cancelled:  { label: 'CANCELLED',  color: '#ffd166', bg: 'rgba(255,209,102,0.06)', border: '1px solid rgba(255,209,102,0.2)' },
 };
 
+// ─── Types ─────────────────────────────────────────────────────────────────────
+
 type StudyMilestone = {
-  id:             string;
-  week_number:    number;
-  title:          string;
-  description:    string | null;
+  id: string;
+  week_number: number;
+  title: string;
+  description: string | null;
   milestone_type: 'self_report' | 'experimenter_confirm';
-  sort_order:     number;
+  sort_order: number;
 };
 
 interface Props {
@@ -31,31 +54,25 @@ interface Props {
 
 function criteriaList(text: string | null) {
   if (!text) return null;
-  return text.split('\n').map((line) => line.trim()).filter(Boolean);
+  return text.split('\n').map((l) => l.trim()).filter(Boolean);
 }
 
-function commencementLabel(status: string, commenced: boolean, commencedAt: string | null): string {
-  if (status === 'completed') return 'Completed';
-  if (status === 'active' && commenced && commencedAt) {
-    return `Active — commenced ${new Date(commencedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
-  }
-  if (status === 'recruiting') return 'Screening participants';
-  if (status === 'draft') return 'Draft';
-  return status.charAt(0).toUpperCase() + status.slice(1);
-}
+// ─── Section divider ───────────────────────────────────────────────────────────
 
-function approvalBadgeColor(status: string): string {
-  if (status === 'Ethics approved') return 'var(--green)';
-  if (status === 'IRB pending')     return 'var(--amber)';
-  return 'var(--text-dim)';
+function ThickDivider({ color }: { color: string }) {
+  return (
+    <div style={{ height: 2, background: color, opacity: 0.25, margin: '0' }} />
+  );
+}
+function ThinDivider() {
+  return <div style={{ height: 1, background: 'rgba(255,255,255,0.07)' }} />;
 }
 
 // ─── Milestone timeline ───────────────────────────────────────────────────────
 
-function MilestoneTimeline({ milestones }: { milestones: StudyMilestone[] }) {
+function MilestoneTimeline({ milestones, catColor: cc }: { milestones: StudyMilestone[]; catColor: string }) {
   if (milestones.length === 0) return null;
 
-  // Group by week
   const byWeek: Record<number, StudyMilestone[]> = {};
   for (const m of milestones) {
     if (!byWeek[m.week_number]) byWeek[m.week_number] = [];
@@ -64,47 +81,43 @@ function MilestoneTimeline({ milestones }: { milestones: StudyMilestone[] }) {
   const weeks = Object.keys(byWeek).map(Number).sort((a, b) => a - b);
 
   return (
-    <section className="p-6 rounded"
-      style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.1)' }}>
-      <p className="mono text-xs mb-5" style={{ color: 'var(--text-dim)' }}>
-        // STUDY_PROTOCOL — what participants complete each week
+    <div style={{ padding: '24px 0' }}>
+      <p style={{
+        fontFamily: 'var(--font-mono)', fontSize: 11,
+        letterSpacing: '3px', textTransform: 'uppercase',
+        color: cc, marginBottom: 20,
+      }}>
+        // PROTOCOL
       </p>
-
-      <div className="flex flex-col gap-5">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         {weeks.map((week, wi) => (
-          <div key={week} className="flex gap-4">
-            {/* Vertical timeline spine */}
-            <div className="flex flex-col items-center flex-shrink-0" style={{ width: 28 }}>
-              {/* Week dot */}
-              <div
-                className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5"
-                style={{ background: 'var(--green-dim)', border: '2px solid var(--green)' }}
-              />
-              {/* Spine (not on last week) */}
+          <div key={week} style={{ display: 'flex', gap: 16 }}>
+            {/* Spine */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 20, flexShrink: 0 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: cc, flexShrink: 0 }} />
               {wi < weeks.length - 1 && (
-                <div
-                  className="flex-1 mt-1"
-                  style={{ width: 1, background: 'rgba(77,255,128,0.18)', minHeight: 24 }}
-                />
+                <div style={{ width: 1, flex: 1, background: `${cc}30`, marginTop: 4, minHeight: 20 }} />
               )}
             </div>
-
-            {/* Week content */}
-            <div className="flex-1 min-w-0">
-              <p className="mono text-xs font-bold mb-2" style={{ color: 'var(--green)' }}>
+            {/* Content */}
+            <div style={{ flex: 1 }}>
+              <p style={{
+                fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 500,
+                color: cc, marginBottom: 8, letterSpacing: '1px',
+              }}>
                 WEEK {week}
               </p>
-              <div className="flex flex-col gap-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {byWeek[week].sort((a, b) => a.sort_order - b.sort_order).map((m) => (
-                  <div key={m.id} className="flex items-start gap-2">
-                    <span className="flex-shrink-0 mono text-xs mt-px" style={{ color: 'var(--text-dim)' }}>○</span>
-                    <div className="min-w-0">
-                      <span className="text-sm" style={{ color: 'var(--text-bright)' }}>{m.title}</span>
+                  <div key={m.id} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#4a7055', flexShrink: 0, marginTop: 1 }}>○</span>
+                    <div>
+                      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1' }}>{m.title}</span>
                       {m.description && (
-                        <p className="mono text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>{m.description}</p>
+                        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', marginTop: 2 }}>{m.description}</p>
                       )}
-                      <span className="mono text-xs" style={{ color: 'var(--text-dim)', opacity: 0.6 }}>
-                        {' '}({m.milestone_type === 'self_report' ? 'you report' : 'experimenter confirms'})
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', opacity: 0.7 }}>
+                        {' '}({m.milestone_type === 'self_report' ? 'participant reports' : 'experimenter confirms'})
                       </span>
                     </div>
                   </div>
@@ -114,33 +127,26 @@ function MilestoneTimeline({ milestones }: { milestones: StudyMilestone[] }) {
           </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function ExperimentPage({ params }: Props) {
   const { id } = await params;
   const supabase = createAnonClient();
 
   const [expResult, commentsResult, milestonesResult] = await Promise.all([
-    supabase
-      .from('experiments')
-      .select('*, profiles!experimenter_id(*)')
-      .eq('id', id)
-      .single(),
+    supabase.from('experiments').select('*, profiles!experimenter_id(*)').eq('id', id).single(),
     supabase
       .from('comments')
       .select('*, profiles!author_id(display_name, region, participant_profiles(participant_id, pseudonym))')
-      .eq('experiment_id', id)
-      .order('created_at', { ascending: true }),
+      .eq('experiment_id', id).order('created_at', { ascending: true }),
     supabase
       .from('study_milestones')
       .select('id, week_number, title, description, milestone_type, sort_order')
-      .eq('experiment_id', id)
-      .order('week_number')
-      .order('sort_order'),
+      .eq('experiment_id', id).order('week_number').order('sort_order'),
   ]);
 
   if (!expResult.data) notFound();
@@ -157,15 +163,10 @@ export default async function ExperimentPage({ params }: Props) {
 
   const milestones = (milestonesResult.data ?? []) as StudyMilestone[];
 
-  // Fetch experimenter org profile
   const { data: orgData } = await supabase
-    .from('experimenter_profiles')
-    .select('id, org_name')
-    .eq('user_id', exp.experimenter_id)
-    .maybeSingle();
+    .from('experimenter_profiles').select('id, org_name').eq('user_id', exp.experimenter_id).maybeSingle();
   const orgProfile = orgData as { id: string; org_name: string } | null;
 
-  // Build Q&A structure
   const allComments = (commentsResult.data ?? []) as QAComment[];
   const replyMap: Record<string, QAComment[]> = {};
   for (const c of allComments) {
@@ -178,311 +179,412 @@ export default async function ExperimentPage({ params }: Props) {
     .filter((c) => !c.parent_id)
     .map((c) => ({ ...c, replies: replyMap[c.id] ?? [] }));
 
-  const st             = STATUS_CONFIG[exp.status] ?? STATUS_CONFIG.draft;
-  const slotPct        = exp.slots_total > 0 ? (exp.slots_filled / exp.slots_total) * 100 : 0;
-  const slotsLeft      = exp.slots_total - exp.slots_filled;
-  const inclusion      = criteriaList(exp.inclusion_criteria);
-  const exclusion      = criteriaList(exp.exclusion_criteria);
-  const threshold      = exp.compliance_threshold ?? 80;
-  const approvalStatus = exp.iec_approval;
-  const commLabel      = commencementLabel(exp.status, exp.commenced ?? false, exp.commenced_at ?? null);
+  const st          = STATUS_CONFIG[exp.status] ?? STATUS_CONFIG.draft;
+  const cc          = catColor(exp.category);
+  const rk          = rampKey(exp.category);
+  const slotPct     = exp.slots_total > 0 ? (exp.slots_filled / exp.slots_total) * 100 : 0;
+  const slotsLeft   = exp.slots_total - exp.slots_filled;
+  const inclusion   = criteriaList(exp.inclusion_criteria);
+  const exclusion   = criteriaList(exp.exclusion_criteria);
+  const threshold   = exp.compliance_threshold ?? 80;
+  const orgName     = orgProfile?.org_name ?? exp.profiles?.display_name ?? 'Unknown';
+  const durWks      = (exp as unknown as Record<string, unknown>).duration_weeks as number | null;
 
   return (
-    <main className="min-h-screen">
+    <main style={{ minHeight: '100vh', background: 'var(--bg)' }}>
 
-      {/* ── Top nav ── */}
-      <header
-        className="sticky top-0 z-50 flex items-center justify-between px-6 py-3"
-        style={{
-          background: 'rgba(10,18,8,0.94)',
-          borderBottom: '1px solid rgba(77,255,128,0.14)',
-          backdropFilter: 'blur(12px)',
+      {/* ── Sticky mini nav ── */}
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 200,
+        height: 52, display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 40px',
+        background: 'rgba(5,7,9,0.95)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(183,255,97,0.12)',
+      }}>
+        <Link href="/experiments" style={{
+          fontFamily: 'var(--font-mono)', fontSize: 11,
+          textTransform: 'uppercase', letterSpacing: '2px',
+          color: '#7f8e87', textDecoration: 'none',
+          transition: 'color 150ms ease',
         }}
-      >
-        <Link href="/" className="mono text-xs flex items-center gap-2 no-underline"
-          style={{ color: 'var(--text-dim)' }}>
-          ← <span style={{ color: 'var(--green)', fontWeight: 800, letterSpacing: '0.18em' }}>BIOME</span>
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#b7ff61'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '#7f8e87'; }}
+        >
+          ← Back to experiments
         </Link>
-        <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// EXPERIMENT_DETAIL</span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px', color: '#4a7055' }}>
+          // EXPERIMENT_DETAIL
+        </span>
       </header>
 
       {exp.status === 'draft' && (
         <DraftBanner experimentId={exp.id} experimenterUserId={exp.experimenter_id} />
       )}
 
-      <div className="max-w-6xl mx-auto px-4 md:px-6 py-10">
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px' }}>
 
-        {/* ── Breadcrumb ── */}
-        <p className="mono text-xs mb-5" style={{ color: 'var(--text-dim)' }}>
-          <Link href="/" style={{ color: 'var(--text-dim)' }}>BIOME</Link>
-          {' / '}
-          <span style={{ color: 'var(--text-bright)' }}>{exp.title}</span>
-        </p>
+        {/* ── Identicon banner (120px) ── */}
+        <div style={{ marginTop: 0 }}>
+          <ThickDivider color={cc} />
+          <ExperimentIdenticon
+            experimentId={exp.id}
+            category={rk}
+            orgName={orgName}
+            experimentNumber={1}
+            width="100%"
+            height={120}
+          />
+          <ThickDivider color={cc} />
+        </div>
 
         {/* ── Title block ── */}
-        <div className="corner-bracket p-6 rounded mb-8"
-          style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.12)' }}>
-          <div className="flex flex-wrap items-center gap-2.5 mb-3">
-            <span className="mono text-xs px-2 py-0.5 rounded"
-              style={{ color: 'var(--text-dim)', border: '1px solid rgba(77,255,128,0.15)' }}>
+        <div style={{ padding: '24px 0 0' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            {exp.is_verified && (
+              <span className="badge-verified">✓ BIOME VERIFIED</span>
+            )}
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: 9,
+              textTransform: 'uppercase', letterSpacing: '2px',
+              color: cc,
+              border: `1px solid ${cc}40`,
+              background: `${cc}0a`,
+              padding: '3px 8px',
+            }}>
               {exp.category.toUpperCase()}
             </span>
-            {exp.is_verified && <span className="badge-verified">✓ BIOME VERIFIED</span>}
-            <span className="mono text-xs flex items-center gap-1" style={{ color: st.color }}>
-              ● {st.label}
-            </span>
-            {/* Commencement status */}
-            <span className="mono text-xs px-2 py-0.5 rounded"
-              style={{
-                color: exp.status === 'active' ? 'var(--cyan)' : 'var(--text-dim)',
-                border: '1px solid rgba(77,255,128,0.1)',
-                background: exp.status === 'active' ? 'rgba(0,229,255,0.05)' : 'transparent',
-              }}>
-              {commLabel}
-            </span>
-            {/* Approval badge */}
-            {approvalStatus && (
-              <span className="mono text-xs px-2 py-0.5 rounded"
-                style={{
-                  color: approvalBadgeColor(approvalStatus),
-                  border: `1px solid ${approvalBadgeColor(approvalStatus)}40`,
-                  background: `${approvalBadgeColor(approvalStatus)}08`,
-                }}>
-                {approvalStatus}
-              </span>
-            )}
           </div>
-          <h1 className="text-2xl md:text-3xl mb-2">{exp.title}</h1>
-          <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-            by {orgProfile?.org_name ?? exp.profiles?.display_name ?? 'Unknown'}
-            {' · '}{exp.is_remote ? 'Remote' : (exp.region ?? 'In-person')}
-            {exp.duration_weeks ? ` · ${exp.duration_weeks} weeks` : ''}
+          <h1 style={{
+            fontFamily: 'var(--font-heading)',
+            fontSize: 'clamp(28px, 4vw, 42px)',
+            fontWeight: 700, color: '#eef4f0',
+            lineHeight: 1.15, marginBottom: 8,
+          }}>
+            {exp.title}
+          </h1>
+          <p style={{
+            fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a7055',
+            letterSpacing: '0.5px',
+          }}>
+            by {orgName}
+            {orgProfile && (
+              <>
+                {' '}·{' '}
+                <Link href={`/org/${orgProfile.id}`} style={{ color: '#7f8e87', textDecoration: 'none' }}>
+                  View org →
+                </Link>
+              </>
+            )}
           </p>
         </div>
 
-        {/* ── Two-column layout ── */}
-        <div className="grid md:grid-cols-3 gap-8">
+        <ThinDivider />
 
-          {/* ════ LEFT PANEL ════ */}
-          <div className="md:col-span-2 flex flex-col gap-6">
-
-            {/* Who's running this */}
-            <section className="p-6 rounded"
-              style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}>
-              <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// WHO&apos;S RUNNING THIS</p>
-              <div className="flex items-start justify-between gap-3 mb-1">
-                <p className="font-semibold" style={{ color: 'var(--text-white)' }}>
-                  {orgProfile?.org_name ?? exp.profiles?.display_name ?? 'Unknown'}
-                </p>
-                {orgProfile && (
-                  <Link href={`/org/${orgProfile.id}`}
-                    className="mono text-xs no-underline transition-opacity hover:opacity-80 flex-shrink-0"
-                    style={{ color: 'var(--cyan)' }}>
-                    View org profile ↗
-                  </Link>
-                )}
-              </div>
-              {exp.profiles?.bio && (
-                <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-dim)' }}>
-                  {exp.profiles.bio}
-                </p>
-              )}
-              {exp.profiles?.region && (
-                <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                  Based in {exp.profiles.region}
-                </p>
-              )}
-              {exp.external_comms_url && (
-                <a href={exp.external_comms_url} target="_blank" rel="noopener noreferrer"
-                  className="mono text-xs inline-flex items-center gap-1 mt-3 transition-opacity hover:opacity-80"
-                  style={{ color: 'var(--cyan)' }}>
-                  Community / Discord ↗
-                </a>
-              )}
-            </section>
-
-            {/* About */}
-            <section className="p-6 rounded"
-              style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}>
-              <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// ABOUT THIS STUDY</p>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-bright)' }}>
-                {exp.description}
+        {/* ── 4-col metadata grid ── */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0,
+          padding: '20px 0',
+        }}>
+          {[
+            { label: 'CATEGORY', value: exp.category.toUpperCase() },
+            { label: 'TYPE', value: 'INTERVENTIONAL' },
+            { label: 'DURATION', value: durWks ? `${durWks} WEEKS` : '—' },
+            { label: 'STATUS', value: null, status: st },
+          ].map((item, i) => (
+            <div key={i} style={{
+              paddingRight: 24,
+              borderRight: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+              paddingLeft: i > 0 ? 24 : 0,
+            }}>
+              <p style={{
+                fontFamily: 'var(--font-mono)', fontSize: 9,
+                textTransform: 'uppercase', letterSpacing: '2px',
+                color: '#4a7055', marginBottom: 6,
+              }}>
+                {item.label}
               </p>
-            </section>
-
-            {/* What you'll need to do */}
-            {exp.tests_needed && (
-              <section className="p-6 rounded"
-                style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}>
-                <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// WHAT YOU&apos;LL NEED TO DO</p>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-bright)' }}>
-                  {exp.tests_needed}
+              {item.status ? (
+                <span style={{
+                  fontFamily: 'var(--font-mono)', fontSize: 12,
+                  padding: '4px 10px',
+                  color: item.status.color,
+                  background: item.status.bg,
+                  border: item.status.border,
+                  letterSpacing: '1px',
+                }}>
+                  ● {item.status.label}
+                </span>
+              ) : (
+                <p style={{
+                  fontFamily: 'var(--font-heading)', fontSize: 16, fontWeight: 600,
+                  color: '#eef4f0', margin: 0,
+                }}>
+                  {item.value}
                 </p>
-              </section>
-            )}
+              )}
+            </div>
+          ))}
+        </div>
 
-            {/* ── Milestone timeline ── */}
-            <MilestoneTimeline milestones={milestones} />
+        <ThinDivider />
 
-            {/* Inclusion */}
-            {inclusion && (
-              <section className="p-6 rounded"
-                style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}>
-                <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// WHO CAN JOIN</p>
-                <ul className="flex flex-col gap-2">
-                  {inclusion.map((line, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm" style={{ color: 'var(--text-bright)' }}>
-                      <span className="flex-shrink-0 mt-0.5" style={{ color: 'var(--green)' }}>✓</span>
-                      {line}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {/* Exclusion */}
-            {exclusion && (
-              <section className="p-6 rounded"
-                style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}>
-                <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// WHO CANNOT JOIN</p>
-                <ul className="flex flex-col gap-2">
-                  {exclusion.map((line, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm" style={{ color: 'var(--text-bright)' }}>
-                      <span className="flex-shrink-0 mt-0.5" style={{ color: 'var(--amber)' }}>✕</span>
-                      {line}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {/* Amendment log */}
-            {exp.amendment_log && exp.amendment_log.length > 0 && (
-              <section className="p-6 rounded"
-                style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}>
-                <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// AMENDMENTS</p>
-                <div className="flex flex-col gap-2">
-                  {[...exp.amendment_log].reverse().map((a, i) => (
-                    <div key={i} className="flex flex-wrap items-center gap-2 text-xs">
-                      <span className="mono" style={{ color: 'var(--text-dim)' }}>
-                        {new Date(a.ts).toLocaleDateString()}
-                      </span>
-                      <span className="mono px-1.5 py-0.5 rounded"
-                        style={{ background: 'rgba(77,255,128,0.06)', border: '1px solid rgba(77,255,128,0.1)', color: 'var(--green)' }}>
-                        {a.field}
-                      </span>
-                      <span className="mono" style={{ color: 'var(--text-dim)' }}>
-                        changed from{' '}
-                        <span style={{ color: 'var(--amber)' }}>{a.old_value || '—'}</span>
-                        {' to '}
-                        <span style={{ color: 'var(--text-bright)' }}>{a.new_value || '—'}</span>
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* Sign up CTA */}
-            {exp.status === 'recruiting' && (
-              <section className="p-6 rounded"
-                style={{ background: 'rgba(77,255,128,0.04)', border: '1px solid var(--green-dim)' }}>
-                <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// PARTICIPATE</p>
-                <p className="text-sm mb-4" style={{ color: 'var(--text-bright)' }}>
-                  Earn{' '}
-                  <span className="font-bold" style={{ color: 'var(--green)' }}>
-                    ${exp.bounty_per_participant.toFixed(2)}
-                  </span>{' '}
-                  upon completion. {slotsLeft} slot{slotsLeft !== 1 ? 's' : ''} remaining.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    className="px-5 py-2.5 rounded font-bold mono text-sm transition-all hover:opacity-90"
-                    style={{ background: 'var(--green)', color: '#050709' }}>
-                    SIGN UP →
-                  </button>
-                  <button
-                    className="px-5 py-2.5 rounded font-bold mono text-sm transition-all hover:opacity-80"
-                    style={{ border: '1px solid var(--green-dim)', color: 'var(--green)', background: 'transparent' }}>
-                    CHECK ELIGIBILITY →
-                  </button>
-                </div>
-                <p className="mono text-xs mt-3" style={{ color: 'var(--text-dim)' }}>
-                  Auth required. Experimenter manually reviews each application.
-                </p>
-              </section>
-            )}
-
+        {/* ── Reward row ── */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0,
+          padding: '20px 0',
+        }}>
+          {/* Reward per participant */}
+          <div style={{ paddingRight: 24, borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
+              REWARD
+            </p>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 28, fontWeight: 700, color: '#b7ff61', margin: 0, lineHeight: 1 }}>
+              ${exp.bounty_per_participant.toFixed(0)}
+            </p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055', marginTop: 4 }}>per participant</p>
           </div>
 
-          {/* ════ RIGHT PANEL ════ */}
-          <div className="flex flex-col gap-5">
+          {/* Pool */}
+          <div style={{ paddingLeft: 24, paddingRight: 24, borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
+              POOL
+            </p>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 600, color: '#aab8b1', margin: 0, lineHeight: 1 }}>
+              ${exp.total_bounty_pool.toLocaleString()}
+            </p>
+          </div>
 
-            {/* Reward */}
-            <div className="p-5 rounded"
-              style={{
-                background: 'var(--bg2)',
-                border: '1px solid rgba(77,255,128,0.12)',
-                borderTop: '2px solid var(--green)',
-              }}>
-              <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>BOUNTY / PARTICIPANT</p>
-              <p className="text-3xl font-black mono" style={{ color: 'var(--green)' }}>
-                ${exp.bounty_per_participant.toFixed(0)}
-              </p>
-              <p className="mono text-xs mt-2" style={{ color: 'var(--text-dim)' }}>
-                Total pool: ${exp.total_bounty_pool.toLocaleString()}
-              </p>
-              {/* Compliance threshold */}
-              <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(77,255,128,0.08)' }}>
-                <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                  Min. {threshold}% milestone completion for payout
-                </p>
-              </div>
+          {/* Enrolled */}
+          <div style={{ paddingLeft: 24, paddingRight: 24, borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
+              ENROLLED
+            </p>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 600, color: '#aab8b1', margin: 0, lineHeight: 1 }}>
+              {exp.slots_filled}/{exp.slots_total}
+            </p>
+            <div style={{ width: '100%', height: 3, background: 'rgba(255,255,255,0.06)', marginTop: 6 }}>
+              <div style={{ height: 3, width: `${slotPct}%`, background: cc }} />
             </div>
+          </div>
 
-            {/* Slots */}
-            <div className="p-5 rounded"
-              style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.1)' }}>
-              <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)' }}>SLOTS</p>
-              <div className="w-full h-1.5 rounded overflow-hidden mb-2"
-                style={{ background: 'rgba(77,255,128,0.1)' }}>
-                <div className="h-1.5 rounded"
-                  style={{ width: `${slotPct}%`, background: slotPct >= 90 ? 'var(--amber)' : 'var(--green-dim)' }} />
-              </div>
-              <p className="mono text-sm tabular-nums" style={{ color: 'var(--text-bright)' }}>
-                {exp.slots_filled} / {exp.slots_total}
-              </p>
-              <p className="mono text-xs mt-1" style={{ color: 'var(--text-dim)' }}>
-                {slotsLeft > 0 ? `${slotsLeft} remaining` : 'FULL — no slots left'}
-              </p>
-            </div>
-
-            {/* Duration */}
-            {exp.duration_weeks && (
-              <div className="p-5 rounded"
-                style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.1)' }}>
-                <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>DURATION</p>
-                <p className="mono text-lg font-black" style={{ color: 'var(--text-bright)' }}>
-                  {exp.duration_weeks} weeks
-                </p>
-                {milestones.length > 0 && (
-                  <p className="mono text-xs mt-1" style={{ color: 'var(--text-dim)' }}>
-                    {milestones.length} milestone{milestones.length !== 1 ? 's' : ''}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* Q&A */}
-            <QASection
-              experimentId={exp.id}
-              experimenterUserId={exp.experimenter_id}
-              orgName={orgProfile?.org_name ?? null}
-              initialQuestions={questions}
-            />
-
+          {/* Compliance */}
+          <div style={{ paddingLeft: 24 }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
+              COMPLIANCE
+            </p>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 600, color: '#aab8b1', margin: 0, lineHeight: 1 }}>
+              {threshold}%
+            </p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055', marginTop: 4 }}>min. threshold</p>
           </div>
         </div>
+
+        <ThickDivider color={cc} />
+
+        {/* ── Description ── */}
+        <div style={{ padding: '28px 0', maxWidth: 800 }}>
+          <p style={{
+            fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
+            textTransform: 'uppercase', color: cc, marginBottom: 16,
+          }}>
+            // DESCRIPTION
+          </p>
+          <p style={{
+            fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1',
+            lineHeight: 1.75,
+          }}>
+            {exp.description}
+          </p>
+          {exp.tests_needed && (
+            <div style={{ marginTop: 20 }}>
+              <p style={{
+                fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px',
+                textTransform: 'uppercase', color: '#4a7055', marginBottom: 10,
+              }}>
+                What you&apos;ll need to do
+              </p>
+              <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1', lineHeight: 1.75 }}>
+                {exp.tests_needed}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <ThickDivider color={cc} />
+
+        {/* ── Protocol ── */}
+        {milestones.length > 0 && (
+          <>
+            <MilestoneTimeline milestones={milestones} catColor={cc} />
+            <ThickDivider color={cc} />
+          </>
+        )}
+
+        {/* ── Eligibility ── */}
+        {(inclusion ?? exclusion) && (
+          <>
+            <div style={{ padding: '28px 0' }}>
+              <p style={{
+                fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
+                textTransform: 'uppercase', color: cc, marginBottom: 20,
+              }}>
+                // ELIGIBILITY
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+                {inclusion && (
+                  <div>
+                    <p style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px',
+                      textTransform: 'uppercase', color: '#b7ff61', marginBottom: 12,
+                    }}>
+                      INCLUSION
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {inclusion.map((line, i) => (
+                        <div key={i} style={{ display: 'flex', gap: 8 }}>
+                          <span style={{ color: '#b7ff61', flexShrink: 0 }}>✓</span>
+                          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1' }}>{line}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {exclusion && (
+                  <div>
+                    <p style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px',
+                      textTransform: 'uppercase', color: '#ff8f8f', marginBottom: 12,
+                    }}>
+                      EXCLUSION
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {exclusion.map((line, i) => (
+                        <div key={i} style={{ display: 'flex', gap: 8 }}>
+                          <span style={{ color: '#ff8f8f', flexShrink: 0 }}>✕</span>
+                          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1' }}>{line}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <ThickDivider color={cc} />
+          </>
+        )}
+
+        {/* ── Q&A ── */}
+        <div style={{ padding: '28px 0' }}>
+          <p style={{
+            fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
+            textTransform: 'uppercase', color: cc, marginBottom: 20,
+          }}>
+            // QUESTIONS
+          </p>
+          <QASection
+            experimentId={exp.id}
+            experimenterUserId={exp.experimenter_id}
+            orgName={orgProfile?.org_name ?? null}
+            initialQuestions={questions}
+          />
+        </div>
+
+        <ThickDivider color={cc} />
+
+        {/* ── CTA button ── */}
+        <div style={{ padding: '28px 0 48px' }}>
+          {exp.status === 'recruiting' && (
+            <button
+              style={{
+                width: '100%', height: 48,
+                fontFamily: 'var(--font-mono)', fontWeight: 700,
+                fontSize: 13, textTransform: 'uppercase', letterSpacing: '3px',
+                background: '#b7ff61', color: '#050709',
+                border: 'none', cursor: 'pointer', borderRadius: 2,
+                transition: 'transform 150ms ease, background 150ms ease',
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.transform = 'scale(1.01)';
+                el.style.background = '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.transform = 'scale(1)';
+                el.style.background = '#b7ff61';
+              }}
+            >
+              Apply to this study → ({slotsLeft} slot{slotsLeft !== 1 ? 's' : ''} remaining)
+            </button>
+          )}
+          {exp.status === 'active' && (
+            <button
+              style={{
+                width: '100%', height: 48,
+                fontFamily: 'var(--font-mono)', fontWeight: 700,
+                fontSize: 13, textTransform: 'uppercase', letterSpacing: '3px',
+                background: 'rgba(142,231,255,0.1)', color: '#8ee7ff',
+                border: '1px solid rgba(142,231,255,0.25)', cursor: 'default', borderRadius: 2,
+              }}
+            >
+              Join waitlist →
+            </button>
+          )}
+          {(exp.status === 'completed' || exp.status === 'cancelled') && (
+            <div
+              style={{
+                width: '100%', height: 48,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'var(--font-mono)', fontSize: 13,
+                textTransform: 'uppercase', letterSpacing: '3px',
+                color: '#4a7055',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: 2,
+              }}
+            >
+              Enrollment closed
+            </div>
+          )}
+        </div>
+
+        {/* Amendment log */}
+        {exp.amendment_log && exp.amendment_log.length > 0 && (
+          <div style={{ paddingBottom: 48 }}>
+            <ThinDivider />
+            <p style={{
+              fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px',
+              textTransform: 'uppercase', color: '#4a7055',
+              marginTop: 20, marginBottom: 12,
+            }}>
+              // AMENDMENTS
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[...exp.amendment_log].reverse().map((a, i) => (
+                <div key={i} style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055' }}>
+                    {new Date(a.ts).toLocaleDateString()}
+                  </span>
+                  <span style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 10,
+                    background: 'rgba(183,255,97,0.06)', border: '1px solid rgba(183,255,97,0.1)',
+                    color: '#b7ff61', padding: '2px 6px',
+                  }}>
+                    {a.field}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055' }}>
+                    changed from{' '}
+                    <span style={{ color: '#ffd166' }}>{a.old_value || '—'}</span>
+                    {' to '}
+                    <span style={{ color: '#aab8b1' }}>{a.new_value || '—'}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </main>
   );

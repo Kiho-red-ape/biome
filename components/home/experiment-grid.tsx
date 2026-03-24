@@ -5,28 +5,20 @@ import { ExperimentIdenticon } from '@/components/ui/experiment-identicon';
 import type { Experiment, ExperimentStatus } from '@/lib/types';
 import type { OrgMap } from '@/app/page';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Category helpers ──────────────────────────────────────────────────────────
 
-function fmt(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000)     return `$${(n / 1_000).toFixed(0)}K`;
-  return `$${n}`;
-}
-
-// Map experiment category → identicon ramp key
 function rampKey(cat: string): string {
-  const n = cat.toLowerCase().replace(/\s+/g, '-');
-  if (n.includes('micro') || n.includes('gut'))             return 'microbiome';
-  if (n.includes('nutri') || n.includes('diet'))            return 'nutrition';
-  if (n.includes('sleep') || n.includes('recov'))           return 'sleep';
-  if (n.includes('wear') || n.includes('device'))          return 'wearables';
-  if (n.includes('longev') || n.includes('aging'))          return 'longevity';
-  if (n.includes('quant') || n.includes('self'))            return 'quantified-self';
+  const n = (cat ?? '').toLowerCase().replace(/\s+/g, '-');
+  if (n.includes('micro') || n.includes('gut'))  return 'microbiome';
+  if (n.includes('nutri') || n.includes('diet')) return 'nutrition';
+  if (n.includes('sleep') || n.includes('recov')) return 'sleep';
+  if (n.includes('wear') || n.includes('device')) return 'wearables';
+  if (n.includes('longev') || n.includes('aging')) return 'longevity';
+  if (n.includes('quant') || n.includes('self'))  return 'quantified-self';
   const KEYS = ['microbiome','nutrition','sleep','wearables','longevity','quantified-self'];
-  return KEYS.includes(n) ? n : 'default';
+  return KEYS.includes(n) ? n : 'microbiome';
 }
 
-// Category accent color
 const CAT_COLORS: Record<string, string> = {
   microbiome:         '#b7ff61',
   nutrition:          '#8ee7ff',
@@ -34,251 +26,336 @@ const CAT_COLORS: Record<string, string> = {
   wearables:          '#ff8f8f',
   longevity:          '#d8c4ff',
   'quantified-self':  '#88bbff',
-  default:            '#b7ff61',
 };
 function catColor(cat: string): string {
-  return CAT_COLORS[rampKey(cat)] ?? CAT_COLORS['default'];
+  return CAT_COLORS[rampKey(cat)] ?? '#b7ff61';
 }
 
-// Status config
-const STATUS_CFG: Record<ExperimentStatus, { label: string; color: string; pulse: boolean }> = {
-  recruiting: { label: 'RECRUITING', color: '#b7ff61',  pulse: true  },
-  active:     { label: 'ACTIVE',     color: '#00e5ff',  pulse: false },
-  draft:      { label: 'DRAFT',      color: '#708878',  pulse: false },
-  completed:  { label: 'COMPLETED',  color: '#708878',  pulse: false },
-  cancelled:  { label: 'CANCELLED',  color: '#ffb300',  pulse: false },
+// ─── Status badge config ───────────────────────────────────────────────────────
+
+type StatusCfg = { label: string; color: string; bg: string; border: string; shadow?: string; pulse?: boolean };
+const STATUS_CFG: Record<ExperimentStatus, StatusCfg> = {
+  recruiting: {
+    label: 'RECRUITING',
+    color:  '#b7ff61',
+    bg:     'rgba(183,255,97,0.08)',
+    border: '1px solid rgba(183,255,97,0.35)',
+    shadow: '0 0 8px rgba(183,255,97,0.15)',
+    pulse:  true,
+  },
+  active: {
+    label: 'ACTIVE',
+    color:  '#8ee7ff',
+    bg:     'rgba(142,231,255,0.08)',
+    border: '1px solid rgba(142,231,255,0.3)',
+  },
+  draft: {
+    label: 'DRAFT',
+    color:  '#7f8e87',
+    bg:     'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.08)',
+  },
+  completed: {
+    label: 'COMPLETED',
+    color:  '#7f8e87',
+    bg:     'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.08)',
+  },
+  cancelled: {
+    label: 'CANCELLED',
+    color:  '#ffd166',
+    bg:     'rgba(255,209,102,0.06)',
+    border: '1px solid rgba(255,209,102,0.2)',
+  },
 };
 
-// ─── Single card ──────────────────────────────────────────────────────────────
+// ─── Sort + fill helpers ───────────────────────────────────────────────────────
 
-function ExperimentCard({ exp, orgMap }: { exp: Experiment; orgMap: OrgMap }) {
-  const st   = STATUS_CFG[exp.status] ?? STATUS_CFG.draft;
-  const pct  = exp.slots_total > 0 ? exp.slots_filled / exp.slots_total : 0;
-  const cc   = catColor(exp.category);
-  const org  = orgMap[exp.experimenter_id];
-  const barC = pct >= 0.9 ? '#ffb300' : pct >= 0.5 ? '#b7ff61' : '#29a845';
-
-  return (
-    <Link
-      href={`/experiments/${exp.id}`}
-      className="experiment-card no-underline flex flex-col rounded overflow-hidden"
-      style={{
-        background: 'var(--bg2)',
-        border: '1px solid rgba(77,255,128,0.1)',
-        borderLeft: `3px solid ${cc}`,
-        transition: 'transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease',
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget as HTMLElement;
-        el.style.transform = 'translateY(-3px)';
-        el.style.borderColor = `${cc}66`;
-        el.style.boxShadow = `0 8px 32px rgba(0,0,0,0.4), 0 0 20px ${cc}18`;
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget as HTMLElement;
-        el.style.transform = 'translateY(0)';
-        el.style.borderColor = 'rgba(77,255,128,0.1)';
-        el.style.boxShadow = 'none';
-        el.style.borderLeft = `3px solid ${cc}`;
-      }}
-    >
-      {/* Identicon banner */}
-      <div className="relative overflow-hidden" style={{ height: 110 }}>
-        <ExperimentIdenticon
-          experimentId={exp.id}
-          category={rampKey(exp.category)}
-          width={400}
-          height={110}
-          className="w-full h-full"
-        />
-        {/* Top-border gradient panel effect */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: 2,
-            background: `linear-gradient(90deg, ${cc}55, transparent)`,
-          }}
-        />
-
-        {/* Verified — bottom-left */}
-        {exp.is_verified && (
-          <div className="absolute bottom-2 left-2">
-            <span
-              className="mono badge-verified"
-              style={{ boxShadow: '0 0 8px rgba(142,231,255,0.3)', borderColor: '#00e5ff', color: '#00e5ff' }}
-            >
-              ✓ VERIFIED
-            </span>
-          </div>
-        )}
-
-        {/* Status — bottom-right */}
-        <div className="absolute bottom-2 right-2">
-          <span
-            className="mono text-xs px-2 py-0.5 rounded flex items-center gap-1"
-            style={{
-              background: 'rgba(7,12,7,0.9)',
-              border: `1px solid ${st.color}40`,
-              color: st.color,
-              backdropFilter: 'blur(4px)',
-            }}
-          >
-            <span className={st.pulse ? 'blink-recruit' : ''}
-                  style={{ fontSize: 7 }}>●</span>
-            {st.label}
-          </span>
-        </div>
-      </div>
-
-      {/* Card body */}
-      <div className="flex flex-col gap-1.5 p-3 flex-1">
-        {/* Category */}
-        <p
-          className="mono"
-          style={{ fontSize: 9, letterSpacing: '0.18em', color: cc, textTransform: 'uppercase' }}
-        >
-          {exp.category}
-        </p>
-
-        {/* Title */}
-        <p
-          className="font-bold leading-snug"
-          style={{
-            fontSize: 15,
-            color: 'var(--text-white)',
-            fontFamily: 'var(--font-heading)',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          } as React.CSSProperties}
-        >
-          {exp.title}
-        </p>
-
-        {/* Org */}
-        {org && (
-          <p className="mono" style={{ fontSize: 11, color: 'var(--text-dim)' }}>
-            by {org.org_name}
-          </p>
-        )}
-
-        {/* Divider */}
-        <div style={{ borderTop: '1px solid rgba(77,255,128,0.07)', marginTop: 4, paddingTop: 8 }}
-             className="flex items-end justify-between gap-2 mt-auto">
-          {/* Bounty */}
-          <p
-            className="font-black"
-            style={{ fontSize: 22, color: '#b7ff61', fontFamily: 'var(--font-heading)', lineHeight: 1 }}
-          >
-            ${exp.bounty_per_participant}
-          </p>
-
-          {/* Slots */}
-          <div className="flex flex-col items-end gap-1">
-            <p className="mono" style={{ fontSize: 10, color: 'var(--text-dim)' }}>
-              {exp.slots_filled}/{exp.slots_total} slots
-            </p>
-            <div className="w-20 h-1 rounded overflow-hidden" style={{ background: 'rgba(77,255,128,0.1)' }}>
-              <div className="h-1 rounded" style={{ width: `${pct * 100}%`, background: barC }} />
-            </div>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
+function sortExps(exps: Experiment[]): Experiment[] {
+  return [...exps].sort((a, b) => {
+    if (b.bounty_per_participant !== a.bounty_per_participant)
+      return b.bounty_per_participant - a.bounty_per_participant;
+    return b.slots_total - a.slots_total;
+  });
 }
 
-// ─── "View all" card ──────────────────────────────────────────────────────────
-
-function ViewAllCard({ total }: { total: number }) {
-  return (
-    <Link
-      href="/experiments"
-      className="no-underline flex flex-col items-center justify-center rounded transition-all hover:opacity-80 col-span-full"
-      style={{
-        background: 'var(--bg2)',
-        border: '1px dashed rgba(77,255,128,0.18)',
-        minHeight: 80,
-        marginTop: 4,
-      }}
-    >
-      <p className="mono font-bold" style={{ fontSize: 12, color: '#b7ff61', letterSpacing: '0.12em' }}>
-        BROWSE ALL {total} EXPERIMENTS →
-      </p>
-    </Link>
-  );
+function fillToThree(statusExps: Experiment[], all: Experiment[]): Experiment[] {
+  if (statusExps.length >= 3) return statusExps.slice(0, 3);
+  const ids = new Set(statusExps.map((e) => e.id));
+  const extras = all.filter((e) => !ids.has(e.id));
+  return [...statusExps, ...extras].slice(0, 3);
 }
 
-// ─── Row label ────────────────────────────────────────────────────────────────
+// ─── Section header ────────────────────────────────────────────────────────────
 
-function RowLabel({ status, color }: { status: string; color: string }) {
+function SectionHeader({ label, color }: { label: string; color: string }) {
   return (
-    <div className="flex items-center gap-3 mb-3">
-      <p
-        className="mono"
-        style={{ fontSize: 10, letterSpacing: '0.2em', color, textTransform: 'uppercase' }}
-      >
-        // {status}
-      </p>
-      <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, ${color}30, transparent)` }} />
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      marginTop: 28,
+      marginBottom: 14,
+    }}>
+      <span style={{
+        fontFamily: 'var(--font-mono)',
+        fontSize: 11,
+        letterSpacing: '3px',
+        textTransform: 'uppercase',
+        color,
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+      }}>
+        // {label}
+      </span>
+      <div style={{ flex: 1, height: 1, background: color, opacity: 0.2 }} />
     </div>
   );
 }
 
-// ─── Main export ──────────────────────────────────────────────────────────────
+// ─── Experiment card ───────────────────────────────────────────────────────────
+
+function ExperimentCard({ exp, orgName, expNumber }: {
+  exp: Experiment;
+  orgName: string;
+  expNumber: number;
+}) {
+  const cc      = catColor(exp.category);
+  const rk      = rampKey(exp.category);
+  const st      = STATUS_CFG[exp.status] ?? STATUS_CFG.draft;
+  const slotPct = exp.slots_total > 0 ? (exp.slots_filled / exp.slots_total) * 100 : 0;
+  const durWks  = (exp as unknown as Record<string, unknown>).duration_weeks as number | null;
+
+  return (
+    <Link
+      href={`/experiments/${exp.id}`}
+      className="exp-card"
+      style={{ borderLeft: `3px solid ${cc}` }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.boxShadow = `0 4px 20px ${cc}0f, 0 0 0 1px ${cc}1a`;
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.boxShadow = '';
+      }}
+    >
+      {/* ZONE 1 — Identicon banner (80px) */}
+      <div style={{ position: 'relative', height: 80, overflow: 'hidden', flexShrink: 0 }}>
+        <ExperimentIdenticon
+          experimentId={exp.id}
+          category={rk}
+          orgName={orgName}
+          experimentNumber={expNumber}
+          width="100%"
+          height={80}
+        />
+        {/* Status badge */}
+        <span
+          className={st.pulse ? 'blink-recruit' : undefined}
+          style={{
+            position: 'absolute', bottom: 8, right: 8,
+            fontFamily: 'var(--font-mono)',
+            fontSize: 9,
+            textTransform: 'uppercase',
+            letterSpacing: '1.5px',
+            padding: '4px 10px',
+            borderRadius: 2,
+            color: st.color, background: st.bg,
+            border: st.border,
+            boxShadow: st.shadow ?? 'none',
+            lineHeight: 1,
+          }}
+        >
+          {st.label}
+        </span>
+        {/* Verified */}
+        {exp.is_verified && (
+          <span className="badge-verified" style={{ position: 'absolute', bottom: 8, left: 8 }}>
+            ✓ VERIFIED
+          </span>
+        )}
+      </div>
+
+      {/* ZONE 2 — Metadata row (28px) */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '6px 12px', height: 28,
+        borderTop: `1px solid ${cc}26`,
+        background: 'rgba(255,255,255,0.015)',
+        flexShrink: 0, overflow: 'hidden',
+      }}>
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: 9,
+          textTransform: 'uppercase', letterSpacing: '1.5px', color: cc,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {exp.category.toUpperCase()}
+        </span>
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: 9, color: '#7f8e87',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          maxWidth: '55%', marginLeft: 8, textAlign: 'right',
+        }}>
+          {orgName}
+        </span>
+      </div>
+
+      {/* ZONE 3 — Title (min 48px) */}
+      <div style={{
+        padding: '10px 12px', minHeight: 48, maxHeight: 64,
+        borderTop: '1px solid rgba(255,255,255,0.05)',
+        overflow: 'hidden', flexShrink: 0,
+      }}>
+        <p style={{
+          fontFamily: 'var(--font-heading)', fontSize: 15, fontWeight: 600,
+          color: '#eef4f0', lineHeight: 1.35,
+          display: '-webkit-box',
+          WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+          overflow: 'hidden', margin: 0,
+        }}>
+          {exp.title}
+        </p>
+      </div>
+
+      {/* ZONE 4 — Bounty + Progress (44px) */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '8px 12px', height: 44,
+        borderTop: '1px solid rgba(255,255,255,0.05)',
+        flexShrink: 0,
+      }}>
+        <div>
+          <p style={{
+            fontFamily: 'var(--font-heading)', fontSize: 24, fontWeight: 700,
+            color: '#b7ff61', lineHeight: 1, margin: 0,
+          }}>
+            ${exp.bounty_per_participant.toFixed(0)}
+          </p>
+          <p style={{
+            fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055', margin: 0, marginTop: 2,
+          }}>
+            per participant
+          </p>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#aab8b1', margin: 0, lineHeight: 1 }}>
+            {exp.slots_filled}/{exp.slots_total}
+          </p>
+          <div style={{ width: 48, height: 3, background: 'rgba(255,255,255,0.06)', marginTop: 4 }}>
+            <div style={{ height: 3, width: `${slotPct}%`, background: cc }} />
+          </div>
+          {durWks && (
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055', margin: 0, marginTop: 2 }}>
+              {durWks} WKS
+            </p>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// ─── Browse all card ───────────────────────────────────────────────────────────
+
+function BrowseAllCard({ total }: { total: number }) {
+  return (
+    <Link
+      href="/experiments"
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: 80,
+        border: '1px dashed rgba(183,255,97,0.2)',
+        background: 'transparent', borderRadius: 2,
+        textDecoration: 'none',
+        fontFamily: 'var(--font-mono)', fontSize: 12,
+        textTransform: 'uppercase', letterSpacing: '2px', color: '#b7ff61',
+        transition: 'border-color 200ms ease, background 200ms ease',
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.borderColor = 'rgba(183,255,97,0.4)';
+        el.style.background  = 'rgba(183,255,97,0.03)';
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget as HTMLElement;
+        el.style.borderColor = 'rgba(183,255,97,0.2)';
+        el.style.background  = 'transparent';
+      }}
+    >
+      Browse all {total} experiments →
+    </Link>
+  );
+}
+
+// ─── Main grid ─────────────────────────────────────────────────────────────────
 
 interface Props {
   experiments: Experiment[];
   orgMap: OrgMap;
 }
 
-// Sort by bounty desc, then slots desc
-function sortExps(list: Experiment[]): Experiment[] {
-  return [...list].sort((a, b) =>
-    b.bounty_per_participant - a.bounty_per_participant ||
-    b.slots_total - a.slots_total
-  );
-}
-
-// Fill to 3 from fallback pool if fewer than 3 in a status
-function fillToThree(primary: Experiment[], fallback: Experiment[]): Experiment[] {
-  const ids = new Set(primary.map((e) => e.id));
-  const extra = fallback.filter((e) => !ids.has(e.id));
-  return [...primary, ...extra].slice(0, 3);
-}
-
 export function ExperimentGrid({ experiments, orgMap }: Props) {
-  const pub = experiments.filter((e) => e.status !== 'draft' && e.status !== 'cancelled');
-  const sorted = sortExps(pub);
+  const sorted      = sortExps(experiments);
+  const recruiting  = sorted.filter((e) => e.status === 'recruiting');
+  const active      = sorted.filter((e) => e.status === 'active');
+  const completed   = sorted.filter((e) => e.status === 'completed');
 
-  const recruiting = sorted.filter((e) => e.status === 'recruiting');
-  const active     = sorted.filter((e) => e.status === 'active');
-  const completed  = sorted.filter((e) => e.status === 'completed');
+  const rowRecruiting = fillToThree(recruiting, sorted);
+  const rowActive     = fillToThree(active,     sorted);
+  const rowCompleted  = fillToThree(completed,  sorted);
 
-  const rowR = fillToThree(recruiting, sorted);
-  const rowA = fillToThree(active, sorted);
-  const rowC = fillToThree(completed, sorted);
+  const getOrgName = (exp: Experiment) => orgMap[exp.experimenter_id]?.org_name ?? 'BIOME';
+  const getExpNum  = (exp: Experiment) => sorted.indexOf(exp) + 1;
 
-  const rows: { label: string; color: string; items: Experiment[] }[] = [];
-  if (rowR.length) rows.push({ label: 'RECRUITING',  color: '#b7ff61', items: rowR });
-  if (rowA.length) rows.push({ label: 'ACTIVE',      color: '#00e5ff', items: rowA });
-  if (rowC.length) rows.push({ label: 'COMPLETED',   color: '#708878', items: rowC });
+  const gridCols: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: 16,
+  };
 
   return (
-    <section className="px-4 md:px-8 py-8">
-      {rows.map(({ label, color, items }) => (
-        <div key={label} className="mb-10">
-          <RowLabel status={label} color={color} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {items.map((exp) => (
-              <ExperimentCard key={exp.id} exp={exp} orgMap={orgMap} />
+    <div style={{ padding: '0 40px 48px' }}>
+
+      {rowRecruiting.length > 0 && (
+        <>
+          <SectionHeader label="RECRUITING" color="#b7ff61" />
+          <div style={gridCols}>
+            {rowRecruiting.map((exp) => (
+              <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />
             ))}
           </div>
-        </div>
-      ))}
+        </>
+      )}
 
-      <ViewAllCard total={experiments.length} />
-    </section>
+      {rowActive.length > 0 && (
+        <>
+          <SectionHeader label="ACTIVE" color="#8ee7ff" />
+          <div style={gridCols}>
+            {rowActive.map((exp) => (
+              <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {rowCompleted.length > 0 && (
+        <>
+          <SectionHeader label="COMPLETED" color="#7f8e87" />
+          <div style={gridCols}>
+            {rowCompleted.map((exp) => (
+              <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Browse all — centered 1/3 width */}
+      <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '33.33%' }}>
+          <BrowseAllCard total={experiments.length} />
+        </div>
+      </div>
+
+    </div>
   );
 }

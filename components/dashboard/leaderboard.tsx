@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Identicon } from '@/components/identicon';
-import { reputationBadge, countryFlag } from '@/lib/utils/profile';
+import { countryFlag } from '@/lib/utils/profile';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -17,22 +17,37 @@ interface Props {
   leaders: LeaderRow[];
 }
 
+// ─── Reliability color ────────────────────────────────────────────────────────
+
+function relColor(score: number): string {
+  if (score >= 90) return '#b7ff61';
+  if (score >= 80) return '#8ee7ff';
+  return '#ffd166';
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function Leaderboard({ leaders }: Props) {
   if (leaders.length === 0) {
     return (
-      <section className="px-4 md:px-6 pb-16">
-        <div className="flex items-center gap-3 mb-5">
-          <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+      <section style={{ padding: '0 40px 40px' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12, marginTop: 28, marginBottom: 14,
+        }}>
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
+            textTransform: 'uppercase', color: '#7f8e87', whiteSpace: 'nowrap',
+          }}>
             // TOP_PARTICIPANTS
-          </p>
+          </span>
+          <div style={{ flex: 1, height: 1, background: '#7f8e87', opacity: 0.2 }} />
         </div>
-        <div
-          className="rounded py-12 text-center"
-          style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}
-        >
-          <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+        <div style={{
+          padding: '48px 24px', textAlign: 'center',
+          border: '1px solid rgba(255,255,255,0.06)',
+          background: '#0b1014',
+        }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a7055' }}>
             // LEADERBOARD_EMPTY — complete 3+ experiments to appear here
           </p>
         </div>
@@ -41,116 +56,135 @@ export function Leaderboard({ leaders }: Props) {
   }
 
   return (
-    <section className="px-4 md:px-6 pb-16">
+    <section style={{ padding: '0 40px 40px' }}>
 
       {/* Header */}
-      <div className="flex items-end justify-between pt-8 pb-5 border-t" style={{ borderColor: 'rgba(77,255,128,0.07)' }}>
-        <div>
-          <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>
-            // TOP_PARTICIPANTS
-          </p>
-          <p className="text-xs" style={{ color: 'var(--text-dim)' }}>
-            Ranked by reliability across completed experiments
-          </p>
-        </div>
-        <p className="mono text-xs hidden md:block" style={{ color: 'var(--text-dim)' }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 12, marginTop: 28, marginBottom: 14,
+      }}>
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
+          textTransform: 'uppercase', color: '#7f8e87', whiteSpace: 'nowrap', flexShrink: 0,
+        }}>
+          // TOP_PARTICIPANTS
+        </span>
+        <div style={{ flex: 1, height: 1, background: '#7f8e87', opacity: 0.2 }} />
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055',
+          whiteSpace: 'nowrap', flexShrink: 0,
+        }}>
           min. 3 experiments to qualify
-        </p>
+        </span>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto rounded" style={{ border: '1px solid rgba(77,255,128,0.07)' }}>
-        <table className="w-full border-collapse" style={{ minWidth: 600 }}>
+      {/* Rows */}
+      <div style={{ border: '1px solid rgba(255,255,255,0.06)', background: '#0b1014' }}>
 
-          <thead>
-            <tr style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.08)' }}>
-              {['#', 'PARTICIPANT', 'COUNTRY', 'STUDIES', 'RATE', 'SCORE', 'REPUTATION'].map((h) => (
-                <th
-                  key={h}
-                  className="mono text-xs font-normal px-3 py-3 text-left whitespace-nowrap"
-                  style={{ color: 'var(--text-dim)' }}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
+        {/* Column header */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '32px 44px 1fr 28px 80px 70px 80px 40px',
+          gap: 8,
+          padding: '8px 16px',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          alignItems: 'center',
+        }}>
+          {['#', '', 'PARTICIPANT', '', 'STUDIES', 'RATE', 'RELIABILITY', ''].map((h, i) => (
+            <span key={i} style={{
+              fontFamily: 'var(--font-mono)', fontSize: 9,
+              textTransform: 'uppercase', letterSpacing: '1.5px',
+              color: '#4a7055',
+            }}>
+              {h}
+            </span>
+          ))}
+        </div>
 
-          <tbody>
-            {leaders.map((p, i) => {
-              const rank  = i + 1;
-              const badge = reputationBadge(p.completion_rate);
-              const isTop = rank === 1;
+        {leaders.slice(0, 10).map((p, i) => {
+          const rank   = i + 1;
+          const rc     = relColor(p.reliability_score);
+          const rankColor =
+            rank === 1 ? '#b7ff61' :
+            rank <= 3  ? '#eef4f0' :
+            '#7f8e87';
 
-              return (
-                <tr
-                  key={p.participant_id}
-                  style={{
-                    borderBottom: '1px solid rgba(77,255,128,0.05)',
-                    background: isTop ? 'rgba(77,255,128,0.03)' : 'transparent',
-                    boxShadow: isTop ? 'inset 0 0 0 1px rgba(77,255,128,0.06)' : 'none',
-                    opacity: rank > 3 ? 0.85 : 1,
-                  }}
-                >
-                  {/* Rank */}
-                  <td className="px-3 py-3 mono text-xs tabular-nums w-10" style={{ color: rank <= 3 ? 'var(--green)' : 'var(--text-dim)' }}>
-                    {rank <= 3 ? `#${rank}` : String(rank).padStart(2, '0')}
-                  </td>
+          return (
+            <div
+              key={p.participant_id}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '32px 44px 1fr 28px 80px 70px 80px 40px',
+                gap: 8,
+                padding: '0 16px',
+                height: 44,
+                alignItems: 'center',
+                borderBottom: '1px solid rgba(255,255,255,0.04)',
+                transition: 'background 150ms ease',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(183,255,97,0.02)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+            >
+              {/* Rank */}
+              <span style={{
+                fontFamily: 'var(--font-heading)', fontSize: 16, fontWeight: 700,
+                color: rankColor,
+              }}>
+                #{rank}
+              </span>
 
-                  {/* Participant */}
-                  <td className="px-3 py-3">
-                    <Link
-                      href={`/profile/${p.participant_id}`}
-                      className="flex items-center gap-2.5 no-underline group"
-                    >
-                      <Identicon participantId={p.participant_id} size={32} />
-                      <div>
-                        <p
-                          className="text-sm font-semibold leading-tight group-hover:underline"
-                          style={{ color: 'var(--text-bright)' }}
-                        >
-                          {p.pseudonym}
-                        </p>
-                        <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                          {p.participant_id}
-                        </p>
-                      </div>
-                    </Link>
-                  </td>
+              {/* Identicon */}
+              <Identicon participantId={p.participant_id} size={28} />
 
-                  {/* Country */}
-                  <td className="px-3 py-3 text-sm" style={{ color: 'var(--text-dim)' }}>
-                    {countryFlag(p.country)} {p.country}
-                  </td>
+              {/* Pseudonym */}
+              <Link
+                href={`/profile/${p.participant_id}`}
+                style={{
+                  fontFamily: 'var(--font-heading)', fontSize: 14,
+                  color: '#eef4f0', textDecoration: 'none',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  transition: 'color 150ms ease',
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#b7ff61'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '#eef4f0'; }}
+              >
+                {p.pseudonym}
+              </Link>
 
-                  {/* Studies */}
-                  <td className="px-3 py-3 mono text-xs tabular-nums" style={{ color: 'var(--text-bright)' }}>
-                    {p.previous_study_count}
-                  </td>
+              {/* Country flag */}
+              <span style={{ fontSize: 16 }}>{countryFlag(p.country)}</span>
 
-                  {/* Completion rate */}
-                  <td className="px-3 py-3 mono text-xs tabular-nums" style={{ color: 'var(--text-bright)' }}>
-                    {p.completion_rate.toFixed(0)}%
-                  </td>
+              {/* Studies */}
+              <span style={{
+                fontFamily: 'var(--font-mono)', fontSize: 11, color: '#aab8b1',
+              }}>
+                {p.previous_study_count} studies
+              </span>
 
-                  {/* Reliability score */}
-                  <td className="px-3 py-3 mono text-sm tabular-nums font-bold" style={{ color: isTop ? 'var(--green)' : 'var(--text-bright)' }}>
-                    {p.reliability_score.toFixed(1)}
-                  </td>
+              {/* Completion rate */}
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#aab8b1' }}>
+                {p.completion_rate.toFixed(1)}%
+              </span>
 
-                  {/* Reputation badge */}
-                  <td className="px-3 py-3">
-                    <span className="mono text-xs" style={{ color: badge.color }}>
-                      {badge.label}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
+              {/* Reliability score */}
+              <span style={{
+                fontFamily: 'var(--font-heading)', fontSize: 14, fontWeight: 700, color: rc,
+              }}>
+                {p.reliability_score.toFixed(1)}
+              </span>
 
-        </table>
+              {/* Mini reliability bar */}
+              <div style={{ width: 32, height: 3, background: 'rgba(255,255,255,0.06)' }}>
+                <div style={{
+                  height: 3,
+                  width: `${Math.min(100, p.reliability_score)}%`,
+                  background: rc,
+                }} />
+              </div>
+            </div>
+          );
+        })}
       </div>
+
     </section>
   );
 }

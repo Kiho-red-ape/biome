@@ -2,35 +2,35 @@
 
 /* ─── BIOME Design Tokens ──────────────────────────────────── */
 @theme {
-  --color-bg:           #070c07;
-  --color-bg2:          #0d160d;
-  --color-bg3:          #152015;
+  --color-bg:           #050709;
+  --color-bg2:          #0b1014;
+  --color-bg3:          #111820;
   --color-green:        #b7ff61;
   --color-green-dim:    #4d9e1f;
-  --color-cyan:         #00e5ff;
-  --color-amber:        #ffb300;
-  --color-text:         #b8ccb8;
-  --color-text-dim:     #5a7860;
-  --color-text-bright:  #ddeedd;
-  --color-text-white:   #f0f8f0;
+  --color-cyan:         #8ee7ff;
+  --color-amber:        #ffd166;
+  --color-text:         #7f8e87;
+  --color-text-dim:     #4a7055;
+  --color-text-bright:  #aab8b1;
+  --color-text-white:   #eef4f0;
 
-  --font-heading: 'Syne', sans-serif;
-  --font-mono:    'JetBrains Mono', monospace;
+  --font-heading: 'Familjen Grotesk', sans-serif;
+  --font-mono:    'DM Mono', monospace;
 }
 
 /* ─── CSS Variables ────────────────────────────────────────── */
 :root {
-  --bg:           #070c07;
-  --bg2:          #0d160d;
-  --bg3:          #152015;
+  --bg:           #050709;
+  --bg2:          #0b1014;
+  --bg3:          #111820;
   --green:        #b7ff61;
   --green-dim:    #4d9e1f;
-  --cyan:         #00e5ff;
-  --amber:        #ffb300;
-  --text:         #b8ccb8;
-  --text-dim:     #5a7860;
-  --text-bright:  #ddeedd;
-  --text-white:   #f0f8f0;
+  --cyan:         #8ee7ff;
+  --amber:        #ffd166;
+  --text:         #7f8e87;
+  --text-dim:     #4a7055;
+  --text-bright:  #aab8b1;
+  --text-white:   #eef4f0;
   --line:         rgba(183,255,97,0.1);
 }
 
@@ -45,6 +45,7 @@ body {
   position: relative;
   overflow-x: hidden;
   font-family: var(--font-heading);
+  background-color: var(--bg);
 }
 
 /* ─── Grid background ──────────────────────────────────────── */
@@ -53,8 +54,8 @@ body::before {
   position: fixed; inset: 0; z-index: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(183,255,97,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(183,255,97,0.05) 1px, transparent 1px);
+    linear-gradient(rgba(183,255,97,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(183,255,97,0.04) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
@@ -65,7 +66,7 @@ body::after {
   pointer-events: none;
   background: repeating-linear-gradient(
     0deg, transparent, transparent 2px,
-    rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px
+    rgba(0,0,0,0.025) 2px, rgba(0,0,0,0.025) 4px
   );
 }
 
@@ -75,8 +76,7 @@ main, header, footer, #app-root { position: relative; z-index: 2; }
 /* ─── Typography ───────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 700;
   color: var(--text-white);
 }
 
@@ -86,9 +86,9 @@ code, pre, .mono { font-family: var(--font-mono); }
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--text-dim);
+  color: var(--green);
 }
 
 /* ─── Blinking dot ─────────────────────────────────────────── */
@@ -98,10 +98,10 @@ code, pre, .mono { font-family: var(--font-mono); }
 }
 .blink { animation: blink 1.2s step-end infinite; }
 
-/* ─── RECRUITING pulse (subtle 3s scale) ───────────────────── */
+/* ─── RECRUITING pulse (scale 1.0 → 1.03, opacity 0.85 → 1.0) */
 @keyframes recruit-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.6; transform: scale(1.15); }
+  0%, 100% { transform: scale(1);    opacity: 0.85; }
+  50%       { transform: scale(1.03); opacity: 1; }
 }
 .blink-recruit { animation: recruit-pulse 3s ease-in-out infinite; }
 
@@ -113,100 +113,92 @@ code, pre, .mono { font-family: var(--font-mono); }
 .ticker-track {
   display: flex;
   white-space: nowrap;
-  animation: ticker 36s linear infinite;
+  animation: ticker 35s linear infinite;
 }
 .ticker-track:hover { animation-play-state: paused; }
 
+/* ─── Experiment card ──────────────────────────────────────── */
+.exp-card {
+  background: #0b1014;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+}
+.exp-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255,255,255,0.12);
+}
+
 /* ─── System panel card ────────────────────────────────────── */
-/* Use .biome-card on panels that should feel like system UI    */
 .biome-card {
   background: var(--bg2);
-  border: 1px solid rgba(183,255,97,0.1);
-  border-top: 1px solid rgba(183,255,97,0.2);
-  box-shadow: inset 0 1px 0 rgba(183,255,97,0.06);
-  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
-}
-.biome-card:hover {
-  border-color: rgba(183,255,97,0.22);
-  box-shadow: inset 0 1px 0 rgba(183,255,97,0.1), 0 4px 20px rgba(0,0,0,0.3);
-}
-
-/* ─── Panel top accent line (category color applied via style) */
-.panel-top-accent {
-  border-top: 1px solid;         /* color set inline per card */
-}
-
-/* ─── Stat bar (CyberBrokers-style thin bar) ───────────────── */
-.stat-bar-track {
-  height: 4px;
-  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.07);
   border-radius: 2px;
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+/* ─── Stat bar ─────────────────────────────────────────────── */
+.stat-bar-track {
+  height: 3px;
+  background: rgba(255,255,255,0.06);
   overflow: hidden;
 }
 .stat-bar-fill {
-  height: 4px;
-  border-radius: 2px;
-  background: var(--green);
+  height: 3px;
   transition: width 0.4s ease;
 }
 
-/* ─── Attribute row (CyberBrokers label/value pair) ───────── */
+/* ─── Attribute row (label/value) ──────────────────────────── */
 .attr-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 8px;
   padding: 6px 0;
-  border-bottom: 1px solid rgba(183,255,97,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 .attr-label {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
+  font-size: 9px;
+  letter-spacing: 0.2em;
   color: var(--text-dim);
   text-transform: uppercase;
   flex-shrink: 0;
 }
 .attr-value {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text-bright);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-white);
   text-align: right;
 }
-
-/* ─── Corner bracket decoration ───────────────────────────── */
-.corner-bracket { position: relative; }
-.corner-bracket::before,
-.corner-bracket::after {
-  content: '';
-  position: absolute;
-  width: 10px; height: 10px;
-  border-color: var(--green-dim);
-  border-style: solid;
-  opacity: 0.35;
-}
-.corner-bracket::before { top: 0; left: 0; border-width: 1px 0 0 1px; }
-.corner-bracket::after  { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
 
 /* ─── BIOME VERIFIED badge ─────────────────────────────────── */
 .badge-verified {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 8px;
   letter-spacing: 0.06em;
-  color: var(--cyan);
-  border: 1px solid rgba(0,229,255,0.35);
-  padding: 1px 6px;
+  color: #8ee7ff;
+  border: 1px solid rgba(142,231,255,0.3);
+  padding: 3px 8px;
   border-radius: 2px;
-  background: rgba(0,229,255,0.07);
-  box-shadow: 0 0 8px rgba(142,231,255,0.25);
+  background: rgba(142,231,255,0.08);
+  box-shadow: 0 0 6px rgba(142,231,255,0.2);
+  white-space: nowrap;
 }
 
-/* ─── Hazard stripe (amber) — top accent bar ───────────────── */
+/* ─── Hazard stripe ────────────────────────────────────────── */
 .hazard-stripe {
   height: 3px;
   background: repeating-linear-gradient(
     90deg,
-    #ffb300 0px, #ffb300 10px,
+    #ffd166 0px, #ffd166 10px,
     transparent 10px, transparent 18px
   );
   opacity: 0.6;
@@ -215,36 +207,54 @@ code, pre, .mono { font-family: var(--font-mono); }
 /* ─── Buttons ──────────────────────────────────────────────── */
 .btn-primary {
   display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--font-mono); font-weight: 700; font-size: 12px;
-  letter-spacing: 0.06em;
+  font-family: var(--font-mono); font-weight: 700; font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   background: var(--green); color: #050709;
-  border-radius: 4px; padding: 10px 20px;
-  transition: transform 150ms ease, opacity 150ms ease;
+  border-radius: 2px; padding: 12px 24px;
+  transition: transform 150ms ease, background 150ms ease;
   text-decoration: none; cursor: pointer; border: none;
 }
-.btn-primary:hover { transform: scale(1.02); }
+.btn-primary:hover { transform: scale(1.02); background: #ffffff; }
 
 .btn-ghost {
   display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--font-mono); font-weight: 600; font-size: 12px;
-  letter-spacing: 0.06em;
+  font-family: var(--font-mono); font-weight: 500; font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   background: transparent;
-  border: 1px solid rgba(183,255,97,0.2);
-  color: var(--text-dim);
-  border-radius: 4px; padding: 10px 20px;
-  transition: transform 150ms ease, border-color 150ms ease;
+  border: 1px solid rgba(255,255,255,0.09);
+  color: #aab8b1;
+  border-radius: 2px; padding: 12px 24px;
+  transition: transform 150ms ease, border-color 150ms ease, color 150ms ease;
   text-decoration: none; cursor: pointer;
 }
-.btn-ghost:hover { transform: scale(1.02); border-color: rgba(183,255,97,0.4); }
+.btn-ghost:hover { transform: scale(1.02); border-color: var(--green); color: var(--green); }
 
 /* ─── Notification bell pulse ──────────────────────────────── */
 @keyframes bell-pulse {
   0%, 100% { transform: scale(1); }
-  50%       { transform: scale(1.12); }
+  50%       { transform: scale(1.08); }
 }
 .bell-has-unread { animation: bell-pulse 2s ease-in-out infinite; }
 
+/* ─── Corner bracket (legacy) ──────────────────────────────── */
+.corner-bracket { position: relative; }
+.corner-bracket::before,
+.corner-bracket::after {
+  content: '';
+  position: absolute;
+  width: 10px; height: 10px;
+  border-color: rgba(183,255,97,0.2);
+  border-style: solid;
+}
+.corner-bracket::before { top: 0; left: 0; border-width: 1px 0 0 1px; }
+.corner-bracket::after  { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+
+/* ─── Micro-interactions ───────────────────────────────────── */
+a { transition: color 150ms ease; }
+
 /* ─── Scrollbar ────────────────────────────────────────────── */
-::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar       { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--green-dim); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: rgba(183,255,97,0.2); border-radius: 2px; }

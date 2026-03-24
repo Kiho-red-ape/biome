@@ -7,7 +7,7 @@ interface Props {
   totalParticipants: number;
 }
 
-// Seeded "recent completions" — stable fake activity for demo
+// Seeded "recent completions" — stable demo activity
 const RECENT = [
   { id: 'EXP-003', participants: 50,  pool: 2250  },
   { id: 'EXP-007', participants: 30,  pool: 1800  },
@@ -18,21 +18,16 @@ const RECENT = [
 
 export function TickerBar({ experiments, totalPool, activeCount, totalParticipants }: Props) {
   const verifiedCount = experiments.filter((e) => e.is_verified).length;
-  const completedCount = experiments.filter((e) => e.status === 'completed').length;
 
-  const items = [
-    { label: '// BIOME PROTOCOL v0.1',   value: null,                                     color: 'var(--text-dim)' },
-    { label: 'EXPERIMENTS_LIVE',          value: String(activeCount),                       color: 'var(--green)'   },
-    { label: 'TOTAL_POOL',               value: `$${(totalPool / 1000).toFixed(1)}K`,      color: 'var(--green)'   },
-    { label: 'PARTICIPANTS',             value: String(totalParticipants),                  color: 'var(--cyan)'    },
-    { label: 'VERIFIED',                 value: String(verifiedCount),                      color: 'var(--green)'   },
-    { label: 'COMPLETED_STUDIES',        value: String(completedCount),                     color: 'var(--text-dim)'},
-    { label: 'STATUS',                   value: '● OPERATIONAL',                            color: 'var(--green)'   },
-    // Seeded recent completions
+  // Build items — numbers in green (#b7ff61), labels in #4a7055
+  const items: Array<{ text: string }> = [
+    { text: `EXPERIMENTS_LIVE : ${activeCount}` },
+    { text: `TOTAL_POOL : $${(totalPool / 1000).toFixed(1)}K` },
+    { text: `PARTICIPANTS : ${totalParticipants.toLocaleString()}` },
+    { text: `VERIFIED : ${verifiedCount}` },
+    { text: `STATUS : ● OPERATIONAL` },
     ...RECENT.map((r) => ({
-      label: `${r.id} COMPLETED`,
-      value: `${r.participants} participants · $${r.pool.toLocaleString()} distributed`,
-      color: 'var(--text-dim)',
+      text: `${r.id} COMPLETED : ${r.participants} participants · $${(r.pool / 1000).toFixed(1)}K distributed`,
     })),
   ];
 
@@ -40,31 +35,62 @@ export function TickerBar({ experiments, totalPool, activeCount, totalParticipan
 
   return (
     <div
-      className="w-full overflow-hidden"
       style={{
-        background: 'var(--bg2)',
-        borderBottom: '1px solid rgba(77,255,128,0.08)',
-        height: '28px',
+        height: 28,
+        overflow: 'hidden',
+        background: 'rgba(183,255,97,0.02)',
+        borderBottom: '1px solid rgba(183,255,97,0.08)',
+        position: 'relative',
+        zIndex: 2,
       }}
     >
-      <div className="ticker-track h-full items-center">
+      <div
+        className="ticker-track"
+        style={{
+          height: '100%',
+          alignItems: 'center',
+        }}
+      >
         {doubled.map((item, i) => (
           <span
             key={i}
-            className="mono text-xs inline-flex items-center gap-2 px-5 h-full"
-            style={{ color: 'var(--text-dim)' }}
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 10,
+              textTransform: 'uppercase',
+              letterSpacing: '1.5px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              height: '100%',
+              paddingLeft: 24,
+              paddingRight: 24,
+              color: '#4a7055',
+            }}
           >
-            <span>{item.label}</span>
-            {item.value && (
-              <>
-                <span style={{ color: 'rgba(77,255,128,0.2)' }}>:</span>
-                <span style={{ color: item.color }}>{item.value}</span>
-              </>
-            )}
-            <span style={{ color: 'rgba(77,255,128,0.15)', marginLeft: '12px' }}>|</span>
+            {/* Render numbers in #b7ff61 */}
+            <TickerText text={item.text} />
+            <span style={{ marginLeft: 24, color: 'rgba(183,255,97,0.12)' }}>|</span>
           </span>
         ))}
       </div>
     </div>
+  );
+}
+
+// Renders a ticker item with numbers highlighted in green
+function TickerText({ text }: { text: string }) {
+  // Split on numbers (including decimals, K, $ prefixed)
+  const parts = text.split(/(\$[\d.,]+K?|\b[\d.,]+K?\b)/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        const isNumber = /^(\$[\d.,]+K?|[\d.,]+K?)$/.test(part);
+        return (
+          <span key={i} style={{ color: isNumber ? '#b7ff61' : undefined }}>
+            {part}
+          </span>
+        );
+      })}
+    </>
   );
 }

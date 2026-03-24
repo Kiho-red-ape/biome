@@ -27,12 +27,12 @@ type AppRow = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  applied:   'var(--text-dim)',
-  approved:  'var(--cyan)',
-  active:    'var(--cyan)',
-  completed: 'var(--green)',
-  withdrawn: 'var(--text-dim)',
-  rejected:  'var(--amber)',
+  applied:   '#4a7055',
+  approved:  '#8ee7ff',
+  active:    '#8ee7ff',
+  completed: '#b7ff61',
+  withdrawn: '#4a7055',
+  rejected:  '#ffd166',
 };
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -72,162 +72,202 @@ export default async function PublicProfilePage({
   const totalEarned  = completed.reduce((s, a) => s + (a.experiments?.bounty_per_participant ?? 0), 0);
   const badge        = reputationBadge(profile.completion_rate);
 
+  const THIN_DIV = <div style={{ height: 1, background: 'rgba(255,255,255,0.07)', margin: 0 }} />;
+
   return (
-    <main className="min-h-screen px-4 py-8">
-      <div className="max-w-2xl mx-auto">
+    <main style={{ minHeight: '100vh', background: 'var(--bg)' }}>
 
-        {/* Nav */}
-        <div className="flex items-center justify-between mb-8">
-          <Link href="/" className="mono text-xs no-underline" style={{ color: 'var(--text-dim)' }}>
-            ← BACK
-          </Link>
-          <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-            // PARTICIPANT_PROFILE
-          </span>
-        </div>
+      {/* Mini nav */}
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 200,
+        height: 52, display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', padding: '0 40px',
+        background: 'rgba(5,7,9,0.95)', backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(183,255,97,0.12)',
+      }}>
+        <Link href="/" style={{
+          fontFamily: 'var(--font-mono)', fontSize: 11,
+          textTransform: 'uppercase', letterSpacing: '2px',
+          color: '#7f8e87', textDecoration: 'none',
+        }}>
+          ← BIOME
+        </Link>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px', color: '#4a7055' }}>
+          // PARTICIPANT_PROFILE
+        </span>
+      </header>
 
-        {/* ── Identity header ──────────────────────────────────────── */}
-        <div
-          className="rounded p-6 mb-4"
-          style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}
-        >
-          <div className="flex items-start gap-5">
-            <Identicon participantId={profile.participant_id} size={64} />
-            <div className="flex-1 min-w-0">
-              <h1
-                className="text-2xl font-black mb-0.5 leading-tight"
-                style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}
-              >
-                {profile.pseudonym}
-              </h1>
-              <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)', letterSpacing: '0.08em' }}>
-                {profile.participant_id}
-              </p>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-                <span className="text-sm" style={{ color: 'var(--text-dim)' }}>
+      <div style={{ maxWidth: 800, margin: '0 auto', padding: '40px 40px' }}>
+
+        {/* ── Identity header ── */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, marginBottom: 0 }}>
+          <Identicon participantId={profile.participant_id} size={64} />
+          <div style={{ flex: 1 }}>
+            <h1 style={{
+              fontFamily: 'var(--font-heading)', fontSize: 28, fontWeight: 700,
+              color: '#eef4f0', marginBottom: 4, lineHeight: 1.1,
+            }}>
+              {profile.pseudonym}
+            </h1>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a7055', marginBottom: 10, letterSpacing: '1px' }}>
+              {profile.participant_id}
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
+              {profile.country && (
+                <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#7f8e87' }}>
                   {countryFlag(profile.country ?? '')} {profile.country}
                 </span>
-                {profile.year_of_birth && (
-                  <span
-                    className="mono text-xs px-2 py-0.5 rounded"
-                    style={{ color: 'var(--text-dim)', border: '1px solid rgba(77,255,128,0.1)' }}
-                  >
-                    {ageRange(profile.year_of_birth)} yrs
-                  </span>
-                )}
-                <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                  Since {memberSince(profile.created_at)}
+              )}
+              {profile.year_of_birth && (
+                <span style={{
+                  fontFamily: 'var(--font-mono)', fontSize: 10,
+                  color: '#4a7055', border: '1px solid rgba(255,255,255,0.08)',
+                  padding: '2px 8px',
+                }}>
+                  {ageRange(profile.year_of_birth)} yrs
                 </span>
-              </div>
+              )}
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055' }}>
+                Since {memberSince(profile.created_at)}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* ── Stats row ────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div style={{ height: 2, background: 'rgba(255,255,255,0.06)', margin: '24px 0' }} />
+
+        {/* ── Stats 4-col grid ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0, marginBottom: 0 }}>
           {[
-            { label: 'TOTAL EARNED',    value: `$${totalEarned.toFixed(2)}`,                              color: 'var(--green)'       },
-            { label: 'COMPLETED',       value: String(completed.length),                                  color: 'var(--text-white)'  },
-            { label: 'COMPLETION RATE', value: profile.completion_rate != null ? `${profile.completion_rate.toFixed(0)}%` : '—', color: 'var(--text-white)' },
-            { label: 'REPUTATION',      value: badge.label,                                               color: badge.color          },
-          ].map((s) => (
-            <div
-              key={s.label}
-              className="rounded p-4"
-              style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}
-            >
-              <p className="mono text-xs mb-1.5" style={{ color: 'var(--text-dim)' }}>{s.label}</p>
-              <p className="mono text-lg font-bold tabular-nums" style={{ color: s.color }}>{s.value}</p>
+            { label: 'TOTAL EARNED',    value: `$${totalEarned.toFixed(2)}`,                                              color: '#b7ff61'  },
+            { label: 'COMPLETED',       value: String(completed.length),                                                    color: '#eef4f0'  },
+            { label: 'COMPLETION RATE', value: profile.completion_rate != null ? `${profile.completion_rate.toFixed(0)}%` : '—', color: '#eef4f0' },
+            { label: 'REPUTATION',      value: badge.label,                                                                  color: badge.color },
+          ].map((s, i) => (
+            <div key={s.label} style={{
+              padding: '0 24px 0 0',
+              paddingLeft: i > 0 ? 24 : 0,
+              borderRight: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+            }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 8 }}>
+                {s.label}
+              </p>
+              <p style={{ fontFamily: 'var(--font-heading)', fontSize: 22, fontWeight: 700, color: s.color, margin: 0 }}>
+                {s.value}
+              </p>
             </div>
           ))}
         </div>
 
-        {/* ── Experiment history ───────────────────────────────────── */}
-        <div
-          className="rounded overflow-hidden"
-          style={{ border: '1px solid rgba(77,255,128,0.08)' }}
-        >
-          <div
-            className="px-4 py-3 flex items-center gap-2"
-            style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.06)' }}
-          >
-            <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+        <div style={{ height: 2, background: 'rgba(255,255,255,0.06)', margin: '24px 0' }} />
+
+        {/* ── Experiment history ── */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
+              textTransform: 'uppercase', color: '#7f8e87',
+            }}>
               // EXPERIMENT_HISTORY
-            </p>
-            <span className="mono text-xs" style={{ color: 'var(--green)' }}>
+            </span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#b7ff61' }}>
               [{applications.length}]
             </span>
           </div>
 
           {applications.length === 0 ? (
-            <div className="px-4 py-10 text-center" style={{ background: 'var(--bg)' }}>
-              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                {'>_'} No experiments yet.{' '}
-                <Link href="/" style={{ color: 'var(--green)' }}>
-                  Browse open bounties →
-                </Link>
+            <div style={{
+              padding: '40px 24px', textAlign: 'center',
+              border: '1px solid rgba(255,255,255,0.06)', background: '#0b1014',
+            }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a7055' }}>
+                No experiments yet.{' '}
+                <Link href="/" style={{ color: '#b7ff61', textDecoration: 'none' }}>Browse open studies →</Link>
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto" style={{ background: 'var(--bg)' }}>
-              <table className="w-full border-collapse" style={{ minWidth: 480 }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(77,255,128,0.06)' }}>
-                    {['EXPERIMENT', 'CATEGORY', 'STATUS', 'REWARD'].map((h) => (
-                      <th
-                        key={h}
-                        className="mono text-xs font-normal px-4 py-2.5 text-left"
-                        style={{ color: 'var(--text-dim)' }}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {applications.map((app) => {
-                    const exp = app.experiments;
-                    const cc  = categoryColor(exp?.category ?? '');
-                    const sc  = STATUS_COLORS[app.status] ?? 'var(--text-dim)';
-                    return (
-                      <tr
-                        key={app.id}
-                        style={{ borderBottom: '1px solid rgba(77,255,128,0.04)' }}
-                      >
-                        <td className="px-4 py-3 text-sm" style={{ color: 'var(--text-bright)' }}>
-                          {exp ? (
-                            <Link href={`/experiments/${exp.id}`} style={{ color: 'var(--text-bright)' }}>
-                              {exp.title}
-                            </Link>
-                          ) : '—'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span
-                            className="mono text-xs px-1.5 py-0.5 rounded"
-                            style={{ color: cc, border: `1px solid ${cc}30`, background: `${cc}08` }}
-                          >
-                            {exp?.category.toUpperCase() ?? '—'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 mono text-xs uppercase" style={{ color: sc }}>
-                          {app.status}
-                        </td>
-                        <td className="px-4 py-3 mono text-xs tabular-nums" style={{ color: app.status === 'completed' ? 'var(--green)' : 'var(--text-dim)' }}>
-                          {app.status === 'completed'
-                            ? `$${(exp?.bounty_per_participant ?? 0).toFixed(2)}`
-                            : '—'}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div style={{ border: '1px solid rgba(255,255,255,0.06)', background: '#0b1014', overflowX: 'auto' }}>
+              {/* Header row */}
+              <div style={{
+                display: 'grid', gridTemplateColumns: '1fr 120px 100px 80px',
+                padding: '8px 16px',
+                borderBottom: '1px solid rgba(255,255,255,0.06)',
+              }}>
+                {['EXPERIMENT', 'CATEGORY', 'STATUS', 'REWARD'].map((h) => (
+                  <span key={h} style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 9,
+                    textTransform: 'uppercase', letterSpacing: '1.5px', color: '#4a7055',
+                  }}>
+                    {h}
+                  </span>
+                ))}
+              </div>
+              {applications.map((app) => {
+                const exp = app.experiments;
+                const cc  = categoryColor(exp?.category ?? '');
+                const sc  = STATUS_COLORS[app.status] ?? '#4a7055';
+                return (
+                  <div
+                    key={app.id}
+                    style={{
+                      display: 'grid', gridTemplateColumns: '1fr 120px 100px 80px',
+                      padding: '12px 16px', alignItems: 'center',
+                      borderBottom: '1px solid rgba(255,255,255,0.04)',
+                      transition: 'background 150ms ease',
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                  >
+                    <div style={{ paddingRight: 16, overflow: 'hidden' }}>
+                      {exp ? (
+                        <Link
+                          href={`/experiments/${exp.id}`}
+                          style={{
+                            fontFamily: 'var(--font-heading)', fontSize: 14,
+                            color: '#aab8b1', textDecoration: 'none',
+                            display: 'block', overflow: 'hidden',
+                            textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                            transition: 'color 150ms ease',
+                          }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#eef4f0'; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '#aab8b1'; }}
+                        >
+                          {exp.title}
+                        </Link>
+                      ) : <span style={{ color: '#4a7055' }}>—</span>}
+                    </div>
+                    <span style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 9,
+                      textTransform: 'uppercase', letterSpacing: '1px',
+                      color: cc, border: `1px solid ${cc}30`,
+                      background: `${cc}08`, padding: '3px 6px',
+                      display: 'inline-block', maxWidth: '100%',
+                      overflow: 'hidden', textOverflow: 'ellipsis',
+                    }}>
+                      {exp?.category?.toUpperCase() ?? '—'}
+                    </span>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', color: sc }}>
+                      {app.status}
+                    </span>
+                    <span style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 500,
+                      color: app.status === 'completed' ? '#b7ff61' : '#4a7055',
+                    }}>
+                      {app.status === 'completed' ? `$${(exp?.bounty_per_participant ?? 0).toFixed(2)}` : '—'}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* Edit sections — only visible to profile owner (client-side auth check) */}
-        <ProfileEditSections participantId={pid} />
+        {THIN_DIV}
+
+        {/* Edit sections */}
+        <div style={{ marginTop: 24 }}>
+          <ProfileEditSections participantId={pid} />
+        </div>
 
       </div>
     </main>

@@ -4,12 +4,47 @@ import { usePrivy } from '@privy-io/react-auth';
 import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 import { NotificationBell } from '@/components/nav/notification-bell';
-import { BiomeLogo } from '@/components/nav/biome-logo';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type NavProfile =
   | { kind: 'participant'; pseudonym: string; participantId: string }
   | { kind: 'experimenter'; orgName: string; orgId: string }
   | null;
+
+// ─── Nav link style ───────────────────────────────────────────────────────────
+
+const NAV_LINK: React.CSSProperties = {
+  fontFamily: 'var(--font-mono)',
+  fontSize: 11,
+  textTransform: 'uppercase',
+  letterSpacing: '2px',
+  color: '#7f8e87',
+  textDecoration: 'none',
+  paddingBottom: 2,
+  borderBottom: '2px solid transparent',
+  transition: 'color 150ms ease, border-color 150ms ease',
+};
+
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <Link
+      href={href}
+      style={{
+        ...NAV_LINK,
+        color:       hover ? '#b7ff61' : '#7f8e87',
+        borderColor: hover ? '#b7ff61' : 'transparent',
+      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {children}
+    </Link>
+  );
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export function SiteHeader() {
   const { ready, authenticated, login, logout, user } = usePrivy();
@@ -33,7 +68,6 @@ export function SiteHeader() {
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) { setNavProfile(JSON.parse(cached) as NavProfile); return; }
 
-    // Fetch participant profile first, then experimenter if not found
     fetch(`/api/participant-profile?privyDid=${encodeURIComponent(user.id)}`)
       .then((r) => r.json())
       .then((data: { profile?: { participant_id: string; pseudonym: string } | null }) => {
@@ -47,7 +81,6 @@ export function SiteHeader() {
           sessionStorage.setItem(cacheKey, JSON.stringify(np));
           return;
         }
-        // No participant profile — check experimenter
         return fetch(`/api/experimenter-profile?privyDid=${encodeURIComponent(user.id)}`)
           .then((r) => r.json())
           .then((d: { profile?: { id: string; org_name: string } | null }) => {
@@ -73,48 +106,75 @@ export function SiteHeader() {
 
   return (
     <header
-      className="sticky top-0 z-50 flex items-center justify-between px-6 py-3"
       style={{
-        background: 'rgba(10, 18, 8, 0.94)',
-        borderBottom: '1px solid rgba(77, 255, 128, 0.14)',
-        backdropFilter: 'blur(12px)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 200,
+        height: 52,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 40px',
+        background: 'rgba(5,7,9,0.95)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(183,255,97,0.12)',
+        flexShrink: 0,
       }}
     >
-      {/* Logo */}
-      <Link href="/" className="flex items-center gap-2 no-underline">
-        <BiomeLogo width={110} />
-        <span
-          className="mono text-xs px-1 py-px rounded"
-          style={{ color: 'var(--text-dim)', border: '1px solid rgba(77,255,128,0.12)' }}
-        >
+      {/* Left — wordmark + version */}
+      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+        <span style={{
+          fontFamily: 'var(--font-heading), sans-serif',
+          fontWeight: 700,
+          fontSize: 24,
+          letterSpacing: '5px',
+          color: '#b7ff61',
+          textTransform: 'uppercase',
+          lineHeight: 1,
+        }}>
+          BIOME
+        </span>
+        <span style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: 10,
+          letterSpacing: '1px',
+          color: '#7f8e87',
+          border: '1px solid rgba(255,255,255,0.09)',
+          padding: '2px 6px',
+        }}>
           v0.1
         </span>
       </Link>
 
-      {/* Nav links */}
-      <nav className="hidden md:flex items-center gap-8">
-        <Link href="/experiments" className="mono text-xs transition-colors" style={{ color: 'var(--text-dim)' }}>
-          EXPLORE
-        </Link>
-        <Link href="/post" className="mono text-xs transition-colors" style={{ color: 'var(--text-dim)' }}>
-          POST BOUNTY
-        </Link>
-        <Link href="/demo/biome" className="mono text-xs transition-colors" style={{ color: 'var(--cyan)' }}>
-          DEMO
-        </Link>
+      {/* Center — nav links */}
+      <nav style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+        <NavLink href="/experiments">EXPLORE</NavLink>
+        <NavLink href="/post">POST STUDY</NavLink>
       </nav>
 
-      {/* Auth area */}
-      <div className="flex items-center gap-3">
+      {/* Right — auth */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         {!ready && (
-          <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>...</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a7055' }}>…</span>
         )}
 
         {ready && !authenticated && (
           <button
             onClick={login}
-            className="mono text-xs px-4 py-1.5 rounded transition-all hover:opacity-80"
-            style={{ border: '1px solid var(--green-dim)', color: 'var(--green)', background: 'rgba(77,255,128,0.04)' }}
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 11,
+              letterSpacing: '2px',
+              textTransform: 'uppercase',
+              color: '#b7ff61',
+              background: 'rgba(183,255,97,0.06)',
+              border: '1px solid rgba(183,255,97,0.2)',
+              padding: '6px 14px',
+              cursor: 'pointer',
+              transition: 'opacity 150ms ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
           >
             SIGN IN
           </button>
@@ -125,101 +185,79 @@ export function SiteHeader() {
         )}
 
         {ready && authenticated && (
-          <div className="relative flex items-center gap-3" ref={dropRef}>
-
-            {/* Identity chip */}
+          <div className="relative" ref={dropRef}>
             <button
               onClick={() => setDropOpen((o) => !o)}
-              className="flex items-center gap-2 mono text-xs px-3 py-1.5 rounded transition-all hover:opacity-80"
-              style={{ border: '1px solid rgba(77,255,128,0.1)', color: 'var(--text-dim)', background: 'transparent' }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                fontFamily: 'var(--font-mono)',
+                fontSize: 11,
+                letterSpacing: '1px',
+                color: displayName ? '#eef4f0' : '#7f8e87',
+                background: 'none',
+                border: '1px solid rgba(255,255,255,0.07)',
+                padding: '5px 10px',
+                cursor: 'pointer',
+                transition: 'border-color 150ms ease',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(183,255,97,0.2)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}
             >
-              <span className="blink" style={{ color: 'var(--green)' }}>●</span>
-              <span style={{ color: displayName ? 'var(--text-bright)' : 'var(--text-dim)' }}>
-                {displayName ?? 'CONNECTED'}
-              </span>
-              <span style={{ opacity: 0.5 }}>▾</span>
+              <span className="blink" style={{ color: '#b7ff61', fontSize: 8 }}>●</span>
+              {displayName ?? 'CONNECTED'}
+              <span style={{ opacity: 0.4, fontSize: 9 }}>▾</span>
             </button>
 
-            {/* Dropdown */}
             {dropOpen && (
               <div
-                className="absolute right-0 top-full mt-1 rounded overflow-hidden"
+                className="absolute right-0 top-full"
                 style={{
-                  background: 'rgba(11,18,11,0.97)',
-                  border: '1px solid rgba(77,255,128,0.14)',
-                  backdropFilter: 'blur(12px)',
+                  marginTop: 4,
+                  background: 'rgba(11,16,20,0.98)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(16px)',
                   minWidth: 180,
-                  zIndex: 100,
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                  zIndex: 300,
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
                 }}
               >
                 {profileHref && (
-                  <Link
-                    href={profileHref}
-                    onClick={() => setDropOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 mono text-xs no-underline transition-colors hover:bg-opacity-50"
-                    style={{ color: 'var(--green)' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(77,255,128,0.06)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    MY PROFILE →
-                  </Link>
+                  <DropLink href={profileHref} onClick={() => setDropOpen(false)}>MY PROFILE →</DropLink>
                 )}
                 {navProfile?.kind === 'participant' && (
                   <>
-                    <Link
-                      href="/dashboard"
-                      onClick={() => setDropOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 mono text-xs no-underline transition-colors"
-                      style={{ color: 'var(--text-dim)' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(77,255,128,0.04)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                    >
-                      DASHBOARD
-                    </Link>
-                    <Link
-                      href="/dashboard/preferences"
-                      onClick={() => setDropOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 mono text-xs no-underline transition-colors"
-                      style={{ color: 'var(--text-dim)' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(77,255,128,0.04)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                    >
-                      PREFERENCES
-                    </Link>
+                    <DropLink href="/dashboard" onClick={() => setDropOpen(false)}>DASHBOARD</DropLink>
+                    <DropLink href="/dashboard/preferences" onClick={() => setDropOpen(false)}>PREFERENCES</DropLink>
                   </>
                 )}
                 {navProfile?.kind === 'experimenter' && (
-                  <Link
-                    href="/dashboard/experiments"
-                    onClick={() => setDropOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 mono text-xs no-underline transition-colors"
-                    style={{ color: 'var(--text-dim)' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(77,255,128,0.04)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    MY STUDIES
-                  </Link>
+                  <DropLink href="/dashboard/experiments" onClick={() => setDropOpen(false)}>MY STUDIES</DropLink>
                 )}
                 {!navProfile && (
-                  <Link
-                    href="/onboarding"
-                    onClick={() => setDropOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 mono text-xs no-underline"
-                    style={{ color: 'var(--text-dim)' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(77,255,128,0.04)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    COMPLETE SETUP
-                  </Link>
+                  <DropLink href="/onboarding" onClick={() => setDropOpen(false)}>COMPLETE SETUP</DropLink>
                 )}
-                <div style={{ borderTop: '1px solid rgba(77,255,128,0.08)' }}>
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                   <button
                     onClick={() => { setDropOpen(false); logout(); }}
-                    className="w-full text-left flex items-center gap-2 px-4 py-2.5 mono text-xs transition-colors"
-                    style={{ color: 'var(--text-dim)' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(77,255,128,0.04)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '10px 16px',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: 11,
+                      letterSpacing: '1px',
+                      color: '#4a7055',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'color 150ms ease',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = '#7f8e87'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = '#4a7055'; }}
                   >
                     SIGN OUT
                   </button>
@@ -230,5 +268,33 @@ export function SiteHeader() {
         )}
       </div>
     </header>
+  );
+}
+
+// ─── Dropdown link ────────────────────────────────────────────────────────────
+
+function DropLink({ href, onClick, children }: { href: string; onClick: () => void; children: React.ReactNode }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        padding: '10px 16px',
+        fontFamily: 'var(--font-mono)',
+        fontSize: 11,
+        letterSpacing: '1px',
+        color: hover ? '#b7ff61' : '#7f8e87',
+        background: hover ? 'rgba(183,255,97,0.04)' : 'transparent',
+        textDecoration: 'none',
+        transition: 'color 150ms ease, background 150ms ease',
+      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {children}
+    </Link>
   );
 }

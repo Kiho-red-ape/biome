@@ -66,14 +66,32 @@ export default async function HomePage() {
         <CtaBlock />
       </div>
       <footer
-        className="py-4 mono text-xs flex flex-wrap items-center justify-center gap-4 px-4"
-        style={{ color: 'var(--text-dim)', borderTop: '1px solid rgba(77,255,128,0.06)' }}
+        style={{
+          padding: '16px 40px',
+          display: 'flex', flexWrap: 'wrap', alignItems: 'center',
+          justifyContent: 'space-between', gap: 16,
+          borderTop: '1px solid rgba(255,255,255,0.05)',
+        }}
       >
-        <span>// BIOME_PROTOCOL — experiment aggregator — not financial advice</span>
-        <span style={{ opacity: 0.3 }}>·</span>
-        <a href="/legal/tos" className="no-underline hover:underline" style={{ color: 'var(--text-dim)' }}>Terms</a>
-        <a href="/legal/participant-agreement" className="no-underline hover:underline" style={{ color: 'var(--text-dim)' }}>Participant Agreement</a>
-        <a href="/legal/experimenter-agreement" className="no-underline hover:underline" style={{ color: 'var(--text-dim)' }}>Experimenter Agreement</a>
+        <span style={{
+          fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 16,
+          letterSpacing: '4px', color: '#b7ff61', textTransform: 'uppercase',
+        }}>
+          BIOME
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '1px',
+            color: '#4a7055', border: '1px solid rgba(255,255,255,0.07)',
+            padding: '1px 5px', marginLeft: 8, verticalAlign: 'middle',
+          }}>v0.1</span>
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <a href="/legal/tos" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Terms</a>
+          <a href="/legal/participant-agreement" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Participant Agreement</a>
+          <a href="/legal/experimenter-agreement" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Experimenter Agreement</a>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055' }}>
+            Not financial advice
+          </span>
+        </div>
       </footer>
     </main>
   );
