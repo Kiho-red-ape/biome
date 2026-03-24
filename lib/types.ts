@@ -42,6 +42,8 @@ export interface Experiment {
   verification_level: VerificationLevel;
   external_comms_url: string | null;
   tests_needed: string | null;
+  task_summary: string | null;
+  experiment_code: string | null;
   inclusion_criteria: string | null;
   exclusion_criteria: string | null;
   iec_approval: string | null;

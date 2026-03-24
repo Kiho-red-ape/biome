@@ -207,10 +207,10 @@ export default async function ExperimentPage({ params }: Props) {
           fontFamily: 'var(--font-mono)', fontSize: 11,
           textTransform: 'uppercase', letterSpacing: '2px',
         }}>
-          ← Back to experiments
+          ← Back to studies
         </Link>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px', color: '#4a7055' }}>
-          // EXPERIMENT_DETAIL
+          // STUDY_DETAIL
         </span>
       </header>
 
@@ -250,6 +250,18 @@ export default async function ExperimentPage({ params }: Props) {
             }}>
               {exp.category.toUpperCase()}
             </span>
+            {(exp as unknown as Record<string, unknown>).experiment_code && (
+              <span style={{
+                fontFamily: 'var(--font-mono)', fontSize: 10,
+                color: '#4a7055',
+                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.02)',
+                padding: '3px 8px',
+                letterSpacing: '1px',
+              }}>
+                {(exp as unknown as Record<string, unknown>).experiment_code as string}
+              </span>
+            )}
           </div>
           <h1 style={{
             fontFamily: 'var(--font-heading)',

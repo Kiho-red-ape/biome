@@ -176,29 +176,61 @@ function ExperimentCard({ exp, orgName, expNumber }: {
         )}
       </div>
 
-      {/* ZONE 2 — Metadata row (28px) */}
+      {/* ZONE 2 — Metadata row */}
       <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '6px 12px', height: 28,
+        padding: '5px 12px',
         borderTop: `1px solid ${cc}26`,
         background: 'rgba(255,255,255,0.015)',
         flexShrink: 0, overflow: 'hidden',
       }}>
-        <span style={{
-          fontFamily: 'var(--font-mono)', fontSize: 9,
-          textTransform: 'uppercase', letterSpacing: '1.5px', color: cc,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>
-          {exp.category.toUpperCase()}
-        </span>
-        <span style={{
-          fontFamily: 'var(--font-mono)', fontSize: 9, color: '#7f8e87',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          maxWidth: '55%', marginLeft: 8, textAlign: 'right',
-        }}>
-          {orgName}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 18 }}>
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 9,
+            textTransform: 'uppercase', letterSpacing: '1.5px', color: cc,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            {exp.category.toUpperCase()}
+          </span>
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 9, color: '#7f8e87',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            maxWidth: '55%', marginLeft: 8, textAlign: 'right',
+          }}>
+            {exp.is_remote ? (
+              <span style={{ color: '#4a7055' }}>🌐 REMOTE</span>
+            ) : (
+              exp.region ?? orgName
+            )}
+          </span>
+        </div>
+        {exp.experiment_code && (
+          <div style={{
+            fontFamily: 'var(--font-mono)', fontSize: 8,
+            color: '#4a7055', letterSpacing: '1px', lineHeight: 1, marginTop: 2,
+          }}>
+            {exp.experiment_code} · {orgName}
+          </div>
+        )}
       </div>
+
+      {/* ZONE 2b — Task summary */}
+      {exp.task_summary && (
+        <div style={{
+          padding: '0 12px',
+          height: 18,
+          borderTop: '1px solid rgba(255,255,255,0.03)',
+          display: 'flex', alignItems: 'center',
+          overflow: 'hidden', flexShrink: 0,
+        }}>
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 10,
+            color: '#7f8e87', fontStyle: 'italic',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            ↳ {exp.task_summary}
+          </span>
+        </div>
+      )}
 
       {/* ZONE 3 — Title (min 48px) */}
       <div style={{
@@ -282,7 +314,7 @@ function BrowseAllCard({ total }: { total: number }) {
         el.style.background  = 'transparent';
       }}
     >
-      Browse all {total} experiments →
+      Browse all {total} studies →
     </Link>
   );
 }
@@ -318,7 +350,7 @@ export function ExperimentGrid({ experiments, orgMap }: Props) {
 
       {rowRecruiting.length > 0 && (
         <>
-          <SectionHeader label="RECRUITING" color="#b7ff61" />
+          <SectionHeader label="RECRUITING STUDIES" color="#b7ff61" />
           <div style={gridCols}>
             {rowRecruiting.map((exp) => (
               <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />
@@ -329,7 +361,7 @@ export function ExperimentGrid({ experiments, orgMap }: Props) {
 
       {rowActive.length > 0 && (
         <>
-          <SectionHeader label="ACTIVE" color="#8ee7ff" />
+          <SectionHeader label="ACTIVE STUDIES" color="#8ee7ff" />
           <div style={gridCols}>
             {rowActive.map((exp) => (
               <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />
@@ -340,7 +372,7 @@ export function ExperimentGrid({ experiments, orgMap }: Props) {
 
       {rowCompleted.length > 0 && (
         <>
-          <SectionHeader label="COMPLETED" color="#7f8e87" />
+          <SectionHeader label="COMPLETED STUDIES" color="#7f8e87" />
           <div style={gridCols}>
             {rowCompleted.map((exp) => (
               <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />

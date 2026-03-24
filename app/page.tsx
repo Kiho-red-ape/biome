@@ -6,7 +6,6 @@ import { ExperimentGrid } from '@/components/home/experiment-grid';
 import { Leaderboard } from '@/components/dashboard/leaderboard';
 import { CtaBlock } from '@/components/home/cta-block';
 import type { Experiment } from '@/lib/types';
-import type { LeaderRow } from '@/components/dashboard/leaderboard';
 
 export type OrgEntry = { id: string; org_name: string };
 export type OrgMap = Record<string, OrgEntry>; // keyed by user_id (= experiments.experimenter_id)
@@ -26,15 +25,8 @@ function computeStats(experiments: Experiment[]) {
 export default async function HomePage() {
   const supabase = createAnonClient();
 
-  const [expResult, leaderResult, orgResult] = await Promise.all([
+  const [expResult, orgResult] = await Promise.all([
     supabase.from('experiments').select('*').neq('status', 'draft').order('created_at', { ascending: false }),
-    supabase
-      .from('participant_profiles')
-      .select('participant_id, pseudonym, country, previous_study_count, completion_rate, reliability_score')
-      .not('completion_rate', 'is', null)
-      .gte('previous_study_count', 3)
-      .order('reliability_score', { ascending: false })
-      .limit(10),
     supabase
       .from('experimenter_profiles')
       .select('id, user_id, org_name')
@@ -42,7 +34,6 @@ export default async function HomePage() {
   ]);
 
   const experiments = (expResult.data ?? []) as Experiment[];
-  const leaders     = (leaderResult.data ?? []) as LeaderRow[];
   const stats       = computeStats(experiments);
 
   const orgMap: OrgMap = {};
@@ -53,16 +44,16 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen flex flex-col">
       <SiteHeader />
-      <TickerBar
-        experiments={experiments}
-        totalPool={stats.totalBountyPool}
-        activeCount={stats.activeCount}
-        totalParticipants={stats.totalParticipants}
-      />
       <HeroCompact stats={stats} experimentCount={experiments.length} />
       <div className="flex-1 max-w-screen-xl mx-auto w-full">
         <ExperimentGrid experiments={experiments} orgMap={orgMap} />
-        <Leaderboard leaders={leaders} />
+        <TickerBar
+          experiments={experiments}
+          totalPool={stats.totalBountyPool}
+          activeCount={stats.activeCount}
+          totalParticipants={stats.totalParticipants}
+        />
+        <Leaderboard />
         <CtaBlock />
       </div>
       <footer
@@ -84,13 +75,12 @@ export default async function HomePage() {
             padding: '1px 5px', marginLeft: 8, verticalAlign: 'middle',
           }}>v0.1</span>
         </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
           <a href="/legal/tos" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Terms</a>
+          <a href="/privacy" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Privacy</a>
           <a href="/legal/participant-agreement" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Participant Agreement</a>
           <a href="/legal/experimenter-agreement" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Experimenter Agreement</a>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055' }}>
-            Not financial advice
-          </span>
+          <a href="/payout-policy" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Payout Policy</a>
         </div>
       </footer>
     </main>

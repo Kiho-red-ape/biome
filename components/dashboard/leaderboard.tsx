@@ -1,190 +1,104 @@
 'use client';
 
 import Link from 'next/link';
-import { Identicon } from '@/components/identicon';
-import { countryFlag } from '@/lib/utils/profile';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Dashboard Preview — replaces leaderboard ─────────────────────────────────
+// Shows a mock "your dashboard" panel to drive participant sign-ups
 
-export interface LeaderRow {
-  participant_id: string;
-  pseudonym: string;
-  country: string;
-  previous_study_count: number;
-  completion_rate: number;
-  reliability_score: number;
-}
-
-interface Props {
-  leaders: LeaderRow[];
-}
-
-// ─── Reliability color ────────────────────────────────────────────────────────
-
-function relColor(score: number): string {
-  if (score >= 90) return '#b7ff61';
-  if (score >= 80) return '#8ee7ff';
-  return '#ffd166';
-}
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
-export function Leaderboard({ leaders }: Props) {
-  if (leaders.length === 0) {
-    return (
-      <section style={{ padding: '0 40px 40px' }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 12, marginTop: 28, marginBottom: 14,
-        }}>
-          <span style={{
-            fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
-            textTransform: 'uppercase', color: '#7f8e87', whiteSpace: 'nowrap',
-          }}>
-            // TOP_PARTICIPANTS
-          </span>
-          <div style={{ flex: 1, height: 1, background: '#7f8e87', opacity: 0.2 }} />
-        </div>
-        <div style={{
-          padding: '48px 24px', textAlign: 'center',
-          border: '1px solid rgba(255,255,255,0.06)',
-          background: '#0b1014',
-        }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a7055' }}>
-            // LEADERBOARD_EMPTY — complete 3+ experiments to appear here
-          </p>
-        </div>
-      </section>
-    );
-  }
-
+export function Leaderboard() {
   return (
     <section style={{ padding: '0 40px 40px' }}>
 
-      {/* Header */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 12, marginTop: 28, marginBottom: 14,
-      }}>
+      {/* Section header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 28, marginBottom: 14 }}>
         <span style={{
           fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
-          textTransform: 'uppercase', color: '#7f8e87', whiteSpace: 'nowrap', flexShrink: 0,
+          textTransform: 'uppercase', color: '#b7ff61', whiteSpace: 'nowrap', flexShrink: 0,
         }}>
-          // TOP_PARTICIPANTS
+          // YOUR_DASHBOARD
         </span>
-        <div style={{ flex: 1, height: 1, background: '#7f8e87', opacity: 0.2 }} />
-        <span style={{
-          fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055',
-          whiteSpace: 'nowrap', flexShrink: 0,
-        }}>
-          min. 3 experiments to qualify
-        </span>
+        <div style={{ flex: 1, height: 1, background: '#b7ff61', opacity: 0.2 }} />
       </div>
 
-      {/* Rows */}
-      <div style={{ border: '1px solid rgba(255,255,255,0.06)', background: '#0b1014' }}>
-
-        {/* Column header */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '32px 44px 1fr 28px 80px 70px 80px 40px',
-          gap: 8,
-          padding: '8px 16px',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          alignItems: 'center',
+      {/* Centered panel */}
+      <div style={{ maxWidth: 600, margin: '0 auto' }}>
+        <p style={{
+          fontFamily: 'var(--font-heading)', fontSize: 14, color: '#7f8e87',
+          marginBottom: 20, lineHeight: 1.5,
         }}>
-          {['#', '', 'PARTICIPANT', '', 'STUDIES', 'RATE', 'RELIABILITY', ''].map((h, i) => (
-            <span key={i} style={{
-              fontFamily: 'var(--font-mono)', fontSize: 9,
-              textTransform: 'uppercase', letterSpacing: '1.5px',
-              color: '#4a7055',
-            }}>
-              {h}
-            </span>
+          Track your studies, payouts, and compliance — all in one place.
+        </p>
+
+        <div style={{
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--bg2)',
+          borderRadius: 2,
+          overflow: 'hidden',
+        }}>
+          {/* Panel rows */}
+          {[
+            { label: 'ACTIVE STUDIES',     value: '3',                    color: '#8ee7ff', dot: true },
+            { label: 'PENDING PAYOUTS',    value: '2 pending · $95.00',   color: '#b7ff61', dot: false },
+            { label: 'COMPLIANCE',         value: '94% across all studies', color: '#b7ff61', dot: false },
+            { label: 'PROFILE MATCH',      value: '12 studies eligible',  color: '#aab8b1', dot: false },
+            { label: 'NEW ALERTS',         value: '2 unread',             color: '#ffd166', dot: false },
+          ].map((row, i, arr) => (
+            <div
+              key={row.label}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '14px 20px',
+                borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+              }}
+            >
+              <span style={{
+                fontFamily: 'var(--font-mono)', fontSize: 9,
+                textTransform: 'uppercase', letterSpacing: '2px',
+                color: '#5a7860',
+              }}>
+                {row.label}
+              </span>
+              <span style={{
+                fontFamily: 'var(--font-heading)', fontSize: 14, fontWeight: 600,
+                color: row.color, display: 'flex', alignItems: 'center', gap: 6,
+              }}>
+                {row.dot && (
+                  <span className="blink" style={{ width: 6, height: 6, borderRadius: '50%', background: '#8ee7ff', display: 'inline-block' }} />
+                )}
+                {row.value}
+              </span>
+            </div>
           ))}
         </div>
 
-        {leaders.slice(0, 10).map((p, i) => {
-          const rank   = i + 1;
-          const rc     = relColor(p.reliability_score);
-          const rankColor =
-            rank === 1 ? '#b7ff61' :
-            rank <= 3  ? '#eef4f0' :
-            '#7f8e87';
-
-          return (
-            <div
-              key={p.participant_id}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '32px 44px 1fr 28px 80px 70px 80px 40px',
-                gap: 8,
-                padding: '0 16px',
-                height: 44,
-                alignItems: 'center',
-                borderBottom: '1px solid rgba(255,255,255,0.04)',
-                transition: 'background 150ms ease',
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(183,255,97,0.02)'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
-            >
-              {/* Rank */}
-              <span style={{
-                fontFamily: 'var(--font-heading)', fontSize: 16, fontWeight: 700,
-                color: rankColor,
-              }}>
-                #{rank}
-              </span>
-
-              {/* Identicon */}
-              <Identicon participantId={p.participant_id} size={28} />
-
-              {/* Pseudonym */}
-              <Link
-                href={`/profile/${p.participant_id}`}
-                style={{
-                  fontFamily: 'var(--font-heading)', fontSize: 14,
-                  color: '#eef4f0', textDecoration: 'none',
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  transition: 'color 150ms ease',
-                }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#b7ff61'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '#eef4f0'; }}
-              >
-                {p.pseudonym}
-              </Link>
-
-              {/* Country flag */}
-              <span style={{ fontSize: 16 }}>{countryFlag(p.country)}</span>
-
-              {/* Studies */}
-              <span style={{
-                fontFamily: 'var(--font-mono)', fontSize: 11, color: '#aab8b1',
-              }}>
-                {p.previous_study_count} studies
-              </span>
-
-              {/* Completion rate */}
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#aab8b1' }}>
-                {p.completion_rate.toFixed(1)}%
-              </span>
-
-              {/* Reliability score */}
-              <span style={{
-                fontFamily: 'var(--font-heading)', fontSize: 14, fontWeight: 700, color: rc,
-              }}>
-                {p.reliability_score.toFixed(1)}
-              </span>
-
-              {/* Mini reliability bar */}
-              <div style={{ width: 32, height: 3, background: 'rgba(255,255,255,0.06)' }}>
-                <div style={{
-                  height: 3,
-                  width: `${Math.min(100, p.reliability_score)}%`,
-                  background: rc,
-                }} />
-              </div>
-            </div>
-          );
-        })}
+        <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
+          <Link
+            href="/onboarding/participant"
+            style={{
+              fontFamily: 'var(--font-mono)', fontSize: 11,
+              textTransform: 'uppercase', letterSpacing: '2px',
+              color: '#070c07', background: '#b7ff61',
+              padding: '10px 20px', textDecoration: 'none',
+              display: 'inline-block', transition: 'opacity 150ms',
+            }}
+          >
+            Create your profile →
+          </Link>
+          <Link
+            href="/dashboard"
+            style={{
+              fontFamily: 'var(--font-mono)', fontSize: 11,
+              textTransform: 'uppercase', letterSpacing: '2px',
+              color: '#b7ff61',
+              border: '1px solid rgba(183,255,97,0.2)',
+              background: 'rgba(183,255,97,0.04)',
+              padding: '10px 20px', textDecoration: 'none',
+              display: 'inline-block',
+            }}
+          >
+            Go to dashboard →
+          </Link>
+        </div>
       </div>
 
     </section>

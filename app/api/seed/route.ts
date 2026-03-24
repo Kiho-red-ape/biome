@@ -132,6 +132,7 @@ const EXPERIMENTS = [
     inclusion_criteria: 'Aged 18 or over\nRegular sleep schedule (consistent wake time ±1 hour)\nNo current sleep medication or sleep disorder diagnosis\nWilling to take a daily supplement for 8 weeks\nWorldwide — remote eligible',
     exclusion_criteria: 'Diagnosed insomnia, sleep apnoea, or RLS\nCurrently taking any magnesium supplement\nPregnant or breastfeeding\nKidney disease or impaired renal function',
     iec_approval: 'VitaDAO Ethics Review Board — Protocol VD-2025-MGX-001. Low-risk non-interventional supplement study. IRB-equivalent oversight provided by the DeSci Foundation Ethics Panel.',
+    task_summary: 'Sleep tracking via Oura Ring + daily sleep quality survey',
   },
   {
     id: 'a1b2c3d4-0002-0002-0002-000000000002',
@@ -149,6 +150,7 @@ const EXPERIMENTS = [
     inclusion_criteria: 'Aged 18 or over\nCurrently drinks at least 1 cup of coffee or caffeinated tea per day\nWilling to stop caffeine after noon for 4 weeks\nNo serious health conditions affecting energy (e.g. thyroid disorders)\nWorldwide — remote eligible',
     exclusion_criteria: 'Non-caffeine consumers\nHeart conditions or arrhythmia\nOn stimulant or ADHD medication\nPregnant or breastfeeding',
     iec_approval: 'Self-reported observational study. No IEC required under current ethical guidelines. All data collected anonymously and processed under GDPR.',
+    task_summary: 'Daily dietary log via app + weekly check-in survey',
   },
   {
     id: 'a1b2c3d4-0003-0003-0003-000000000003',
@@ -166,6 +168,7 @@ const EXPERIMENTS = [
     inclusion_criteria: 'Aged 18 or over\nOffice or desk-based work (any industry)\nAble to walk outdoors for 10 minutes at lunchtime\nOwns a smartphone\nWorldwide — remote eligible',
     exclusion_criteria: 'Mobility impairments preventing a 10-minute walk\nAlready doing structured exercise at lunch\nClinical depression or anxiety currently under treatment (to avoid interference with outcome measures)',
     iec_approval: 'Stanford IRB Approved — Protocol #STF-2025-WALK-042. Full ethics review on file. Open to international participants.',
+    task_summary: 'App-based cognitive tests, 15 min/day + mood tracking',
   },
   {
     id: 'a1b2c3d4-0004-0004-0004-000000000004',
@@ -183,6 +186,7 @@ const EXPERIMENTS = [
     inclusion_criteria: 'Aged 18 or over\nStrength trains at least 2x per week\nNo current omega-3 or fish oil supplement\nNo seafood or fish allergy\nWorldwide — remote eligible',
     exclusion_criteria: 'Fish or shellfish allergy\nOn blood thinners or anticoagulant medication\nInflammatory bowel disease (Crohn\'s, UC)\nPregnant or breastfeeding',
     iec_approval: 'VitaDAO Ethics Review Board — Protocol VD-2025-OM3-002. Non-interventional supplement study. DeSci Foundation Ethics Panel oversight.',
+    task_summary: 'Daily dietary log via app + weekly check-in survey',
   },
   {
     id: 'a1b2c3d4-0005-0005-0005-000000000005',
@@ -200,6 +204,7 @@ const EXPERIMENTS = [
     inclusion_criteria: 'Aged 18 or over\nUses a phone or screen in the 2 hours before bed most nights\nNo current diagnosed sleep disorder\nWilling to wear glasses for 2 hours if assigned to that group\nWorldwide — remote eligible',
     exclusion_criteria: 'Diagnosed sleep apnoea or insomnia requiring treatment\nAlready using blue light glasses consistently\nWorks night shift (outcomes would be confounded)',
     iec_approval: 'Self-reported observational study. No IEC required. Data anonymised and handled under GDPR. Control vs glasses group assignment is randomised at sign-up.',
+    task_summary: 'Sleep tracking via Oura Ring + daily sleep quality survey',
   },
   {
     id: 'a1b2c3d4-0006-0006-0006-000000000006',
@@ -217,6 +222,7 @@ const EXPERIMENTS = [
     inclusion_criteria: 'Aged 18 or over\nHealthy adult with no cold water contraindications\nHas a shower at home that can run cold\nDoes NOT currently take cold showers regularly (less than 1x/week)',
     exclusion_criteria: 'Raynaud\'s disease or poor circulation\nHeart conditions or recent cardiac events\nPregnant\nRecent surgery or open wounds',
     iec_approval: 'Self-reported observational study. No IEC required. Open to healthy adults 18+. Participants self-certify health eligibility at sign-up.',
+    task_summary: 'Daily dietary log via app + weekly check-in survey',
   },
   {
     id: 'a1b2c3d4-0007-0007-0007-000000000007',
@@ -234,6 +240,7 @@ const EXPERIMENTS = [
     inclusion_criteria: 'Aged 18 or over\nCurrently eating across more than 10 hours per day on most days\nOwns a scale at home\nAble to attend 2 short video check-ins with a dietitian\nWorldwide — remote eligible',
     exclusion_criteria: 'Pregnant or breastfeeding\nDiagnosed eating disorder (now or in the past)\nType 1 diabetes or insulin-dependent Type 2 diabetes\nBMI under 18.5\nCurrently following any structured diet programme',
     iec_approval: 'Stanford IRB Approved — Protocol #STF-2025-TRF-018. Full ethics review on file. Dietitian-supervised. Open to international participants.',
+    task_summary: 'Daily dietary log via app + weekly check-in survey',
   },
   {
     id: 'a1b2c3d4-0008-0008-0008-000000000008',
@@ -251,6 +258,7 @@ const EXPERIMENTS = [
     inclusion_criteria: 'Aged 18 or over\nSelf-reports moderate or high daily stress\nDoes NOT currently have a regular meditation practice (less than 1x/week)\nWilling to commit 10 minutes per day for 8 weeks',
     exclusion_criteria: 'Active therapy or treatment for anxiety or depression (to avoid interference)\nCurrent regular meditators (10+ min/day)\nSevere mental health conditions requiring clinical supervision',
     iec_approval: 'Cerebrum DAO Community Review Board — Protocol CD-2025-MIND-007. Mental health study reviewed and approved by two licensed clinical psychologists prior to launch.',
+    task_summary: 'App-based cognitive tests, 15 min/day + mood tracking',
   },
 ];
 

@@ -8,13 +8,11 @@ interface Props {
   experimentCount: number;
 }
 
-function fmtPool(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000)     return `$${(n / 1_000).toFixed(0)}K`;
-  return `$${n}`;
-}
-
 export function HeroCompact({ stats, experimentCount }: Props) {
+  // Keep props for compatibility; stats/experimentCount not shown in hero body
+  void stats;
+  void experimentCount;
+
   return (
     <section
       style={{
@@ -22,6 +20,7 @@ export function HeroCompact({ stats, experimentCount }: Props) {
         borderBottom: '1px solid rgba(183,255,97,0.08)',
         position: 'relative',
         zIndex: 2,
+        maxHeight: 160,
       }}
     >
       {/* Eyebrow */}
@@ -31,52 +30,103 @@ export function HeroCompact({ stats, experimentCount }: Props) {
         letterSpacing: '4px',
         color: '#b7ff61',
         textTransform: 'uppercase',
-        marginBottom: 4,
+        marginBottom: 6,
         lineHeight: 1,
       }}>
-        // CITIZEN_SCIENCE_LAYER
+        // HUMAN_STUDIES_MARKETPLACE
       </p>
 
       {/* Headline */}
       <h1 style={{
         fontFamily: 'var(--font-heading)',
-        fontSize: 38,
+        fontSize: 'clamp(32px, 3vw, 42px)',
         fontWeight: 700,
         color: '#eef4f0',
         letterSpacing: '-0.01em',
         lineHeight: 1.15,
-        marginBottom: 4,
-      }}>
-        Browse. Participate.{' '}
-        <span style={{ color: '#b7ff61' }}>Get Paid.</span>
-      </h1>
-
-      {/* Sub */}
-      <p style={{
-        fontFamily: 'var(--font-heading)',
-        fontSize: 14,
-        color: '#7f8e87',
-        lineHeight: 1,
         marginBottom: 6,
       }}>
-        Explore open studies, join research that matches your profile.
+        Find studies. Join remotely.{' '}
+        <span style={{ color: '#b7ff61' }}>Get paid.</span>
+      </h1>
+
+      {/* Subhead */}
+      <p style={{
+        fontFamily: 'var(--font-heading)',
+        fontSize: 15,
+        color: '#7f8e87',
+        lineHeight: 1.4,
+        marginBottom: 14,
+        maxWidth: 680,
+      }}>
+        Browse paid clinical trials, surveys, and observational studies — or recruit screened participants for your next study.
       </p>
 
-      {/* Inline stats */}
-      <p style={{
-        fontFamily: 'var(--font-mono)',
-        fontSize: 11,
-        color: '#4a7055',
-        letterSpacing: '0.04em',
-        lineHeight: 1,
-      }}>
-        <span style={{ color: '#aab8b1' }}>{experimentCount}</span>
-        {' experiments · '}
-        <span style={{ color: '#aab8b1' }}>{fmtPool(stats.totalBountyPool)}</span>
-        {' pool · '}
-        <span style={{ color: '#aab8b1' }}>{stats.totalParticipants.toLocaleString()}</span>
-        {' participants'}
-      </p>
+      {/* CTA buttons */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+        <a
+          href="/experiments"
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 11,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+            color: '#070c07',
+            background: '#b7ff61',
+            border: '1px solid #b7ff61',
+            padding: '8px 20px',
+            textDecoration: 'none',
+            borderRadius: 2,
+            lineHeight: 1,
+          }}
+        >
+          Browse Studies →
+        </a>
+        <a
+          href="/post"
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 11,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+            color: '#b7ff61',
+            background: 'transparent',
+            border: '1px solid rgba(183,255,97,0.3)',
+            padding: '8px 20px',
+            textDecoration: 'none',
+            borderRadius: 2,
+            lineHeight: 1,
+          }}
+        >
+          Post a Study →
+        </a>
+      </div>
+
+      {/* Chips row */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {['Paid participation', 'Remote studies', 'Screened applicants'].map((chip) => (
+          <span
+            key={chip}
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 9,
+              textTransform: 'uppercase',
+              letterSpacing: '1.5px',
+              color: '#7f8e87',
+              border: '1px solid rgba(255,255,255,0.08)',
+              padding: '4px 10px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 2,
+              lineHeight: 1,
+            }}
+          >
+            {chip}
+          </span>
+        ))}
+      </div>
     </section>
   );
 }
