@@ -250,7 +250,7 @@ export default async function ExperimentPage({ params }: Props) {
             }}>
               {exp.category.toUpperCase()}
             </span>
-            {(exp as unknown as Record<string, unknown>).experiment_code && (
+            {Boolean((exp as unknown as Record<string, unknown>).experiment_code) && (
               <span style={{
                 fontFamily: 'var(--font-mono)', fontSize: 10,
                 color: '#4a7055',
@@ -440,47 +440,104 @@ export default async function ExperimentPage({ params }: Props) {
                 // ELIGIBILITY
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
-                {inclusion && (
-                  <div>
-                    <p style={{
-                      fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px',
-                      textTransform: 'uppercase', color: '#b7ff61', marginBottom: 12,
-                    }}>
-                      INCLUSION
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {inclusion.map((line, i) => (
-                        <div key={i} style={{ display: 'flex', gap: 8 }}>
-                          <span style={{ color: '#b7ff61', flexShrink: 0 }}>✓</span>
-                          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1' }}>{line}</span>
-                        </div>
-                      ))}
-                    </div>
+                {/* LEFT: WHO IS ELIGIBLE */}
+                <div>
+                  <p style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px',
+                    textTransform: 'uppercase', color: '#b7ff61', marginBottom: 12,
+                  }}>
+                    WHO IS ELIGIBLE
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {inclusion ? inclusion.map((line, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 8 }}>
+                        <span style={{ color: '#b7ff61', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1' }}>{line}</span>
+                      </div>
+                    )) : (
+                      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#4a7055' }}>Open to all eligible adults.</span>
+                    )}
                   </div>
-                )}
-                {exclusion && (
-                  <div>
-                    <p style={{
-                      fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px',
-                      textTransform: 'uppercase', color: '#ff8f8f', marginBottom: 12,
-                    }}>
-                      EXCLUSION
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {exclusion.map((line, i) => (
-                        <div key={i} style={{ display: 'flex', gap: 8 }}>
-                          <span style={{ color: '#ff8f8f', flexShrink: 0 }}>✕</span>
-                          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1' }}>{line}</span>
-                        </div>
-                      ))}
-                    </div>
+                </div>
+                {/* RIGHT: WHO IS NOT ELIGIBLE */}
+                <div>
+                  <p style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px',
+                    textTransform: 'uppercase', color: '#ff8f8f', marginBottom: 12,
+                  }}>
+                    WHO IS NOT ELIGIBLE
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {exclusion ? exclusion.map((line, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 8 }}>
+                        <span style={{ color: '#ff8f8f', flexShrink: 0 }}>✕</span>
+                        <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1' }}>{line}</span>
+                      </div>
+                    )) : (
+                      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#4a7055' }}>No specific exclusions listed.</span>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
             <ThickDivider color={cc} />
           </>
         )}
+
+        {/* ── What is collected ── */}
+        {(() => {
+          const taskSum = (exp as unknown as Record<string, unknown>).task_summary as string | null;
+          return (
+            <div style={{ padding: '28px 0' }}>
+              <p style={{
+                fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
+                textTransform: 'uppercase', color: cc, marginBottom: 20,
+              }}>
+                // WHAT IS COLLECTED
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px 32px' }}>
+                {taskSum && (
+                  <div>
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
+                      WHAT PARTICIPANTS DO
+                    </p>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1', margin: 0 }}>
+                      {taskSum}
+                    </p>
+                  </div>
+                )}
+                <div>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
+                    FORMAT
+                  </p>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1', margin: 0 }}>
+                    {exp.is_remote ? 'Remote' : (exp.region ?? 'In-person')}
+                  </p>
+                </div>
+                {durWks && (
+                  <div>
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
+                      DURATION
+                    </p>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1', margin: 0 }}>
+                      ~{durWks} weeks
+                    </p>
+                  </div>
+                )}
+                <div>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
+                    COMPLIANCE MINIMUM
+                  </p>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1', margin: 0 }}>
+                    {threshold}%
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        <ThickDivider color={cc} />
 
         {/* ── Q&A ── */}
         <div style={{ padding: '28px 0' }}>

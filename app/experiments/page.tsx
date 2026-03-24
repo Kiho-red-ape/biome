@@ -49,13 +49,13 @@ export default async function ExperimentsPage() {
       <div className="flex-1 max-w-screen-xl mx-auto w-full">
         <div className="px-4 md:px-8 pt-8 pb-2">
           <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>
-            // ALL_EXPERIMENTS
+            // ALL_STUDIES
           </p>
           <h1
             className="text-2xl font-black"
             style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-white)' }}
           >
-            Experiment Database
+            Study Database
           </h1>
         </div>
         <ExperimentDashboard experiments={experiments} stats={stats} orgMap={orgMap} />
@@ -65,7 +65,7 @@ export default async function ExperimentsPage() {
         className="text-center py-4 mono text-xs"
         style={{ color: 'var(--text-dim)', borderTop: '1px solid rgba(77,255,128,0.06)' }}
       >
-        // BIOME_PROTOCOL — experiment aggregator — not financial advice
+        // BIOME_PROTOCOL — study aggregator
       </footer>
     </main>
   );
