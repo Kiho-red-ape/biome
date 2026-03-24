@@ -2,35 +2,35 @@
 
 /* ─── BIOME Design Tokens ──────────────────────────────────── */
 @theme {
-  --color-bg:           #050709;
-  --color-bg2:          #0b1014;
-  --color-bg3:          #111820;
+  --color-bg:           #070c07;
+  --color-bg2:          #0d160d;
+  --color-bg3:          #152015;
   --color-green:        #b7ff61;
   --color-green-dim:    #4d9e1f;
-  --color-cyan:         #8ee7ff;
-  --color-amber:        #ffd166;
-  --color-text:         #7f8e87;
-  --color-text-dim:     #4a7055;
-  --color-text-bright:  #aab8b1;
-  --color-text-white:   #eef4f0;
+  --color-cyan:         #00e5ff;
+  --color-amber:        #ffb300;
+  --color-text:         #b8ccb8;
+  --color-text-dim:     #5a7860;
+  --color-text-bright:  #ddeedd;
+  --color-text-white:   #f0f8f0;
 
-  --font-heading: 'Familjen Grotesk', sans-serif;
-  --font-mono:    'DM Mono', monospace;
+  --font-heading: 'Syne', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
 }
 
 /* ─── CSS Variables ────────────────────────────────────────── */
 :root {
-  --bg:           #050709;
-  --bg2:          #0b1014;
-  --bg3:          #111820;
+  --bg:           #070c07;
+  --bg2:          #0d160d;
+  --bg3:          #152015;
   --green:        #b7ff61;
   --green-dim:    #4d9e1f;
-  --cyan:         #8ee7ff;
-  --amber:        #ffd166;
-  --text:         #7f8e87;
-  --text-dim:     #4a7055;
-  --text-bright:  #aab8b1;
-  --text-white:   #eef4f0;
+  --cyan:         #00e5ff;
+  --amber:        #ffb300;
+  --text:         #b8ccb8;
+  --text-dim:     #5a7860;
+  --text-bright:  #ddeedd;
+  --text-white:   #f0f8f0;
   --line:         rgba(183,255,97,0.1);
 }
 

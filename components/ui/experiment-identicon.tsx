@@ -1,7 +1,7 @@
-// ExperimentIdenticon — 40×5 heatmap banner with alphanumeric code overlay
-// Grid: 40 cols × 5 rows, 8px × 16px per cell, viewBox "0 0 320 80"
-// Horizontal symmetry: col 0 mirrors col 39, col 1 mirrors col 38, etc.
-// Alphanumeric code: [CategoryLetter][OrgLetter][##] centered on grid
+// ExperimentIdenticon — LED panel display of alphanumeric experiment code
+// Grid: 40 cols × 5 rows, 8px × 16px per cell (SVG viewBox "0 0 320 80")
+// Code format: [CategoryLetter][OrgLetter][##] e.g. "LH01"
+// Lit cells show the code in 5×5 pixel font; all other cells are dark (off)
 
 const COLS = 40;
 const ROWS = 5;
@@ -9,17 +9,17 @@ const CELL_W = 8;
 const CELL_H = 16;
 const SVG_W = COLS * CELL_W; // 320
 const SVG_H = ROWS * CELL_H; // 80
-const HALF_COLS = COLS / 2;  // 20 unique cols, mirrored to right
+const LED_GAP = 1; // px gap inside each cell for the bezel effect
 
-// Category ramps: [bright, mid, dark]
-const CATEGORY_RAMPS: Record<string, [string, string, string]> = {
-  microbiome:        ['#b7ff61', '#5a9e2e', '#1a3d0a'],
-  nutrition:         ['#8ee7ff', '#3a8ea6', '#0d2d38'],
-  sleep:             ['#ffd166', '#a6862e', '#3d2f0a'],
-  wearables:         ['#ff8f8f', '#a65555', '#3d1a1a'],
-  longevity:         ['#d8c4ff', '#7a5fbf', '#2a1a4d'],
-  'quantified-self': ['#88bbff', '#4a72a6', '#1a2d4d'],
-  default:           ['#b7ff61', '#5a9e2e', '#1a3d0a'],
+// Category accent colors
+const CATEGORY_COLOR: Record<string, string> = {
+  microbiome:        '#b7ff61',
+  nutrition:         '#00e5ff',
+  sleep:             '#ffb300',
+  wearables:         '#ff8f8f',
+  longevity:         '#d8c4ff',
+  'quantified-self': '#88bbff',
+  default:           '#b7ff61',
 };
 
 // Category first-letter map
@@ -33,20 +33,69 @@ const CAT_LETTER: Record<string, string> = {
   default:           'X',
 };
 
-function hashStr(s: string): number {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = (Math.imul(h, 0x01000193)) >>> 0;
-  }
-  return h;
-}
+// 5-wide × 5-tall pixel font — each row is a 5-bit number (MSB = leftmost col)
+const PIXEL_FONT: Record<string, number[]> = {
+  '0': [0b01110, 0b10001, 0b10001, 0b10001, 0b01110],
+  '1': [0b00100, 0b01100, 0b00100, 0b00100, 0b01110],
+  '2': [0b01110, 0b00001, 0b01110, 0b10000, 0b11111],
+  '3': [0b11110, 0b00001, 0b00110, 0b00001, 0b11110],
+  '4': [0b10001, 0b10001, 0b11111, 0b00001, 0b00001],
+  '5': [0b11111, 0b10000, 0b11110, 0b00001, 0b11110],
+  '6': [0b01110, 0b10000, 0b11110, 0b10001, 0b01110],
+  '7': [0b11111, 0b00001, 0b00010, 0b00100, 0b00100],
+  '8': [0b01110, 0b10001, 0b01110, 0b10001, 0b01110],
+  '9': [0b01110, 0b10001, 0b01111, 0b00001, 0b01110],
+  'A': [0b01110, 0b10001, 0b11111, 0b10001, 0b10001],
+  'B': [0b11110, 0b10001, 0b11110, 0b10001, 0b11110],
+  'C': [0b01111, 0b10000, 0b10000, 0b10000, 0b01111],
+  'D': [0b11110, 0b10001, 0b10001, 0b10001, 0b11110],
+  'E': [0b11111, 0b10000, 0b11100, 0b10000, 0b11111],
+  'F': [0b11111, 0b10000, 0b11100, 0b10000, 0b10000],
+  'G': [0b01111, 0b10000, 0b10011, 0b10001, 0b01111],
+  'H': [0b10001, 0b10001, 0b11111, 0b10001, 0b10001],
+  'I': [0b01110, 0b00100, 0b00100, 0b00100, 0b01110],
+  'J': [0b00111, 0b00010, 0b00010, 0b10010, 0b01100],
+  'K': [0b10001, 0b10010, 0b11100, 0b10010, 0b10001],
+  'L': [0b10000, 0b10000, 0b10000, 0b10000, 0b11111],
+  'M': [0b10001, 0b11011, 0b10101, 0b10001, 0b10001],
+  'N': [0b10001, 0b11001, 0b10101, 0b10011, 0b10001],
+  'O': [0b01110, 0b10001, 0b10001, 0b10001, 0b01110],
+  'P': [0b11110, 0b10001, 0b11110, 0b10000, 0b10000],
+  'Q': [0b01110, 0b10001, 0b10001, 0b01110, 0b00011],
+  'R': [0b11110, 0b10001, 0b11110, 0b10010, 0b10001],
+  'S': [0b01111, 0b10000, 0b01110, 0b00001, 0b11110],
+  'T': [0b11111, 0b00100, 0b00100, 0b00100, 0b00100],
+  'U': [0b10001, 0b10001, 0b10001, 0b10001, 0b01110],
+  'V': [0b10001, 0b10001, 0b10001, 0b01010, 0b00100],
+  'W': [0b10001, 0b10001, 0b10101, 0b11011, 0b10001],
+  'X': [0b10001, 0b01010, 0b00100, 0b01010, 0b10001],
+  'Y': [0b10001, 0b01010, 0b00100, 0b00100, 0b00100],
+  'Z': [0b11111, 0b00010, 0b00100, 0b01000, 0b11111],
+};
 
-function seededRand(seed: number, index: number): number {
-  let s = (seed ^ Math.imul(index, 2654435761)) >>> 0;
-  s = (Math.imul((s >> 16) ^ s, 0x45d9f3b)) >>> 0;
-  s = ((s >> 16) ^ s) >>> 0;
-  return s / 0xffffffff;
+const CHAR_W = 5;  // cols per character
+const CHAR_GAP = 1; // col gap between characters
+
+// Returns a Set of "row,col" strings for lit cells
+function codeToLitCells(code: string): Set<string> {
+  const lit = new Set<string>();
+  const totalW = code.length * CHAR_W + (code.length - 1) * CHAR_GAP;
+  const startCol = Math.floor((COLS - totalW) / 2);
+
+  for (let ci = 0; ci < code.length; ci++) {
+    const ch = code[ci].toUpperCase();
+    const pattern = PIXEL_FONT[ch];
+    if (!pattern) continue;
+    const baseCol = startCol + ci * (CHAR_W + CHAR_GAP);
+    for (let row = 0; row < ROWS; row++) {
+      for (let bit = 0; bit < CHAR_W; bit++) {
+        if ((pattern[row] >> (CHAR_W - 1 - bit)) & 1) {
+          lit.add(`${row},${baseCol + bit}`);
+        }
+      }
+    }
+  }
+  return lit;
 }
 
 interface Props {
@@ -67,52 +116,18 @@ export function ExperimentIdenticon({
   height = 80,
 }: Props) {
   const rampKey = category.toLowerCase().replace(/\s+/g, '-');
-  const ramp = CATEGORY_RAMPS[rampKey] ?? CATEGORY_RAMPS['default'];
-  const seed = hashStr(experimentId);
+  const accentColor = CATEGORY_COLOR[rampKey] ?? CATEGORY_COLOR['default'];
 
-  // Build left half (cols 0–19) for each row
-  type CellData = { fill: string; opacity: number };
-  const cells: CellData[][] = [];
-
-  for (let row = 0; row < ROWS; row++) {
-    cells[row] = [];
-    for (let col = 0; col < COLS; col++) {
-      // Mirror: col ≥ 20 mirrors (39 - col)
-      const srcCol = col < HALF_COLS ? col : COLS - 1 - col;
-      const r = seededRand(seed, row * HALF_COLS + srcCol);
-
-      // Determine filled vs empty
-      const threshold = 0.45; // ~55% fill rate
-      if (r > threshold) {
-        // Filled — pick ramp stop based on secondary hash
-        const r2 = seededRand(seed + 1, row * HALF_COLS + srcCol);
-        let fill: string;
-        if (r2 < 0.25)      fill = ramp[2]; // dark
-        else if (r2 < 0.60) fill = ramp[1]; // mid
-        else                 fill = ramp[0]; // bright
-        // Opacity 30–80% based on r
-        const opacity = 0.3 + (r - threshold) / (1 - threshold) * 0.5;
-        cells[row].push({ fill, opacity });
-      } else {
-        // Empty — darkest stop at 5–8%
-        const r3 = seededRand(seed + 2, row * HALF_COLS + srcCol);
-        cells[row].push({ fill: ramp[2], opacity: 0.05 + r3 * 0.03 });
-      }
-    }
-  }
-
-  // Build alphanumeric code: [CatLetter][OrgLetter][##]
+  // Build code: [CatLetter][OrgLetter][##]
   const catLetter = CAT_LETTER[rampKey] ?? 'X';
   const orgLetter = orgName.trim().length > 0 ? orgName.trim()[0].toUpperCase() : 'B';
   const numStr = experimentNumber.toString().padStart(2, '0');
   const code = `${catLetter}${orgLetter}${numStr}`;
 
-  // Text zone columns (center 16 cols: 12–27) — dim these cells for readability
-  const TEXT_COL_START = 11;
-  const TEXT_COL_END   = 28;
+  const litCells = codeToLitCells(code);
 
-  // Category bright color at 90% opacity for text
-  const textColor = ramp[0];
+  // Off-cell dim color derived from accent (very dark)
+  const offColor = '#0a100a';
 
   return (
     <svg
@@ -124,68 +139,40 @@ export function ExperimentIdenticon({
       preserveAspectRatio="xMidYMid slice"
       style={{ display: 'block' }}
     >
-      {/* Background */}
-      <rect width={SVG_W} height={SVG_H} fill="#050709" />
+      <defs>
+        {/* Glow filter for lit cells */}
+        <filter id={`glow-${experimentId.slice(0, 8)}`} x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
 
-      {/* Grid cells */}
-      {cells.map((row, rowIdx) =>
-        row.map((cell, colIdx) => {
-          const inTextZone = colIdx >= TEXT_COL_START && colIdx <= TEXT_COL_END;
-          const finalOpacity = inTextZone ? Math.min(cell.opacity, 0.15) : cell.opacity;
+      {/* LED panel background */}
+      <rect width={SVG_W} height={SVG_H} fill="#060a06" />
+
+      {/* Render all cells */}
+      {Array.from({ length: ROWS }, (_, row) =>
+        Array.from({ length: COLS }, (_, col) => {
+          const key = `${row},${col}`;
+          const isLit = litCells.has(key);
           return (
             <rect
-              key={`${rowIdx}-${colIdx}`}
-              x={colIdx * CELL_W}
-              y={rowIdx * CELL_H}
-              width={CELL_W}
-              height={CELL_H}
-              fill={cell.fill}
-              opacity={finalOpacity}
+              key={key}
+              x={col * CELL_W + LED_GAP}
+              y={row * CELL_H + LED_GAP}
+              width={CELL_W - LED_GAP * 2}
+              height={CELL_H - LED_GAP * 2}
+              rx="1"
+              fill={isLit ? accentColor : offColor}
+              opacity={isLit ? 0.95 : 0.5}
+              filter={isLit ? `url(#glow-${experimentId.slice(0, 8)})` : undefined}
             />
           );
         })
       )}
-
-      {/* Faint cell border texture overlay */}
-      {cells.map((row, rowIdx) =>
-        row.map((_, colIdx) => (
-          <rect
-            key={`border-${rowIdx}-${colIdx}`}
-            x={colIdx * CELL_W}
-            y={rowIdx * CELL_H}
-            width={CELL_W}
-            height={CELL_H}
-            fill="none"
-            stroke={ramp[0]}
-            strokeWidth="0.5"
-            opacity={0.04}
-          />
-        ))
-      )}
-
-      {/* Alphanumeric code — centered */}
-      <text
-        x={SVG_W / 2}
-        y={SVG_H / 2}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontFamily="'DM Mono', monospace"
-        fontSize={28}
-        fontWeight={500}
-        fill={textColor}
-        opacity={0.9}
-        style={{ letterSpacing: '4px' }}
-      >
-        {code}
-      </text>
-
-      {/* Scanline overlay */}
-      <rect width={SVG_W} height={SVG_H} fill="url(#scan)" opacity="0.1" />
-      <defs>
-        <pattern id={`scan-${experimentId.slice(0, 8)}`} width={SVG_W} height="2" patternUnits="userSpaceOnUse">
-          <rect width={SVG_W} height="1" fill="black" />
-        </pattern>
-      </defs>
     </svg>
   );
 }
