@@ -4,6 +4,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 import { NotificationBell } from '@/components/nav/notification-bell';
+import { BiomeLogo } from '@/components/nav/biome-logo';
 
 type NavProfile =
   | { kind: 'participant'; pseudonym: string; participantId: string }
@@ -81,12 +82,7 @@ export function SiteHeader() {
     >
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 no-underline">
-        <span
-          className="text-lg font-black tracking-widest"
-          style={{ color: 'var(--green)', fontFamily: 'var(--font-heading)', letterSpacing: '0.18em' }}
-        >
-          BIOME
-        </span>
+        <BiomeLogo width={110} />
         <span
           className="mono text-xs px-1 py-px rounded"
           style={{ color: 'var(--text-dim)', border: '1px solid rgba(77,255,128,0.12)' }}
@@ -97,7 +93,7 @@ export function SiteHeader() {
 
       {/* Nav links */}
       <nav className="hidden md:flex items-center gap-8">
-        <Link href="/" className="mono text-xs transition-colors" style={{ color: 'var(--text-dim)' }}>
+        <Link href="/experiments" className="mono text-xs transition-colors" style={{ color: 'var(--text-dim)' }}>
           EXPLORE
         </Link>
         <Link href="/post" className="mono text-xs transition-colors" style={{ color: 'var(--text-dim)' }}>

@@ -1,15 +1,9 @@
 import { createAnonClient } from '@/lib/supabase/anon';
 import { SiteHeader } from '@/components/nav/header';
 import { TickerBar } from '@/components/dashboard/ticker-bar';
-import { HeroCompact } from '@/components/hero/hero-compact';
-import { ExperimentGrid } from '@/components/home/experiment-grid';
-import { Leaderboard } from '@/components/dashboard/leaderboard';
-import { CtaBlock } from '@/components/home/cta-block';
+import { ExperimentDashboard } from '@/components/dashboard/experiment-dashboard';
 import type { Experiment } from '@/lib/types';
-import type { LeaderRow } from '@/components/dashboard/leaderboard';
-
-export type OrgEntry = { id: string; org_name: string };
-export type OrgMap = Record<string, OrgEntry>; // keyed by user_id (= experiments.experimenter_id)
+import type { OrgMap } from '@/app/page';
 
 function computeStats(experiments: Experiment[]) {
   const totalBountyPool = experiments.reduce((s, e) => s + e.total_bounty_pool, 0);
@@ -23,18 +17,11 @@ function computeStats(experiments: Experiment[]) {
   return { totalBountyPool, totalEarned, activeCount, totalParticipants };
 }
 
-export default async function HomePage() {
+export default async function ExperimentsPage() {
   const supabase = createAnonClient();
 
-  const [expResult, leaderResult, orgResult] = await Promise.all([
+  const [expResult, orgResult] = await Promise.all([
     supabase.from('experiments').select('*').neq('status', 'draft').order('created_at', { ascending: false }),
-    supabase
-      .from('participant_profiles')
-      .select('participant_id, pseudonym, country, previous_study_count, completion_rate, reliability_score')
-      .not('completion_rate', 'is', null)
-      .gte('previous_study_count', 3)
-      .order('reliability_score', { ascending: false })
-      .limit(10),
     supabase
       .from('experimenter_profiles')
       .select('id, user_id, org_name')
@@ -42,7 +29,6 @@ export default async function HomePage() {
   ]);
 
   const experiments = (expResult.data ?? []) as Experiment[];
-  const leaders     = (leaderResult.data ?? []) as LeaderRow[];
   const stats       = computeStats(experiments);
 
   const orgMap: OrgMap = {};
@@ -59,12 +45,22 @@ export default async function HomePage() {
         activeCount={stats.activeCount}
         totalParticipants={stats.totalParticipants}
       />
-      <HeroCompact stats={stats} experimentCount={experiments.length} />
+
       <div className="flex-1 max-w-screen-xl mx-auto w-full">
-        <ExperimentGrid experiments={experiments} orgMap={orgMap} />
-        <Leaderboard leaders={leaders} />
-        <CtaBlock />
+        <div className="px-4 md:px-8 pt-8 pb-2">
+          <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>
+            // ALL_EXPERIMENTS
+          </p>
+          <h1
+            className="text-2xl font-black"
+            style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-white)' }}
+          >
+            Experiment Database
+          </h1>
+        </div>
+        <ExperimentDashboard experiments={experiments} stats={stats} orgMap={orgMap} />
       </div>
+
       <footer
         className="text-center py-4 mono text-xs"
         style={{ color: 'var(--text-dim)', borderTop: '1px solid rgba(77,255,128,0.06)' }}
