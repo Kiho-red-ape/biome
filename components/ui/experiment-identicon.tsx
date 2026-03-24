@@ -1,7 +1,7 @@
 // ExperimentIdenticon — Square-cell strip identicon
-// Source grid: 20 cols × 6 rows (viewBox "0 0 20 6")
-// Three zones each exactly 6×6: cat glyph (cols 0-5) | meas glyph (cols 7-12) | hash glyph (cols 14-19)
-// 1-col gap between zones
+// Source grid: 60 cols × 8 rows (viewBox "0 0 60 8") — dark space around each glyph
+// Three 20-col zones; each glyph is 6×6 centered inside its zone (7-col left pad, 1-row top pad)
+// Zone layout: cat glyph (cols 7-12) | meas glyph (cols 27-32) | hash glyph (cols 47-52)
 
 // ─── Color ramps (muted, flat — not bright) ───────────────────────────────────
 const RAMPS: Record<string, { on: string; off: string }> = {
@@ -166,11 +166,14 @@ interface Props {
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
-// ViewBox: 20 cols × 6 rows. Three 6×6 glyph zones with 1-col gaps.
-// Width drives height via aspect ratio (20:6 = 3.33:1).
+// ViewBox: 60 cols × 8 rows (unchanged — preserves dark padding around glyphs).
+// Each glyph is 6×6, centered in its 20×8 zone:
+//   col offset = zone_start + (20-6)/2 = zone_start + 7
+//   row offset = (8-6)/2 = 1
+// Width drives height via aspect ratio (60:8 = 7.5:1).
 
-const COLS = 20;
-const ROWS = 6;
+const COLS = 60;
+const ROWS = 8;
 const G = 0.07; // gap on each side of each cell in logical units
 
 export function ExperimentIdenticon({
@@ -187,22 +190,23 @@ export function ExperimentIdenticon({
     return MEAS_GLYPHS[mk] ? mk : catKey;
   })();
 
-  // Zone column starts (each zone = 6 cols, 1-col gap between)
-  const Z1 = 0;   // zone 1: cols 0-5
-  const Z2 = 7;   // zone 2: cols 7-12
-  const Z3 = 14;  // zone 3: cols 14-19
+  // Each zone is 20 cols wide. Glyph (6×6) is centered: col offset +7, row offset +1.
+  const Z1 = 7;   // zone 1 glyph col start (zone 0-19, center at 10, 6-wide → start at 7)
+  const Z2 = 27;  // zone 2 glyph col start (zone 20-39, center at 30 → start at 27)
+  const Z3 = 47;  // zone 3 glyph col start (zone 40-59, center at 50 → start at 47)
+  const ROW0 = 1; // row offset: 1 row dark padding top and bottom
 
   // Build lit-cell lookup: key = "row,col"
   const litMap = new Map<string, 'cat' | 'meas' | 'hash'>();
 
   for (const [r, c] of (CAT_GLYPHS[catKey] ?? CAT_GLYPHS['microbiome'])) {
-    litMap.set(`${r},${c + Z1}`, 'cat');
+    litMap.set(`${r + ROW0},${c + Z1}`, 'cat');
   }
   for (const [r, c] of (MEAS_GLYPHS[measKey] ?? MEAS_GLYPHS['microbiome'])) {
-    litMap.set(`${r},${c + Z2}`, 'meas');
+    litMap.set(`${r + ROW0},${c + Z2}`, 'meas');
   }
   for (const [r, c] of buildHashGlyph(experimentId)) {
-    litMap.set(`${r},${c + Z3}`, 'hash');
+    litMap.set(`${r + ROW0},${c + Z3}`, 'hash');
   }
 
   const rects: React.ReactElement[] = [];
