@@ -1,21 +1,6 @@
 import type { Metadata } from 'next';
-import { Familjen_Grotesk, DM_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
-
-const familjenGrotesk = Familjen_Grotesk({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-heading',
-  display: 'swap',
-});
-
-const dmMono = DM_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-mono',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'BIOME — Experiment Aggregator',
@@ -28,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${familjenGrotesk.variable} ${dmMono.variable}`}>
+    <html lang="en">
       <body>
         <Providers>
           <div id="app-root">

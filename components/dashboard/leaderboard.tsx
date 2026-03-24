@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Identicon } from '@/components/identicon';
 import { countryFlag } from '@/lib/utils/profile';
