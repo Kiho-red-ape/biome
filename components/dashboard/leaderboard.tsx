@@ -292,10 +292,46 @@ export function Leaderboard() {
         Everything you need — whether you&apos;re participating or running a study.
       </p>
 
-      {/* Two-column layout */}
-      <div style={{ display: 'flex', gap: 16, alignItems: 'stretch' }}>
-        <ParticipantPanel />
-        <ExperimenterPanel />
+      {/* Screenshot window wrapper */}
+      <div style={{
+        borderRadius: 10,
+        overflow: 'hidden',
+        boxShadow: '0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06)',
+        background: '#0b1014',
+      }}>
+        {/* Title bar */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '10px 16px',
+          background: 'linear-gradient(180deg, #1a2020 0%, #141c1a 100%)',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
+        }}>
+          {/* Traffic lights */}
+          <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f57', display: 'inline-block', boxShadow: '0 0 0 0.5px rgba(0,0,0,0.4)' }} />
+          <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#ffbd2e', display: 'inline-block', boxShadow: '0 0 0 0.5px rgba(0,0,0,0.4)' }} />
+          <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#28c840', display: 'inline-block', boxShadow: '0 0 0 0.5px rgba(0,0,0,0.4)' }} />
+          {/* Window title */}
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 10, color: '#3d5040',
+            letterSpacing: '2px', textTransform: 'uppercase', marginLeft: 'auto', marginRight: 'auto',
+          }}>
+            biome.to — control_center
+          </span>
+          {/* Spacer to balance traffic lights */}
+          <span style={{ width: 48 }} />
+        </div>
+
+        {/* Two-column layout */}
+        <div style={{ display: 'flex', gap: 0 }}>
+          <div style={{ flex: 1, borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+            <ParticipantPanel />
+          </div>
+          <div style={{ flex: 1 }}>
+            <ExperimenterPanel />
+          </div>
+        </div>
       </div>
 
     </section>
