@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
+import { LegalModal } from '@/components/ui/legal-modal';
+import type { LegalDocKey } from '@/lib/legal/documents';
 
 const CATEGORIES = [
   'Microbiome', 'Nutrition', 'Sleep', 'Wearables', 'Longevity',
@@ -266,6 +268,7 @@ export default function PostStudyPage() {
   const [complianceThreshold, setComplianceThreshold] = useState('80');
   const [enrollmentUrl,       setEnrollmentUrl]       = useState('');
   const [approvalStatus,      setApprovalStatus]      = useState('');
+  const [legalDoc,            setLegalDoc]            = useState<LegalDocKey | null>(null);
 
   // Regenerate week structure when duration changes
   const buildWeeks = useCallback((weeks: number) => {
@@ -453,6 +456,7 @@ export default function PostStudyPage() {
 
   return (
     <main className="min-h-screen px-4 py-8">
+      {legalDoc && <LegalModal docKey={legalDoc} onClose={() => setLegalDoc(null)} />}
       <div className="max-w-2xl mx-auto">
 
         <div className="flex items-center justify-between mb-8">
@@ -717,15 +721,21 @@ export default function PostStudyPage() {
                 required className="mt-1 w-4 h-4 flex-shrink-0" />
               <span className="text-sm" style={{ color: 'var(--text-dim)' }}>
                 I agree to the{' '}
-                <a href="/legal/tos" target="_blank" rel="noreferrer"
-                   style={{ color: 'var(--cyan)', textDecoration: 'underline' }}>
+                <button
+                  type="button"
+                  onClick={() => setLegalDoc('tos')}
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--cyan)', textDecoration: 'underline', fontFamily: 'inherit', fontSize: 'inherit' }}
+                >
                   BIOME Platform Terms
-                </a>
+                </button>
                 {' '}and the{' '}
-                <a href="/legal/experimenter-agreement" target="_blank" rel="noreferrer"
-                   style={{ color: 'var(--cyan)', textDecoration: 'underline' }}>
+                <button
+                  type="button"
+                  onClick={() => setLegalDoc('experimenter_agreement')}
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--cyan)', textDecoration: 'underline', fontFamily: 'inherit', fontSize: 'inherit' }}
+                >
                   Experimenter Study Agreement
-                </a>.
+                </button>.
               </span>
             </label>
 

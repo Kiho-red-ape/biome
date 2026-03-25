@@ -5,6 +5,8 @@ import { usePrivy } from '@privy-io/react-auth';
 import Link from 'next/link';
 import type { ApplyExperiment, ApplyMilestone } from './page';
 import type { QuizQuestion } from '@/lib/demo-data';
+import { LegalModal } from '@/components/ui/legal-modal';
+import type { LegalDocKey } from '@/lib/legal/documents';
 
 // ─── Step machine ─────────────────────────────────────────────────────────────
 
@@ -131,6 +133,7 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
   const [quizResult, setQuizResult] = useState<'eligible' | 'not_eligible' | null>(null);
   const [agreed,     setAgreed]     = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [legalDoc,   setLegalDoc]   = useState<LegalDocKey | null>(null);
 
   // ── Determine initial step ─────────────────────────────────────────────────
   useEffect(() => {
@@ -184,6 +187,9 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
   // ── Shared shell ──────────────────────────────────────────────────────────
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+
+      {/* Legal modal — renders on top, form stays mounted */}
+      {legalDoc && <LegalModal docKey={legalDoc} onClose={() => setLegalDoc(null)} />}
 
       {/* Top nav */}
       <header style={{
@@ -434,15 +440,21 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
                 <span className="mono text-xs leading-relaxed" style={{ color: 'var(--text-bright)' }}>
                   I understand the study requirements, compliance expectations, and payout conditions.
                   I agree to the{' '}
-                  <Link href="/legal/participant-agreement/view" target="_blank"
-                    style={{ color: 'var(--green)', textDecoration: 'underline' }}>
+                  <button
+                    type="button"
+                    onClick={() => setLegalDoc('participant_agreement')}
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--green)', textDecoration: 'underline', fontFamily: 'inherit', fontSize: 'inherit' }}
+                  >
                     Participant Study Agreement
-                  </Link>
+                  </button>
                   {' '}and{' '}
-                  <Link href="/payout-policy" target="_blank"
-                    style={{ color: 'var(--green)', textDecoration: 'underline' }}>
+                  <button
+                    type="button"
+                    onClick={() => setLegalDoc('payout_policy')}
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--green)', textDecoration: 'underline', fontFamily: 'inherit', fontSize: 'inherit' }}
+                  >
                     Payout Policy
-                  </Link>
+                  </button>
                   .
                 </span>
               </label>

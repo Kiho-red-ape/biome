@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy, useLinkAccount } from '@privy-io/react-auth';
 import type { ParticipantProfile } from '@/lib/types';
+import { LegalModal } from '@/components/ui/legal-modal';
+import type { LegalDocKey } from '@/lib/legal/documents';
 
 // ─── Countries ─────────────────────────────────────────────────────────────────
 
@@ -100,6 +102,7 @@ export default function ParticipantOnboardingPage() {
   const [deviceFingerprint, setDeviceFingerprint] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [legalDoc, setLegalDoc] = useState<LegalDocKey | null>(null);
   const [welcome, setWelcome] = useState<{ pseudonym: string; participantId: string } | null>(null);
 
   // Silent device fingerprint capture
@@ -282,6 +285,7 @@ export default function ParticipantOnboardingPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-16">
+      {legalDoc && <LegalModal docKey={legalDoc} onClose={() => setLegalDoc(null)} />}
       <div
         className="w-full max-w-lg rounded p-px"
         style={{ background: 'var(--green-dim)' }}
@@ -397,8 +401,16 @@ export default function ParticipantOnboardingPage() {
                 />
                 <span className="text-xs leading-relaxed">
                   I agree to the{' '}
-                  <span style={{ color: 'var(--green)' }}>Terms of Service</span> and{' '}
-                  <span style={{ color: 'var(--green)' }}>Privacy Policy</span>. I understand that
+                  <button
+                    type="button"
+                    onClick={() => setLegalDoc('tos')}
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--green)', textDecoration: 'underline', fontFamily: 'inherit', fontSize: 'inherit' }}
+                  >Terms of Service</button>{' '}and{' '}
+                  <button
+                    type="button"
+                    onClick={() => setLegalDoc('participant_agreement')}
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--green)', textDecoration: 'underline', fontFamily: 'inherit', fontSize: 'inherit' }}
+                  >Participant Study Agreement</button>. I understand that
                   my pseudonym and participant ID will be permanently assigned and cannot be changed.
                 </span>
               </label>

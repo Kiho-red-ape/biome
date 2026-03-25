@@ -449,10 +449,83 @@ BIOME Technologies Private Limited
 Bengaluru, Karnataka, India
 legal@biome.to`;
 
+export const PAYOUT_POLICY = `BIOME PAYOUT POLICY
+Last updated: March 24, 2026
+
+// 1. ELIGIBILITY REQUIREMENTS
+
+To receive a payout for completing a study on BIOME, participants must:
+- Have a verified BIOME participant account with a completed profile
+- Have been formally approved by the experimenter for the study
+- Have completed all required tasks and submissions by the study end date
+- Meet the compliance threshold specified by the experimenter (typically 80%+)
+- Have a valid payout method on file
+
+Partial completion may result in a prorated payout at the experimenter's discretion.
+All eligibility decisions are subject to BIOME's dispute resolution process.
+
+// 2. PAYOUT TIMELINE
+
+Once a study is marked as completed and the experimenter confirms participant
+completion, BIOME processes payouts within 14 business days.
+
+For crypto payouts (USDC, ETH, or other supported tokens), transfers are typically
+processed within 3 business days. For bank transfers and PayPal, allow up to 14
+business days depending on your country and banking institution.
+
+You will receive an in-platform notification when your payout is initiated.
+
+// 3. PAYOUT METHODS
+
+BIOME offers payout methods that may include bank transfer, supported digital payout
+methods, and, where available, crypto payouts. Payout method availability depends on
+recipient country, provider support, compliance review, and study configuration.
+
+Payout timing is not guaranteed and may vary based on payout method, provider
+processing, banking delays, compliance checks, and recipient account issues.
+
+If currency conversion is required, the payout provider may apply its own exchange
+rate, spread, and fees. BIOME does not guarantee mid-market exchange rates.
+
+// 4. PLATFORM FEE
+
+BIOME's platform fee is charged to experimenters under BIOME's experimenter pricing
+terms. BIOME does not currently deduct its platform fee directly from the participant
+reward listed on the study page.
+
+Third-party payout, conversion, banking, PayPal, or blockchain/network fees may still
+apply and may reduce the final amount received by the participant.
+
+A small participant payout processing fee applies: 0.5% of the total payout amount.
+
+// 5. DEPOSIT POLICY (EXPERIMENTERS)
+
+Experimenters must deposit the full bounty pool plus the 2.5% platform fee before
+their study can be listed as Recruiting on BIOME. Deposits are held in escrow by BIOME
+until study completion.
+
+// 6. WITHDRAWAL POLICY
+
+Once a participant submits a payout request, there is a 7-day review window during
+which the experimenter may flag a compliance issue. After the 7-day window, the payout
+is locked and processed. Participants who withdraw from a study before completion
+forfeit their right to a payout.
+
+// 7. DISPUTE PROCESS
+
+If you believe your payout is incorrect or has been incorrectly withheld, you may open
+a dispute through the BIOME platform within 30 days of the study end date. BIOME will
+review and issue a binding determination within 14 business days.
+
+// 8. CONTACT
+
+payouts@biome.to`;
+
 export const LEGAL_DOCS = {
   tos:                    { key: 'tos',                    title: 'Platform Terms of Service',        content: PLATFORM_TOS             },
   participant_agreement:  { key: 'participant_agreement',  title: 'Participant Study Agreement',       content: PARTICIPANT_STUDY_AGREEMENT },
   experimenter_agreement: { key: 'experimenter_agreement', title: 'Experimenter Study Agreement',      content: EXPERIMENTER_STUDY_AGREEMENT },
+  payout_policy:          { key: 'payout_policy',          title: 'Payout Policy',                    content: PAYOUT_POLICY            },
 } as const;
 
 export type LegalDocKey = keyof typeof LEGAL_DOCS;
