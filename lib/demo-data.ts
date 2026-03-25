@@ -372,6 +372,7 @@ function app(userId: string, expId: string, status: string, appliedDaysAgo: numb
     applied_at:         new Date(Date.now() - appliedDaysAgo * 86_400_000).toISOString(),
     approved_at:        status === 'approved' ? new Date(Date.now() - (appliedDaysAgo - 1) * 86_400_000).toISOString() : null,
     payout_status:      'pending',
+    eligibility_status: null,
     participantProfile: profile,
     applicationHistory: HIST[userId] ?? [],
   };

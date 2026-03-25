@@ -45,6 +45,7 @@ export type ApplicantRow = {
   applied_at: string;
   approved_at: string | null;
   payout_status: string;
+  eligibility_status: string | null;
   participantProfile: PP | null;
   applicationHistory: HistRow[];
 };
@@ -282,12 +283,14 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
   const [sortBy,       setSortBy]       = useState<'reliability' | 'applied' | 'eligibility'>('reliability');
   const [filterStatus, setFilterStatus] = useState<'all' | 'eligible' | 'ineligible'>('all');
 
-  // Enrich applicants with eligibility signal
+  // Enrich applicants: quiz result takes priority over profile-based eligibility check
   const enriched = useMemo(() =>
-    applicants.map((a) => ({
-      ...a,
-      eligible: computeEligibility(a.participantProfile, experiment),
-    })),
+    applicants.map((a) => {
+      const quizResult = a.eligibility_status; // 'eligible' | 'not_eligible' | null
+      const profileEligible = computeEligibility(a.participantProfile, experiment);
+      const eligible = quizResult != null ? quizResult === 'eligible' : profileEligible;
+      return { ...a, eligible, hasQuiz: quizResult != null };
+    }),
   [applicants, experiment]);
 
   const filtered = useMemo(() => {
@@ -295,7 +298,12 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
     if (filterStatus === 'eligible')   rows = rows.filter((r) => r.eligible);
     if (filterStatus === 'ineligible') rows = rows.filter((r) => !r.eligible);
     rows.sort((a, b) => {
-      if (sortBy === 'reliability') return (b.participantProfile?.reliability_score ?? 0) - (a.participantProfile?.reliability_score ?? 0);
+      if (sortBy === 'reliability') {
+        // Default: eligible first, then by reliability desc
+        const eligDiff = Number(b.eligible) - Number(a.eligible);
+        if (eligDiff !== 0) return eligDiff;
+        return (b.participantProfile?.reliability_score ?? 0) - (a.participantProfile?.reliability_score ?? 0);
+      }
       if (sortBy === 'eligibility') return Number(b.eligible) - Number(a.eligible);
       return new Date(a.applied_at).getTime() - new Date(b.applied_at).getTime();
     });
@@ -340,9 +348,9 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
     setExpandedId((prev) => (prev === id ? null : id));
   }
 
-  const approved  = applicants.filter((a) => a.status === 'approved').length;
+  // Slot counting: approved OR enrolled both occupy slots
+  const approved  = applicants.filter((a) => a.status === 'approved' || a.status === 'enrolled').length;
   const total     = applicants.length;
-  // slots_left = slots not yet filled by approved applicants (not raw DB slots_filled)
   const slotsLeft = Math.max(0, experiment.slots_total - approved);
 
   return (
@@ -351,10 +359,10 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
       {/* ── Header stats ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {[
-          { label: 'APPLICATIONS', value: String(total)                                         },
-          { label: 'APPROVED',     value: String(approved),       color: 'var(--green)'          },
-          { label: 'SLOTS LEFT',   value: String(slotsLeft),      color: slotsLeft === 0 ? 'var(--amber)' : 'var(--text-white)' },
-          { label: 'SLOTS TOTAL',  value: String(experiment.slots_total)                        },
+          { label: 'APPLICATIONS',   value: String(total)                                                             },
+          { label: 'APPROVED',       value: String(approved),                          color: 'var(--green)'          },
+          { label: 'SLOTS FILLED',   value: `${approved}/${experiment.slots_total}`,   color: approved >= experiment.slots_total ? 'var(--amber)' : 'var(--text-white)' },
+          { label: 'SLOTS REMAINING',value: String(slotsLeft),                         color: slotsLeft === 0 ? 'var(--amber)' : 'var(--text-white)' },
         ].map((s) => (
           <div key={s.label} className="rounded p-4"
             style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
@@ -478,12 +486,17 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
                   </span>
 
                   {/* Eligibility */}
-                  <span
-                    className="mono text-xs font-bold"
-                    style={{ color: row.eligible ? 'var(--green)' : 'var(--amber)' }}
-                  >
-                    {row.eligible ? 'ELIGIBLE' : 'NOT ELIG.'}
-                  </span>
+                  <div className="flex flex-col gap-0.5">
+                    <span
+                      className="mono text-xs font-bold"
+                      style={{ color: row.eligible ? 'var(--green)' : 'var(--amber)' }}
+                    >
+                      {row.eligible ? 'ELIGIBLE' : 'NOT ELIG.'}
+                    </span>
+                    {row.hasQuiz && (
+                      <span className="mono" style={{ color: 'var(--text-dim)', fontSize: 9 }}>quiz</span>
+                    )}
+                  </div>
 
                   {/* Reliability */}
                   <span className="mono text-xs font-bold tabular-nums"
