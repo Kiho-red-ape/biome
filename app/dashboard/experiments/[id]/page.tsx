@@ -7,6 +7,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { ScreeningDashboard } from '@/components/screening/screening-dashboard';
 import type { ApplicantRow, ExpInfo } from '@/components/screening/screening-dashboard';
 import { ComplianceDashboard } from '@/components/compliance/compliance-dashboard';
+import { MessageComposer } from '@/components/experiments/message-composer';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -592,6 +593,21 @@ export default function ExperimentManagePage() {
                   ))}
                 </div>
               )}
+            </div>
+          );
+        })()}
+
+        {/* ── Message composer ── (shown when there are approved/enrolled participants) */}
+        {user && (() => {
+          const msgRecipients = applicants.filter((a) => a.status === 'approved' || a.status === 'enrolled').length;
+          if (msgRecipients === 0 && exp.status !== 'active') return null;
+          return (
+            <div className="mb-8">
+              <MessageComposer
+                experimentId={exp.id}
+                privyDid={user.id}
+                recipientCount={msgRecipients}
+              />
             </div>
           );
         })()}

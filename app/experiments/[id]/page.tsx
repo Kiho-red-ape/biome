@@ -258,7 +258,15 @@ export default async function ExperimentPage({ params }: Props) {
       </header>
 
       {exp.status === 'draft' && (
-        <DraftBanner experimentId={exp.id} experimenterUserId={exp.experimenter_id} />
+        <DraftBanner
+          experimentId={exp.id}
+          experimenterUserId={exp.experimenter_id}
+          experimentTitle={exp.title}
+          category={exp.category}
+          reward={exp.bounty_per_participant}
+          slots={exp.slots_total}
+          durationWeeks={durWks ?? null}
+        />
       )}
 
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px' }}>
