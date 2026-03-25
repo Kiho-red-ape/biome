@@ -197,14 +197,6 @@ function NotifyPanel() {
       <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', lineHeight: 1.5 }}>
         Creating your BIOME profile helps you get matched with relevant paid studies and research opportunities.
       </p>
-
-      <Link href="/docs#participants" style={{
-        display: 'block', marginTop: 10,
-        fontFamily: 'var(--font-mono)', fontSize: 10,
-        color: '#4a7055', textDecoration: 'none', letterSpacing: '0.5px',
-      }}>
-        Learn more about participating →
-      </Link>
     </div>
   );
 }
@@ -268,17 +260,6 @@ export function CtaBlock() {
             }}
           >
             Need help designing your study? Talk to us →
-          </Link>
-
-          <Link
-            href="/docs#researchers"
-            style={{
-              display: 'block', textAlign: 'center',
-              fontFamily: 'var(--font-mono)', fontSize: 10,
-              color: '#4a7055', textDecoration: 'none', letterSpacing: '0.5px',
-            }}
-          >
-            Learn more about running a study →
           </Link>
         </div>
 
