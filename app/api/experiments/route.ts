@@ -11,6 +11,13 @@ const milestoneSchema = z.object({
   sort_order:   z.number().int().default(0),
 });
 
+const quizQuestionSchema = z.object({
+  question_text:   z.string().min(5).max(500),
+  expected_answer: z.enum(['yes', 'no']),
+  weight:          z.enum(['low', 'medium', 'high']).default('medium'),
+  sort_order:      z.number().int().default(0),
+});
+
 const createSchema = z.object({
   privyDid:               z.string().min(1),
   title:                  z.string().min(3).max(200),
@@ -33,6 +40,7 @@ const createSchema = z.object({
   milestones:             z.array(milestoneSchema).optional(),
   compliance_threshold:   z.number().min(0).max(100).default(80),
   enrollment_url:         z.string().url().nullable().optional(),
+  quiz_questions:         z.array(quizQuestionSchema).max(10).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -42,7 +50,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { privyDid, apply_for_verification, milestones, compliance_threshold, enrollment_url, ...fields } = parsed.data;
+  const { privyDid, apply_for_verification, milestones, compliance_threshold, enrollment_url, quiz_questions, ...fields } = parsed.data;
   const supabase = createServiceClient();
 
   // Verify the experimenter has an approved profile
@@ -107,6 +115,19 @@ export async function POST(request: NextRequest) {
 
     await supabase.from('study_milestones').insert(milestoneRows);
     // Non-fatal: form submission succeeds even if milestone insert fails
+  }
+
+  // Insert eligibility quiz questions if provided
+  if (quiz_questions && quiz_questions.length > 0 && data) {
+    const qRows = quiz_questions.map((q, i) => ({
+      experiment_id:   (data as { id: string }).id,
+      question_text:   q.question_text,
+      expected_answer: q.expected_answer,
+      weight:          q.weight,
+      sort_order:      q.sort_order ?? i,
+    }));
+    // Non-fatal: table may not exist yet in all environments
+    await supabase.from('eligibility_questions').insert(qRows).then(() => {}, () => {});
   }
 
   // Increment experiments_posted on experimenter profile

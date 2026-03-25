@@ -263,6 +263,22 @@ export default function PostStudyPage() {
   const [ageMin,    setAgeMin]    = useState('');
   const [ageMax,    setAgeMax]    = useState('');
 
+  // Section C2 — Eligibility quiz
+  type QuizQ = { id: string; question_text: string; expected_answer: 'yes' | 'no'; weight: 'low' | 'medium' | 'high' };
+  const [quizEnabled,    setQuizEnabled]    = useState(false);
+  const [quizQuestions,  setQuizQuestions]  = useState<QuizQ[]>([]);
+
+  function addQuizQ() {
+    if (quizQuestions.length >= 10) return;
+    setQuizQuestions((prev) => [...prev, { id: crypto.randomUUID(), question_text: '', expected_answer: 'yes', weight: 'medium' }]);
+  }
+  function removeQuizQ(id: string) {
+    setQuizQuestions((prev) => prev.filter((q) => q.id !== id));
+  }
+  function updateQuizQ<K extends keyof QuizQ>(id: string, field: K, val: QuizQ[K]) {
+    setQuizQuestions((prev) => prev.map((q) => q.id === id ? { ...q, [field]: val } : q));
+  }
+
   // Section D — Protocol
   const [weekMilestones, setWeekMilestones] = useState<Record<number, MilestoneInput[]>>({});
   const [complianceThreshold, setComplianceThreshold] = useState('80');
@@ -378,6 +394,11 @@ export default function PostStudyPage() {
         milestones:             flatMilestones,
         compliance_threshold:   parseFloat(complianceThreshold) || 80,
         enrollment_url:         enrollmentUrl.trim() || null,
+        quiz_questions:         quizEnabled && quizQuestions.length > 0
+          ? quizQuestions
+            .filter((q) => q.question_text.trim().length >= 5)
+            .map((q, i) => ({ question_text: q.question_text.trim(), expected_answer: q.expected_answer, weight: q.weight, sort_order: i }))
+          : undefined,
       }),
     });
 
@@ -598,6 +619,112 @@ export default function PostStudyPage() {
                 <TextInput type="number" value={ageMax} onChange={setAgeMax} placeholder="65" min="0" />
               </div>
             </div>
+
+            {/* ── C2: Eligibility Quiz ── */}
+            <SectionHeader
+              label="// ELIGIBILITY_QUIZ (optional)"
+              sub="Add up to 10 screening questions. Responses help you evaluate applicants but do not auto-approve or reject anyone."
+            />
+
+            {/* Toggle */}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setQuizEnabled((v) => !v);
+                  if (!quizEnabled && quizQuestions.length === 0) addQuizQ();
+                }}
+                className="mono text-xs px-3 py-1.5 rounded transition-all"
+                style={{
+                  background:  quizEnabled ? 'rgba(77,255,128,0.12)' : 'transparent',
+                  border:      `1px solid ${quizEnabled ? 'rgba(77,255,128,0.4)' : 'rgba(77,255,128,0.15)'}`,
+                  color:       quizEnabled ? 'var(--green)' : 'var(--text-dim)',
+                }}
+              >
+                {quizEnabled ? '✓ Quiz enabled' : 'Include eligibility quiz'}
+              </button>
+              {quizEnabled && (
+                <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+                  {quizQuestions.length}/10 questions
+                </span>
+              )}
+            </div>
+
+            {/* Question builder */}
+            {quizEnabled && (
+              <div className="flex flex-col gap-3 mt-1">
+                {quizQuestions.map((q, idx) => (
+                  <div
+                    key={q.id}
+                    className="rounded p-4"
+                    style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+                        Q{idx + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeQuizQ(q.id)}
+                        className="mono text-xs transition-opacity hover:opacity-60"
+                        style={{ color: 'var(--amber)', background: 'none', border: 'none', cursor: 'pointer' }}
+                      >
+                        Remove ✕
+                      </button>
+                    </div>
+                    <Textarea
+                      value={q.question_text}
+                      onChange={(v) => updateQuizQ(q.id, 'question_text', v)}
+                      placeholder="e.g. Do you currently wear a fitness tracker at night?"
+                      rows={2}
+                    />
+                    <div className="flex gap-3 mt-2">
+                      <div className="flex-1">
+                        <Label>EXPECTED ANSWER</Label>
+                        <select
+                          value={q.expected_answer}
+                          onChange={(e) => updateQuizQ(q.id, 'expected_answer', e.target.value as 'yes' | 'no')}
+                          className="w-full rounded px-3 py-2 text-sm"
+                          style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.15)', color: 'var(--text-bright)' }}
+                        >
+                          <option value="yes">Yes</option>
+                          <option value="no">No</option>
+                        </select>
+                      </div>
+                      <div className="flex-1">
+                        <Label>WEIGHT</Label>
+                        <select
+                          value={q.weight}
+                          onChange={(e) => updateQuizQ(q.id, 'weight', e.target.value as 'low' | 'medium' | 'high')}
+                          className="w-full rounded px-3 py-2 text-sm"
+                          style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.15)', color: 'var(--text-bright)' }}
+                        >
+                          <option value="low">Low</option>
+                          <option value="medium">Medium</option>
+                          <option value="high">High</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {quizQuestions.length < 10 && (
+                  <button
+                    type="button"
+                    onClick={addQuizQ}
+                    className="mono text-xs py-2.5 rounded transition-all"
+                    style={{
+                      background: 'transparent',
+                      border: '1px dashed rgba(77,255,128,0.2)',
+                      color: 'var(--text-dim)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    + Add question ({10 - quizQuestions.length} remaining)
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* ── D: Study Protocol ── */}
             <SectionHeader
