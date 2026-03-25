@@ -6,6 +6,7 @@ import { QASection } from '@/components/qa/qa-section';
 import type { Question, QAComment } from '@/components/qa/qa-section';
 import { DraftBanner } from '@/components/experiments/draft-banner';
 import { ExperimentIdenticon } from '@/components/ui/experiment-identicon';
+import { ExperimentCTA } from './experiment-cta';
 
 // ─── Collection summary helpers ───────────────────────────────────────────────
 
@@ -613,59 +614,19 @@ export default async function ExperimentPage({ params }: Props) {
 
         {/* ── CTA button ── */}
         <div style={{ padding: '28px 0 48px' }}>
-          {exp.status === 'recruiting' && (() => {
-            const expRaw   = exp as unknown as Record<string, unknown>;
-            const deadline = expRaw.application_deadline as string | null ?? null;
-            const closed   = deadline ? deadlineDays(deadline) <= 0 : false;
-            if (closed) {
-              return (
-                <div style={{
-                  width: '100%', height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'var(--font-mono)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '3px',
-                  color: '#4a7055', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2,
-                }}>
-                  Applications closed
-                </div>
-              );
-            }
+          {(() => {
+            const expRaw      = exp as unknown as Record<string, unknown>;
+            const deadline    = expRaw.application_deadline as string | null ?? null;
+            const deadlineClosed = deadline ? deadlineDays(deadline) <= 0 : false;
             return (
-              <Link
-                href={`/experiments/${exp.id}/apply`}
-                className="cta-apply-btn"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
-              >
-                Apply to this study → ({slotsLeft} slot{slotsLeft !== 1 ? 's' : ''} remaining)
-              </Link>
+              <ExperimentCTA
+                experimentId={exp.id}
+                experimentStatus={exp.status}
+                slotsLeft={slotsLeft}
+                deadlineClosed={deadlineClosed}
+              />
             );
           })()}
-          {exp.status === 'active' && (
-            <button
-              style={{
-                width: '100%', height: 48,
-                fontFamily: 'var(--font-mono)', fontWeight: 700,
-                fontSize: 13, textTransform: 'uppercase', letterSpacing: '3px',
-                background: 'rgba(142,231,255,0.1)', color: '#8ee7ff',
-                border: '1px solid rgba(142,231,255,0.25)', cursor: 'default', borderRadius: 2,
-              }}
-            >
-              Join waitlist →
-            </button>
-          )}
-          {(exp.status === 'completed' || exp.status === 'cancelled') && (
-            <div
-              style={{
-                width: '100%', height: 48,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'var(--font-mono)', fontSize: 13,
-                textTransform: 'uppercase', letterSpacing: '3px',
-                color: '#4a7055',
-                border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: 2,
-              }}
-            >
-              Enrollment closed
-            </div>
-          )}
         </div>
 
         {/* Amendment log */}

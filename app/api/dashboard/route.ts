@@ -41,15 +41,21 @@ export async function GET(request: NextRequest) {
     approved_at: string | null;
     completed_at: string | null;
     payout_status: string;
-    experiments: { id: string; title: string; category: string; bounty_per_participant: number; status: string } | null;
+    eligibility_status: string | null;
+    experiments: {
+      id: string; title: string; category: string;
+      bounty_per_participant: number; status: string;
+      compliance_threshold: number | null; duration_weeks: number | null;
+      is_remote: boolean | null; region: string | null;
+    } | null;
   };
 
-  // Applications with experiment details
+  // Applications with richer experiment details (include compliance + duration for all apps)
   const { data: appsRaw, error: appsErr } = await supabase
     .from('applications')
     .select(
-      'id, status, applied_at, approved_at, completed_at, payout_status, ' +
-      'experiments(id, title, category, bounty_per_participant, status)'
+      'id, status, applied_at, approved_at, completed_at, payout_status, eligibility_status, ' +
+      'experiments(id, title, category, bounty_per_participant, status, compliance_threshold, duration_weeks, is_remote, region)'
     )
     .eq('participant_id', privyDid)
     .order('applied_at', { ascending: false });

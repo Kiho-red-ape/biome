@@ -14,8 +14,16 @@ type AppRow = {
   id: string;
   status: string;
   applied_at: string;
+  approved_at: string | null;
+  completed_at: string | null;
   payout_status: string;
-  experiments: { id: string; title: string; category: string; bounty_per_participant: number; status: string } | null;
+  eligibility_status: string | null;
+  experiments: {
+    id: string; title: string; category: string;
+    bounty_per_participant: number; status: string;
+    compliance_threshold: number | null; duration_weeks: number | null;
+    is_remote: boolean | null; region: string | null;
+  } | null;
 };
 
 type MilestoneRow = {
@@ -57,13 +65,25 @@ type DashboardData = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  applied:   'var(--text-dim)',
-  approved:  'var(--cyan)',
-  enrolled:  'var(--cyan)',
-  active:    'var(--cyan)',
-  completed: 'var(--green)',
-  withdrawn: 'var(--text-dim)',
-  rejected:  'var(--amber)',
+  applied:    'var(--amber)',
+  approved:   'var(--green)',
+  waitlisted: '#a05c10',
+  enrolled:   'var(--cyan)',
+  active:     'var(--cyan)',
+  completed:  'var(--green)',
+  withdrawn:  'var(--text-dim)',
+  rejected:   '#7a3535',
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  applied:    'UNDER REVIEW',
+  approved:   'ACCEPTED',
+  waitlisted: 'WAITLISTED',
+  enrolled:   'ENROLLED',
+  active:     'ACTIVE',
+  completed:  'COMPLETED ✓',
+  withdrawn:  'WITHDRAWN',
+  rejected:   'NOT SELECTED',
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -525,46 +545,95 @@ export default function DashboardPage() {
               </Link>
             </div>
           ) : (
-            <div className="overflow-x-auto" style={{ background: 'var(--bg)' }}>
-              <table className="w-full border-collapse" style={{ minWidth: 560 }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(77,255,128,0.06)' }}>
-                    {['EXPERIMENT', 'STATUS', 'REWARD', 'APPLIED'].map((h) => (
-                      <th key={h} className="mono text-xs font-normal px-4 py-2.5 text-left" style={{ color: 'var(--text-dim)' }}>
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {applications.map((app) => {
-                    const exp = app.experiments;
-                    const cc  = categoryColor(exp?.category ?? '');
-                    const sc  = STATUS_COLORS[app.status] ?? 'var(--text-dim)';
-                    return (
-                      <tr key={app.id} style={{ borderBottom: '1px solid rgba(77,255,128,0.04)' }}>
-                        <td className="px-4 py-3">
-                          {exp ? (
-                            <Link href={`/experiments/${exp.id}`} className="flex flex-col gap-1 no-underline">
-                              <span className="text-sm" style={{ color: 'var(--text-bright)' }}>{exp.title}</span>
-                              <span className="mono text-xs px-1.5 py-0.5 rounded self-start" style={{ color: cc, border: `1px solid ${cc}30`, background: `${cc}08` }}>
-                                {exp.category.toUpperCase()}
-                              </span>
-                            </Link>
-                          ) : '—'}
-                        </td>
-                        <td className="px-4 py-3 mono text-xs uppercase" style={{ color: sc }}>{app.status}</td>
-                        <td className="px-4 py-3 mono text-xs tabular-nums" style={{ color: app.status === 'completed' ? 'var(--green)' : 'var(--text-dim)' }}>
-                          {app.status === 'completed' ? fmt(exp?.bounty_per_participant ?? 0) : '—'}
-                        </td>
-                        <td className="px-4 py-3 mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                          {relDate(app.applied_at)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div style={{ background: 'var(--bg)' }}>
+              {applications.map((app) => {
+                const exp = app.experiments;
+                const cc  = categoryColor(exp?.category ?? '');
+                const sc  = STATUS_COLORS[app.status] ?? 'var(--text-dim)';
+                const sl  = STATUS_LABELS[app.status] ?? app.status.toUpperCase();
+                const isUnderReview = app.status === 'applied';
+                const isAccepted    = app.status === 'approved';
+                const isWaitlisted  = app.status === 'waitlisted';
+                const isRejected    = app.status === 'rejected';
+                const isCompleted   = app.status === 'completed';
+                return (
+                  <div
+                    key={app.id}
+                    className="px-4 py-4"
+                    style={{ borderBottom: '1px solid rgba(77,255,128,0.05)' }}
+                  >
+                    {/* Row header */}
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="flex-1 min-w-0">
+                        {exp ? (
+                          <Link href={`/experiments/${exp.id}`} className="no-underline group">
+                            <span className="text-sm font-medium group-hover:opacity-80 transition-opacity" style={{ color: 'var(--text-bright)' }}>
+                              {exp.title}
+                            </span>
+                          </Link>
+                        ) : <span className="text-sm" style={{ color: 'var(--text-dim)' }}>—</span>}
+                        <div className="flex items-center gap-2 mt-1">
+                          {exp && (
+                            <span className="mono text-xs px-1.5 py-0.5 rounded" style={{ color: cc, border: `1px solid ${cc}30`, background: `${cc}08`, fontSize: 9 }}>
+                              {exp.category.toUpperCase()}
+                            </span>
+                          )}
+                          <span className="mono text-xs" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
+                            Applied {relDate(app.applied_at)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <span
+                          className="mono text-xs px-2 py-0.5 rounded"
+                          style={{
+                            color: sc,
+                            border: `1px solid ${sc}40`,
+                            background: `${sc}10`,
+                            fontSize: 9, letterSpacing: '1px',
+                          }}
+                        >
+                          {sl}
+                        </span>
+                        {(isCompleted || isAccepted) && (
+                          <span className="mono text-xs tabular-nums" style={{ color: 'var(--green)' }}>
+                            {fmt(exp?.bounty_per_participant ?? 0)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Sub-row: eligibility + compliance info */}
+                    <div className="flex flex-wrap gap-x-4 gap-y-1">
+                      {app.eligibility_status && (
+                        <span className="mono text-xs" style={{ fontSize: 10, color: app.eligibility_status === 'eligible' ? 'var(--green)' : 'var(--amber)' }}>
+                          {app.eligibility_status === 'eligible' ? '✓ Eligible' : '⚠ Not eligible'} (quiz)
+                        </span>
+                      )}
+                      {exp?.compliance_threshold != null && (isUnderReview || isAccepted || isWaitlisted) && (
+                        <span className="mono text-xs" style={{ fontSize: 10, color: 'var(--text-dim)' }}>
+                          {exp.compliance_threshold}% compliance required
+                        </span>
+                      )}
+                      {exp?.duration_weeks != null && (isUnderReview || isAccepted || isWaitlisted) && (
+                        <span className="mono text-xs" style={{ fontSize: 10, color: 'var(--text-dim)' }}>
+                          ~{exp.duration_weeks} weeks
+                        </span>
+                      )}
+                      {isRejected && (
+                        <span className="mono text-xs" style={{ fontSize: 10, color: 'var(--text-dim)' }}>
+                          Your application was not selected for this study.
+                        </span>
+                      )}
+                      {isWaitlisted && (
+                        <span className="mono text-xs" style={{ fontSize: 10, color: '#a05c10' }}>
+                          You&apos;ll be notified if a spot opens.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
