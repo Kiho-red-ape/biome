@@ -28,7 +28,7 @@ export async function GET(req: NextRequest, { params }: Props) {
   // Fetch applications
   const { data: apps, error: appsErr } = await supabase
     .from('applications')
-    .select('id, participant_id, status, applied_at, approved_at, payout_status, eligibility_status')
+    .select('id, participant_id, status, applied_at, approved_at, payout_status')
     .eq('experiment_id', id)
     .order('applied_at', { ascending: true });
 

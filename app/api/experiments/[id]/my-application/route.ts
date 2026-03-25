@@ -15,7 +15,7 @@ export async function GET(
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('applications')
-    .select('id, status, applied_at, payout_status, eligibility_status')
+    .select('id, status, applied_at, payout_status')
     .eq('experiment_id', experimentId)
     .eq('participant_id', privyDid)
     .maybeSingle();

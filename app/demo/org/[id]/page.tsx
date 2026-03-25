@@ -39,7 +39,7 @@ export default async function DemoOrgPage({ params }: { params: { id: string } }
   if (interactiveIds.length > 0) {
     const { data: apps } = await supabase
       .from('applications')
-      .select('id, experiment_id, participant_id, status, applied_at, approved_at, payout_status, eligibility_status')
+      .select('id, experiment_id, participant_id, status, applied_at, approved_at, payout_status')
       .in('experiment_id', interactiveIds)
       .order('applied_at', { ascending: true });
 
@@ -69,7 +69,7 @@ export default async function DemoOrgPage({ params }: { params: { id: string } }
         applied_at:         app.applied_at as string,
         approved_at:        app.approved_at as string | null,
         payout_status:      app.payout_status as string,
-        eligibility_status: (app.eligibility_status as string | null) ?? null,
+        eligibility_status: null,
         participantProfile: (ppMap.get(app.participant_id as string) ?? null) as ApplicantRow['participantProfile'],
         applicationHistory: [],
       });

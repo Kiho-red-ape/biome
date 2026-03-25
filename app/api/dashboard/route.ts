@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     approved_at: string | null;
     completed_at: string | null;
     payout_status: string;
-    eligibility_status: string | null;
+    eligibility_status?: string | null;
     experiments: {
       id: string; title: string; category: string;
       bounty_per_participant: number; status: string;
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
   const { data: appsRaw, error: appsErr } = await supabase
     .from('applications')
     .select(
-      'id, status, applied_at, approved_at, completed_at, payout_status, eligibility_status, ' +
+      'id, status, applied_at, approved_at, completed_at, payout_status, ' +
       'experiments(id, title, category, bounty_per_participant, status, compliance_threshold, duration_weeks, is_remote, region)'
     )
     .eq('participant_id', privyDid)
