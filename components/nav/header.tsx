@@ -149,6 +149,7 @@ export function SiteHeader() {
       {/* Center — nav links */}
       <nav style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
         <NavLink href="/experiments">EXPLORE</NavLink>
+        <NavLink href="/docs">DOCS</NavLink>
         <NavLink href="/post">POST STUDY</NavLink>
         <Link href="/demo/biome" className="mono text-xs transition-colors" style={{ color: 'var(--cyan)', textDecoration: 'none', letterSpacing: '2px' }}>
           DEMO

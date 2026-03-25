@@ -156,7 +156,7 @@ function ParticipantPanel() {
           Create profile →
         </Link>
         <Link
-          href="/docs#participants"
+          href="/docs/participants"
           style={{
             fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase',
             letterSpacing: '1.5px', color: '#4a7055', textDecoration: 'none',
@@ -259,7 +259,7 @@ function ExperimenterPanel() {
           Post a study →
         </Link>
         <Link
-          href="/docs#researchers"
+          href="/docs/researchers"
           style={{
             fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase',
             letterSpacing: '1.5px', color: '#4a7055', textDecoration: 'none',
