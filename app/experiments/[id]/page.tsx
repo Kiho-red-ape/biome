@@ -7,6 +7,48 @@ import type { Question, QAComment } from '@/components/qa/qa-section';
 import { DraftBanner } from '@/components/experiments/draft-banner';
 import { ExperimentIdenticon } from '@/components/ui/experiment-identicon';
 
+// ─── Collection summary helpers ───────────────────────────────────────────────
+
+function deriveInputs(category: string): string {
+  const c = category.toLowerCase();
+  if (c.includes('sleep'))                          return 'Wearable sleep data · daily logs · morning HRV';
+  if (c.includes('nutri') || c.includes('diet'))   return 'Food logs · dietary surveys · biometric check-ins';
+  if (c.includes('micro') || c.includes('gut'))    return 'Stool / saliva samples · symptom surveys';
+  if (c.includes('longev') || c.includes('cold'))  return 'HRV wearable data · subjective energy logs';
+  if (c.includes('wear') || c.includes('quantif')) return 'Wearable sensor data · self-report logs';
+  return 'Survey responses · self-report logs';
+}
+
+function deriveDevices(inclCriteria: string | null, isRemote: boolean): string {
+  const t = (inclCriteria ?? '').toLowerCase();
+  const wearable = /wearable|oura|fitbit|garmin|whoop|apple watch|polar/.test(t);
+  const tools: string[] = [];
+  if (wearable)  tools.push('wearable device');
+  if (isRemote)  tools.push('mobile app');
+  if (tools.length === 0) tools.push('questionnaire');
+  return tools.join(' · ');
+}
+
+function deriveSample(inclCriteria: string | null, category: string): string {
+  const t = (inclCriteria ?? '').toLowerCase();
+  const c = category.toLowerCase();
+  const parts: string[] = [];
+  if (t.includes('stool') || c.includes('micro'))  parts.push('stool');
+  if (t.includes('saliva'))                          parts.push('saliva');
+  if (t.includes('blood') || t.includes('glucose')) parts.push('blood');
+  if (t.includes('urine'))                           parts.push('urine');
+  return parts.length > 0 ? parts.join(', ') : 'none';
+}
+
+function deriveVisits(isRemote: boolean, region: string | null): string {
+  if (isRemote) return 'Remote only';
+  return region ? `${region} in-person` : 'In-person';
+}
+
+function deadlineDays(deadline: string): number {
+  return Math.ceil((new Date(deadline).getTime() - Date.now()) / 86_400_000);
+}
+
 // ─── Category helpers ──────────────────────────────────────────────────────────
 
 function rampKey(cat: string): string {
@@ -484,52 +526,66 @@ export default async function ExperimentPage({ params }: Props) {
 
         {/* ── What is collected ── */}
         {(() => {
-          const taskSum = (exp as unknown as Record<string, unknown>).task_summary as string | null;
+          const expRaw    = exp as unknown as Record<string, unknown>;
+          const deadline  = expRaw.application_deadline as string | null ?? null;
+          const daysLeft  = deadline ? deadlineDays(deadline) : null;
+          const inputsVal   = deriveInputs(exp.category);
+          const devicesVal  = deriveDevices(exp.inclusion_criteria ?? null, exp.is_remote);
+          const sampleVal   = deriveSample(exp.inclusion_criteria ?? null, exp.category);
+          const visitsVal   = deriveVisits(exp.is_remote, exp.region ?? null);
+
+          const fields: { label: string; value: string }[] = [
+            { label: 'FORMAT',             value: exp.is_remote ? 'Remote' : (exp.region ?? 'In-person') },
+            { label: 'DURATION',           value: durWks ? `~${durWks} weeks` : '—'                     },
+            { label: 'COMPLIANCE MINIMUM', value: `${threshold}%`                                        },
+            { label: 'INPUTS',             value: inputsVal                                               },
+            { label: 'DEVICES / TOOLS',    value: devicesVal                                              },
+            { label: 'SAMPLE TYPE',        value: sampleVal                                               },
+            { label: 'VISITS',             value: visitsVal                                               },
+          ];
+
           return (
             <div style={{ padding: '28px 0' }}>
-              <p style={{
-                fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
-                textTransform: 'uppercase', color: cc, marginBottom: 20,
-              }}>
-                // WHAT IS COLLECTED
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px 32px' }}>
-                {taskSum && (
-                  <div>
-                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
-                      WHAT PARTICIPANTS DO
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 16, marginBottom: 20 }}>
+                <p style={{
+                  fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
+                  textTransform: 'uppercase', color: cc, margin: 0,
+                }}>
+                  // WHAT IS COLLECTED
+                </p>
+                {daysLeft !== null && daysLeft > 0 && (
+                  <span style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 10,
+                    color: daysLeft <= 14 ? '#ffb300' : '#4a7055',
+                    border: `1px solid ${daysLeft <= 14 ? 'rgba(255,179,0,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                    background: daysLeft <= 14 ? 'rgba(255,179,0,0.05)' : 'transparent',
+                    padding: '2px 8px',
+                  }}>
+                    Applications close in {daysLeft}d
+                    {' · '}
+                    {new Date(deadline!).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                )}
+                {daysLeft !== null && daysLeft <= 0 && (
+                  <span style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 10, color: '#7f8e87',
+                    border: '1px solid rgba(255,255,255,0.07)', padding: '2px 8px',
+                  }}>
+                    Applications closed
+                  </span>
+                )}
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px 32px' }}>
+                {fields.map(({ label, value }) => (
+                  <div key={label}>
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 5 }}>
+                      {label}
                     </p>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1', margin: 0 }}>
-                      {taskSum}
+                    <p style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1', margin: 0 }}>
+                      {value}
                     </p>
                   </div>
-                )}
-                <div>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
-                    FORMAT
-                  </p>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1', margin: 0 }}>
-                    {exp.is_remote ? 'Remote' : (exp.region ?? 'In-person')}
-                  </p>
-                </div>
-                {durWks && (
-                  <div>
-                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
-                      DURATION
-                    </p>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1', margin: 0 }}>
-                      ~{durWks} weeks
-                    </p>
-                  </div>
-                )}
-                <div>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
-                    COMPLIANCE MINIMUM
-                  </p>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1', margin: 0 }}>
-                    {threshold}%
-                  </p>
-                </div>
+                ))}
               </div>
             </div>
           );
@@ -557,11 +613,31 @@ export default async function ExperimentPage({ params }: Props) {
 
         {/* ── CTA button ── */}
         <div style={{ padding: '28px 0 48px' }}>
-          {exp.status === 'recruiting' && (
-            <button className="cta-apply-btn">
-              Apply to this study → ({slotsLeft} slot{slotsLeft !== 1 ? 's' : ''} remaining)
-            </button>
-          )}
+          {exp.status === 'recruiting' && (() => {
+            const expRaw   = exp as unknown as Record<string, unknown>;
+            const deadline = expRaw.application_deadline as string | null ?? null;
+            const closed   = deadline ? deadlineDays(deadline) <= 0 : false;
+            if (closed) {
+              return (
+                <div style={{
+                  width: '100%', height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: 'var(--font-mono)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '3px',
+                  color: '#4a7055', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2,
+                }}>
+                  Applications closed
+                </div>
+              );
+            }
+            return (
+              <Link
+                href={`/experiments/${exp.id}/apply`}
+                className="cta-apply-btn"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+              >
+                Apply to this study → ({slotsLeft} slot{slotsLeft !== 1 ? 's' : ''} remaining)
+              </Link>
+            );
+          })()}
           {exp.status === 'active' && (
             <button
               style={{

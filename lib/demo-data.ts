@@ -1,5 +1,15 @@
 import type { ApplicantRow, PP, HistRow } from '@/components/screening/screening-dashboard';
 
+// ─── Eligibility quiz ───────────────────────────────────────────────────────
+
+export type QuizQuestion = {
+  id: string;
+  text: string;
+  expected_answer: boolean; // true = yes, false = no
+  weight: number;           // 0–1 signal weight for screener
+  disqualifier: boolean;    // if true, wrong answer = not_eligible
+};
+
 // ─── BIOME Org ─────────────────────────────────────────────────────────────
 
 export const BIOME_ORG = {
@@ -32,6 +42,14 @@ export type DemoExperiment = {
   inclusion_criteria: string;
   exclusion_criteria: string;
   created_at: string;
+  // Optional fields for richer display
+  application_deadline?: string;       // ISO date string
+  eligibility_quiz?: QuizQuestion[];   // up to 10 yes/no questions
+  // Compact collection summary (shown on detail + apply flow)
+  inputs?: string;        // e.g. "wearable data, daily sleep logs"
+  devices_tools?: string; // e.g. "wearable device, mobile app"
+  sample_type?: string;   // e.g. "none", "stool", "saliva"
+  visits?: string;        // e.g. "Remote only", "US in-person"
 };
 
 export const DEMO_EXPERIMENTS: DemoExperiment[] = [
@@ -53,6 +71,22 @@ export const DEMO_EXPERIMENTS: DemoExperiment[] = [
     inclusion_criteria:     'Age: 22–55\nSelf-reported poor sleep (≥3 nights/week)\nOwns wearable device (Oura, Fitbit, Whoop, or Garmin)',
     exclusion_criteria:     'Diagnosed sleep disorder (insomnia, apnea, narcolepsy)\nCurrently taking sleep medication or melatonin\nPregnant or nursing\nSevere kidney disease',
     created_at:             '2026-03-01T00:00:00Z',
+    application_deadline:   '2026-04-30T00:00:00Z',
+    inputs:                 'Wearable sleep data · daily sleep logs · morning HRV readings',
+    devices_tools:          'Wearable device required (Oura / Fitbit / Whoop / Garmin)',
+    sample_type:            'None',
+    visits:                 'Remote only',
+    eligibility_quiz: [
+      { id: 'q1', text: 'Are you between 22 and 55 years old?',                                       expected_answer: true,  weight: 1.0, disqualifier: true  },
+      { id: 'q2', text: 'Do you experience poor sleep on 3 or more nights per week?',                 expected_answer: true,  weight: 1.0, disqualifier: true  },
+      { id: 'q3', text: 'Do you own a wearable device (Oura, Fitbit, Whoop, or Garmin)?',             expected_answer: true,  weight: 0.9, disqualifier: true  },
+      { id: 'q4', text: 'Have you been diagnosed with insomnia, sleep apnea, or narcolepsy?',         expected_answer: false, weight: 1.0, disqualifier: true  },
+      { id: 'q5', text: 'Are you currently taking sleep medication or melatonin supplements?',        expected_answer: false, weight: 0.8, disqualifier: true  },
+      { id: 'q6', text: 'Are you pregnant or currently nursing?',                                     expected_answer: false, weight: 1.0, disqualifier: true  },
+      { id: 'q7', text: 'Do you have severe kidney disease or significantly impaired kidney function?', expected_answer: false, weight: 1.0, disqualifier: true  },
+      { id: 'q8', text: 'Are you able to commit approximately 4–6 hours per week to study tasks?',    expected_answer: true,  weight: 0.6, disqualifier: false },
+      { id: 'q9', text: 'Are you willing to take a daily supplement for 8 weeks as instructed?',     expected_answer: true,  weight: 0.5, disqualifier: false },
+    ],
   },
   {
     id:                     'demo-exp-cold',
@@ -72,6 +106,19 @@ export const DEMO_EXPERIMENTS: DemoExperiment[] = [
     inclusion_criteria:     'Age: 18–45\nOwns HRV-capable wearable (Polar, Garmin, Oura, Apple Watch)\nNo cardiovascular conditions',
     exclusion_criteria:     'Heart conditions or arrhythmia\nRaynaud\'s disease\nEczema or severe skin conditions\nPregnant',
     created_at:             '2026-03-10T00:00:00Z',
+    application_deadline:   '2026-05-15T00:00:00Z',
+    inputs:                 'HRV wearable data · subjective energy logs · cold session logs',
+    devices_tools:          'HRV-capable wearable (Polar / Garmin / Oura / Apple Watch)',
+    sample_type:            'None',
+    visits:                 'Remote only',
+    eligibility_quiz: [
+      { id: 'q1', text: 'Are you between 18 and 45 years old?',                                  expected_answer: true,  weight: 1.0, disqualifier: true  },
+      { id: 'q2', text: 'Do you own an HRV-capable wearable (Polar, Garmin, Oura, or Apple Watch)?', expected_answer: true, weight: 0.9, disqualifier: true  },
+      { id: 'q3', text: 'Do you have any diagnosed heart conditions or arrhythmia?',              expected_answer: false, weight: 1.0, disqualifier: true  },
+      { id: 'q4', text: 'Do you have Raynaud\'s disease or severe cold sensitivity?',            expected_answer: false, weight: 0.9, disqualifier: true  },
+      { id: 'q5', text: 'Are you pregnant?',                                                     expected_answer: false, weight: 1.0, disqualifier: true  },
+      { id: 'q6', text: 'Are you able to take a cold shower (≤15°C) for 2 minutes daily?',      expected_answer: true,  weight: 0.7, disqualifier: false },
+    ],
   },
   {
     id:                     'demo-exp-tre',
@@ -91,6 +138,10 @@ export const DEMO_EXPERIMENTS: DemoExperiment[] = [
     inclusion_criteria:     'Age: 28–60\nBMI 22–33\nNo diagnosed metabolic conditions\nUS residents only',
     exclusion_criteria:     'Type 1 or 2 diabetes\nEating disorder history\nCurrent use of metabolic medications\nPregnant or nursing',
     created_at:             '2026-02-01T00:00:00Z',
+    inputs:                 'Food / fasting window logs · weekly survey responses · biometric check-ins',
+    devices_tools:          'Mobile app · home glucose test kit',
+    sample_type:            'Blood (finger prick)',
+    visits:                 'United States — home collection kit',
   },
 ];
 

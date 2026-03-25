@@ -70,65 +70,7 @@ interface Props {
   interactiveDemoMode?: boolean;
 }
 
-// ─── Scoring ──────────────────────────────────────────────────────────────────
-
-function computeFitScore(pp: PP | null, exp: ExpInfo): number {
-  if (!pp) return 0;
-  let score = 0;
-
-  // Completion rate (max 20)
-  if (pp.completion_rate != null) {
-    if (pp.completion_rate >= 90) score += 20;
-    else if (pp.completion_rate >= 80) score += 12;
-    else if (pp.completion_rate >= 70) score += 6;
-  }
-
-  // Study experience (max 15)
-  if (pp.previous_study_count >= 5) score += 15;
-  else if (pp.previous_study_count >= 2) score += 8;
-  else if (pp.previous_study_count >= 1) score += 3;
-
-  // Remote or region match (max 15)
-  if (exp.is_remote) {
-    score += 10;
-  } else if (exp.region && pp.country.toLowerCase().includes(exp.region.toLowerCase())) {
-    score += 15;
-  }
-
-  // Wearables for Wearables/Quantified Self categories (max 10)
-  const wearablesRelevant = ['Wearables', 'Quantified Self', 'Sleep', 'Longevity'].includes(exp.category);
-  if (wearablesRelevant && pp.wearable_devices && pp.wearable_devices.length > 0 &&
-      !pp.wearable_devices.includes('none')) {
-    score += 10;
-  }
-
-  // Sample comfort for biofluid categories (max 15)
-  const microRelevant = ['Microbiome', 'Metabolomics', 'Nutrition'].includes(exp.category);
-  if (microRelevant && pp.sample_comfort) {
-    const goodComfort = pp.sample_comfort.some((s) => ['stool', 'saliva', 'blood_prick', 'urine'].includes(s));
-    if (goodComfort) score += 15;
-  } else if (pp.sample_comfort && !pp.sample_comfort.includes('none')) {
-    score += 8;
-  }
-
-  // Age check via inclusion_criteria text (max 15)
-  const ageMatch = /Age:\s*(\d+)[–\-](\d+)/.exec(exp.inclusion_criteria ?? '');
-  if (ageMatch && pp.year_of_birth) {
-    const currentYear = new Date().getFullYear();
-    const age = currentYear - pp.year_of_birth;
-    const minAge = parseInt(ageMatch[1]);
-    const maxAge = parseInt(ageMatch[2]);
-    if (age >= minAge && age <= maxAge) score += 15;
-  } else if (!ageMatch) {
-    score += 8; // no age restriction specified — neutral bonus
-  }
-
-  // Reliability bonus (max 10)
-  if (pp.reliability_score >= 80) score += 10;
-  else if (pp.reliability_score >= 60) score += 5;
-
-  return Math.min(100, Math.round(score));
-}
+// ─── Eligibility check ────────────────────────────────────────────────────────
 
 function computeEligibility(pp: PP | null, exp: ExpInfo): boolean {
   if (!pp) return false;
@@ -144,14 +86,6 @@ function scoreColor(score: number): string {
   if (score >= 80) return 'var(--green)';
   if (score >= 60) return 'var(--cyan)';
   return 'var(--amber)';
-}
-
-function sexLabel(sex: string | null): string {
-  if (!sex) return '—';
-  if (sex === 'male') return 'M';
-  if (sex === 'female') return 'F';
-  if (sex === 'intersex') return 'I';
-  return '—';
 }
 
 function relDate(d: string) {
@@ -345,15 +279,14 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
   const [applicants,   setApplicants]   = useState<ApplicantRow[]>(initialApplicants);
   const [expandedId,   setExpandedId]   = useState<string | null>(null);
   const [loadingId,    setLoadingId]    = useState<string | null>(null);
-  const [sortBy,       setSortBy]       = useState<'fit' | 'reliability' | 'applied' | 'eligibility'>('fit');
+  const [sortBy,       setSortBy]       = useState<'reliability' | 'applied' | 'eligibility'>('reliability');
   const [filterStatus, setFilterStatus] = useState<'all' | 'eligible' | 'ineligible'>('all');
 
-  // Enrich applicants with computed scores
+  // Enrich applicants with eligibility signal
   const enriched = useMemo(() =>
     applicants.map((a) => ({
       ...a,
-      fitScore:   computeFitScore(a.participantProfile, experiment),
-      eligible:   computeEligibility(a.participantProfile, experiment),
+      eligible: computeEligibility(a.participantProfile, experiment),
     })),
   [applicants, experiment]);
 
@@ -362,7 +295,6 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
     if (filterStatus === 'eligible')   rows = rows.filter((r) => r.eligible);
     if (filterStatus === 'ineligible') rows = rows.filter((r) => !r.eligible);
     rows.sort((a, b) => {
-      if (sortBy === 'fit')         return b.fitScore - a.fitScore;
       if (sortBy === 'reliability') return (b.participantProfile?.reliability_score ?? 0) - (a.participantProfile?.reliability_score ?? 0);
       if (sortBy === 'eligibility') return Number(b.eligible) - Number(a.eligible);
       return new Date(a.applied_at).getTime() - new Date(b.applied_at).getTime();
@@ -408,9 +340,10 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
     setExpandedId((prev) => (prev === id ? null : id));
   }
 
-  const approved   = applicants.filter((a) => a.status === 'approved').length;
-  const total      = applicants.length;
-  const slotsLeft  = experiment.slots_total - experiment.slots_filled;
+  const approved  = applicants.filter((a) => a.status === 'approved').length;
+  const total     = applicants.length;
+  // slots_left = slots not yet filled by approved applicants (not raw DB slots_filled)
+  const slotsLeft = Math.max(0, experiment.slots_total - approved);
 
   return (
     <div>
@@ -438,7 +371,7 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
         {/* Sort */}
         <div className="flex items-center gap-2">
           <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>SORT:</span>
-          {(['fit', 'reliability', 'applied', 'eligibility'] as const).map((s) => (
+          {(['reliability', 'applied', 'eligibility'] as const).map((s) => (
             <button key={s} onClick={() => setSortBy(s)}
               className="mono text-xs px-2.5 py-1 rounded transition-all"
               style={{
@@ -488,16 +421,14 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
             style={{
               background: 'var(--bg2)',
               borderBottom: '1px solid rgba(77,255,128,0.06)',
-              gridTemplateColumns: '2fr 0.5fr 1fr 0.8fr 0.8fr 0.8fr 1fr 1.4fr',
+              gridTemplateColumns: '2fr 1fr 0.9fr 0.9fr 1fr 1.6fr',
               gap: '0.5rem',
               color: 'var(--text-dim)',
             }}
           >
             <span>PARTICIPANT</span>
-            <span>SEX</span>
             <span>REGION</span>
             <span>ELIGIBILITY</span>
-            <span>FIT</span>
             <span>RELIABILITY</span>
             <span>APPLIED</span>
             <span>ACTIONS</span>
@@ -508,7 +439,6 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
             const pp        = row.participantProfile;
             const isLoading = loadingId === row.id;
             const isOpen    = expandedId === row.id;
-            const fitColor  = scoreColor(row.fitScore);
             const curStatus = row.status as ActionStatus;
 
             return (
@@ -520,7 +450,7 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
                   className="grid px-4 py-3 items-center"
                   style={{
                     background: isOpen ? 'rgba(77,255,128,0.025)' : 'var(--bg)',
-                    gridTemplateColumns: '2fr 0.5fr 1fr 0.8fr 0.8fr 0.8fr 1fr 1.4fr',
+                    gridTemplateColumns: '2fr 1fr 0.9fr 0.9fr 1fr 1.6fr',
                     gap: '0.5rem',
                   }}
                 >
@@ -542,11 +472,6 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
                     )}
                   </div>
 
-                  {/* Sex */}
-                  <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                    {sexLabel(pp?.sex_assigned_at_birth ?? null)}
-                  </span>
-
                   {/* Region */}
                   <span className="mono text-xs truncate" style={{ color: 'var(--text-dim)' }}>
                     {pp ? `${countryFlag(pp.country)} ${pp.country}` : '—'}
@@ -557,16 +482,12 @@ export function ScreeningDashboard({ experimentId, privyDid, initialApplicants, 
                     className="mono text-xs font-bold"
                     style={{ color: row.eligible ? 'var(--green)' : 'var(--amber)' }}
                   >
-                    {row.eligible ? 'ELIGIBLE' : 'NOT ELIGIBLE'}
-                  </span>
-
-                  {/* Fit score */}
-                  <span className="mono text-xs font-bold tabular-nums" style={{ color: fitColor }}>
-                    {row.fitScore}
+                    {row.eligible ? 'ELIGIBLE' : 'NOT ELIG.'}
                   </span>
 
                   {/* Reliability */}
-                  <span className="mono text-xs tabular-nums" style={{ color: 'var(--text-dim)' }}>
+                  <span className="mono text-xs font-bold tabular-nums"
+                    style={{ color: scoreColor(pp?.reliability_score ?? 0) }}>
                     {pp?.reliability_score.toFixed(1) ?? '—'}
                   </span>
 

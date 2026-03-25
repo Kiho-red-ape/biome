@@ -70,32 +70,38 @@ export default function PayoutPolicyPage() {
           </Section>
 
           <Section title="3. PAYOUT METHODS">
-            <p>BIOME currently supports the following payout methods:</p>
-            <ul>
-              <li><strong>Crypto wallet</strong> — USDC (preferred), ETH, or other supported EVM tokens. Near-instant after processing.</li>
-              <li><strong>Bank transfer</strong> — Available in supported countries. Processing time 5–14 business days. Minimum payout $20.</li>
-              <li><strong>PayPal</strong> — Available where PayPal operates. Processing time 1–5 business days. Minimum payout $10.</li>
-            </ul>
             <p>
-              Fiat payouts may be subject to currency conversion fees. BIOME uses the mid-market
-              rate at the time of processing. You will be shown the exact amount before confirming
-              your payout method.
+              BIOME offers payout methods that may include bank transfer, supported digital payout
+              methods, and, where available, crypto payouts. Payout method availability depends on
+              recipient country, provider support, compliance review, and study configuration.
+            </p>
+            <p>
+              Payout timing is not guaranteed and may vary based on payout method, provider
+              processing, banking delays, compliance checks, and recipient account issues.
+            </p>
+            <p>
+              If currency conversion is required, the payout provider may apply its own exchange
+              rate, spread, and fees. BIOME does not guarantee mid-market exchange rates.
             </p>
           </Section>
 
           <Section title="4. PLATFORM FEE">
             <p>
-              BIOME charges a <strong>2.5% platform fee</strong> on the total bounty pool deposited
-              by experimenters. This fee is deducted from the experimenter&apos;s deposit, not from
-              participant payouts.
+              BIOME&apos;s platform fee is charged to experimenters under BIOME&apos;s experimenter
+              pricing terms. BIOME does not currently deduct its platform fee directly from the
+              participant reward listed on the study page.
             </p>
             <p>
-              As a participant, you receive 100% of the bounty_per_participant amount stated on the
-              study listing. There are no hidden fees or deductions from participant rewards.
+              Third-party payout, conversion, banking, PayPal, or blockchain/network fees may still
+              apply and may reduce the final amount received by the participant.
             </p>
             <p>
-              During the BIOME launch phase, the platform fee is 0% for select partner
-              experimenters. This promotional rate is subject to change with 30 days&apos; notice.
+              A small participant payout processing fee applies: <strong>0.5% of the total payout
+              amount</strong>.
+            </p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a7055', marginTop: 4 }}>
+              Note: Payment structure is not the current implementation priority. All payout UI and
+              policy text is written to accommodate upcoming payment integration work.
             </p>
           </Section>
 
