@@ -7,6 +7,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { Identicon } from '@/components/identicon';
 import { reputationBadge, countryFlag, categoryColor } from '@/lib/utils/profile';
 import type { ParticipantProfile } from '@/lib/types';
+import { PayoutCard } from '@/components/dashboard/payout-card';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -18,6 +19,9 @@ type AppRow = {
   completed_at: string | null;
   payout_status: string;
   eligibility_status: string | null;
+  payout_initiated_at: string | null;
+  payout_completed_at: string | null;
+  payout_net_amount: number | null;
   experiments: {
     id: string; title: string; category: string;
     bounty_per_participant: number; status: string;
@@ -62,6 +66,8 @@ type DashboardData = {
   profile: ParticipantProfile | null;
   applications: AppRow[];
   activeStudies: ActiveStudy[];
+  payoutMethodConfigured: boolean;
+  payoutMethodType: string | null;
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -413,7 +419,7 @@ export default function DashboardPage() {
     return null;
   }
 
-  const { profile, applications, activeStudies } = data;
+  const { profile, applications, activeStudies, payoutMethodConfigured, payoutMethodType } = data;
 
   // ── Derived stats ─────────────────────────────────────────────────────────
 
@@ -525,6 +531,40 @@ export default function DashboardPage() {
             ))}
           </div>
         )}
+
+        {/* ── Payouts ──────────────────────────────────────────────── */}
+        {(() => {
+          const payoutApps = applications.filter(
+            (a) => a.status === 'completed' || ['processing', 'paid', 'failed', 'method_missing'].includes(a.payout_status)
+          );
+          if (payoutApps.length === 0) return null;
+          return (
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// PAYOUTS</p>
+                <span className="mono text-xs" style={{ color: 'var(--green)' }}>[{payoutApps.length}]</span>
+              </div>
+              <div className="flex flex-col gap-3">
+                {payoutApps.map((app) => (
+                  <PayoutCard
+                    key={app.id}
+                    applicationId={app.id}
+                    studyTitle={app.experiments?.title ?? '—'}
+                    grossAmount={app.experiments?.bounty_per_participant ?? 0}
+                    payoutStatus={app.payout_status}
+                    payoutMethodConfigured={payoutMethodConfigured}
+                    payoutMethodType={payoutMethodType}
+                    payoutNetAmount={app.payout_net_amount}
+                    payoutInitiatedAt={app.payout_initiated_at}
+                    payoutCompletedAt={app.payout_completed_at}
+                    privyDid={user!.id}
+                    experimentId={app.experiments?.id ?? ''}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ── Applications table ───────────────────────────────────── */}
         <div className="rounded overflow-hidden mb-6" style={{ border: '1px solid rgba(77,255,128,0.08)' }}>

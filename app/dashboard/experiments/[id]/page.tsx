@@ -8,6 +8,8 @@ import { ScreeningDashboard } from '@/components/screening/screening-dashboard';
 import type { ApplicantRow, ExpInfo } from '@/components/screening/screening-dashboard';
 import { ComplianceDashboard } from '@/components/compliance/compliance-dashboard';
 import { MessageComposer } from '@/components/experiments/message-composer';
+import { EscrowDepositPanel } from '@/components/experiments/escrow-deposit-panel';
+import { ExperimenterPayoutPanel } from '@/components/experiments/experimenter-payout-panel';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -36,6 +38,8 @@ type FullExperiment = {
   commenced_at: string | null;
   enrollment_url: string | null;
   compliance_threshold: number | null;
+  escrow_status: string | null;
+  experiment_code: string | null;
 };
 
 type AmendLog = {
@@ -611,6 +615,41 @@ export default function ExperimentManagePage() {
             </div>
           );
         })()}
+
+        {/* ── Escrow deposit panel ── shown when study has approved participants */}
+        {(() => {
+          const approved = applicants.filter((a) => ['approved', 'enrolled'].includes(a.status)).length;
+          const needsEscrow = approved > 0 && ['recruiting', 'active'].includes(exp.status);
+          if (!needsEscrow) return null;
+          return (
+            <div className="mb-8">
+              <EscrowDepositPanel
+                experimentId={exp.id}
+                experimentTitle={exp.title}
+                experimentCode={exp.experiment_code}
+                approvedCount={approved}
+                bountyPerParticipant={exp.bounty_per_participant}
+                escrowStatus={exp.escrow_status ?? 'not_required'}
+              />
+            </div>
+          );
+        })()}
+
+        {/* ── Payout dashboard ── */}
+        {user && (
+          <div className="mb-8">
+            <ExperimenterPayoutPanel
+              experimentId={exp.id}
+              experimentTitle={exp.title}
+              privyDid={user.id}
+              bountyPerParticipant={exp.bounty_per_participant}
+              applicants={applicants}
+              experimentStatus={exp.status}
+              escrowStatus={exp.escrow_status}
+              onRefresh={load}
+            />
+          </div>
+        )}
 
         {/* ── Compliance dashboard ── (shown once study has commenced) */}
         {exp.commenced && user && (
