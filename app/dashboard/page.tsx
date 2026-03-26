@@ -534,8 +534,10 @@ export default function DashboardPage() {
 
         {/* ── Payouts ──────────────────────────────────────────────── */}
         {(() => {
-          const payoutApps = applications.filter(
-            (a) => a.status === 'completed' || ['processing', 'paid', 'failed', 'method_missing'].includes(a.payout_status)
+          // Show for approved/enrolled/completed — gives early payout setup prompt
+          const payoutApps = applications.filter((a) =>
+            ['approved', 'enrolled', 'completed'].includes(a.status) ||
+            ['processing', 'paid', 'failed', 'method_missing'].includes(a.payout_status)
           );
           if (payoutApps.length === 0) return null;
           return (
@@ -543,6 +545,11 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2 mb-3">
                 <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// PAYOUTS</p>
                 <span className="mono text-xs" style={{ color: 'var(--green)' }}>[{payoutApps.length}]</span>
+                {!payoutMethodConfigured && (
+                  <span className="mono text-xs px-2 py-0.5 rounded" style={{ color: 'var(--amber)', background: 'rgba(255,179,0,0.08)', border: '1px solid rgba(255,179,0,0.2)' }}>
+                    ⚠ payout method not set up
+                  </span>
+                )}
               </div>
               <div className="flex flex-col gap-3">
                 {payoutApps.map((app) => (

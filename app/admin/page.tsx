@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 type ExperimenterRow = {
   id: string;
@@ -19,6 +20,28 @@ type ExperimenterRow = {
     region: string | null;
   } | null;
 };
+
+type PayoutSummary = {
+  experiment: {
+    id: string; title: string; status: string;
+    escrow_status: string | null; escrow_total: number | null; experiment_code: string | null;
+  };
+  summary: {
+    total: number; paid: number; processing: number;
+    pending: number; method_missing: number; failed: number;
+    total_paid: number; total_net: number;
+  };
+  applications: Array<{
+    id: string; participant_id: string; pseudonym: string;
+    payout_status: string; payout_net_amount: number | null;
+    payout_initiated_at: string | null; payout_completed_at: string | null;
+    trolley_payment_id: string | null; payout_method_configured: boolean;
+  }>;
+};
+
+function fmt(n: number) {
+  return `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
 
 function relDate(d: string) {
   const days = Math.floor((Date.now() - new Date(d).getTime()) / 86_400_000);
@@ -44,7 +67,16 @@ export default function AdminPage() {
   const [acting,   setActing]     = useState<string | null>(null);
   const [msg,      setMsg]        = useState<string | null>(null);
 
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
+  const [filter,      setFilter]      = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
+  const [activeTab,   setActiveTab]   = useState<'orgs' | 'payouts'>('orgs');
+
+  // Payouts tab state
+  const [expIdInput,  setExpIdInput]  = useState('');
+  const [payoutData,  setPayoutData]  = useState<PayoutSummary | null>(null);
+  const [payoutErr,   setPayoutErr]   = useState<string | null>(null);
+  const [payoutLoad,  setPayoutLoad]  = useState(false);
+  const [actionMsg,   setActionMsg]   = useState<string | null>(null);
+  const [actioning,   setActioning]   = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -82,6 +114,66 @@ export default function AdminPage() {
       void load();
     }
     setActing(null);
+  }
+
+  async function loadPayouts() {
+    if (!user || !expIdInput.trim()) return;
+    setPayoutLoad(true);
+    setPayoutErr(null);
+    setPayoutData(null);
+    try {
+      const res  = await fetch(`/api/admin/payout-summary/${encodeURIComponent(expIdInput.trim())}?privyDid=${encodeURIComponent(user.id)}`);
+      const data = await res.json() as PayoutSummary & { error?: string };
+      if (!res.ok) { setPayoutErr(data.error ?? 'Failed'); return; }
+      setPayoutData(data);
+    } finally {
+      setPayoutLoad(false);
+    }
+  }
+
+  async function confirmDeposit(experimentId: string) {
+    if (!user) return;
+    setActioning(`deposit-${experimentId}`);
+    setActionMsg(null);
+    const res  = await fetch(`/api/admin/confirm-deposit/${experimentId}`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ privyDid: user.id }),
+    });
+    const data = await res.json() as { message?: string; error?: string };
+    setActionMsg(res.ok ? `✓ ${data.message ?? 'Deposit confirmed'}` : `Error: ${data.error ?? 'Failed'}`);
+    setActioning(null);
+    if (res.ok) void loadPayouts();
+  }
+
+  async function retryPayout(applicationId: string) {
+    if (!user) return;
+    setActioning(`retry-${applicationId}`);
+    setActionMsg(null);
+    const res  = await fetch(`/api/admin/retry-payout/${applicationId}`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ privyDid: user.id }),
+    });
+    const data = await res.json() as { paymentId?: string; error?: string };
+    setActionMsg(res.ok ? `✓ Retry initiated (${data.paymentId ?? ''})` : `Error: ${data.error ?? 'Failed'}`);
+    setActioning(null);
+    if (res.ok) void loadPayouts();
+  }
+
+  async function manualPayout(applicationId: string, netAmount: number) {
+    if (!user) return;
+    setActioning(`manual-${applicationId}`);
+    setActionMsg(null);
+    const res  = await fetch(`/api/admin/manual-payout/${applicationId}`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ privyDid: user.id, netAmount }),
+    });
+    const data = await res.json() as { message?: string; error?: string };
+    setActionMsg(res.ok ? `✓ ${data.message ?? 'Manual payout recorded'}` : `Error: ${data.error ?? 'Failed'}`);
+    setActioning(null);
+    if (res.ok) void loadPayouts();
   }
 
   const filtered = profiles.filter((p) => filter === 'all' || p.screening_status === filter);
@@ -128,6 +220,198 @@ export default function AdminPage() {
             Experimenter profile approvals · logged in as {user?.email?.address ?? user?.id}
           </p>
         </div>
+
+        {/* Tab switcher */}
+        <div className="flex gap-1 mb-6 p-1 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)', width: 'fit-content' }}>
+          {(['orgs', 'payouts'] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setActiveTab(t)}
+              className="mono text-xs px-4 py-2 rounded transition-all"
+              style={{
+                background: activeTab === t ? 'rgba(77,255,128,0.12)' : 'transparent',
+                color:      activeTab === t ? 'var(--green)' : 'var(--text-dim)',
+                border:     activeTab === t ? '1px solid rgba(77,255,128,0.2)' : '1px solid transparent',
+              }}
+            >
+              {t === 'orgs' ? 'ORG APPROVALS' : 'PAYOUTS'}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Payouts tab ── */}
+        {activeTab === 'payouts' && (
+          <div>
+            {/* Experiment lookup */}
+            <div className="rounded p-5 mb-6" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}>
+              <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// EXPERIMENT_PAYOUT_LOOKUP</p>
+              <div className="flex gap-3">
+                <input
+                  className="mono text-sm px-3 py-2 rounded flex-1 outline-none focus:ring-1 ring-green-400/30"
+                  style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                  placeholder="Experiment ID (UUID)..."
+                  value={expIdInput}
+                  onChange={(e) => setExpIdInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') void loadPayouts(); }}
+                />
+                <button
+                  onClick={loadPayouts}
+                  disabled={payoutLoad || !expIdInput.trim()}
+                  className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-40"
+                  style={{ background: 'var(--green)', color: '#050709' }}
+                >
+                  {payoutLoad ? '...' : 'Load →'}
+                </button>
+              </div>
+              {payoutErr && <p className="mono text-xs mt-2" style={{ color: 'var(--amber)' }}>{payoutErr}</p>}
+            </div>
+
+            {/* Payout summary */}
+            {payoutData && (() => {
+              const { experiment: pExp, summary, applications: pApps } = payoutData;
+              const escrowOk = pExp.escrow_status === 'deposited';
+              return (
+                <div>
+                  {/* Experiment header */}
+                  <div className="rounded p-4 mb-4" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}>
+                    <div className="flex items-start justify-between gap-4 flex-wrap">
+                      <div>
+                        <p className="mono text-xs mb-0.5" style={{ color: 'var(--text-dim)' }}>
+                          {pExp.experiment_code ?? pExp.id}
+                        </p>
+                        <Link href={`/dashboard/experiments/${pExp.id}`} target="_blank"
+                          className="text-sm font-bold no-underline hover:opacity-80 transition-opacity"
+                          style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}>
+                          {pExp.title} ↗
+                        </Link>
+                        <div className="flex items-center gap-3 mt-1 flex-wrap">
+                          <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+                            STATUS: <span style={{ color: 'var(--text-bright)' }}>{pExp.status.toUpperCase()}</span>
+                          </span>
+                          <span className="mono text-xs" style={{ color: escrowOk ? 'var(--green)' : 'var(--amber)' }}>
+                            ESCROW: {(pExp.escrow_status ?? 'not_required').toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                      {!escrowOk && (
+                        <button
+                          onClick={() => confirmDeposit(pExp.id)}
+                          disabled={actioning === `deposit-${pExp.id}`}
+                          className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-40"
+                          style={{ background: 'var(--amber)', color: '#050709' }}
+                        >
+                          {actioning === `deposit-${pExp.id}` ? '...' : 'Confirm Deposit ✓'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Summary stats */}
+                  <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4">
+                    {[
+                      { label: 'TOTAL',    value: summary.total,          color: 'var(--text-white)' },
+                      { label: 'PENDING',  value: summary.pending,        color: 'var(--text-dim)'   },
+                      { label: 'SETUP ✗',  value: summary.method_missing, color: 'var(--amber)'      },
+                      { label: 'IN TRANSIT', value: summary.processing,   color: 'var(--cyan)'       },
+                      { label: 'PAID',     value: summary.paid,           color: 'var(--green)'      },
+                      { label: 'FAILED',   value: summary.failed,         color: '#ff8f8f'            },
+                    ].map((s) => (
+                      <div key={s.label} className="rounded p-3" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
+                        <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)', fontSize: 9 }}>{s.label}</p>
+                        <p className="mono text-lg font-bold tabular-nums" style={{ color: s.color }}>{s.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mono text-xs mb-4" style={{ color: 'var(--text-dim)' }}>
+                    Total paid: <span style={{ color: 'var(--green)' }}>{fmt(summary.total_paid)}</span>
+                    &nbsp;· Total net pool: <span style={{ color: 'var(--text-bright)' }}>{fmt(summary.total_net)}</span>
+                  </p>
+
+                  {actionMsg && (
+                    <p className="mono text-xs mb-4" style={{ color: actionMsg.startsWith('Error') ? 'var(--amber)' : 'var(--green)' }}>
+                      {actionMsg}
+                    </p>
+                  )}
+
+                  {/* Per-application rows */}
+                  <div className="rounded overflow-hidden" style={{ border: '1px solid rgba(77,255,128,0.08)' }}>
+                    <div className="px-4 py-3" style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.06)' }}>
+                      <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// APPLICATIONS [{pApps.length}]</p>
+                    </div>
+                    {pApps.length === 0 ? (
+                      <div className="px-4 py-8 text-center" style={{ background: 'var(--bg)' }}>
+                        <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>No applications.</p>
+                      </div>
+                    ) : (
+                      pApps.map((a, i) => {
+                        const psColors: Record<string, string> = {
+                          paid:           'var(--green)',
+                          processing:     'var(--cyan)',
+                          pending:        'var(--text-dim)',
+                          method_missing: 'var(--amber)',
+                          failed:         '#ff8f8f',
+                        };
+                        const pc = psColors[a.payout_status] ?? 'var(--text-dim)';
+                        const canRetry  = ['failed', 'method_missing'].includes(a.payout_status) && a.payout_method_configured;
+                        const canManual = a.payout_status !== 'paid';
+                        return (
+                          <div key={a.id}
+                            className="px-4 py-3 flex items-center justify-between gap-3 flex-wrap"
+                            style={{
+                              background: i % 2 === 0 ? 'var(--bg)' : 'var(--bg2)',
+                              borderTop: i === 0 ? 'none' : '1px solid rgba(77,255,128,0.04)',
+                            }}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="mono text-xs" style={{ color: 'var(--text-bright)' }}>{a.pseudonym}</span>
+                              <span className="mono text-xs px-1.5 py-0.5 rounded"
+                                style={{ color: pc, border: `1px solid ${pc}40`, background: `${pc}10`, fontSize: 9 }}>
+                                {a.payout_status.toUpperCase().replace('_', ' ')}
+                              </span>
+                              {a.payout_net_amount != null && (
+                                <span className="mono text-xs tabular-nums" style={{ color: 'var(--text-dim)' }}>
+                                  {fmt(a.payout_net_amount)}
+                                </span>
+                              )}
+                              {!a.payout_method_configured && (
+                                <span className="mono text-xs" style={{ color: 'var(--amber)', fontSize: 9 }}>no payout method</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              {canRetry && (
+                                <button
+                                  onClick={() => retryPayout(a.id)}
+                                  disabled={actioning === `retry-${a.id}`}
+                                  className="mono text-xs px-3 py-1.5 rounded transition-all hover:opacity-80 disabled:opacity-40"
+                                  style={{ border: '1px solid rgba(0,229,255,0.3)', color: 'var(--cyan)' }}
+                                >
+                                  {actioning === `retry-${a.id}` ? '...' : 'Retry →'}
+                                </button>
+                              )}
+                              {canManual && (
+                                <button
+                                  onClick={() => manualPayout(a.id, a.payout_net_amount ?? 0)}
+                                  disabled={actioning === `manual-${a.id}`}
+                                  className="mono text-xs px-3 py-1.5 rounded transition-all hover:opacity-70 disabled:opacity-40"
+                                  style={{ border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text-dim)' }}
+                                >
+                                  {actioning === `manual-${a.id}` ? '...' : 'Mark paid'}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* ── Org approvals tab ── */}
+        {activeTab === 'orgs' && <>
 
         {/* Stats row */}
         <div className="grid grid-cols-4 gap-3 mb-6">
@@ -259,6 +543,8 @@ export default function AdminPage() {
             ))}
           </div>
         )}
+
+        </> /* end orgs tab */}
 
       </div>
     </main>

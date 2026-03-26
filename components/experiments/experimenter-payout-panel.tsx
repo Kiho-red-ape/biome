@@ -32,25 +32,31 @@ export function ExperimenterPayoutPanel({
   const [result,     setResult]     = useState<string | null>(null);
   const [resultOk,   setResultOk]   = useState(true);
 
-  // Only show for completed / active studies with enrolled/completed participants
+  // Show for any applicants — gives early preview of payout structure
   const payoutApplicants = applicants.filter((a) =>
-    ['enrolled', 'approved', 'completed'].includes(a.status)
+    ['applied', 'enrolled', 'approved', 'completed'].includes(a.status)
   );
   if (payoutApplicants.length === 0) return null;
 
-  // Count by payout_status
+  // Applicants that count toward actual payouts (approved/enrolled/completed)
+  const eligibleApplicants = payoutApplicants.filter((a) =>
+    ['enrolled', 'approved', 'completed'].includes(a.status)
+  );
+
+  // Count by payout_status (eligible only)
   const counts: Record<string, number> = {};
-  for (const a of payoutApplicants) {
+  for (const a of eligibleApplicants) {
     counts[a.payout_status] = (counts[a.payout_status] ?? 0) + 1;
   }
 
   const fee    = bountyPerParticipant * 0.005;
   const net    = parseFloat((bountyPerParticipant - fee).toFixed(2));
-  const paid   = counts['paid']    ?? 0;
+  const paid   = counts['paid']       ?? 0;
   const proc   = counts['processing'] ?? 0;
-  const pend   = counts['pending'] ?? 0;
+  const pend   = counts['pending']    ?? 0;
   const miss   = counts['method_missing'] ?? 0;
-  const failed = counts['failed']  ?? 0;
+  const failed = counts['failed']     ?? 0;
+  const pendingApproval = payoutApplicants.filter((a) => a.status === 'applied').length;
 
   const canProcessPayouts =
     experimentStatus === 'completed' &&
@@ -156,10 +162,16 @@ export function ExperimenterPayoutPanel({
               <p className="mono text-xl font-bold tabular-nums" style={{ color: s.color }}>{s.count}</p>
             </div>
           ))}
+          {pendingApproval > 0 && (
+            <div>
+              <p className="mono text-xs mb-0.5" style={{ color: 'var(--text-dim)', fontSize: 10 }}>PENDING REVIEW</p>
+              <p className="mono text-xl font-bold tabular-nums" style={{ color: 'var(--amber)' }}>{pendingApproval}</p>
+            </div>
+          )}
           <div>
             <p className="mono text-xs mb-0.5" style={{ color: 'var(--text-dim)', fontSize: 10 }}>TOTAL POOL</p>
             <p className="mono text-xl font-bold tabular-nums" style={{ color: 'var(--text-white)' }}>
-              {fmt(payoutApplicants.length * net)}
+              {fmt(eligibleApplicants.length * net)}
             </p>
           </div>
         </div>
@@ -223,6 +235,7 @@ export function ExperimenterPayoutPanel({
       {payoutApplicants.length > 0 && (
         <div style={{ borderTop: '1px solid rgba(77,255,128,0.06)' }}>
           {payoutApplicants.map((a, i) => {
+            const isApplied = a.status === 'applied';
             const psColors: Record<string, string> = {
               paid:           'var(--green)',
               processing:     'var(--cyan)',
@@ -237,8 +250,8 @@ export function ExperimenterPayoutPanel({
               method_missing: 'SETUP REQUIRED',
               failed:         'FAILED',
             };
-            const pc = psColors[a.payout_status] ?? 'var(--text-dim)';
-            const pl = psLabels[a.payout_status] ?? a.payout_status.toUpperCase();
+            const pc = isApplied ? 'var(--text-dim)' : (psColors[a.payout_status] ?? 'var(--text-dim)');
+            const pl = isApplied ? 'UNDER REVIEW' : (psLabels[a.payout_status] ?? a.payout_status.toUpperCase());
             return (
               <div key={a.id}
                 className="px-4 py-3 flex items-center justify-between gap-3"
