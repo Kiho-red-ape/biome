@@ -80,3 +80,71 @@ export async function GET(req: NextRequest, { params }: Props) {
 
   return NextResponse.json({ applications: enrichedApps, experiment: exp });
 }
+
+// POST /api/experiments/[id]/applications — submit an application
+export async function POST(req: NextRequest, { params }: Props) {
+  const { id: experimentId } = await params;
+
+  const body = await req.json() as {
+    privyDid?: string;
+    quizResult?: string;
+    quizAnswers?: Record<string, boolean | null>;
+  };
+
+  const { privyDid, quizResult } = body;
+  if (!privyDid) return NextResponse.json({ error: 'privyDid required' }, { status: 400 });
+
+  const supabase = createServiceClient();
+
+  // Experiment must exist and be open
+  const { data: exp } = await supabase
+    .from('experiments')
+    .select('id, status, slots_total, slots_filled, experimenter_id')
+    .eq('id', experimentId)
+    .single();
+
+  if (!exp) return NextResponse.json({ error: 'Study not found' }, { status: 404 });
+  if (!['recruiting', 'active'].includes(exp.status)) {
+    return NextResponse.json({ error: 'This study is not currently accepting applications' }, { status: 400 });
+  }
+  if (exp.slots_filled >= exp.slots_total) {
+    return NextResponse.json({ error: 'No slots remaining' }, { status: 400 });
+  }
+  if (exp.experimenter_id === privyDid) {
+    return NextResponse.json({ error: 'Experimenters cannot apply to their own study' }, { status: 400 });
+  }
+
+  // Prevent duplicate applications
+  const { data: existing } = await supabase
+    .from('applications')
+    .select('id')
+    .eq('experiment_id', experimentId)
+    .eq('participant_id', privyDid)
+    .maybeSingle();
+
+  if (existing) {
+    return NextResponse.json({ error: 'You have already applied to this study' }, { status: 409 });
+  }
+
+  const validEligStatus = ['eligible', 'not_eligible', 'not_applicable'];
+  const eligStatus = quizResult && validEligStatus.includes(quizResult)
+    ? quizResult
+    : 'not_applicable';
+
+  const { data: application, error: insertErr } = await supabase
+    .from('applications')
+    .insert({
+      experiment_id:      experimentId,
+      participant_id:     privyDid,
+      status:             'applied',
+      applied_at:         new Date().toISOString(),
+      payout_status:      'pending',
+      eligibility_status: eligStatus,
+    })
+    .select('id, status, applied_at, payout_status')
+    .single();
+
+  if (insertErr) return NextResponse.json({ error: insertErr.message }, { status: 500 });
+
+  return NextResponse.json({ application }, { status: 201 });
+}

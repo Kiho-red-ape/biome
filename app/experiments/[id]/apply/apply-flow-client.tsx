@@ -161,27 +161,40 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
   }, [ready, authenticated, exp.application_deadline, quiz.length]);
 
   // ── Submit application ─────────────────────────────────────────────────────
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   async function handleSubmit() {
-    if (!agreed || submitting) return;
+    if (!agreed || submitting || !user) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
-      if (user) {
-        await fetch(`/api/experiments/${exp.id}/applications`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({
-            privyDid:    user.id,
-            quizResult:  quizResult ?? 'not_applicable',
-            quizAnswers: answers,
-          }),
-        });
+      const res = await fetch(`/api/experiments/${exp.id}/applications`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          privyDid:    user.id,
+          quizResult:  quizResult ?? 'not_applicable',
+          quizAnswers: answers,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json() as { error?: string };
+        // 409 = already applied, treat as success
+        if (res.status === 409) {
+          setStep('submitted');
+          return;
+        }
+        setSubmitError(data.error ?? 'Failed to submit application. Please try again.');
+        return;
       }
-      // In demo mode or on success, advance to submitted
+
+      setStep('submitted');
     } catch {
-      // fail gracefully — show submitted either way (demo)
+      setSubmitError('Network error. Please check your connection and try again.');
+    } finally {
+      setSubmitting(false);
     }
-    setStep('submitted');
-    setSubmitting(false);
   }
 
   // ── Shared shell ──────────────────────────────────────────────────────────
@@ -460,6 +473,12 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
               </label>
             </div>
 
+            {submitError && (
+              <p className="mono text-xs py-2 px-3 rounded mb-2"
+                style={{ color: 'var(--amber)', background: 'rgba(255,179,0,0.06)', border: '1px solid rgba(255,179,0,0.2)' }}>
+                {submitError}
+              </p>
+            )}
             <button
               onClick={() => void handleSubmit()}
               disabled={!agreed || submitting}
