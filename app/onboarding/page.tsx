@@ -61,6 +61,7 @@ export default function OnboardingPage() {
     const walletAddress =
       user.wallet?.address ?? null;
     const authType = user.wallet ? 'wallet' : 'email';
+    const email = user.email?.address ?? null;
 
     try {
       const res = await fetch('/api/profile', {
@@ -73,6 +74,7 @@ export default function OnboardingPage() {
           displayName: displayName.trim(),
           role: selectedRole,
           region: region.trim() || null,
+          email,
         }),
       });
 

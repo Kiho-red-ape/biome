@@ -10,6 +10,7 @@ const createProfileSchema = z.object({
   displayName: z.string().min(1).max(64),
   role: z.enum(['experimenter', 'participant', 'both']),
   region: z.string().nullable().optional(),
+  email: z.string().email().nullable().optional(),
 });
 
 // GET /api/profile?privyDid=did:privy:xxx
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { privyDid, authType, walletAddress, displayName, role, region } = parsed.data;
+  const { privyDid, authType, walletAddress, displayName, role, region, email } = parsed.data;
 
   const supabase = createServiceClient();
   const { data, error } = await supabase
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
         role,
         region: region ?? null,
         avatar_url: null,
+        ...(email ? { email } : {}),
       },
       { onConflict: 'id' }
     )
