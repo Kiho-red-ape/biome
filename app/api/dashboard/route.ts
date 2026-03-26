@@ -187,11 +187,13 @@ export async function GET(request: NextRequest) {
     }).filter(Boolean);
   }
 
+  const p = profile as (typeof profile & { payout_method_configured?: boolean; payout_method_type?: string | null }) | null;
+
   return NextResponse.json({
     profile,
     applications: apps ?? [],
     activeStudies,
-    payoutMethodConfigured: profile?.payout_method_configured ?? false,
-    payoutMethodType:       profile?.payout_method_type ?? null,
+    payoutMethodConfigured: p?.payout_method_configured ?? false,
+    payoutMethodType:       p?.payout_method_type ?? null,
   });
 }
