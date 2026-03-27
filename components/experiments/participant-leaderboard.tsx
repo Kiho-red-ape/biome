@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import Link from 'next/link';
+import { Identicon } from '@/components/identicon';
 
 export type LeaderboardRow = {
   participant_id: string;
@@ -36,6 +37,9 @@ function reputationColor(label: string): string {
   return '#4a7055';
 }
 
+// Estimated earnings: studies × avg $40 bounty (rough platform average)
+const AVG_BOUNTY = 40;
+
 function RankRow({
   row, rank, isUser, isPinned,
 }: {
@@ -44,17 +48,19 @@ function RankRow({
   isUser: boolean;
   isPinned: boolean;
 }) {
-  const rep      = reputationLabel(row.completion_rate, row.previous_study_count);
-  const repColor = reputationColor(rep);
+  const rep       = reputationLabel(row.completion_rate, row.previous_study_count);
+  const repColor  = reputationColor(rep);
   const rankColor = isPinned ? (RANK_COLORS[rank] ?? '#4a7055') : '#4a7055';
+  const estEarned = row.previous_study_count * AVG_BOUNTY;
 
   return (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '36px 1fr 60px 52px 80px',
+        gridTemplateColumns: '44px 32px 1fr',
         alignItems: 'center',
-        padding: '9px 16px',
+        gap: '0 10px',
+        padding: '10px 16px',
         borderBottom: '1px solid rgba(255,255,255,0.04)',
         background: isUser
           ? 'rgba(183,255,97,0.05)'
@@ -72,56 +78,88 @@ function RankRow({
         {isPinned ? RANK_LABELS[rank] : `#${rank + 1}`}
       </span>
 
-      {/* Pseudonym + country */}
-      <div style={{ overflow: 'hidden' }}>
-        <Link
-          href={`/profile/${row.participant_id}`}
-          style={{
-            fontFamily: 'var(--font-heading)', fontSize: 13, fontWeight: isUser ? 700 : 500,
-            color: isUser ? '#eef4f0' : '#aab8b1',
-            textDecoration: 'none', display: 'block',
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          }}
-        >
-          {row.pseudonym}
-          {isUser && <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#b7ff61', marginLeft: 6 }}>YOU</span>}
-        </Link>
-        {row.country && (
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055' }}>{row.country}</span>
-        )}
+      {/* Identicon */}
+      <Identicon participantId={row.participant_id} size={28} />
+
+      {/* Info block */}
+      <div style={{ overflow: 'hidden', minWidth: 0 }}>
+        {/* Row 1: name + YOU badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+          <Link
+            href={`/profile/${row.participant_id}`}
+            style={{
+              fontFamily: 'var(--font-heading)', fontSize: 13, fontWeight: isUser ? 700 : 500,
+              color: isUser ? '#eef4f0' : '#aab8b1',
+              textDecoration: 'none',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              flexShrink: 1, minWidth: 0,
+            }}
+          >
+            {row.pseudonym}
+          </Link>
+          {isUser && (
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: 8, color: '#070c07',
+              background: '#b7ff61', padding: '1px 5px', borderRadius: 2,
+              flexShrink: 0, fontWeight: 700, letterSpacing: '0.5px',
+            }}>
+              YOU
+            </span>
+          )}
+        </div>
+        {/* Row 2: reputation + studies + completion + est. earnings */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'nowrap', overflow: 'hidden' }}>
+          {/* Reputation badge */}
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 8,
+            textTransform: 'uppercase', letterSpacing: '1px',
+            color: repColor,
+            border: `1px solid ${repColor}40`,
+            background: `${repColor}0a`,
+            padding: '2px 5px',
+            borderRadius: 2,
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+          }}>
+            {rep}
+          </span>
+          {/* Studies */}
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 10, color: '#aab8b1',
+            whiteSpace: 'nowrap', flexShrink: 0,
+          }}>
+            {row.previous_study_count} {row.previous_study_count === 1 ? 'study' : 'studies'}
+          </span>
+          {/* Completion rate */}
+          {row.completion_rate != null && (
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: 10,
+              color: row.completion_rate >= 90 ? '#b7ff61' : '#4a7055',
+              whiteSpace: 'nowrap', flexShrink: 0,
+            }}>
+              {row.completion_rate.toFixed(0)}% done
+            </span>
+          )}
+          {/* Estimated earnings */}
+          {row.previous_study_count > 0 && (
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: 10,
+              color: '#ffd700', whiteSpace: 'nowrap', flexShrink: 0,
+            }}>
+              ~${estEarned} earned
+            </span>
+          )}
+          {/* Country */}
+          {row.country && (
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: 9,
+              color: '#4a7055', whiteSpace: 'nowrap', flexShrink: 0,
+            }}>
+              {row.country}
+            </span>
+          )}
+        </div>
       </div>
-
-      {/* Studies */}
-      <span style={{
-        fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600,
-        color: '#aab8b1', textAlign: 'center',
-      }}>
-        {row.previous_study_count}
-      </span>
-
-      {/* Completion */}
-      <span style={{
-        fontFamily: 'var(--font-mono)', fontSize: 11,
-        color: (row.completion_rate ?? 0) >= 90 ? '#b7ff61' : '#aab8b1',
-        textAlign: 'right',
-      }}>
-        {row.completion_rate != null ? `${row.completion_rate.toFixed(0)}%` : '—'}
-      </span>
-
-      {/* Reputation badge */}
-      <span style={{
-        fontFamily: 'var(--font-mono)', fontSize: 8,
-        textTransform: 'uppercase', letterSpacing: '1px',
-        color: repColor,
-        border: `1px solid ${repColor}40`,
-        background: `${repColor}0a`,
-        padding: '2px 6px',
-        borderRadius: 2,
-        textAlign: 'center',
-        whiteSpace: 'nowrap',
-      }}>
-        {rep}
-      </span>
     </div>
   );
 }
@@ -192,16 +230,16 @@ export function ParticipantLeaderboard({ rows }: Props) {
       {/* Column headers */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '36px 1fr 60px 52px 80px',
+        gridTemplateColumns: '44px 32px 1fr',
+        gap: '0 10px',
         padding: '6px 16px',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         background: 'rgba(255,255,255,0.02)',
       }}>
-        {['RANK', 'PARTICIPANT', 'STUDIES', 'RATE', 'LEVEL'].map((h, i) => (
+        {['RANK', '', 'PARTICIPANT / STATS'].map((h) => (
           <span key={h} style={{
             fontFamily: 'var(--font-mono)', fontSize: 8,
             textTransform: 'uppercase', letterSpacing: '1.5px', color: '#4a7055',
-            textAlign: i >= 3 ? 'right' : 'left',
           }}>
             {h}
           </span>
@@ -254,23 +292,25 @@ export function ParticipantLeaderboard({ rows }: Props) {
           padding: '8px 16px',
           borderTop: '1px solid rgba(183,255,97,0.1)',
           background: 'rgba(183,255,97,0.03)',
+          borderLeft: '2px solid #b7ff61',
           display: 'grid',
-          gridTemplateColumns: '36px 1fr 60px 52px 80px',
+          gridTemplateColumns: '44px 32px 1fr',
+          gap: '0 10px',
           alignItems: 'center',
         }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#b7ff61' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#b7ff61', fontWeight: 700 }}>
             #{userRank + 1}
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#b7ff61' }}>
-            You
-          </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#aab8b1', textAlign: 'center' }}>
-            {rows[userRank]?.previous_study_count ?? 0}
-          </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#aab8b1', textAlign: 'right' }}>
-            {rows[userRank]?.completion_rate != null ? `${rows[userRank].completion_rate!.toFixed(0)}%` : '—'}
-          </span>
-          <span />
+          <Identicon participantId={rows[userRank]?.participant_id ?? ''} size={28} />
+          <div>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#b7ff61', display: 'block', marginBottom: 2 }}>
+              You
+            </span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055' }}>
+              {rows[userRank]?.previous_study_count ?? 0} studies
+              {rows[userRank]?.completion_rate != null ? ` · ${rows[userRank].completion_rate!.toFixed(0)}% done` : ''}
+            </span>
+          </div>
         </div>
       )}
     </div>
