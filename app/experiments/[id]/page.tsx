@@ -251,9 +251,28 @@ export default async function ExperimentPage({ params }: Props) {
         }}>
           ← Back to studies
         </Link>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px', color: '#4a7055' }}>
-          // STUDY_DETAIL
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <span className="hidden sm:inline" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px', color: '#4a7055' }}>
+            // STUDY_DETAIL
+          </span>
+          {exp.status === 'recruiting' && slotsLeft > 0 && (
+            <Link
+              href={`/experiments/${exp.id}/apply`}
+              style={{
+                fontFamily: 'var(--font-mono)', fontSize: 10,
+                textTransform: 'uppercase', letterSpacing: '1.5px',
+                fontWeight: 700, color: '#070c07',
+                background: '#b7ff61',
+                padding: '7px 16px',
+                textDecoration: 'none',
+                borderRadius: 2,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Apply → {slotsLeft} slot{slotsLeft !== 1 ? 's' : ''} left
+            </Link>
+          )}
+        </div>
       </header>
 
       {exp.status === 'draft' && (

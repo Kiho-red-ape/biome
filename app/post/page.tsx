@@ -237,7 +237,7 @@ function WeekSection({
 
 export default function PostStudyPage() {
   const router = useRouter();
-  const { user, ready, authenticated } = usePrivy();
+  const { user, ready, authenticated, login } = usePrivy();
 
   type Gate = 'loading' | 'unauthenticated' | 'no_profile' | 'pending' | 'ready';
   const [gate, setGate] = useState<Gate>('loading');
@@ -423,9 +423,9 @@ export default function PostStudyPage() {
         <div className="max-w-md text-center">
           <p className="mono text-xs mb-4" style={{ color: 'var(--text-dim)' }}>// AUTH_REQUIRED</p>
           <p className="text-sm mb-6" style={{ color: 'var(--text-dim)' }}>Sign in to post a study.</p>
-          <button onClick={() => router.push('/')} className="mono text-xs px-5 py-2.5 rounded font-bold"
+          <button onClick={() => login()} className="mono text-xs px-5 py-2.5 rounded font-bold"
             style={{ background: 'var(--green)', color: '#050709' }}>
-            Go to homepage →
+            Sign in →
           </button>
         </div>
       </div>

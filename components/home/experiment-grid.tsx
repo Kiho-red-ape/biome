@@ -247,7 +247,7 @@ function ExperimentCard({ exp, orgName, expNumber }: {
         </p>
       </div>
 
-      {/* ZONE 4 — Bounty + Progress (44px) */}
+      {/* ZONE 4 — Bounty + Apply + Progress */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '8px 12px', height: 44,
@@ -267,6 +267,27 @@ function ExperimentCard({ exp, orgName, expNumber }: {
             per participant
           </p>
         </div>
+
+        {/* Apply button — only for recruiting */}
+        {exp.status === 'recruiting' && (
+          <Link
+            href={`/experiments/${exp.id}/apply`}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              fontFamily: 'var(--font-mono)', fontSize: 9,
+              textTransform: 'uppercase', letterSpacing: '1.5px',
+              fontWeight: 700, color: '#070c07',
+              background: '#b7ff61',
+              padding: '5px 10px',
+              textDecoration: 'none',
+              borderRadius: 2,
+              flexShrink: 0,
+            }}
+          >
+            Apply →
+          </Link>
+        )}
+
         <div style={{ textAlign: 'right' }}>
           <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#aab8b1', margin: 0, lineHeight: 1 }}>
             {exp.slots_filled}/{exp.slots_total}
