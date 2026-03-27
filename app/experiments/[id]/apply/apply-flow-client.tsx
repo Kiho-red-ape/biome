@@ -205,10 +205,9 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
       {legalDoc && <LegalModal docKey={legalDoc} onClose={() => setLegalDoc(null)} />}
 
       {/* Top nav */}
-      <header style={{
+      <header className="px-4 sm:px-10" style={{
         position: 'sticky', top: 0, zIndex: 200,
         height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 40px',
         background: 'rgba(5,7,9,0.95)',
         backdropFilter: 'blur(16px)',
         borderBottom: '1px solid rgba(183,255,97,0.12)',

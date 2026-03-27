@@ -165,10 +165,10 @@ export default function ContactPage() {
     <main style={{ minHeight: '100vh', background: 'var(--bg)' }}>
 
       {/* Mini nav */}
-      <header style={{
+      <header className="px-4 sm:px-10" style={{
         position: 'sticky', top: 0, zIndex: 200,
         height: 52, display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', padding: '0 40px',
+        justifyContent: 'space-between',
         background: 'rgba(5,7,9,0.95)', backdropFilter: 'blur(16px)',
         borderBottom: '1px solid rgba(183,255,97,0.12)',
       }}>
@@ -183,7 +183,7 @@ export default function ContactPage() {
         </span>
       </header>
 
-      <div style={{ maxWidth: 640, margin: '0 auto', padding: '48px 40px' }}>
+      <div className="px-4 sm:px-10" style={{ maxWidth: 640, margin: '0 auto', paddingTop: 48, paddingBottom: 48 }}>
 
         {/* Header */}
         <p style={{
