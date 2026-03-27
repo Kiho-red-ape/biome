@@ -57,8 +57,9 @@ export default async function HomePage() {
         <CtaBlock />
       </div>
       <footer
+        className="px-4 sm:px-10"
         style={{
-          padding: '16px 40px',
+          paddingTop: 16, paddingBottom: 16,
           display: 'flex', flexWrap: 'wrap', alignItems: 'center',
           justifyContent: 'space-between', gap: 16,
           borderTop: '1px solid rgba(255,255,255,0.05)',

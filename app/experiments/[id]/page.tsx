@@ -237,11 +237,10 @@ export default async function ExperimentPage({ params }: Props) {
     <main style={{ minHeight: '100vh', background: 'var(--bg)' }}>
 
       {/* ── Sticky mini nav ── */}
-      <header style={{
+      <header className="px-4 sm:px-10" style={{
         position: 'sticky', top: 0, zIndex: 200,
         height: 52, display: 'flex', alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 40px',
         background: 'rgba(5,7,9,0.95)',
         backdropFilter: 'blur(16px)',
         borderBottom: '1px solid rgba(183,255,97,0.12)',
@@ -269,7 +268,7 @@ export default async function ExperimentPage({ params }: Props) {
         />
       )}
 
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px' }}>
+      <div className="px-4 sm:px-10 has-sticky-cta" style={{ maxWidth: 1280, margin: '0 auto' }}>
 
         {/* ── Identicon strip (auto-height) ── */}
         <div style={{ marginTop: 0 }}>
@@ -339,10 +338,7 @@ export default async function ExperimentPage({ params }: Props) {
         <ThinDivider />
 
         {/* ── 4-col metadata grid ── */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0,
-          padding: '20px 0',
-        }}>
+        <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: 0, padding: '20px 0' }}>
           {[
             { label: 'CATEGORY', value: exp.category.toUpperCase() },
             { label: 'TYPE', value: 'INTERVENTIONAL' },
@@ -387,10 +383,7 @@ export default async function ExperimentPage({ params }: Props) {
         <ThinDivider />
 
         {/* ── Reward row ── */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0,
-          padding: '20px 0',
-        }}>
+        <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: 0, padding: '20px 0' }}>
           {/* Reward per participant */}
           <div style={{ paddingRight: 24, borderRight: '1px solid rgba(255,255,255,0.06)' }}>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
@@ -488,7 +481,7 @@ export default async function ExperimentPage({ params }: Props) {
               }}>
                 // ELIGIBILITY
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 32 }}>
                 {/* LEFT: WHO IS ELIGIBLE */}
                 <div>
                   <p style={{
@@ -620,22 +613,33 @@ export default async function ExperimentPage({ params }: Props) {
 
         <ThickDivider color={cc} />
 
-        {/* ── CTA button ── */}
-        <div style={{ padding: '28px 0 48px' }}>
-          {(() => {
-            const expRaw      = exp as unknown as Record<string, unknown>;
-            const deadline    = expRaw.application_deadline as string | null ?? null;
-            const deadlineClosed = deadline ? deadlineDays(deadline) <= 0 : false;
-            return (
-              <ExperimentCTA
-                experimentId={exp.id}
-                experimentStatus={exp.status}
-                slotsLeft={slotsLeft}
-                deadlineClosed={deadlineClosed}
-              />
-            );
-          })()}
-        </div>
+        {/* ── CTA button (desktop) ── */}
+        {(() => {
+          const expRaw         = exp as unknown as Record<string, unknown>;
+          const deadline       = expRaw.application_deadline as string | null ?? null;
+          const deadlineClosed = deadline ? deadlineDays(deadline) <= 0 : false;
+          return (
+            <>
+              <div className="sticky-cta-desktop" style={{ padding: '28px 0 48px' }}>
+                <ExperimentCTA
+                  experimentId={exp.id}
+                  experimentStatus={exp.status}
+                  slotsLeft={slotsLeft}
+                  deadlineClosed={deadlineClosed}
+                />
+              </div>
+              {/* Sticky mobile CTA */}
+              <div className="sticky-cta-mobile">
+                <ExperimentCTA
+                  experimentId={exp.id}
+                  experimentStatus={exp.status}
+                  slotsLeft={slotsLeft}
+                  deadlineClosed={deadlineClosed}
+                />
+              </div>
+            </>
+          );
+        })()}
 
         {/* Amendment log */}
         {exp.amendment_log && exp.amendment_log.length > 0 && (

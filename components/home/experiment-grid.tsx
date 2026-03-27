@@ -236,7 +236,7 @@ function ExperimentCard({ exp, orgName, expNumber }: {
         borderTop: '1px solid rgba(255,255,255,0.05)',
         overflow: 'hidden', flexShrink: 0,
       }}>
-        <p style={{
+        <p className="exp-card-title" style={{
           fontFamily: 'var(--font-heading)', fontSize: 15, fontWeight: 600,
           color: '#eef4f0', lineHeight: 1.35,
           display: '-webkit-box',
@@ -255,7 +255,7 @@ function ExperimentCard({ exp, orgName, expNumber }: {
         flexShrink: 0,
       }}>
         <div>
-          <p style={{
+          <p className="exp-card-bounty" style={{
             fontFamily: 'var(--font-heading)', fontSize: 24, fontWeight: 700,
             color: '#b7ff61', lineHeight: 1, margin: 0,
           }}>
@@ -337,20 +337,14 @@ export function ExperimentGrid({ experiments, orgMap }: Props) {
   const getOrgName = (exp: Experiment) => orgMap[exp.experimenter_id]?.org_name ?? 'BIOME';
   const getExpNum  = (exp: Experiment) => sorted.indexOf(exp) + 1;
 
-  const gridCols: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: 16,
-  };
-
   return (
-    <div style={{ padding: '32px 40px 48px' }}>
+    <div className="px-4 sm:px-10" style={{ paddingTop: 32, paddingBottom: 48 }}>
 
       {rowRecruiting.length > 0 && (
         <>
           <div style={{ marginTop: 8 }} />
           <SectionHeader label="RECRUITING STUDIES" color="#b7ff61" />
-          <div style={gridCols}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {rowRecruiting.map((exp) => (
               <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />
             ))}
@@ -361,7 +355,7 @@ export function ExperimentGrid({ experiments, orgMap }: Props) {
       {rowActive.length > 0 && (
         <>
           <SectionHeader label="ACTIVE STUDIES" color="#8ee7ff" />
-          <div style={gridCols}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {rowActive.map((exp) => (
               <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />
             ))}
@@ -372,7 +366,7 @@ export function ExperimentGrid({ experiments, orgMap }: Props) {
       {rowCompleted.length > 0 && (
         <>
           <SectionHeader label="COMPLETED STUDIES" color="#7f8e87" />
-          <div style={gridCols}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {rowCompleted.map((exp) => (
               <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />
             ))}
@@ -380,9 +374,9 @@ export function ExperimentGrid({ experiments, orgMap }: Props) {
         </>
       )}
 
-      {/* Browse all — centered 1/3 width */}
+      {/* Browse all — centered 1/3 width on desktop, full width on mobile */}
       <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: '33.33%' }}>
+        <div className="w-full sm:w-1/2 lg:w-1/3">
           <BrowseAllCard total={experiments.length} />
         </div>
       </div>

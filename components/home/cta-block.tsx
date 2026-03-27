@@ -205,7 +205,7 @@ function NotifyPanel() {
 
 export function CtaBlock() {
   return (
-    <section style={{ padding: '0 40px 48px' }}>
+    <section className="px-4 sm:px-10" style={{ paddingBottom: 48 }}>
 
       <div style={{
         display: 'flex', alignItems: 'center', gap: 12,
@@ -214,7 +214,7 @@ export function CtaBlock() {
         <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
       </div>
 
-      <div style={{ display: 'flex', gap: 16 }}>
+      <div className="flex flex-col sm:flex-row" style={{ gap: 16 }}>
 
         <NotifyPanel />
 

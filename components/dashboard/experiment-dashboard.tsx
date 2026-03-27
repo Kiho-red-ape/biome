@@ -186,7 +186,7 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
 
       {/* ── Filter bar ──────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="relative flex-1 min-w-48">
+        <div className="relative flex-1 min-w-0" style={{ minWidth: 120 }}>
           <span className="absolute left-3 top-1/2 -translate-y-1/2 mono text-xs pointer-events-none" style={{ color: 'var(--text-dim)' }}>⌕</span>
           <input
             type="text"
@@ -348,7 +348,7 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
                   {isOpen && (
                     <tr key={`${exp.id}-accordion`} style={{ borderBottom: '2px solid rgba(77,255,128,0.12)', background: 'var(--bg3)' }}>
                       <td colSpan={8}>
-                        <div className="px-8 pt-3 pb-6 flex flex-col md:flex-row md:items-start gap-6">
+                        <div className="px-4 sm:px-8 pt-3 pb-6 flex flex-col md:flex-row md:items-start gap-6">
 
                           {/* Description + tests */}
                           <div className="flex-1 min-w-0">
@@ -365,7 +365,7 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
                           </div>
 
                           {/* Stats strip */}
-                          <div className="flex items-start gap-6 flex-shrink-0">
+                          <div className="flex items-start gap-6 flex-wrap">
                             <div>
                               <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>SLOTS OPEN</p>
                               <p className="mono text-lg font-black tabular-nums" style={{ color: exp.slots_filled >= exp.slots_total ? 'var(--amber)' : 'var(--text-bright)' }}>

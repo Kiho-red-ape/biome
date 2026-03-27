@@ -9,14 +9,15 @@ interface Props {
 }
 
 export function HeroCompact({ stats, experimentCount }: Props) {
-  // Keep props for compatibility; stats/experimentCount not shown in hero body
   void stats;
   void experimentCount;
 
   return (
     <section
+      className="px-4 sm:px-10"
       style={{
-        padding: '20px 40px 40px',
+        paddingTop: 20,
+        paddingBottom: 40,
         borderBottom: '1px solid rgba(183,255,97,0.08)',
         position: 'relative',
         zIndex: 2,
@@ -25,8 +26,8 @@ export function HeroCompact({ stats, experimentCount }: Props) {
       {/* Eyebrow */}
       <p style={{
         fontFamily: 'var(--font-mono)',
-        fontSize: 10,
-        letterSpacing: '4px',
+        fontSize: 9,
+        letterSpacing: '3px',
         color: '#b7ff61',
         textTransform: 'uppercase',
         marginBottom: 6,
@@ -35,10 +36,10 @@ export function HeroCompact({ stats, experimentCount }: Props) {
         // HUMAN_STUDIES_MARKETPLACE
       </p>
 
-      {/* Headline */}
+      {/* Headline — 28px on mobile, clamp up on desktop */}
       <h1 style={{
         fontFamily: 'var(--font-heading)',
-        fontSize: 'clamp(32px, 3vw, 42px)',
+        fontSize: 'clamp(28px, 3vw, 42px)',
         fontWeight: 700,
         color: '#eef4f0',
         letterSpacing: '-0.01em',
@@ -49,23 +50,20 @@ export function HeroCompact({ stats, experimentCount }: Props) {
         <span style={{ color: '#b7ff61' }}>Get paid.</span>
       </h1>
 
-      {/* Subhead — one line on desktop */}
+      {/* Subhead — allow wrapping on mobile */}
       <p style={{
         fontFamily: 'var(--font-heading)',
-        fontSize: 14,
+        fontSize: 'clamp(13px, 1.5vw, 14px)',
         color: '#7f8e87',
         lineHeight: 1.4,
         marginBottom: 14,
         maxWidth: 800,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
       }}>
         Browse paid research studies and clinical trials — or recruit screened participants for your next study.
       </p>
 
-      {/* CTA buttons */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+      {/* CTA buttons — stack on mobile, side-by-side on sm+ */}
+      <div className="flex flex-col sm:flex-row" style={{ gap: 8, marginBottom: 12 }}>
         <a
           href="/experiments"
           style={{
@@ -77,10 +75,13 @@ export function HeroCompact({ stats, experimentCount }: Props) {
             color: '#070c07',
             background: '#b7ff61',
             border: '1px solid #b7ff61',
-            padding: '8px 20px',
+            padding: '0 20px',
             textDecoration: 'none',
             borderRadius: 2,
-            lineHeight: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 44,
           }}
         >
           Browse Studies →
@@ -96,18 +97,21 @@ export function HeroCompact({ stats, experimentCount }: Props) {
             color: '#b7ff61',
             background: 'transparent',
             border: '1px solid rgba(183,255,97,0.3)',
-            padding: '8px 20px',
+            padding: '0 20px',
             textDecoration: 'none',
             borderRadius: 2,
-            lineHeight: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 44,
           }}
         >
           Post a Study →
         </a>
       </div>
 
-      {/* Chips row */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 0 }}>
+      {/* Chips row — wrap on mobile */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {['Paid participation', 'Remote studies', 'Screened applicants'].map((chip) => (
           <span
             key={chip}

@@ -276,7 +276,7 @@ function ExperimenterPanel() {
 
 export function Leaderboard() {
   return (
-    <section style={{ padding: '0 40px 40px' }}>
+    <section className="px-4 sm:px-10" style={{ paddingBottom: 40 }}>
 
       {/* Section header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 40, marginBottom: 10 }}>
@@ -323,12 +323,12 @@ export function Leaderboard() {
           <span style={{ width: 48 }} />
         </div>
 
-        {/* Two-column layout */}
-        <div style={{ display: 'flex', gap: 0 }}>
-          <div style={{ flex: 1, borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+        {/* Two-column layout — stacks on mobile */}
+        <div className="flex flex-col sm:flex-row">
+          <div className="flex-1 border-b sm:border-b-0 sm:border-r" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
             <ParticipantPanel />
           </div>
-          <div style={{ flex: 1 }}>
+          <div className="flex-1">
             <ExperimenterPanel />
           </div>
         </div>
