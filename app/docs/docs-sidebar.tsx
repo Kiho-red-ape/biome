@@ -60,7 +60,7 @@ export function DocsSidebar() {
   }
 
   return (
-    <nav style={{ width: 220, flexShrink: 0 }}>
+    <nav className="w-full sm:w-52" style={{ flexShrink: 0 }}>
       {/* Back to site */}
       <Link href="/" style={{
         display: 'block', marginBottom: 28,
