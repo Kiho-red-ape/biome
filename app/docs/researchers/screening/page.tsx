@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocH3, DocP, DocLead,
-  DocTable, Screenshot, DocNav,
+  DocTable, DocNav,
 } from '../../docs-components';
 
 export default function ResearcherScreeningPage() {
@@ -69,7 +69,6 @@ export default function ResearcherScreeningPage() {
         your study. You never see their real name, email, phone, or personal contact information.
       </DocP>
 
-      <Screenshot caption="Screening dashboard showing applicant table with eligibility, reliability, and action buttons" />
 
       <DocNav
         prev={{ label: 'Publishing & recruitment', href: '/docs/researchers/publishing' }}

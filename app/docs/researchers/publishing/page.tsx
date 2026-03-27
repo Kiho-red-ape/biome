@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocH3, DocP, DocLead,
-  DocUL, Screenshot, DocNav,
+  DocUL, DocNav,
 } from '../../docs-components';
 
 export default function PublishingPage() {
@@ -52,7 +52,6 @@ export default function PublishingPage() {
         'BIOME Verified badge if applicable',
       ]} />
 
-      <Screenshot caption="Published study page showing all sections including milestone timeline and eligibility" />
 
       <DocNav
         prev={{ label: 'Creating a study', href: '/docs/researchers/creating-study' }}

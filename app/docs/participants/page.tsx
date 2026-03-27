@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocH3, DocP, DocLead,
-  DocUL, DocOL, Screenshot, DocNav,
+  DocUL, DocOL, DocNav,
 } from '../docs-components';
 
 export default function ParticipantsPage() {
@@ -36,7 +36,6 @@ export default function ParticipantsPage() {
         to share additional information.
       </DocP>
 
-      <Screenshot caption="Onboarding screen showing display name, region, and role selection" />
 
       <DocH2>Completing your profile</DocH2>
       <DocP>
@@ -89,7 +88,6 @@ export default function ParticipantsPage() {
         to researchers during screening.
       </DocP>
 
-      <Screenshot caption="Profile page showing completeness indicator and editable sections" />
 
       <DocH2>Your public profile</DocH2>
       <DocP>When other users see your profile, they see only:</DocP>

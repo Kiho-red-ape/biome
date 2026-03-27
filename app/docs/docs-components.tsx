@@ -155,67 +155,6 @@ export function DocTable({ headers, rows }: { headers: string[]; rows: string[][
   );
 }
 
-// ─── Screenshot ───────────────────────────────────────────────────────────────
-
-const SCREENSHOT_MAP: Record<string, string> = {
-  'BIOME homepage showing the study card grid with recruiting, active, and completed studies': '/screenshots/homepage.png',
-  'Homepage study card grid showing recruiting studies': '/screenshots/homepage-grid.png',
-  'Participant dashboard showing an application with \'Under review\' status': '/screenshots/participant-dashboard.png',
-  'Onboarding screen showing display name, region, and role selection': '/screenshots/onboarding.png',
-  'Profile page showing completeness indicator and editable sections': '/screenshots/participant-dashboard.png',
-  'Milestone checklist in participant dashboard showing verified, submitted, pending, and overdue milestones with week headers': '/screenshots/milestones.png',
-  'Participant dashboard showing completed study with \'Paid $45.00\' status': '/screenshots/payout-card.png',
-  'Participant dashboard showing active study with milestone checklist, compliance bar, and an application under review': '/screenshots/participant-dashboard.png',
-  'Launch flow showing funding hold confirmation and message composer': '/screenshots/create-study.png',
-  'Screening dashboard showing applicant table with eligibility, reliability, and action buttons': '/screenshots/screening.png',
-  'Compliance view showing participant table with progress bars and verification queue': '/screenshots/compliance.png',
-  'Experimenter onboarding form showing organization fields': '/screenshots/experimenter-onboard.png',
-  'Published study page showing all sections including milestone timeline and eligibility': '/screenshots/study-page.png',
-  'Study creation form showing milestones configuration by week': '/screenshots/create-study.png',
-};
-
-export function Screenshot({ caption }: { caption: string }) {
-  const src = SCREENSHOT_MAP[caption];
-  if (src) {
-    return (
-      <figure style={{ margin: '24px 0' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={src}
-          alt={caption}
-          style={{
-            width: '100%',
-            borderRadius: 6,
-            border: '1px solid rgba(77,255,128,0.12)',
-            display: 'block',
-          }}
-        />
-        <figcaption style={{
-          fontFamily: 'var(--font-mono)', fontSize: 10,
-          color: '#4a7055', letterSpacing: '0.5px',
-          marginTop: 8,
-        }}>
-          {caption}
-        </figcaption>
-      </figure>
-    );
-  }
-  // Fallback for unmapped captions
-  return (
-    <div style={{
-      margin: '24px 0',
-      border: '1px dashed rgba(77,255,128,0.15)',
-      borderRadius: 3,
-      padding: '20px',
-      background: 'rgba(77,255,128,0.02)',
-    }}>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', letterSpacing: '1px', margin: 0 }}>
-        [ Screenshot: {caption} ]
-      </p>
-    </div>
-  );
-}
-
 // ─── Callout ──────────────────────────────────────────────────────────────────
 
 export function Callout({ children }: { children: React.ReactNode }) {

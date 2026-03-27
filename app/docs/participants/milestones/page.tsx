@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocH3, DocP, DocLead,
-  DocUL, DocTable, Screenshot, Code, DocNav,
+  DocUL, DocTable, Code, DocNav,
 } from '../../docs-components';
 
 export default function MilestonesPage() {
@@ -87,7 +87,6 @@ export default function MilestonesPage() {
         If you have enabled email notifications in your settings, you will also receive email reminders.
       </DocP>
 
-      <Screenshot caption="Milestone checklist in participant dashboard showing verified, submitted, pending, and overdue milestones with week headers" />
 
       <DocNav
         prev={{ label: 'Your dashboard', href: '/docs/participants/dashboard' }}

@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocH3, DocP, DocLead,
-  DocUL, DocOL, DocTable, Screenshot, Term, DocNav,
+  DocUL, DocOL, DocTable, Term, DocNav,
 } from '../docs-components';
 
 export default function OverviewPage() {
@@ -60,7 +60,6 @@ export default function OverviewPage() {
         'Payouts are coordinated through BIOME\'s payout flow',
       ]} />
 
-      <Screenshot caption="BIOME homepage showing the study card grid with recruiting, active, and completed studies" />
 
       <DocH2>Key concepts</DocH2>
       <Term term="Study" def="A research protocol published on BIOME with defined requirements, milestones, duration, and participant compensation." />

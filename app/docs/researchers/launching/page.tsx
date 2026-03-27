@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocH3, DocP, DocLead,
-  DocUL, Screenshot, DocNav,
+  DocUL, DocNav,
 } from '../../docs-components';
 
 export default function LaunchingPage() {
@@ -64,7 +64,6 @@ export default function LaunchingPage() {
         'Begin the compliance tracking period',
       ]} />
 
-      <Screenshot caption="Launch flow showing funding hold confirmation and message composer" />
 
       <DocNav
         prev={{ label: 'Screening applicants', href: '/docs/researchers/screening' }}

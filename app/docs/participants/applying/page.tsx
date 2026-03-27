@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocP, DocLead,
-  DocOL, DocTable, Screenshot, Callout, DocNav,
+  DocOL, DocTable, Callout, DocNav,
 } from '../../docs-components';
 
 export default function ApplyingPage() {
@@ -24,7 +24,6 @@ export default function ApplyingPage() {
         and status, and search.
       </DocP>
 
-      <Screenshot caption="Homepage study card grid showing recruiting studies" />
 
       <DocH2>The application flow</DocH2>
       <DocP>When you click &quot;Apply to this study&quot; on a study page:</DocP>
@@ -72,7 +71,6 @@ export default function ApplyingPage() {
       />
       <DocP>You will receive a notification when your status changes.</DocP>
 
-      <Screenshot caption="Participant dashboard showing an application with 'Under review' status" />
 
       <DocNav
         prev={{ label: 'Getting started as a participant', href: '/docs/participants' }}

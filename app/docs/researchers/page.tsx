@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocP, DocLead,
-  DocOL, DocUL, Screenshot, DocNav,
+  DocOL, DocUL, DocNav,
 } from '../docs-components';
 
 export default function ResearchersPage() {
@@ -32,7 +32,6 @@ export default function ResearchersPage() {
         description, expertise areas, and study history.
       </DocP>
 
-      <Screenshot caption="Experimenter onboarding form showing organization fields" />
 
       <DocH2>What you can do as a researcher</DocH2>
       <DocUL items={[

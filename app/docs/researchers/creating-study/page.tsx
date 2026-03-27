@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocH3, DocP, DocLead,
-  DocUL, Screenshot, DocNav,
+  DocUL, DocNav,
 } from '../../docs-components';
 
 export default function CreatingStudyPage() {
@@ -88,7 +88,6 @@ export default function CreatingStudyPage() {
         any time from your experimenter dashboard.
       </DocP>
 
-      <Screenshot caption="Study creation form showing milestones configuration by week" />
 
       <DocNav
         prev={{ label: 'Getting started as a researcher', href: '/docs/researchers' }}

@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocH3, DocP, DocLead,
-  DocUL, Screenshot, DocNav,
+  DocUL, DocNav,
 } from '../../docs-components';
 
 export default function DashboardPage() {
@@ -48,7 +48,6 @@ export default function DashboardPage() {
         in remaining sections.
       </DocP>
 
-      <Screenshot caption="Participant dashboard showing active study with milestone checklist, compliance bar, and an application under review" />
 
       <DocNav
         prev={{ label: 'Applying to a study', href: '/docs/participants/applying' }}

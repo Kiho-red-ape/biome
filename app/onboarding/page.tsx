@@ -30,7 +30,6 @@ export default function OnboardingPage() {
   const { user, ready, authenticated } = usePrivy();
 
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [displayName, setDisplayName] = useState('');
   const [region, setRegion] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +52,7 @@ export default function OnboardingPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedRole || !displayName.trim() || !user) return;
+    if (!selectedRole || !user) return;
 
     setLoading(true);
     setError(null);
@@ -71,7 +70,6 @@ export default function OnboardingPage() {
           privyDid: user.id,
           authType,
           walletAddress,
-          displayName: displayName.trim(),
           role: selectedRole,
           region: region.trim() || null,
           email,
@@ -156,27 +154,6 @@ export default function OnboardingPage() {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
-            {/* Display name */}
-            <div>
-              <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>
-                DISPLAY_NAME *
-              </label>
-              <input
-                type="text"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Your name or handle"
-                required
-                maxLength={64}
-                className="w-full px-4 py-2 rounded text-sm outline-none transition-colors"
-                style={{
-                  background: 'var(--bg3)',
-                  border: '1px solid rgba(77,255,128,0.15)',
-                  color: 'var(--text-bright)',
-                }}
-              />
-            </div>
-
             {/* Region */}
             <div>
               <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>
@@ -246,7 +223,7 @@ export default function OnboardingPage() {
             {/* Submit */}
             <button
               type="submit"
-              disabled={!selectedRole || !displayName.trim() || loading}
+              disabled={!selectedRole || loading}
               className="w-full py-3 rounded font-semibold text-sm transition-all disabled:opacity-40"
               style={{
                 background: 'var(--green)',

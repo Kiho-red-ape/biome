@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocP, DocLead,
-  DocUL, DocTable, Screenshot, DocNav,
+  DocUL, DocTable, DocNav,
 } from '../../docs-components';
 
 export default function ResearcherCompliancePage() {
@@ -69,7 +69,6 @@ export default function ResearcherCompliancePage() {
         compliance scores, eligibility status, and amounts. This file is used to process payouts.
       </DocP>
 
-      <Screenshot caption="Compliance view showing participant table with progress bars and verification queue" />
 
       <DocNav
         prev={{ label: 'Launching a study', href: '/docs/researchers/launching' }}

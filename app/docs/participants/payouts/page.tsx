@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocP, DocLead,
-  DocUL, DocTable, Screenshot, DocNav,
+  DocUL, DocTable, DocNav,
 } from '../../docs-components';
 
 export default function ParticipantPayoutsPage() {
@@ -72,7 +72,6 @@ export default function ParticipantPayoutsPage() {
         regardless of compliance status.
       </DocP>
 
-      <Screenshot caption="Participant dashboard showing completed study with 'Paid $45.00' status" />
 
       <DocNav
         prev={{ label: 'Milestones & compliance', href: '/docs/participants/milestones' }}
