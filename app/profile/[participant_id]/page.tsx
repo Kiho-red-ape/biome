@@ -78,10 +78,10 @@ export default async function PublicProfilePage({
     <main style={{ minHeight: '100vh', background: 'var(--bg)' }}>
 
       {/* Mini nav */}
-      <header style={{
+      <header className="px-4 sm:px-10" style={{
         position: 'sticky', top: 0, zIndex: 200,
         height: 52, display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', padding: '0 40px',
+        justifyContent: 'space-between',
         background: 'rgba(5,7,9,0.95)', backdropFilter: 'blur(16px)',
         borderBottom: '1px solid rgba(183,255,97,0.12)',
       }}>
@@ -97,7 +97,7 @@ export default async function PublicProfilePage({
         </span>
       </header>
 
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '40px 40px' }}>
+      <div className="px-4 sm:px-10" style={{ maxWidth: 800, margin: '0 auto', paddingTop: 40, paddingBottom: 40 }}>
 
         {/* ── Identity header ── */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, marginBottom: 0 }}>
@@ -137,7 +137,7 @@ export default async function PublicProfilePage({
         <div style={{ height: 2, background: 'rgba(255,255,255,0.06)', margin: '24px 0' }} />
 
         {/* ── Stats 4-col grid ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0, marginBottom: 0 }}>
+        <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: 0, marginBottom: 0 }}>
           {[
             { label: 'TOTAL EARNED',    value: `$${totalEarned.toFixed(2)}`,                                              color: '#b7ff61'  },
             { label: 'COMPLETED',       value: String(completed.length),                                                    color: '#eef4f0'  },
@@ -186,11 +186,11 @@ export default async function PublicProfilePage({
               </p>
             </div>
           ) : (
-            <div style={{ border: '1px solid rgba(255,255,255,0.06)', background: '#0b1014', overflowX: 'auto' }}>
+            <div className="table-scroll" style={{ border: '1px solid rgba(255,255,255,0.06)', background: '#0b1014' }}>
               {/* Header row */}
               <div style={{
                 display: 'grid', gridTemplateColumns: '1fr 120px 100px 80px',
-                padding: '8px 16px',
+                padding: '8px 16px', minWidth: 480,
                 borderBottom: '1px solid rgba(255,255,255,0.06)',
               }}>
                 {['EXPERIMENT', 'CATEGORY', 'STATUS', 'REWARD'].map((h) => (
@@ -212,7 +212,7 @@ export default async function PublicProfilePage({
                     className="row-hover"
                     style={{
                       display: 'grid', gridTemplateColumns: '1fr 120px 100px 80px',
-                      padding: '12px 16px', alignItems: 'center',
+                      padding: '12px 16px', alignItems: 'center', minWidth: 480,
                       borderBottom: '1px solid rgba(255,255,255,0.04)',
                     }}
                   >

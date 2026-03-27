@@ -526,7 +526,7 @@ export default function PostStudyPage() {
                 required />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>CATEGORY *</Label>
                 <SelectInput value={category} onChange={setCategory}
@@ -546,7 +546,7 @@ export default function PostStudyPage() {
                 rows={5} />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>DURATION (weeks)</Label>
                 <TextInput type="number" value={duration} onChange={setDuration}
@@ -561,7 +561,7 @@ export default function PostStudyPage() {
             {/* ── B: Bounty ── */}
             <SectionHeader label="// SECTION_B — BOUNTY" />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>REWARD PER PARTICIPANT (USD) *</Label>
                 <TextInput type="number" value={reward} onChange={setReward}
@@ -575,7 +575,7 @@ export default function PostStudyPage() {
             </div>
 
             <div className="p-4 rounded" style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.1)' }}>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>TOTAL BOUNTY POOL</p>
                   <p className="mono text-lg font-bold" style={{ color: 'var(--green)' }}>
@@ -609,7 +609,7 @@ export default function PostStudyPage() {
               <Textarea value={exclusion} onChange={setExclusion}
                 placeholder="Who cannot join? One criterion per line." rows={3} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>MIN AGE</Label>
                 <TextInput type="number" value={ageMin} onChange={setAgeMin} placeholder="18" min="0" />
@@ -733,7 +733,7 @@ export default function PostStudyPage() {
             />
 
             {/* Compliance + Enrollment URL */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>COMPLIANCE THRESHOLD (%)</Label>
                 <TextInput type="number" value={complianceThreshold} onChange={setComplianceThreshold}
