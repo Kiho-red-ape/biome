@@ -2,6 +2,8 @@ import { createAnonClient } from '@/lib/supabase/anon';
 import { SiteHeader } from '@/components/nav/header';
 import { TickerBar } from '@/components/dashboard/ticker-bar';
 import { ExperimentDashboard } from '@/components/dashboard/experiment-dashboard';
+import { ParticipantLeaderboard } from '@/components/experiments/participant-leaderboard';
+import type { LeaderboardRow } from '@/components/experiments/participant-leaderboard';
 import type { Experiment } from '@/lib/types';
 import type { OrgMap } from '@/app/page';
 
@@ -20,12 +22,19 @@ function computeStats(experiments: Experiment[]) {
 export default async function ExperimentsPage() {
   const supabase = createAnonClient();
 
-  const [expResult, orgResult] = await Promise.all([
+  const [expResult, orgResult, lbResult] = await Promise.all([
     supabase.from('experiments').select('*').neq('status', 'draft').order('created_at', { ascending: false }),
     supabase
       .from('experimenter_profiles')
       .select('id, user_id, org_name')
       .eq('screening_status', 'approved'),
+    supabase
+      .from('participant_profiles')
+      .select('participant_id, pseudonym, country, previous_study_count, completion_rate, reliability_score')
+      .gt('previous_study_count', 0)
+      .order('previous_study_count', { ascending: false })
+      .order('completion_rate', { ascending: false })
+      .limit(50),
   ]);
 
   const experiments = (expResult.data ?? []) as Experiment[];
@@ -35,6 +44,8 @@ export default async function ExperimentsPage() {
   for (const o of (orgResult.data ?? []) as { id: string; user_id: string; org_name: string }[]) {
     orgMap[o.user_id] = { id: o.id, org_name: o.org_name };
   }
+
+  const leaderboard = (lbResult.data ?? []) as LeaderboardRow[];
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -59,6 +70,13 @@ export default async function ExperimentsPage() {
           </h1>
         </div>
         <ExperimentDashboard experiments={experiments} stats={stats} orgMap={orgMap} />
+
+        {/* Participant leaderboard — explore page only */}
+        {leaderboard.length > 0 && (
+          <div className="px-4 md:px-6 pb-8">
+            <ParticipantLeaderboard rows={leaderboard} currentUserParticipantId={null} />
+          </div>
+        )}
       </div>
 
       <footer

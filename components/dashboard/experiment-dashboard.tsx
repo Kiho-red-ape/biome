@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Experiment, ExperimentStatus } from '@/lib/types';
@@ -58,7 +58,7 @@ function categoryColor(cat: string): string {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function SortIcon({ field, current, dir }: { field: SortField; current: SortField; dir: SortDir }) {
+function SortIcon({ field, current, dir }: { field: SortField; current: SortField | null; dir: SortDir }) {
   if (field !== current) return <span style={{ color: 'var(--text-dim)', opacity: 0.3 }}>⇅</span>;
   return <span style={{ color: 'var(--green)' }}>{dir === 'asc' ? '↑' : '↓'}</span>;
 }
@@ -80,6 +80,19 @@ function SlotBar({ filled, total }: { filled: number; total: number }) {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
+const PAGE_SIZE = 10;
+
+// Priority sort: recruiting (low slots) → active (low slots) → rest
+function prioritySort(exps: Experiment[]): Experiment[] {
+  return [...exps].sort((a, b) => {
+    const rank = (e: Experiment) => e.status === 'recruiting' ? 0 : e.status === 'active' ? 1 : 2;
+    const ra = rank(a), rb = rank(b);
+    if (ra !== rb) return ra - rb;
+    if (ra <= 1) return (a.slots_total - a.slots_filled) - (b.slots_total - b.slots_filled);
+    return 0;
+  });
+}
+
 export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
   const router = useRouter();
 
@@ -88,37 +101,44 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
   const [catFilter,   setCatFilter]   = useState('all');
   const [statFilter,  setStatFilter]  = useState('all');
   const [verified,    setVerified]    = useState(false);
-  const [sortField,   setSortField]   = useState<SortField>('created_at');
+  const [sortField,   setSortField]   = useState<SortField | null>(null); // null = smart sort
   const [sortDir,     setSortDir]     = useState<SortDir>('desc');
+  const [page,        setPage]        = useState(0);
 
   const categories = useMemo(() => {
     return [...new Set(experiments.map((e) => e.category))].sort();
   }, [experiments]);
 
   const filtered = useMemo(() => {
-    return experiments
-      .filter((e) => {
-        if (catFilter  !== 'all' && e.category !== catFilter)  return false;
-        if (statFilter !== 'all' && e.status   !== statFilter) return false;
-        if (verified && !e.is_verified)                        return false;
-        if (search) {
-          const q = search.toLowerCase();
-          if (!e.title.toLowerCase().includes(q) &&
-              !e.category.toLowerCase().includes(q) &&
-              !e.description.toLowerCase().includes(q)) return false;
-        }
-        return true;
-      })
-      .sort((a, b) => {
-        let va: string | number = a[sortField] as string | number;
-        let vb: string | number = b[sortField] as string | number;
-        if (typeof va === 'string') va = va.toLowerCase();
-        if (typeof vb === 'string') vb = vb.toLowerCase();
-        if (va < vb) return sortDir === 'asc' ? -1 : 1;
-        if (va > vb) return sortDir === 'asc' ? 1 : -1;
-        return 0;
-      });
+    const base = experiments.filter((e) => {
+      if (catFilter  !== 'all' && e.category !== catFilter)  return false;
+      if (statFilter !== 'all' && e.status   !== statFilter) return false;
+      if (verified && !e.is_verified)                        return false;
+      if (search) {
+        const q = search.toLowerCase();
+        if (!e.title.toLowerCase().includes(q) &&
+            !e.category.toLowerCase().includes(q) &&
+            !e.description.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+    if (!sortField) return prioritySort(base);
+    return base.sort((a, b) => {
+      let va: string | number = a[sortField] as string | number;
+      let vb: string | number = b[sortField] as string | number;
+      if (typeof va === 'string') va = va.toLowerCase();
+      if (typeof vb === 'string') vb = vb.toLowerCase();
+      if (va < vb) return sortDir === 'asc' ? -1 : 1;
+      if (va > vb) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
   }, [experiments, catFilter, statFilter, verified, search, sortField, sortDir]);
+
+  // Reset to first page when filters/sort change
+  useEffect(() => { setPage(0); }, [search, catFilter, statFilter, verified, sortField, sortDir]);
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginated  = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   function toggleSort(field: SortField) {
     if (sortField === field) {
@@ -127,6 +147,7 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
       setSortField(field);
       setSortDir('desc');
     }
+    setPage(0);
   }
 
   function ColHead({ field, label, align = 'left', className = '' }: {
@@ -249,7 +270,8 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
               </tr>
             )}
 
-            {filtered.map((exp, i) => {
+            {paginated.map((exp, i) => {
+              const i_global = page * PAGE_SIZE + i;
               const st = STATUS_CONFIG[exp.status] ?? STATUS_CONFIG.draft;
               const isOpen = expandedId === exp.id;
 
@@ -269,7 +291,7 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
                   >
                     {/* Row number */}
                     <td className="px-3 py-4 mono text-xs text-center tabular-nums" style={{ color: 'var(--text-dim)' }}>
-                      {String(i + 1).padStart(2, '0')}
+                      {String(i_global + 1).padStart(2, '0')}
                     </td>
 
                     {/* Experiment name + category + expand chevron */}
@@ -411,13 +433,46 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
         </table>
       </div>
 
-      {/* Table footer */}
-      <div className="flex items-center justify-between mt-3 px-1">
+      {/* Pagination */}
+      <div className="flex items-center justify-between mt-4 px-1 flex-wrap gap-3">
         <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-          {filtered.length} of {experiments.length} experiments
+          {filtered.length} studies · page {page + 1} of {Math.max(1, totalPages)}
         </p>
-        <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-          // BIOME_PROTOCOL — 2.5% platform fee on completed bounties
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className="mono text-xs px-3 py-1.5 rounded transition-all disabled:opacity-30"
+            style={{ border: '1px solid rgba(77,255,128,0.15)', color: 'var(--text-dim)', background: 'transparent', cursor: page === 0 ? 'default' : 'pointer' }}
+          >
+            ← Prev
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setPage(i)}
+              className="mono text-xs px-2.5 py-1.5 rounded transition-all"
+              style={{
+                background: i === page ? 'rgba(77,255,128,0.10)' : 'transparent',
+                border: `1px solid ${i === page ? 'rgba(77,255,128,0.35)' : 'rgba(77,255,128,0.1)'}`,
+                color: i === page ? 'var(--green)' : 'var(--text-dim)',
+                cursor: 'pointer',
+              }}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            disabled={page >= totalPages - 1}
+            className="mono text-xs px-3 py-1.5 rounded transition-all disabled:opacity-30"
+            style={{ border: '1px solid rgba(77,255,128,0.15)', color: 'var(--text-dim)', background: 'transparent', cursor: page >= totalPages - 1 ? 'default' : 'pointer' }}
+          >
+            Next →
+          </button>
+        </div>
+        <p className="mono text-xs hidden md:block" style={{ color: 'var(--text-dim)' }}>
+          // BIOME_PROTOCOL — 2.5% platform fee
         </p>
       </div>
 
