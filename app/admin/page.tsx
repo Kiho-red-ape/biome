@@ -221,6 +221,17 @@ export default function AdminPage() {
           </p>
         </div>
 
+        {/* Sales agent shortcut */}
+        <div className="mb-6">
+          <Link
+            href="/admin/sales-agent"
+            className="inline-flex items-center gap-2 mono text-xs px-4 py-2 rounded no-underline transition-all hover:opacity-80"
+            style={{ background: 'rgba(77,255,128,0.08)', border: '1px solid rgba(77,255,128,0.2)', color: 'var(--green)' }}
+          >
+            ↗ Sales Agent — lead gen, email drafts, pipeline ops
+          </Link>
+        </div>
+
         {/* Tab switcher */}
         <div className="flex gap-1 mb-6 p-1 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)', width: 'fit-content' }}>
           {(['orgs', 'payouts'] as const).map((t) => (
