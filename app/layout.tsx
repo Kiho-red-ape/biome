@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from '@/components/providers';
+import StagingBanner from '@/components/StagingBanner';
 
 export const metadata: Metadata = {
   title: 'BIOME — Experiment Aggregator',
@@ -23,6 +24,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <StagingBanner />
         <Providers>
           <div id="app-root">
             {children}
