@@ -9,7 +9,6 @@ interface Props {
   grossAmount: number;
   payoutStatus: string;
   payoutMethodConfigured: boolean;
-  payoutMethodType: string | null;
   payoutNetAmount: number | null;
   payoutInitiatedAt: string | null;
   payoutCompletedAt: string | null;
@@ -27,7 +26,7 @@ function relDate(d: string) {
 
 export function PayoutCard({
   studyTitle, grossAmount, payoutStatus, payoutMethodConfigured,
-  payoutMethodType, payoutNetAmount, payoutInitiatedAt, payoutCompletedAt,
+  payoutNetAmount, payoutInitiatedAt, payoutCompletedAt,
   privyDid, experimentId,
 }: Props) {
   const [loading, setLoading] = useState(false);
@@ -40,7 +39,7 @@ export function PayoutCard({
     setLoading(true);
     setError(null);
     try {
-      const res  = await fetch('/api/payout/setup', {
+      const res  = await fetch('/api/payments/connect-setup', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ privyDid }),
@@ -114,7 +113,7 @@ export function PayoutCard({
               className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-40"
               style={{ background: 'var(--green)', color: '#050709' }}
             >
-              {loading ? 'Loading...' : 'Set up payout →'}
+              {loading ? 'Loading...' : 'Set up with Stripe →'}
             </button>
           </div>
         )}
@@ -122,7 +121,7 @@ export function PayoutCard({
         {payoutStatus === 'pending' && payoutMethodConfigured && (
           <div className="flex items-center gap-3">
             <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-              Payout method: <span style={{ color: 'var(--green)' }}>{payoutMethodType ?? 'configured'} ✓</span>
+              Payout method: <span style={{ color: 'var(--green)' }}>Connected ✓</span>
             </span>
             <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
               · Payout being prepared
@@ -152,7 +151,7 @@ export function PayoutCard({
         {payoutStatus === 'failed' && (
           <div>
             <p className="mono text-xs mb-2" style={{ color: '#ff8f8f' }}>
-              Payout failed. Verify your payout details and contact hello@biome.to.
+              Payout failed. Verify your bank details on Stripe and contact hello@biome.to.
             </p>
             {error && <p className="mono text-xs mb-2" style={{ color: '#ff8f8f' }}>{error}</p>}
             <button

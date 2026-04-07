@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { PublishFlowModal } from './publish-flow-modal';
 
@@ -20,20 +20,8 @@ export function DraftBanner({
 }: Props) {
   const { user, authenticated } = usePrivy();
   const [showModal, setShowModal] = useState(false);
-  const [freeStudyUsed, setFreeStudyUsed] = useState(false);
 
   const isOwner = authenticated && !!user && user.id === experimenterUserId;
-
-  // Fetch free_study_used when owner views draft
-  useEffect(() => {
-    if (!isOwner || !user) return;
-    fetch(`/api/experimenter-profile?privyDid=${encodeURIComponent(user.id)}`)
-      .then((r) => r.json())
-      .then((data: { profile?: { free_study_used?: boolean } | null }) => {
-        setFreeStudyUsed(data.profile?.free_study_used ?? false);
-      })
-      .catch(() => { /* ignore */ });
-  }, [isOwner, user]);
 
   if (!isOwner) {
     return (
@@ -79,7 +67,6 @@ export function DraftBanner({
           reward={reward}
           slots={slots}
           durationWeeks={durationWeeks}
-          freeStudyUsed={freeStudyUsed}
           onClose={() => setShowModal(false)}
         />
       )}

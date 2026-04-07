@@ -24,7 +24,7 @@ type ExperimenterRow = {
 type PayoutSummary = {
   experiment: {
     id: string; title: string; status: string;
-    escrow_status: string | null; escrow_total: number | null; experiment_code: string | null;
+    launch_fee_paid: boolean; bounty_pool_deposited: boolean; experiment_code: string | null;
   };
   summary: {
     total: number; paid: number; processing: number;
@@ -35,7 +35,7 @@ type PayoutSummary = {
     id: string; participant_id: string; pseudonym: string;
     payout_status: string; payout_net_amount: number | null;
     payout_initiated_at: string | null; payout_completed_at: string | null;
-    trolley_payment_id: string | null; payout_method_configured: boolean;
+    stripe_transfer_id: string | null; stripe_onboarding_complete: boolean;
   }>;
 };
 
@@ -155,8 +155,8 @@ export default function AdminPage() {
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ privyDid: user.id }),
     });
-    const data = await res.json() as { paymentId?: string; error?: string };
-    setActionMsg(res.ok ? `✓ Retry initiated (${data.paymentId ?? ''})` : `Error: ${data.error ?? 'Failed'}`);
+    const data = await res.json() as { transferId?: string; error?: string };
+    setActionMsg(res.ok ? `✓ Retry initiated (${data.transferId ?? ''})` : `Error: ${data.error ?? 'Failed'}`);
     setActioning(null);
     if (res.ok) void loadPayouts();
   }
@@ -269,7 +269,7 @@ export default function AdminPage() {
             {/* Payout summary */}
             {payoutData && (() => {
               const { experiment: pExp, summary, applications: pApps } = payoutData;
-              const escrowOk = pExp.escrow_status === 'deposited';
+              const escrowOk = pExp.bounty_pool_deposited === true;
               return (
                 <div>
                   {/* Experiment header */}
@@ -289,7 +289,7 @@ export default function AdminPage() {
                             STATUS: <span style={{ color: 'var(--text-bright)' }}>{pExp.status.toUpperCase()}</span>
                           </span>
                           <span className="mono text-xs" style={{ color: escrowOk ? 'var(--green)' : 'var(--amber)' }}>
-                            ESCROW: {(pExp.escrow_status ?? 'not_required').toUpperCase()}
+                            BOUNTY POOL: {escrowOk ? 'DEPOSITED' : 'PENDING'}
                           </span>
                         </div>
                       </div>
@@ -352,7 +352,7 @@ export default function AdminPage() {
                           failed:         '#ff8f8f',
                         };
                         const pc = psColors[a.payout_status] ?? 'var(--text-dim)';
-                        const canRetry  = ['failed', 'method_missing'].includes(a.payout_status) && a.payout_method_configured;
+                        const canRetry  = ['failed', 'method_missing'].includes(a.payout_status) && a.stripe_onboarding_complete;
                         const canManual = a.payout_status !== 'paid';
                         return (
                           <div key={a.id}
@@ -373,7 +373,7 @@ export default function AdminPage() {
                                   {fmt(a.payout_net_amount)}
                                 </span>
                               )}
-                              {!a.payout_method_configured && (
+                              {!a.stripe_onboarding_complete && (
                                 <span className="mono text-xs" style={{ color: 'var(--amber)', fontSize: 9 }}>no payout method</span>
                               )}
                             </div>

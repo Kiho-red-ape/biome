@@ -38,7 +38,7 @@ export default function PayoutsPage() {
         headers={['Fee', 'Amount', 'Charged to', 'Description']}
         rows={[
           ['Platform fee',        '2.5% of completed payouts',          'Researcher',    'Charged on successfully completed participant payouts'],
-          ['Publish fee',         '$99 per study (first study free)',    'Researcher',    'One-time fee to publish a study to the marketplace'],
+          ['Study launch fee',    '$299 per study',                      'Researcher',    'Required to publish each study to the marketplace. Paid via Stripe.'],
           ['BIOME Verified',      '$500–1,000 per study',                'Researcher',    'Optional protocol review by BIOME\'s science team'],
           ['Payout processing',   '0.5% of payout amount',              'Participant',   'Deducted from payout during processing'],
         ]}

@@ -23,7 +23,7 @@ export async function GET(req: NextRequest, { params }: Props) {
 
   const { data: exp } = await supabase
     .from('experiments')
-    .select('id, title, status, escrow_status, bounty_per_participant, escrow_total, experiment_code')
+    .select('id, title, status, bounty_pool_deposited, bounty_per_participant, experiment_code, launch_fee_paid')
     .eq('id', experimentId)
     .single();
 
@@ -33,8 +33,8 @@ export async function GET(req: NextRequest, { params }: Props) {
     .from('applications')
     .select(
       'id, participant_id, status, payout_status, payout_net_amount, ' +
-      'payout_initiated_at, payout_completed_at, trolley_payment_id, trolley_batch_id, ' +
-      'participant_profiles!participant_id(pseudonym, participant_id, payout_method_configured, payout_method_type)'
+      'payout_initiated_at, payout_completed_at, stripe_transfer_id, ' +
+      'participant_profiles!participant_id(pseudonym, participant_id, stripe_onboarding_complete, stripe_account_id)'
     )
     .eq('experiment_id', experimentId)
     .in('status', ['enrolled', 'approved', 'completed']);
@@ -47,20 +47,18 @@ export async function GET(req: NextRequest, { params }: Props) {
     payout_net_amount: number | null;
     payout_initiated_at: string | null;
     payout_completed_at: string | null;
-    trolley_payment_id: string | null;
-    trolley_batch_id: string | null;
+    stripe_transfer_id: string | null;
     participant_profiles: {
       pseudonym: string;
       participant_id: string;
-      payout_method_configured: boolean;
-      payout_method_type: string | null;
+      stripe_onboarding_complete: boolean;
+      stripe_account_id: string | null;
     } | null;
   }>;
 
-  // Aggregate
   const counts: Record<string, number> = {};
-  let totalPaid   = 0;
-  let totalNet    = 0;
+  let totalPaid = 0;
+  let totalNet  = 0;
 
   for (const r of rows) {
     counts[r.payout_status] = (counts[r.payout_status] ?? 0) + 1;
@@ -70,35 +68,33 @@ export async function GET(req: NextRequest, { params }: Props) {
 
   return NextResponse.json({
     experiment: {
-      id:            exp.id,
-      title:         exp.title,
-      status:        exp.status,
-      escrow_status: exp.escrow_status,
-      escrow_total:  exp.escrow_total,
-      experiment_code: exp.experiment_code,
+      id:                   exp.id,
+      title:                exp.title,
+      status:               exp.status,
+      launch_fee_paid:      exp.launch_fee_paid,
+      bounty_pool_deposited: exp.bounty_pool_deposited,
+      experiment_code:      exp.experiment_code,
     },
     summary: {
-      total:         rows.length,
-      paid:          counts['paid']           ?? 0,
-      processing:    counts['processing']     ?? 0,
-      pending:       counts['pending']        ?? 0,
-      method_missing:counts['method_missing'] ?? 0,
-      failed:        counts['failed']         ?? 0,
-      total_paid:    totalPaid,
-      total_net:     totalNet,
+      total:          rows.length,
+      paid:           counts['paid']           ?? 0,
+      processing:     counts['processing']     ?? 0,
+      pending:        counts['pending']        ?? 0,
+      method_missing: counts['method_missing'] ?? 0,
+      failed:         counts['failed']         ?? 0,
+      total_paid:     totalPaid,
+      total_net:      totalNet,
     },
     applications: rows.map((r) => ({
-      id:                r.id,
-      participant_id:    r.participant_id,
-      pseudonym:         r.participant_profiles?.pseudonym ?? r.participant_id,
-      payout_status:     r.payout_status,
-      payout_net_amount: r.payout_net_amount,
-      payout_initiated_at: r.payout_initiated_at,
-      payout_completed_at: r.payout_completed_at,
-      trolley_payment_id:  r.trolley_payment_id,
-      trolley_batch_id:    r.trolley_batch_id,
-      payout_method_configured: r.participant_profiles?.payout_method_configured ?? false,
-      payout_method_type:       r.participant_profiles?.payout_method_type ?? null,
+      id:                         r.id,
+      participant_id:             r.participant_id,
+      pseudonym:                  r.participant_profiles?.pseudonym ?? r.participant_id,
+      payout_status:              r.payout_status,
+      payout_net_amount:          r.payout_net_amount,
+      payout_initiated_at:        r.payout_initiated_at,
+      payout_completed_at:        r.payout_completed_at,
+      stripe_transfer_id:         r.stripe_transfer_id,
+      stripe_onboarding_complete: r.participant_profiles?.stripe_onboarding_complete ?? false,
     })),
   });
 }

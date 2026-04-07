@@ -27,10 +27,11 @@ export default function PublishingPage() {
         application deadline is calculated from the publish date.
       </DocP>
 
-      <DocH3>Step 3 — Publish payment</DocH3>
+      <DocH3>Step 3 — Study launch fee</DocH3>
       <DocP>
-        Your first study on BIOME is free to publish. Subsequent studies require a one-time $99
-        publish fee. You will also review and accept the Experimenter Study Agreement at this step.
+        A $299 study launch fee is required to publish each study on BIOME. Payment is collected
+        via Stripe Checkout. You will also review and accept the Experimenter Study Agreement at this step.
+        Your study goes live immediately after payment is confirmed.
       </DocP>
 
       <DocH3>Step 4 — Confirm</DocH3>

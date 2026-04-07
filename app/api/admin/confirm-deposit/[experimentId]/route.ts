@@ -10,7 +10,8 @@ async function verifyAdmin(privyDid: string): Promise<boolean> {
 interface Props { params: Promise<{ experimentId: string }> }
 
 // POST /api/admin/confirm-deposit/[experimentId]
-// Marks the escrow deposit as received for an experiment
+// Manually marks the bounty pool as deposited (for off-platform or manual transfers).
+// Normally this is handled automatically by the Stripe webhook.
 export async function POST(req: NextRequest, { params }: Props) {
   const { experimentId } = await params;
   const body = await req.json() as { privyDid?: string; notes?: string };
@@ -25,21 +26,21 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   const { data: exp, error: expErr } = await supabase
     .from('experiments')
-    .select('id, title, escrow_status, bounty_per_participant')
+    .select('id, title, bounty_pool_deposited')
     .eq('id', experimentId)
     .single();
 
   if (expErr || !exp) return NextResponse.json({ error: 'Experiment not found' }, { status: 404 });
 
-  if (exp.escrow_status === 'deposited') {
+  if (exp.bounty_pool_deposited) {
     return NextResponse.json({ ok: true, message: 'Already confirmed' });
   }
 
   const { error } = await supabase
     .from('experiments')
     .update({
-      escrow_status:       'deposited',
-      escrow_deposited_at: new Date().toISOString(),
+      bounty_pool_deposited:    true,
+      bounty_pool_deposited_at: new Date().toISOString(),
     })
     .eq('id', experimentId);
 
@@ -50,6 +51,6 @@ export async function POST(req: NextRequest, { params }: Props) {
     experimentId,
     message: notes
       ? `Deposit confirmed. Notes: ${notes}`
-      : 'Deposit confirmed — payouts can now be processed',
+      : 'Bounty pool deposit confirmed — payouts can now be processed',
   });
 }

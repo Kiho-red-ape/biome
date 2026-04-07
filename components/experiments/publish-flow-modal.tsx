@@ -11,7 +11,6 @@ interface Props {
   reward: number;
   slots: number;
   durationWeeks: number | null;
-  freeStudyUsed: boolean;
   onClose: () => void;
 }
 
@@ -33,7 +32,7 @@ function formatDeadline(days: number): string {
 
 export function PublishFlowModal({
   experimentId, privyDid, experimentTitle, category, reward, slots,
-  durationWeeks, freeStudyUsed, onClose,
+  durationWeeks, onClose,
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
@@ -55,31 +54,34 @@ export function PublishFlowModal({
     return () => { document.body.style.overflow = prev; };
   }, []);
 
-  const totalPool = reward * slots;
+  const totalPool   = reward * slots;
   const platformFee = totalPool * 0.025;
-  const feeStatus = freeStudyUsed ? 'pending' : 'free_tier';
 
-  async function handleConfirmPublish() {
+  async function handlePayLaunchFee() {
     setPublishing(true);
     setError(null);
 
-    const res = await fetch(`/api/experiments/${experimentId}`, {
-      method:  'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({
-        privyDid,
-        action:                  'publish',
-        recruitment_window_days: recruitmentDays,
-        publish_fee_status:      feeStatus,
-      }),
-    });
+    try {
+      const res = await fetch('/api/payments/launch-fee', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          experimentId,
+          privyDid,
+          recruitmentDays,
+        }),
+      });
 
-    if (res.ok) {
-      router.refresh();
-      onClose();
-    } else {
-      const data = await res.json() as { error?: string };
-      setError(data.error ?? 'Failed to publish');
+      const data = await res.json() as { url?: string; error?: string };
+      if (!res.ok || !data.url) {
+        setError(data.error ?? 'Failed to start payment');
+        setPublishing(false);
+        return;
+      }
+      // Redirect to Stripe Checkout — study publishes automatically after payment
+      window.location.href = data.url;
+    } catch {
+      setError('Network error');
       setPublishing(false);
     }
   }
@@ -287,47 +289,26 @@ export function PublishFlowModal({
                 BIOME charges a one-time fee to publish a study to the platform.
               </p>
 
-              {!freeStudyUsed ? (
-                <div style={{
-                  padding: '20px',
-                  background: 'rgba(77,255,128,0.05)',
-                  border: '1px solid rgba(77,255,128,0.2)',
-                  borderRadius: 3, marginBottom: 20,
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 22, color: 'var(--green)', lineHeight: 1 }}>✓</span>
-                    <div>
-                      <p style={{ fontFamily: 'var(--font-heading)', fontSize: 16, fontWeight: 700, color: 'var(--green)', marginBottom: 4 }}>
-                        Your first study is free to publish
-                      </p>
-                      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)', margin: 0 }}>
-                        No publish fee for your first study. The 2.5% platform fee still applies to participant payouts.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div style={{
-                  padding: '20px',
-                  background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 3, marginBottom: 20,
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                      <p style={{ fontFamily: 'var(--font-heading)', fontSize: 16, fontWeight: 700, color: 'var(--text-bright)', marginBottom: 4 }}>
-                        Publish fee
-                      </p>
-                      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)', margin: 0 }}>
-                        One-time fee per study published to the platform. Invoiced separately.
-                      </p>
-                    </div>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontSize: 22, fontWeight: 700, color: 'var(--text-bright)', margin: 0, flexShrink: 0, paddingLeft: 16 }}>
-                      $99
+              <div style={{
+                padding: '20px',
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 3, marginBottom: 20,
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontSize: 16, fontWeight: 700, color: 'var(--text-bright)', marginBottom: 4 }}>
+                      Study launch fee
+                    </p>
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-dim)', margin: 0 }}>
+                      One-time fee per study. Paid via Stripe Checkout. Your study goes live immediately after payment.
                     </p>
                   </div>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontSize: 22, fontWeight: 700, color: 'var(--text-bright)', margin: 0, flexShrink: 0, paddingLeft: 16 }}>
+                    $299
+                  </p>
                 </div>
-              )}
+              </div>
 
               <div style={{
                 padding: '12px 14px',
@@ -387,8 +368,8 @@ export function PublishFlowModal({
               }}>
                 <Row label="Study" value={experimentTitle} />
                 <Row label="Applications open for" value={`${recruitmentDays} days (closes ${formatDeadline(recruitmentDays)})`} />
-                <Row label="Publish fee" value={!freeStudyUsed ? 'Free (first study)' : '$99 — invoiced'} />
-                <Row label="Platform fee" value={`2.5% of $${totalPool.toLocaleString()} = $${platformFee.toFixed(2)}`} />
+                <Row label="Study launch fee" value="$299 — paid via Stripe" />
+                <Row label="Platform fee" value={`2.5% of $${totalPool.toLocaleString()} = $${platformFee.toFixed(2)} (charged on payouts)`} />
               </div>
 
               {error && (
@@ -412,7 +393,7 @@ export function PublishFlowModal({
                   ← Back
                 </button>
                 <button
-                  onClick={handleConfirmPublish}
+                  onClick={handlePayLaunchFee}
                   disabled={publishing}
                   style={{
                     flex: 2, padding: '12px',
@@ -422,7 +403,7 @@ export function PublishFlowModal({
                     opacity: publishing ? 0.7 : 1,
                   }}
                 >
-                  {publishing ? 'Publishing...' : 'Publish study →'}
+                  {publishing ? 'Redirecting to Stripe...' : 'Pay $299 launch fee →'}
                 </button>
               </div>
             </div>

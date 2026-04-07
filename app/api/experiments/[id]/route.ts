@@ -21,7 +21,9 @@ export async function GET(_req: NextRequest, { params }: Props) {
 }
 
 // PATCH /api/experiments/[id]
-// action: 'publish'   — move draft → recruiting (accepts recruitment_window_days, publish_fee_status)
+// action: 'publish'   — move draft → recruiting. Requires launch_fee_paid = true (set by Stripe webhook).
+//                       Publishing normally happens automatically via the Stripe webhook after payment.
+//                       This endpoint is a fallback for cases where the webhook fires before this call.
 // action: 'commence'  — move recruiting/active → active, generate milestones, notify enrolled participants
 export async function PATCH(req: NextRequest, { params }: Props) {
   const { id } = await params;
@@ -29,7 +31,6 @@ export async function PATCH(req: NextRequest, { params }: Props) {
     privyDid?: string;
     action?: string;
     recruitment_window_days?: number;
-    publish_fee_status?: string;
   };
   const { privyDid, action } = body;
 
@@ -50,20 +51,28 @@ export async function PATCH(req: NextRequest, { params }: Props) {
 
   // ── Publish ────────────────────────────────────────────────────────────────
   if (action === 'publish') {
-    if (exp.status !== 'draft') {
+    if (!['draft', 'ready_to_publish'].includes(exp.status)) {
       return NextResponse.json({ error: 'Only draft experiments can be published' }, { status: 400 });
     }
 
-    const recruitmentDays = typeof body.recruitment_window_days === 'number'
-      ? Math.max(7, Math.min(365, body.recruitment_window_days))
-      : 30;
+    // Verify launch fee was paid (normally set by the Stripe webhook automatically)
+    const { data: fullExp } = await supabase
+      .from('experiments')
+      .select('launch_fee_paid, recruitment_window_days')
+      .eq('id', id)
+      .single();
 
-    const validFeeStatuses = ['not_required', 'free_tier', 'pending', 'paid'];
-    const feeStatus = body.publish_fee_status && validFeeStatuses.includes(body.publish_fee_status)
-      ? body.publish_fee_status
-      : 'not_required';
+    if (!fullExp?.launch_fee_paid) {
+      return NextResponse.json({ error: 'Study launch fee must be paid before publishing' }, { status: 402 });
+    }
 
-    const now = new Date();
+    // Use stored recruitment_window_days (set by webhook) or fallback
+    const recruitmentDays = fullExp.recruitment_window_days
+      ?? (typeof body.recruitment_window_days === 'number'
+        ? Math.max(7, Math.min(365, body.recruitment_window_days))
+        : 30);
+
+    const now      = new Date();
     const deadline = new Date(now.getTime() + recruitmentDays * 86_400_000);
 
     const { data: updated, error: updateErr } = await supabase
@@ -73,21 +82,13 @@ export async function PATCH(req: NextRequest, { params }: Props) {
         published_at:            now.toISOString(),
         application_deadline:    deadline.toISOString(),
         recruitment_window_days: recruitmentDays,
-        publish_fee_status:      feeStatus,
+        publish_fee_status:      'paid',
       })
       .eq('id', id)
       .select()
       .single();
 
     if (updateErr) return NextResponse.json({ error: updateErr.message }, { status: 500 });
-
-    // If free tier, mark free_study_used on experimenter profile
-    if (feeStatus === 'free_tier') {
-      await supabase
-        .from('experimenter_profiles')
-        .update({ free_study_used: true })
-        .eq('user_id', privyDid);
-    }
 
     return NextResponse.json({ experiment: updated });
   }

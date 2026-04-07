@@ -145,7 +145,6 @@ export interface ExperimenterProfile {
   screened_by: string | null;
   experiments_posted: number;
   verified_experiments: number;
-  free_study_used: boolean;
   created_at: string;
   updated_at: string;
 }

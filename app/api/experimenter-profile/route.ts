@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('experimenter_profiles')
-    .select('id, user_id, org_name, org_website, org_description, role_title, expertise_areas, screening_status, screened_at, screened_by, experiments_posted, verified_experiments, free_study_used, created_at, updated_at')
+    .select('id, user_id, org_name, org_website, org_description, role_title, expertise_areas, screening_status, screened_at, screened_by, experiments_posted, verified_experiments, created_at, updated_at')
     .eq('user_id', privyDid)
     .single();
 
