@@ -68,34 +68,15 @@ export async function POST(req: NextRequest) {
     }
 
     case 'transfer.created': {
-      const transfer = event.data.object as Stripe.Transfer;
-      const appId    = transfer.metadata?.application_id;
-      if (appId) {
-        await supabase
-          .from('applications')
-          .update({ payout_status: 'processing' })
-          .eq('id', appId);
-      }
-      break;
-    }
-
-    case 'payout.paid': {
-      // Stripe Connect payouts land in the connected account.
-      // We match via stripe_transfer_id stored on applications.
-      // Note: payout.paid fires on the connected account — requires Connect webhooks.
-      // For now we handle transfer.paid which fires on the platform.
-      break;
-    }
-
-    case 'transfer.paid': {
+      // Money moves to the connected account's Stripe balance immediately on creation.
+      // From the platform's perspective this is the completion event — mark as paid.
       const transfer = event.data.object as Stripe.Transfer;
       const appId    = transfer.metadata?.application_id;
       const userId   = transfer.metadata?.participant_id;
-      const netCents = transfer.amount; // already net
+      const net      = transfer.amount / 100;
 
       if (appId) {
         const now = new Date().toISOString();
-        const net = netCents / 100;
 
         await supabase
           .from('applications')
@@ -115,7 +96,8 @@ export async function POST(req: NextRequest) {
       break;
     }
 
-    case 'transfer.failed': {
+    case 'transfer.reversed': {
+      // Transfer was reversed — mark payout as failed so admin can retry.
       const transfer = event.data.object as Stripe.Transfer;
       const appId    = transfer.metadata?.application_id;
       if (appId) {
