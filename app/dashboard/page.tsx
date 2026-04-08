@@ -67,7 +67,7 @@ type DashboardData = {
   applications: AppRow[];
   activeStudies: ActiveStudy[];
   payoutMethodConfigured: boolean;
-  payoutMethodType: string | null;
+  stripeOnboardingComplete: boolean;
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -419,7 +419,7 @@ export default function DashboardPage() {
     return null;
   }
 
-  const { profile, applications, activeStudies, payoutMethodConfigured, payoutMethodType } = data;
+  const { profile, applications, activeStudies, payoutMethodConfigured } = data;
 
   // ── Derived stats ─────────────────────────────────────────────────────────
 
@@ -560,7 +560,6 @@ export default function DashboardPage() {
                     grossAmount={app.experiments?.bounty_per_participant ?? 0}
                     payoutStatus={app.payout_status}
                     payoutMethodConfigured={payoutMethodConfigured}
-                    payoutMethodType={payoutMethodType}
                     payoutNetAmount={app.payout_net_amount}
                     payoutInitiatedAt={app.payout_initiated_at}
                     payoutCompletedAt={app.payout_completed_at}
