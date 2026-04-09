@@ -82,7 +82,6 @@ export async function PATCH(req: NextRequest, { params }: Props) {
         published_at:            now.toISOString(),
         application_deadline:    deadline.toISOString(),
         recruitment_window_days: recruitmentDays,
-        publish_fee_status:      'paid',
       })
       .eq('id', id)
       .select()

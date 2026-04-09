@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { ScreeningDashboard } from '@/components/screening/screening-dashboard';
@@ -83,9 +83,10 @@ function relDate(d: string) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ExperimentManagePage() {
-  const params  = useParams<{ id: string }>();
-  const id      = params.id;
-  const router  = useRouter();
+  const params       = useParams<{ id: string }>();
+  const id           = params.id;
+  const router       = useRouter();
+  const searchParams = useSearchParams();
   const { user, ready, authenticated } = usePrivy();
 
   const [exp,        setExp]        = useState<FullExperiment | null>(null);
@@ -131,6 +132,30 @@ export default function ExperimentManagePage() {
     if (!authenticated || !user) { router.replace('/'); return; }
     void load();
   }, [ready, authenticated, user, router, load]);
+
+  // Auto-publish after Stripe redirects back with ?launch_fee=success&session_id=xxx
+  useEffect(() => {
+    const launchFee = searchParams.get('launch_fee');
+    const sessionId = searchParams.get('session_id');
+    if (launchFee !== 'success' || !sessionId) return;
+
+    // Strip params from URL immediately so refresh doesn't re-trigger
+    const cleanUrl = `/dashboard/experiments/${id}`;
+    window.history.replaceState(null, '', cleanUrl);
+
+    fetch(`/api/payments/verify-launch-fee?session_id=${encodeURIComponent(sessionId)}&experiment_id=${encodeURIComponent(id)}`)
+      .then((r) => r.json() as Promise<{ published?: boolean; error?: string }>)
+      .then((data) => {
+        if (data.published) {
+          setSaveMsg('✓ Payment confirmed — study is now live and recruiting!');
+          void load();
+        } else {
+          setSaveMsg(`Error: ${data.error ?? 'Could not verify payment'}`);
+        }
+      })
+      .catch(() => setSaveMsg('Error: Could not verify payment with Stripe'));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, id]);
 
   function startEdit() {
     if (!exp) return;

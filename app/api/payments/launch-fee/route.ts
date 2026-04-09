@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
         quantity: 1,
       },
     ],
-    success_url: `${baseUrl}/dashboard/experiments/${experimentId}?launch_fee=success`,
+    success_url: `${baseUrl}/dashboard/experiments/${experimentId}?launch_fee=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url:  `${baseUrl}/dashboard/experiments/${experimentId}?launch_fee=cancelled`,
     metadata: {
       experiment_id:       experimentId,

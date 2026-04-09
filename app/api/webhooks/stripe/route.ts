@@ -43,7 +43,6 @@ export async function POST(req: NextRequest) {
             launch_fee_paid:          true,
             launch_fee_paid_at:       now.toISOString(),
             launch_fee_status:        'paid',
-            publish_fee_status:       'paid',
             stripe_payment_intent_id: session.payment_intent as string,
             // Publish the study
             status:                   'recruiting',
