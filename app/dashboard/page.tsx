@@ -8,6 +8,7 @@ import { Identicon } from '@/components/identicon';
 import { reputationBadge, countryFlag, categoryColor } from '@/lib/utils/profile';
 import type { ParticipantProfile } from '@/lib/types';
 import { PayoutCard } from '@/components/dashboard/payout-card';
+import { ProfileSwitcher } from '@/components/dashboard/profile-switcher';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -126,6 +127,23 @@ function complianceColor(score: number, threshold: number): string {
 
 // ─── Active Study Card ────────────────────────────────────────────────────────
 
+function milestoneDeadline(commencedAt: string | null, weekNumber: number): Date | null {
+  if (!commencedAt) return null;
+  const base = new Date(commencedAt);
+  // Deadline = end of the milestone's week + 2-day grace period
+  base.setDate(base.getDate() + weekNumber * 7 + 2);
+  return base;
+}
+
+function deadlineLabel(deadline: Date | null): string {
+  if (!deadline) return '';
+  const daysLeft = Math.ceil((deadline.getTime() - Date.now()) / 86_400_000);
+  if (daysLeft < 0)  return 'overdue';
+  if (daysLeft === 0) return 'due today';
+  if (daysLeft === 1) return 'due tomorrow';
+  return `due in ${daysLeft}d`;
+}
+
 function ActiveStudyCard({
   study,
   privyDid,
@@ -135,7 +153,8 @@ function ActiveStudyCard({
   privyDid: string;
   onRefresh: () => void;
 }) {
-  const [submitting, setSubmitting] = useState<string | null>(null);
+  const [submitting,    setSubmitting]    = useState<string | null>(null);
+  const [confirmingId,  setConfirmingId]  = useState<string | null>(null);
   const { experiment: exp, milestones, complianceScore, payoutEligible, currentWeek } = study;
 
   // Group milestones by week
@@ -153,6 +172,7 @@ function ActiveStudyCard({
 
   async function submit(milestoneId: string) {
     setSubmitting(milestoneId);
+    setConfirmingId(null);
     try {
       const res = await fetch(`/api/milestones/${milestoneId}/submit`, {
         method:  'POST',
@@ -285,68 +305,119 @@ function ActiveStudyCard({
 
                   <div className="flex flex-col gap-1.5">
                     {wMilestones.map((m) => {
-                      const isPending   = m.status === 'pending';
-                      const isCompleted = ['submitted', 'completed', 'verified'].includes(m.status);
-                      const isMissed    = ['missed', 'rejected'].includes(m.status);
+                      const isPending    = m.status === 'pending';
+                      const isCompleted  = ['submitted', 'completed', 'verified'].includes(m.status);
+                      const isMissed     = ['missed', 'rejected'].includes(m.status);
                       const isSelfReport = m.milestone_type === 'self_report';
+                      const isLocked     = weekNum > currentWeek;
+                      const deadline     = milestoneDeadline(exp.commenced_at, weekNum);
+                      const dlLabel      = deadlineLabel(deadline);
+                      const dlOverdue    = deadline ? deadline.getTime() < Date.now() : false;
+                      const isConfirming = confirmingId === m.id;
 
                       return (
-                        <div key={m.id} className="flex items-center justify-between gap-3 px-3 py-2 rounded" style={{ background: 'var(--bg2)' }}>
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span style={{
-                              color:    isCompleted ? 'var(--green)' : isMissed ? 'var(--amber)' : 'var(--text-dim)',
-                              fontSize: 12,
+                        <div key={m.id}>
+                          <div className="flex items-start justify-between gap-3 px-3 py-2.5 rounded"
+                            style={{
+                              background: isConfirming ? 'rgba(77,255,128,0.04)' : 'var(--bg2)',
+                              border: isConfirming ? '1px solid rgba(77,255,128,0.2)' : '1px solid transparent',
                             }}>
-                              {isCompleted ? '✓' : isMissed ? '✗' : '○'}
-                            </span>
-                            <div className="min-w-0">
-                              <p
-                                className="text-xs truncate"
-                                style={{ color: isCompleted ? 'var(--text-dim)' : 'var(--text-bright)' }}
-                              >
-                                {m.title}
-                              </p>
-                              <p className="mono text-xs" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
-                                {isSelfReport ? 'you report' : 'experimenter confirms'}
-                              </p>
+                            <div className="flex items-start gap-2 min-w-0">
+                              <span style={{
+                                color:     isCompleted ? 'var(--green)' : isMissed ? '#ff8f8f' : isLocked ? 'rgba(77,255,128,0.2)' : 'var(--text-dim)',
+                                fontSize:  12,
+                                marginTop: 1,
+                                flexShrink: 0,
+                              }}>
+                                {isCompleted ? '✓' : isMissed ? '✗' : isLocked ? '◻' : '○'}
+                              </span>
+                              <div className="min-w-0">
+                                <p className="text-xs" style={{ color: isCompleted ? 'var(--text-dim)' : isLocked ? 'var(--text-dim)' : 'var(--text-bright)' }}>
+                                  {m.title}
+                                </p>
+                                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                  <p className="mono" style={{ color: 'var(--text-dim)', fontSize: 9 }}>
+                                    {isSelfReport ? 'self-report' : 'experimenter verifies'}
+                                  </p>
+                                  {!isCompleted && !isMissed && deadline && (
+                                    <p className="mono" style={{ color: dlOverdue ? '#ff8f8f' : isLocked ? 'var(--text-dim)' : 'var(--amber)', fontSize: 9 }}>
+                                      {isLocked ? `unlocks week ${weekNum}` : dlLabel}
+                                    </p>
+                                  )}
+                                  {m.status === 'submitted' && (
+                                    <p className="mono" style={{ color: 'var(--text-dim)', fontSize: 9 }}>awaiting verification</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="shrink-0 flex flex-col items-end gap-1">
+                              {isCompleted && m.status !== 'submitted' && (
+                                <span className="mono text-xs" style={{ color: 'var(--green)' }}>done ✓</span>
+                              )}
+                              {m.status === 'submitted' && (
+                                <span className="mono text-xs" style={{ color: 'var(--cyan)' }}>submitted</span>
+                              )}
+                              {isMissed && m.status === 'rejected' && (
+                                <div className="flex items-center gap-2">
+                                  <span className="mono text-xs" style={{ color: '#ff8f8f' }}>rejected</span>
+                                  <Link
+                                    href={`/disputes/raise?milestone_id=${m.id}&application_id=${study.applicationId}&experiment_id=${study.experiment.id}`}
+                                    className="mono text-xs no-underline transition-opacity hover:opacity-80"
+                                    style={{ color: 'var(--cyan)', fontSize: 10 }}
+                                  >
+                                    DISPUTE →
+                                  </Link>
+                                </div>
+                              )}
+                              {isMissed && m.status === 'missed' && (
+                                <span className="mono text-xs" style={{ color: '#ff8f8f' }}>missed</span>
+                              )}
+                              {isPending && !isSelfReport && !isLocked && (
+                                <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>waiting</span>
+                              )}
+                              {isPending && isSelfReport && !isLocked && !isConfirming && (
+                                <button
+                                  onClick={() => setConfirmingId(m.id)}
+                                  className="mono text-xs transition-opacity hover:opacity-80"
+                                  style={{ color: 'var(--green)', cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                                >
+                                  Submit →
+                                </button>
+                              )}
+                              {isLocked && (
+                                <span className="mono" style={{ color: 'var(--text-dim)', fontSize: 9 }}>locked</span>
+                              )}
                             </div>
                           </div>
 
-                          <div className="shrink-0">
-                            {isCompleted && (
-                              <span className="mono text-xs" style={{ color: 'var(--green)' }}>
-                                {m.status === 'submitted' ? 'submitted' : 'done'}
-                              </span>
-                            )}
-                            {isMissed && m.status === 'rejected' && (
-                              <div className="flex items-center gap-2">
-                                <span className="mono text-xs" style={{ color: 'var(--amber)' }}>rejected</span>
-                                <Link
-                                  href={`/disputes/raise?milestone_id=${m.id}&application_id=${study.applicationId}&experiment_id=${study.experiment.id}`}
-                                  className="mono text-xs no-underline transition-opacity hover:opacity-80"
-                                  style={{ color: 'var(--cyan)', fontSize: 10 }}
+                          {/* Confirm submit panel */}
+                          {isConfirming && (
+                            <div className="mx-3 mb-2 rounded px-3 py-3"
+                              style={{ background: 'rgba(77,255,128,0.03)', border: '1px solid rgba(77,255,128,0.15)', borderTop: 'none' }}>
+                              <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)', lineHeight: 1.5 }}>
+                                By submitting, you confirm you completed <strong style={{ color: 'var(--text-bright)' }}>{m.title}</strong> this week.
+                                Your submission will be reviewed and verified by the experimenter before being counted toward your compliance score.
+                              </p>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => void submit(m.id)}
+                                  disabled={submitting === m.id}
+                                  className="mono text-xs px-3 py-1.5 rounded font-bold transition-all hover:opacity-90 disabled:opacity-40"
+                                  style={{ background: 'var(--green)', color: '#050709' }}
                                 >
-                                  DISPUTE →
-                                </Link>
+                                  {submitting === m.id ? 'Submitting...' : 'Confirm & submit'}
+                                </button>
+                                <button
+                                  onClick={() => setConfirmingId(null)}
+                                  className="mono text-xs px-3 py-1.5 rounded transition-all hover:opacity-70"
+                                  style={{ color: 'var(--text-dim)', background: 'none', border: '1px solid rgba(255,255,255,0.08)' }}
+                                >
+                                  Cancel
+                                </button>
                               </div>
-                            )}
-                            {isMissed && m.status === 'missed' && (
-                              <span className="mono text-xs" style={{ color: 'var(--amber)' }}>missed</span>
-                            )}
-                            {isPending && isSelfReport && (
-                              <button
-                                onClick={() => void submit(m.id)}
-                                disabled={submitting === m.id}
-                                className="mono text-xs transition-opacity hover:opacity-80 disabled:opacity-40"
-                                style={{ color: 'var(--green)', cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
-                              >
-                                {submitting === m.id ? '...' : 'Submit →'}
-                              </button>
-                            )}
-                            {isPending && !isSelfReport && (
-                              <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>awaiting</span>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -433,10 +504,12 @@ export default function DashboardPage() {
       <div className="max-w-3xl mx-auto">
 
         {/* Nav */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <Link href="/" className="mono text-xs no-underline" style={{ color: 'var(--text-dim)' }}>← BIOME</Link>
           <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// PARTICIPANT_DASHBOARD</span>
         </div>
+
+        <ProfileSwitcher privyDid={user!.id} currentView="participant" />
 
         {/* ── Identity strip ───────────────────────────────────────── */}
         <div className="flex items-center gap-4 mb-6 p-4 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>

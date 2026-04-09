@@ -1,0 +1,15 @@
+# Netlify configuration for Next.js (Essential Next.js plugin)
+# API routes must NOT be redirected by Netlify edge rules.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Ensure Stripe webhook endpoint is never redirected
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"

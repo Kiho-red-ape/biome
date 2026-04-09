@@ -19,6 +19,12 @@ type Prefs = {
   recent_interventions:      string | null;
   urbanicity:                string | null;
   state_region:              string | null;
+  // Email notifications
+  email_notifications:       boolean;
+  notify_study_updates:      boolean;
+  notify_milestone_alerts:   boolean;
+  notify_payout_events:      boolean;
+  notify_new_studies:        boolean;
 };
 
 const WEARABLES    = ['Apple Watch', 'Fitbit', 'Garmin', 'Oura Ring', 'Whoop', 'Other'];
@@ -340,6 +346,43 @@ export default function PreferencesPage() {
                   style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
                 />
               </div>
+            </div>
+          </section>
+
+          {/* ── Email notifications ────────────────────────────── */}
+          <section className="rounded p-5" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
+            <p className="mono text-xs mb-4" style={{ color: 'var(--text-dim)' }}>// EMAIL_NOTIFICATIONS</p>
+            <div className="flex flex-col gap-4">
+              <Toggle
+                label="Email notifications"
+                checked={form.email_notifications ?? true}
+                onChange={(v) => set('email_notifications', v)}
+              />
+              {(form.email_notifications ?? true) && (
+                <div className="flex flex-col gap-3 pl-4"
+                  style={{ borderLeft: '2px solid rgba(77,255,128,0.12)' }}>
+                  <Toggle
+                    label="Study updates (status changes, experimenter messages)"
+                    checked={form.notify_study_updates ?? true}
+                    onChange={(v) => set('notify_study_updates', v)}
+                  />
+                  <Toggle
+                    label="Milestone alerts (upcoming deadlines, missed milestones)"
+                    checked={form.notify_milestone_alerts ?? true}
+                    onChange={(v) => set('notify_milestone_alerts', v)}
+                  />
+                  <Toggle
+                    label="Payout events (payment initiated, paid, failed)"
+                    checked={form.notify_payout_events ?? true}
+                    onChange={(v) => set('notify_payout_events', v)}
+                  />
+                  <Toggle
+                    label="New study alerts (studies matching your profile)"
+                    checked={form.notify_new_studies ?? false}
+                    onChange={(v) => set('notify_new_studies', v)}
+                  />
+                </div>
+              )}
             </div>
           </section>
 

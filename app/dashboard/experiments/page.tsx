@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { categoryColor } from '@/lib/utils/profile';
+import { ProfileSwitcher } from '@/components/dashboard/profile-switcher';
 
 type ExpRow = {
   id: string;
@@ -96,6 +97,8 @@ export default function MyExperimentsPage() {
           </Link>
           <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// MY_STUDIES</span>
         </div>
+
+        <ProfileSwitcher privyDid={user!.id} currentView="experimenter" />
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">

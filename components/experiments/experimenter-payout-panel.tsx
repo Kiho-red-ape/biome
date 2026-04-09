@@ -10,7 +10,7 @@ interface Props {
   bountyPerParticipant: number;
   applicants: ApplicantRow[];
   experimentStatus: string;
-  escrowStatus: string | null;
+  bountyPoolDeposited: boolean;
   onRefresh: () => void;
 }
 
@@ -25,7 +25,7 @@ export function ExperimenterPayoutPanel({
   bountyPerParticipant,
   applicants,
   experimentStatus,
-  escrowStatus,
+  bountyPoolDeposited,
   onRefresh,
 }: Props) {
   const [processing, setProcessing] = useState(false);
@@ -60,7 +60,7 @@ export function ExperimenterPayoutPanel({
 
   const canProcessPayouts =
     experimentStatus === 'completed' &&
-    escrowStatus === 'deposited' &&
+    bountyPoolDeposited === true &&
     pend > 0;
 
   async function handleProcessPayouts() {
@@ -182,7 +182,7 @@ export function ExperimenterPayoutPanel({
         </div>
 
         {/* Escrow warning */}
-        {experimentStatus === 'completed' && escrowStatus !== 'deposited' && pend > 0 && (
+        {experimentStatus === 'completed' && !bountyPoolDeposited && pend > 0 && (
           <div className="rounded px-3 py-2 mb-4 flex items-center gap-2"
             style={{ background: 'rgba(255,179,0,0.06)', border: '1px solid rgba(255,179,0,0.2)' }}>
             <span style={{ color: 'var(--amber)', fontSize: 12 }}>⚠</span>

@@ -15,6 +15,12 @@ const prefsSchema = z.object({
   recent_interventions:     z.string().nullable().optional(),
   urbanicity:               z.enum(['urban', 'suburban', 'rural']).nullable().optional(),
   state_region:             z.string().nullable().optional(),
+  // Email notification preferences
+  email_notifications:      z.boolean().optional(),
+  notify_study_updates:     z.boolean().optional(),
+  notify_milestone_alerts:  z.boolean().optional(),
+  notify_payout_events:     z.boolean().optional(),
+  notify_new_studies:       z.boolean().optional(),
 });
 
 // PATCH /api/participant-profile/preferences
@@ -47,7 +53,8 @@ export async function PATCH(req: NextRequest) {
     .select(
       'smartphone_os, wearable_devices, internet_reliability, can_receive_kits, ' +
       'sample_comfort, language_fluency, weekly_availability_hours, washout_sensitive, ' +
-      'recent_interventions, urbanicity, state_region'
+      'recent_interventions, urbanicity, state_region, ' +
+      'email_notifications, notify_study_updates, notify_milestone_alerts, notify_payout_events, notify_new_studies'
     )
     .single();
 

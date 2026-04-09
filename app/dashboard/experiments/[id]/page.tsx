@@ -38,7 +38,7 @@ type FullExperiment = {
   commenced_at: string | null;
   enrollment_url: string | null;
   compliance_threshold: number | null;
-  escrow_status: string | null;
+  bounty_pool_deposited: boolean;
   experiment_code: string | null;
 };
 
@@ -629,7 +629,7 @@ export default function ExperimentManagePage() {
                 experimentCode={exp.experiment_code}
                 approvedCount={approved}
                 bountyPerParticipant={exp.bounty_per_participant}
-                escrowStatus={exp.escrow_status ?? 'not_required'}
+                bountyPoolDeposited={exp.bounty_pool_deposited}
               />
             </div>
           );
@@ -645,7 +645,7 @@ export default function ExperimentManagePage() {
               bountyPerParticipant={exp.bounty_per_participant}
               applicants={applicants}
               experimentStatus={exp.status}
-              escrowStatus={exp.escrow_status}
+              bountyPoolDeposited={exp.bounty_pool_deposited}
               onRefresh={load}
             />
           </div>

@@ -9,7 +9,8 @@ const PROFILE_COLS =
   'sample_comfort, language_fluency, weekly_availability_hours, ' +
   'recent_interventions, washout_sensitive, dropout_count, no_show_count, ' +
   'nationality, state_region, urbanicity, ethnicity, gender_identity, ' +
-  'sex_assigned_at_birth, payout_method_configured, stripe_onboarding_complete';
+  'sex_assigned_at_birth, payout_method_configured, stripe_onboarding_complete, ' +
+  'email_notifications, notify_study_updates, notify_milestone_alerts, notify_payout_events, notify_new_studies';
 
 // GET /api/dashboard?privyDid=did:privy:xxx
 export async function GET(request: NextRequest) {
