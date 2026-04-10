@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ExperimentIdenticon } from '@/components/ui/experiment-identicon';
 import type { Experiment, ExperimentStatus } from '@/lib/types';
@@ -417,6 +417,10 @@ function BrowseAllCard({ total }: { total: number }) {
   );
 }
 
+// ─── Category chips ────────────────────────────────────────────────────────────
+
+const CATEGORIES = ['All', 'Microbiome', 'Nutrition', 'Sleep', 'Wearables', 'Longevity', 'Quantified Self'] as const;
+
 // ─── Main grid ─────────────────────────────────────────────────────────────────
 
 interface Props {
@@ -425,61 +429,185 @@ interface Props {
 }
 
 export function ExperimentGrid({ experiments, orgMap }: Props) {
-  const sorted      = sortExps(experiments);
-  const recruiting  = sorted.filter((e) => e.status === 'recruiting');
-  const active      = sorted.filter((e) => e.status === 'active');
-  const completed   = sorted.filter((e) => e.status === 'completed');
+  const [query,       setQuery]       = useState('');
+  const [activeChip,  setActiveChip]  = useState<string>('All');
+  const [debouncedQ,  setDebouncedQ]  = useState('');
 
-  const rowRecruiting = fillToThree(recruiting, sorted);
-  const rowActive     = fillToThree(active,     sorted);
-  const rowCompleted  = fillToThree(completed,  sorted);
+  // Debounce 300ms
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQ(query), 300);
+    return () => clearTimeout(t);
+  }, [query]);
 
   const getOrgName = (exp: Experiment) => orgMap[exp.experimenter_id]?.org_name ?? 'BIOME';
-  const getExpNum  = (exp: Experiment) => sorted.indexOf(exp) + 1;
+
+  const sorted = sortExps(experiments);
+
+  // Filter: category chip + search query (only recruiting + active)
+  const visible = sorted.filter((e) => {
+    if (e.status === 'completed' || e.status === 'cancelled' || e.status === 'draft') return false;
+    if (activeChip !== 'All') {
+      const key = rampKey(activeChip);
+      if (rampKey(e.category) !== key) return false;
+    }
+    if (debouncedQ.trim()) {
+      const q  = debouncedQ.toLowerCase();
+      const org = getOrgName(e).toLowerCase();
+      if (
+        !e.title.toLowerCase().includes(q) &&
+        !(e.description ?? '').toLowerCase().includes(q) &&
+        !(e.category ?? '').toLowerCase().includes(q) &&
+        !org.includes(q)
+      ) return false;
+    }
+    return true;
+  });
+
+  const recruiting = visible.filter((e) => e.status === 'recruiting');
+  const active     = visible.filter((e) => e.status === 'active');
+
+  // Recruiting: up to 6 shown (2 rows of 3), with "browse all" link if more
+  const recruitingShown = recruiting.slice(0, 6);
+  const recruitingExtra = recruiting.length > 6;
 
   return (
     <div className="px-4 sm:px-10" style={{ paddingTop: 32, paddingBottom: 48 }}>
 
-      {rowRecruiting.length > 0 && (
+      {/* ── Search bar ── */}
+      <div style={{ position: 'relative', marginBottom: 16 }}>
+        <svg
+          width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aab8b1" strokeWidth="2"
+          style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+        >
+          <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+        </svg>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search studies by keyword, condition, or category..."
+          style={{
+            width:          '100%',
+            height:         48,
+            background:     '#0d1117',
+            border:         `1px solid ${query ? '#b7ff61' : 'rgba(255,255,255,0.15)'}`,
+            borderRadius:   8,
+            paddingLeft:    40,
+            paddingRight:   query ? 40 : 16,
+            fontFamily:     'var(--font-mono)',
+            fontSize:       13,
+            color:          '#eef4f0',
+            outline:        'none',
+            transition:     'border-color 200ms',
+            boxSizing:      'border-box',
+          }}
+          onFocus={(e)  => { e.currentTarget.style.borderColor = '#b7ff61'; }}
+          onBlur={(e)   => { e.currentTarget.style.borderColor = query ? '#b7ff61' : 'rgba(255,255,255,0.15)'; }}
+        />
+        {query && (
+          <button
+            onClick={() => { setQuery(''); setDebouncedQ(''); }}
+            style={{
+              position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: '#aab8b1', fontSize: 18, lineHeight: 1, padding: 2,
+            }}
+            aria-label="Clear search"
+          >×</button>
+        )}
+      </div>
+
+      {/* ── Category chips ── */}
+      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, marginBottom: 24, scrollbarWidth: 'none' }}>
+        {CATEGORIES.map((cat) => {
+          const isActive = activeChip === cat;
+          return (
+            <button
+              key={cat}
+              onClick={() => setActiveChip(cat)}
+              style={{
+                flexShrink:   0,
+                fontFamily:   'var(--font-mono)',
+                fontSize:     10,
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                padding:      '5px 12px',
+                borderRadius: 20,
+                border:       isActive ? '1px solid #b7ff6150' : '1px solid rgba(255,255,255,0.12)',
+                background:   isActive ? 'rgba(183,255,97,0.12)' : 'transparent',
+                color:        isActive ? '#b7ff61' : '#aab8b1',
+                cursor:       'pointer',
+                transition:   'all 150ms',
+              }}
+            >
+              {cat}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── No results ── */}
+      {visible.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '48px 0' }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#aab8b1' }}>
+            No studies match your search. Try different keywords.
+          </p>
+        </div>
+      )}
+
+      {/* ── Recruiting rows ── */}
+      {recruitingShown.length > 0 && (
         <>
-          <div style={{ marginTop: 8 }} />
           <SectionHeader label="RECRUITING STUDIES" color="#b7ff61" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {rowRecruiting.map((exp) => (
-              <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />
+            {recruitingShown.map((exp, i) => (
+              <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={sorted.indexOf(exp) + 1} />
             ))}
           </div>
+          {recruitingExtra && (
+            <div style={{ marginTop: 16, textAlign: 'center' }}>
+              <Link href="/experiments"
+                style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#b7ff61', textDecoration: 'none',
+                  textTransform: 'uppercase', letterSpacing: '2px' }}>
+                Browse all {recruiting.length} recruiting studies →
+              </Link>
+            </div>
+          )}
         </>
       )}
 
-      {rowActive.length > 0 && (
+      {/* ── Active row ── */}
+      {active.length > 0 && (
         <>
           <SectionHeader label="ACTIVE STUDIES" color="#8ee7ff" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {rowActive.map((exp) => (
-              <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />
+            {active.slice(0, 3).map((exp) => (
+              <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={sorted.indexOf(exp) + 1} />
             ))}
           </div>
         </>
       )}
 
-      {rowCompleted.length > 0 && (
-        <>
-          <SectionHeader label="COMPLETED STUDIES" color="#7f8e87" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {rowCompleted.map((exp) => (
-              <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* Browse all — centered 1/3 width on desktop, full width on mobile */}
-      <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center' }}>
-        <div className="w-full sm:w-1/2 lg:w-1/3">
-          <BrowseAllCard total={experiments.length} />
+      {/* ── No recruiting placeholder ── */}
+      {recruiting.length === 0 && active.length === 0 && visible.length === 0 && !debouncedQ && activeChip === 'All' && (
+        <div style={{ padding: '48px 0', textAlign: 'center' }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#aab8b1', marginBottom: 8 }}>
+            No studies currently recruiting.
+          </p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a7055' }}>
+            Check back soon or create your profile to get notified.
+          </p>
         </div>
-      </div>
+      )}
+
+      {/* ── Browse all ── */}
+      {visible.length > 0 && (
+        <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center' }}>
+          <div className="w-full sm:w-1/2 lg:w-1/3">
+            <BrowseAllCard total={experiments.filter((e) => e.status !== 'draft').length} />
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -59,7 +59,7 @@ export function HeroCompact({ stats, experimentCount }: Props) {
         marginBottom: 14,
         maxWidth: 800,
       }}>
-        Browse paid research studies and clinical trials — or recruit screened participants for your next study.
+        The independent evidence layer for modern health studies.
       </p>
 
       {/* CTA buttons — stack on mobile, side-by-side on sm+ */}
