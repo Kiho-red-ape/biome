@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "sync-ctgov": "npx tsx scripts/sync-ctgov.ts"
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.17.0",
