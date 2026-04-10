@@ -174,17 +174,7 @@ export function SiteHeader() {
             textTransform: 'uppercase',
             lineHeight:    1,
           }} className="text-xl sm:text-2xl">
-            BIOME
-          </span>
-          <span className="hidden sm:inline" style={{
-            fontFamily:    'var(--font-mono)',
-            fontSize:      10,
-            letterSpacing: '1px',
-            color:         '#7f8e87',
-            border:        '1px solid rgba(255,255,255,0.09)',
-            padding:       '2px 6px',
-          }}>
-            v0.1
+            <span style={{ color: '#b7ff61' }}>BIO</span><span style={{ color: '#22d3ee' }}>ME</span>
           </span>
         </Link>
 
@@ -404,10 +394,9 @@ export function SiteHeader() {
               fontWeight:    700,
               fontSize:      20,
               letterSpacing: '5px',
-              color:         '#b7ff61',
               textTransform: 'uppercase',
             }}>
-              BIOME
+              <span style={{ color: '#b7ff61' }}>BIO</span><span style={{ color: '#22d3ee' }}>ME</span>
             </span>
             <button
               onClick={() => setMenuOpen(false)}

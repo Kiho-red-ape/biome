@@ -5,6 +5,45 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Experiment, ExperimentStatus } from '@/lib/types';
 import type { OrgMap } from '@/app/page';
+import { getBountyTier, getTierLabel, getTierColor, getTierRange } from '@/lib/bounty-tiers';
+
+// ─── Tier badge (inline, for table rows) ──────────────────────────────────────
+
+function TierBadge({ amount, status }: { amount: number; status: string }) {
+  const [hovered, setHovered] = useState(false);
+  if (status === 'active') {
+    return <span className="mono text-sm tabular-nums font-medium" style={{ color: 'var(--green)' }}>${amount}</span>;
+  }
+  const tier  = getBountyTier(amount);
+  const color = getTierColor(tier);
+  const label = getTierLabel(tier);
+  const range = getTierRange(tier);
+  return (
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <span
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          display: 'inline-block', fontFamily: 'var(--font-mono)', fontSize: 10,
+          textTransform: 'uppercase', letterSpacing: '1px', color,
+          background: `${color}26`, border: `1px solid ${color}50`,
+          borderRadius: 3, padding: '3px 7px', cursor: 'default',
+          userSelect: 'none', whiteSpace: 'nowrap',
+        }}
+      >
+        {label}
+      </span>
+      {hovered && (
+        <div style={{ position: 'absolute', bottom: '100%', right: 0, marginBottom: 8, zIndex: 50, pointerEvents: 'none' }}>
+          <div style={{ background: '#0d1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '8px 12px', whiteSpace: 'nowrap' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#fff', margin: 0, marginBottom: 3 }}>{range}</p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#aab8b1', margin: 0 }}>Exact amount shown after application</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -338,8 +377,8 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
                     </td>
 
                     {/* Reward */}
-                    <td className="px-3 py-4 text-right mono text-sm tabular-nums font-medium" style={{ color: 'var(--green)' }}>
-                      {fmtFull(exp.bounty_per_participant)}
+                    <td className="px-3 py-4 text-right">
+                      <TierBadge amount={exp.bounty_per_participant} status={exp.status} />
                     </td>
 
                     {/* Pool */}
@@ -397,10 +436,16 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
                             </div>
                             <div>
                               <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>REWARD</p>
-                              <p className="mono text-lg font-black tabular-nums" style={{ color: 'var(--green)' }}>
-                                ${exp.bounty_per_participant}
-                              </p>
-                              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>per person</p>
+                              {exp.status === 'active' ? (
+                                <>
+                                  <p className="mono text-lg font-black tabular-nums" style={{ color: 'var(--green)' }}>
+                                    ${exp.bounty_per_participant}
+                                  </p>
+                                  <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>per person</p>
+                                </>
+                              ) : (
+                                <TierBadge amount={exp.bounty_per_participant} status={exp.status} />
+                              )}
                             </div>
                             {exp.duration_weeks && (
                               <div>

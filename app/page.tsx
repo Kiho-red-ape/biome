@@ -67,14 +67,9 @@ export default async function HomePage() {
       >
         <span style={{
           fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 16,
-          letterSpacing: '4px', color: '#b7ff61', textTransform: 'uppercase',
+          letterSpacing: '4px', textTransform: 'uppercase',
         }}>
-          BIOME
-          <span style={{
-            fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '1px',
-            color: '#4a7055', border: '1px solid rgba(255,255,255,0.07)',
-            padding: '1px 5px', marginLeft: 8, verticalAlign: 'middle',
-          }}>v0.1</span>
+          <span style={{ color: '#b7ff61' }}>BIO</span><span style={{ color: '#22d3ee' }}>ME</span>
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
           <a href="/legal/tos"                              style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Terms</a>

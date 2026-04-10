@@ -10,12 +10,11 @@ export function BiomeLogo({ width = 120, className }: { width?: number; classNam
         fontWeight: 700,
         fontSize: '24px',
         letterSpacing: '5px',
-        color: '#b7ff61',
         textTransform: 'uppercase',
         lineHeight: 1,
       }}
     >
-      BIOME
+      <span style={{ color: '#b7ff61' }}>BIO</span><span style={{ color: '#22d3ee' }}>ME</span>
     </span>
   );
 }
