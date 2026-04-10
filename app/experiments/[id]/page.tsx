@@ -7,6 +7,7 @@ import type { Question, QAComment } from '@/components/qa/qa-section';
 import { DraftBanner } from '@/components/experiments/draft-banner';
 import { ExperimentIdenticon } from '@/components/ui/experiment-identicon';
 import { ExperimentCTA } from './experiment-cta';
+import { getBountyTier, getTierLabel, getTierColor, getTierRange } from '@/lib/bounty-tiers';
 
 // ─── Collection summary helpers ───────────────────────────────────────────────
 
@@ -202,6 +203,7 @@ export default async function ExperimentPage({ params }: Props) {
     compliance_threshold: number | null;
     iec_approval:         string | null;
     enrollment_url:       string | null;
+    protocol_text:        string | null;
   };
 
   const milestones = (milestonesResult.data ?? []) as StudyMilestone[];
@@ -408,10 +410,32 @@ export default async function ExperimentPage({ params }: Props) {
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
               REWARD
             </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 28, fontWeight: 700, color: '#b7ff61', margin: 0, lineHeight: 1 }}>
-              ${exp.bounty_per_participant.toFixed(0)}
-            </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055', marginTop: 4 }}>per participant</p>
+            {exp.status === 'active' || exp.status === 'completed' ? (
+              <>
+                <p style={{ fontFamily: 'var(--font-heading)', fontSize: 28, fontWeight: 700, color: '#b7ff61', margin: 0, lineHeight: 1 }}>
+                  ${exp.bounty_per_participant.toFixed(0)}
+                </p>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055', marginTop: 4 }}>per participant</p>
+              </>
+            ) : (() => {
+              const tier  = getBountyTier(exp.bounty_per_participant);
+              const color = getTierColor(tier);
+              const label = getTierLabel(tier);
+              const range = getTierRange(tier);
+              return (
+                <>
+                  <span style={{
+                    display: 'inline-block', fontFamily: 'var(--font-mono)', fontSize: 11,
+                    textTransform: 'uppercase', letterSpacing: '1px', color,
+                    background: `${color}26`, border: `1px solid ${color}50`,
+                    borderRadius: 3, padding: '4px 10px',
+                  }}>
+                    {label}
+                  </span>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055', marginTop: 6 }}>{range}</p>
+                </>
+              );
+            })()}
           </div>
 
           {/* Pool */}
@@ -451,6 +475,37 @@ export default async function ExperimentPage({ params }: Props) {
 
         <ThickDivider color={cc} />
 
+        {/* ── Compensation callout (recruiting only) ── */}
+        {exp.status === 'recruiting' && (() => {
+          const tier  = getBountyTier(exp.bounty_per_participant);
+          const color = getTierColor(tier);
+          const range = getTierRange(tier);
+          return (
+            <div style={{
+              margin: '20px 0', padding: '16px 20px',
+              background: `${color}08`,
+              border: `1px solid ${color}25`,
+              borderRadius: 4,
+            }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '3px', textTransform: 'uppercase', color, marginBottom: 8 }}>
+                // COMPENSATION_DETAILS
+              </p>
+              <p style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1', lineHeight: 1.6, margin: 0 }}>
+                Exact compensation amounts are shown to verified participants after profile creation and protocol review.
+                This study offers <strong style={{ color }}>{range.toLowerCase()}</strong> compensation for verified completion of all milestones.
+              </p>
+              <Link href="/onboarding" style={{
+                display: 'inline-block', marginTop: 10,
+                fontFamily: 'var(--font-mono)', fontSize: 10,
+                textTransform: 'uppercase', letterSpacing: '1.5px',
+                color, textDecoration: 'none',
+              }}>
+                Create profile to see details →
+              </Link>
+            </div>
+          );
+        })()}
+
         {/* ── Description ── */}
         <div style={{ padding: '28px 0', maxWidth: 800 }}>
           <p style={{
@@ -482,7 +537,22 @@ export default async function ExperimentPage({ params }: Props) {
 
         <ThickDivider color={cc} />
 
-        {/* ── Protocol ── */}
+        {/* ── Protocol text (if set by experimenter) ── */}
+        {exp.protocol_text && (
+          <>
+            <div style={{ padding: '28px 0', maxWidth: 800 }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px', textTransform: 'uppercase', color: cc, marginBottom: 16 }}>
+                // PROTOCOL
+              </p>
+              <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1', lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>
+                {exp.protocol_text}
+              </p>
+            </div>
+            <ThickDivider color={cc} />
+          </>
+        )}
+
+        {/* ── Milestone timeline ── */}
         {milestones.length > 0 && (
           <>
             <MilestoneTimeline milestones={milestones} catColor={cc} />
@@ -637,24 +707,27 @@ export default async function ExperimentPage({ params }: Props) {
           const expRaw         = exp as unknown as Record<string, unknown>;
           const deadline       = expRaw.application_deadline as string | null ?? null;
           const deadlineClosed = deadline ? deadlineDays(deadline) <= 0 : false;
+          const ctaProps = {
+            experimentId:        exp.id,
+            experimentStatus:    exp.status,
+            slotsLeft,
+            deadlineClosed,
+            protocolText:        exp.protocol_text ?? null,
+            description:         exp.description,
+            durationWeeks:       durWks ?? null,
+            milestoneCount:      milestones.length,
+            complianceThreshold: threshold,
+            orgName,
+            experimentTitle:     exp.title,
+          };
           return (
             <>
               <div className="sticky-cta-desktop" style={{ padding: '28px 0 48px' }}>
-                <ExperimentCTA
-                  experimentId={exp.id}
-                  experimentStatus={exp.status}
-                  slotsLeft={slotsLeft}
-                  deadlineClosed={deadlineClosed}
-                />
+                <ExperimentCTA {...ctaProps} />
               </div>
               {/* Sticky mobile CTA */}
               <div className="sticky-cta-mobile">
-                <ExperimentCTA
-                  experimentId={exp.id}
-                  experimentStatus={exp.status}
-                  slotsLeft={slotsLeft}
-                  deadlineClosed={deadlineClosed}
-                />
+                <ExperimentCTA {...ctaProps} />
               </div>
             </>
           );

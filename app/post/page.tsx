@@ -246,9 +246,10 @@ export default function PostStudyPage() {
   const [title,       setTitle]       = useState('');
   const [category,    setCategory]    = useState('');
   const [studyType,   setStudyType]   = useState('');
-  const [description, setDescription] = useState('');
-  const [duration,    setDuration]    = useState('');
-  const [region,      setRegion]      = useState('Remote / Global');
+  const [description,   setDescription]   = useState('');
+  const [protocolText,  setProtocolText]  = useState('');
+  const [duration,      setDuration]      = useState('');
+  const [region,        setRegion]        = useState('Remote / Global');
 
   // Section B
   const [reward, setReward] = useState('');
@@ -391,6 +392,7 @@ export default function PostStudyPage() {
         exclusion_criteria:     exclusion || null,
         apply_for_verification: applyVerif,
         iec_approval:           approvalStatus || null,
+        protocol_text:          protocolText.trim() || null,
         milestones:             flatMilestones,
         compliance_threshold:   parseFloat(complianceThreshold) || 80,
         enrollment_url:         enrollmentUrl.trim() || null,
@@ -543,6 +545,16 @@ export default function PostStudyPage() {
               <Textarea value={description} onChange={setDescription}
                 placeholder="What is the study about? What will participants do? What data will be collected?"
                 rows={5} />
+            </div>
+
+            <div>
+              <Label>STUDY PROTOCOL</Label>
+              <p className="text-xs mb-2" style={{ color: 'var(--text-dim)', opacity: 0.7 }}>
+                Describe the detailed protocol participants will follow. Include: dosage instructions, timing, data collection methods, reporting requirements, and any restrictions. This section is shown to participants after they apply. Be specific — clear protocols drive higher compliance.
+              </p>
+              <Textarea value={protocolText} onChange={setProtocolText}
+                placeholder="Describe the detailed protocol participants will follow. Include: dosage instructions, timing, data collection methods, reporting requirements, and any restrictions."
+                rows={6} />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
