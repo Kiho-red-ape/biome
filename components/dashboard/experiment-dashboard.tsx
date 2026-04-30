@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Experiment, ExperimentStatus } from '@/lib/types';
-import type { OrgMap } from '@/app/page';
+import type { OrgMap } from '@/lib/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

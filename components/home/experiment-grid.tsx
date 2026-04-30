@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ExperimentIdenticon } from '@/components/ui/experiment-identicon';
 import type { Experiment, ExperimentStatus } from '@/lib/types';
-import type { OrgMap } from '@/app/page';
+import type { OrgMap } from '@/lib/types';
 
 // ─── Category helpers ──────────────────────────────────────────────────────────
 

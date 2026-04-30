@@ -4,7 +4,12 @@ import { useState, useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import Link from 'next/link';
 import type { ApplyExperiment, ApplyMilestone } from './page';
-import type { QuizQuestion } from '@/lib/demo-data';
+export type QuizQuestion = {
+  id: string;
+  text: string;
+  expected_answer: boolean;
+  disqualifier: boolean;
+};
 import { LegalModal } from '@/components/ui/legal-modal';
 import type { LegalDocKey } from '@/lib/legal/documents';
 

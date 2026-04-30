@@ -2,36 +2,36 @@
 
 /* ─── BIOME Design Tokens ──────────────────────────────────── */
 @theme {
-  --color-bg:           #070c07;
-  --color-bg2:          #0d160d;
-  --color-bg3:          #152015;
+  --color-bg:           #050709;
+  --color-bg2:          #0b1014;
+  --color-bg3:          #111820;
   --color-green:        #b7ff61;
   --color-green-dim:    #4d9e1f;
-  --color-cyan:         #00e5ff;
+  --color-cyan:         #22d3ee;
   --color-amber:        #ffb300;
-  --color-text:         #b8ccb8;
-  --color-text-dim:     #5a7860;
+  --color-text:         #aab8b1;
+  --color-text-dim:     #4a6050;
   --color-text-bright:  #ddeedd;
-  --color-text-white:   #f0f8f0;
+  --color-text-white:   #f2faf4;
 
-  --font-heading: 'Syne', sans-serif;
-  --font-mono:    'JetBrains Mono', monospace;
+  --font-heading: 'Familjen Grotesk', sans-serif;
+  --font-mono:    'DM Mono', monospace;
 }
 
 /* ─── CSS Variables ────────────────────────────────────────── */
 :root {
-  --bg:           #070c07;
-  --bg2:          #0d160d;
-  --bg3:          #152015;
+  --bg:           #050709;
+  --bg2:          #0b1014;
+  --bg3:          #111820;
   --green:        #b7ff61;
   --green-dim:    #4d9e1f;
-  --cyan:         #00e5ff;
+  --cyan:         #22d3ee;
   --amber:        #ffb300;
-  --text:         #b8ccb8;
-  --text-dim:     #5a7860;
+  --text:         #aab8b1;
+  --text-dim:     #4a6050;
   --text-bright:  #ddeedd;
-  --text-white:   #f0f8f0;
-  --line:         rgba(183,255,97,0.1);
+  --text-white:   #f2faf4;
+  --line:         rgba(183,255,97,0.08);
 }
 
 /* ─── Base ─────────────────────────────────────────────────── */
@@ -48,29 +48,18 @@ body {
   background-color: var(--bg);
 }
 
-/* ─── Grid background ──────────────────────────────────────── */
+/* ─── Grid background (very faint) ────────────────────────── */
 body::before {
   content: '';
   position: fixed; inset: 0; z-index: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(183,255,97,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(183,255,97,0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
+    linear-gradient(rgba(183,255,97,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(183,255,97,0.02) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
-/* ─── Scan-line overlay ────────────────────────────────────── */
-body::after {
-  content: '';
-  position: fixed; inset: 0; z-index: 1;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg, transparent, transparent 2px,
-    rgba(0,0,0,0.025) 2px, rgba(0,0,0,0.025) 4px
-  );
-}
-
-/* ─── Content sits above overlays ─────────────────────────── */
+/* ─── Content sits above grid ──────────────────────────────── */
 main, header, footer, #app-root { position: relative; z-index: 2; }
 
 /* ─── Typography ───────────────────────────────────────────── */
@@ -80,276 +69,107 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-white);
 }
 
-code, pre, .mono { font-family: var(--font-mono); }
+p { color: var(--text); }
 
-/* ─── Eyebrow / section labels ─────────────────────────────── */
-.eyebrow {
+/* ─── Links ────────────────────────────────────────────────── */
+a { color: var(--green); }
+
+/* ─── Mono util ────────────────────────────────────────────── */
+.mono {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.3em;
+  font-size: 11px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--green);
 }
 
-/* ─── Blinking dot ─────────────────────────────────────────── */
+/* ─── Buttons ──────────────────────────────────────────────── */
+.btn-primary {
+  display:        inline-flex;
+  align-items:    center;
+  justify-content: center;
+  font-family:    var(--font-mono);
+  font-size:      11px;
+  font-weight:    500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color:          #050709;
+  background:     var(--green);
+  border:         1px solid var(--green);
+  padding:        0 20px;
+  min-height:     44px;
+  text-decoration: none;
+  cursor:         pointer;
+  transition:     opacity 150ms ease;
+  border-radius:  2px;
+}
+.btn-primary:hover { opacity: 0.85; }
+
+.btn-ghost {
+  display:        inline-flex;
+  align-items:    center;
+  justify-content: center;
+  font-family:    var(--font-mono);
+  font-size:      11px;
+  font-weight:    500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color:          var(--green);
+  background:     transparent;
+  border:         1px solid rgba(183,255,97,0.25);
+  padding:        0 20px;
+  min-height:     44px;
+  text-decoration: none;
+  cursor:         pointer;
+  transition:     border-color 150ms ease, color 150ms ease;
+  border-radius:  2px;
+}
+.btn-ghost:hover {
+  border-color: var(--green);
+}
+
+/* ─── Hover green ──────────────────────────────────────────── */
+.hover-green {
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+.hover-green:hover { color: var(--green); }
+
+/* ─── Blink animation ──────────────────────────────────────── */
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0; }
 }
 .blink { animation: blink 1.2s step-end infinite; }
 
-/* ─── RECRUITING pulse (scale 1.0 → 1.03, opacity 0.85 → 1.0) */
-@keyframes recruit-pulse {
-  0%, 100% { transform: scale(1);    opacity: 0.85; }
-  50%       { transform: scale(1.03); opacity: 1; }
-}
-.blink-recruit { animation: recruit-pulse 3s ease-in-out infinite; }
-
-/* ─── Ticker bar ───────────────────────────────────────────── */
-@keyframes ticker {
+/* ─── Ticker ───────────────────────────────────────────────── */
+@keyframes ticker-scroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
 .ticker-track {
-  display: flex;
+  display:    inline-flex;
   white-space: nowrap;
-  animation: ticker 35s linear infinite;
-}
-.ticker-track:hover { animation-play-state: paused; }
-
-/* ─── Experiment card ──────────────────────────────────────── */
-.exp-card {
-  background: #0b1014;
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 2px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
-  display: flex;
-  flex-direction: column;
-  text-decoration: none;
-  color: inherit;
-}
-.exp-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255,255,255,0.12);
+  animation:  ticker-scroll 40s linear infinite;
 }
 
-/* ─── System panel card ────────────────────────────────────── */
-.biome-card {
-  background: var(--bg2);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 2px;
-  transition: border-color 200ms ease, transform 200ms ease;
+/* ─── Fade-in on scroll ────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+.fade-up { animation: fade-up 0.5s ease forwards; }
 
-/* ─── Stat bar ─────────────────────────────────────────────── */
-.stat-bar-track {
-  height: 3px;
-  background: rgba(255,255,255,0.06);
-  overflow: hidden;
-}
-.stat-bar-fill {
-  height: 3px;
-  transition: width 0.4s ease;
-}
-
-/* ─── Attribute row (label/value) ──────────────────────────── */
-.attr-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-.attr-label {
+/* ─── Form inputs ──────────────────────────────────────────── */
+input, select, textarea {
   font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
-.attr-value {
-  font-family: var(--font-heading);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-white);
-  text-align: right;
-}
-
-/* ─── BIOME VERIFIED badge ─────────────────────────────────── */
-.badge-verified {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  letter-spacing: 0.06em;
-  color: #8ee7ff;
-  border: 1px solid rgba(142,231,255,0.3);
-  padding: 3px 8px;
+  background:  var(--bg2);
+  color:       var(--text-white);
+  border:      1px solid rgba(255,255,255,0.09);
+  outline:     none;
   border-radius: 2px;
-  background: rgba(142,231,255,0.08);
-  box-shadow: 0 0 6px rgba(142,231,255,0.2);
-  white-space: nowrap;
 }
-
-/* ─── Hazard stripe ────────────────────────────────────────── */
-.hazard-stripe {
-  height: 3px;
-  background: repeating-linear-gradient(
-    90deg,
-    #ffd166 0px, #ffd166 10px,
-    transparent 10px, transparent 18px
-  );
-  opacity: 0.6;
-}
-
-/* ─── Buttons ──────────────────────────────────────────────── */
-.btn-primary {
-  display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--font-mono); font-weight: 700; font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  background: var(--green); color: #050709;
-  border-radius: 2px; padding: 12px 24px;
-  transition: transform 150ms ease, background 150ms ease;
-  text-decoration: none; cursor: pointer; border: none;
-}
-.btn-primary:hover { transform: scale(1.02); background: #ffffff; }
-
-.btn-ghost {
-  display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--font-mono); font-weight: 500; font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.09);
-  color: #aab8b1;
-  border-radius: 2px; padding: 12px 24px;
-  transition: transform 150ms ease, border-color 150ms ease, color 150ms ease;
-  text-decoration: none; cursor: pointer;
-}
-.btn-ghost:hover { transform: scale(1.02); border-color: var(--green); color: var(--green); }
-
-/* ─── Notification bell pulse ──────────────────────────────── */
-@keyframes bell-pulse {
-  0%, 100% { transform: scale(1); }
-  50%       { transform: scale(1.08); }
-}
-.bell-has-unread { animation: bell-pulse 2s ease-in-out infinite; }
-
-/* ─── Corner bracket (legacy) ──────────────────────────────── */
-.corner-bracket { position: relative; }
-.corner-bracket::before,
-.corner-bracket::after {
-  content: '';
-  position: absolute;
-  width: 10px; height: 10px;
-  border-color: rgba(183,255,97,0.2);
-  border-style: solid;
-}
-.corner-bracket::before { top: 0; left: 0; border-width: 1px 0 0 1px; }
-.corner-bracket::after  { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
-
-/* ─── Micro-interactions ───────────────────────────────────── */
-a { transition: color 150ms ease; }
-
-/* ─── Hover utility classes (safe in server components) ────── */
-.hover-green          { color: #7f8e87; text-decoration: none; transition: color 150ms ease; }
-.hover-green:hover    { color: #b7ff61; }
-.hover-bright         { color: #aab8b1; text-decoration: none; transition: color 150ms ease; }
-.hover-bright:hover   { color: #eef4f0; }
-.row-hover            { transition: background 150ms ease; }
-.row-hover:hover      { background: rgba(255,255,255,0.02); }
-
-/* ─── CTA apply button (server-safe, CSS-only hover) ────────── */
-.cta-apply-btn {
-  width: 100%; height: 48px;
-  font-family: var(--font-mono); font-weight: 700;
-  font-size: 13px; text-transform: uppercase; letter-spacing: 3px;
-  background: #b7ff61; color: #050709;
-  border: none; cursor: pointer; border-radius: 2px;
-  transition: transform 150ms ease, background 150ms ease;
-  display: block;
-}
-.cta-apply-btn:hover { transform: scale(1.01); background: #ffffff; }
-
-/* ─── Experiment card responsive ──────────────────────────── */
-@media (max-width: 640px) {
-  .exp-card-title  { font-size: 14px !important; }
-  .exp-card-bounty { font-size: 20px !important; }
-}
-
-/* ─── Scrollbar ────────────────────────────────────────────── */
-::-webkit-scrollbar       { width: 4px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: rgba(183,255,97,0.2); border-radius: 2px; }
-
-/* ─── Mobile responsive utilities ─────────────────────────── */
-
-/* Prevent iOS input zoom (inputs must be >= 16px on mobile) */
-@media (max-width: 640px) {
-  input, textarea, select {
-    font-size: 16px !important;
-  }
-}
-
-/* Touch targets — all interactive elements min 44px */
-@media (max-width: 640px) {
-  button, [role="button"], a.btn-primary, a.btn-ghost {
-    min-height: 44px;
-  }
-  .btn-primary, .btn-ghost {
-    min-height: 44px;
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-/* Page-level padding on mobile */
-@media (max-width: 640px) {
-  .page-pad { padding-left: 16px !important; padding-right: 16px !important; }
-}
-@media (min-width: 641px) and (max-width: 1024px) {
-  .page-pad { padding-left: 24px !important; padding-right: 24px !important; }
-}
-
-/* Mobile table overflow — wrap in .table-scroll */
-@media (max-width: 640px) {
-  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-}
-
-/* Docs: code blocks horizontal scroll on mobile */
-@media (max-width: 640px) {
-  pre, code {
-    font-size: 12px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* Sticky bottom CTA (experiment detail page) */
-.sticky-cta-mobile {
-  display: none;
-}
-@media (max-width: 640px) {
-  .sticky-cta-mobile {
-    display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    padding: 12px 16px;
-    background: rgba(5,7,9,0.97);
-    border-top: 1px solid rgba(183,255,97,0.12);
-    backdrop-filter: blur(12px);
-  }
-  .sticky-cta-desktop {
-    display: none;
-  }
-  /* Space at page bottom so sticky CTA doesn't cover content */
-  .has-sticky-cta {
-    padding-bottom: 80px;
-  }
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(183,255,97,0.35);
+  box-shadow:   0 0 0 2px rgba(183,255,97,0.05);
 }

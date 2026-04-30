@@ -1,3 +1,8 @@
+// ─── Org lookup (used by experiment grid / dashboard) ─────────────────────────
+
+export type OrgEntry = { id: string; org_name: string };
+export type OrgMap   = Record<string, OrgEntry>; // keyed by experimenter user_id
+
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
 export type ExperimentStatus = 'draft' | 'recruiting' | 'active' | 'completed' | 'cancelled';

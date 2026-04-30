@@ -5,14 +5,10 @@ import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 import { NotificationBell } from '@/components/nav/notification-bell';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type NavProfile =
   | { kind: 'participant'; pseudonym: string; participantId: string }
   | { kind: 'experimenter'; orgName: string; orgId: string }
   | null;
-
-// ─── Nav link (desktop) ───────────────────────────────────────────────────────
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   const [hover, setHover] = useState(false);
@@ -20,15 +16,15 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
     <Link
       href={href}
       style={{
-        fontFamily:     'var(--font-mono)',
-        fontSize:       11,
-        textTransform:  'uppercase',
-        letterSpacing:  '2px',
-        color:          hover ? '#b7ff61' : '#7f8e87',
+        fontFamily:    'var(--font-mono)',
+        fontSize:      11,
+        textTransform: 'uppercase',
+        letterSpacing: '2px',
+        color:         hover ? '#b7ff61' : '#7f8e87',
         textDecoration: 'none',
         paddingBottom:  2,
-        borderBottom:   `2px solid ${hover ? '#b7ff61' : 'transparent'}`,
-        transition:     'color 150ms ease, border-color 150ms ease',
+        borderBottom:  `2px solid ${hover ? '#b7ff61' : 'transparent'}`,
+        transition:    'color 150ms ease, border-color 150ms ease',
       }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -38,33 +34,29 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   );
 }
 
-// ─── Overlay nav link ─────────────────────────────────────────────────────────
-
 function OverlayLink({ href, onClick, children }: { href: string; onClick: () => void; children: React.ReactNode }) {
   return (
     <Link
       href={href}
       onClick={onClick}
       style={{
-        display:        'flex',
-        alignItems:     'center',
-        minHeight:      48,
-        padding:        '0 24px',
-        fontFamily:     'var(--font-mono)',
-        fontSize:       14,
-        textTransform:  'uppercase',
-        letterSpacing:  '2px',
-        color:          '#c0d4c4',
+        display:       'flex',
+        alignItems:    'center',
+        minHeight:     48,
+        padding:       '0 24px',
+        fontFamily:    'var(--font-mono)',
+        fontSize:      14,
+        textTransform: 'uppercase',
+        letterSpacing: '2px',
+        color:         '#aab8b1',
         textDecoration: 'none',
-        borderBottom:   '1px solid rgba(77,255,128,0.06)',
+        borderBottom:  '1px solid rgba(183,255,97,0.06)',
       }}
     >
       {children}
     </Link>
   );
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function SiteHeader() {
   const { ready, authenticated, login, logout, user } = usePrivy();
@@ -73,7 +65,6 @@ export function SiteHeader() {
   const [menuOpen,   setMenuOpen]   = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
 
-  // Close desktop dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropRef.current && !dropRef.current.contains(e.target as Node)) setDropOpen(false);
@@ -82,17 +73,11 @@ export function SiteHeader() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  // Lock body scroll when overlay is open
   useEffect(() => {
-    if (menuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
-  // Close overlay on Escape
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.key === 'Escape') setMenuOpen(false);
@@ -135,14 +120,14 @@ export function SiteHeader() {
   }, [authenticated, user]);
 
   const displayName =
-    navProfile?.kind === 'participant' ? navProfile.pseudonym
+    navProfile?.kind === 'participant'  ? navProfile.pseudonym
     : navProfile?.kind === 'experimenter' ? navProfile.orgName
     : null;
 
   const truncatedName = displayName ? displayName.slice(0, 12) + (displayName.length > 12 ? '…' : '') : null;
 
   const profileHref =
-    navProfile?.kind === 'participant' ? `/profile/${navProfile.participantId}`
+    navProfile?.kind === 'participant'  ? `/profile/${navProfile.participantId}`
     : navProfile?.kind === 'experimenter' ? `/org/${navProfile.orgId}`
     : null;
 
@@ -153,67 +138,49 @@ export function SiteHeader() {
           position:       'sticky',
           top:            0,
           zIndex:         200,
-          height:         52,
+          height:         56,
           display:        'flex',
           alignItems:     'center',
           justifyContent: 'space-between',
           background:     'rgba(5,7,9,0.95)',
           backdropFilter: 'blur(16px)',
-          borderBottom:   '1px solid rgba(183,255,97,0.12)',
+          borderBottom:   '1px solid rgba(255,255,255,0.06)',
           flexShrink:     0,
         }}
         className="px-4 sm:px-6 lg:px-10"
       >
-        {/* Left — wordmark + version */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+        {/* Logo */}
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
           <span style={{
-            fontFamily:    'var(--font-heading), sans-serif',
+            fontFamily:    'var(--font-heading)',
             fontWeight:    700,
+            fontSize:      22,
             letterSpacing: '5px',
-            color:         '#b7ff61',
             textTransform: 'uppercase',
             lineHeight:    1,
-          }} className="text-xl sm:text-2xl">
-            BIOME
-          </span>
-          <span className="hidden sm:inline" style={{
-            fontFamily:    'var(--font-mono)',
-            fontSize:      10,
-            letterSpacing: '1px',
-            color:         '#7f8e87',
-            border:        '1px solid rgba(255,255,255,0.09)',
-            padding:       '2px 6px',
           }}>
-            v0.1
+            <span style={{ color: '#b7ff61' }}>BIO</span><span style={{ color: '#22d3ee' }}>ME</span>
           </span>
         </Link>
 
-        {/* Center — nav links (desktop only) */}
+        {/* Desktop nav */}
         <nav className="hidden sm:flex" style={{ alignItems: 'center', gap: 32 }}>
-          <NavLink href="/experiments">EXPLORE</NavLink>
-          <NavLink href="/docs">DOCS</NavLink>
-          <NavLink href="/post">POST STUDY</NavLink>
-          <Link href="/demo/biome" className="mono text-xs transition-colors" style={{ color: 'var(--cyan)', textDecoration: 'none', letterSpacing: '2px' }}>
-            DEMO
-          </Link>
+          <NavLink href="/run-a-study">Run a Study</NavLink>
+          <NavLink href="/participate">Participate</NavLink>
+          <NavLink href="/partners/join">Partners</NavLink>
+          <NavLink href="/docs">Docs</NavLink>
         </nav>
 
         {/* Right */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Notification bell — always visible when logged in */}
           {ready && authenticated && user && (
             <NotificationBell privyDid={user.id} />
           )}
 
-          {/* Mobile: pseudonym chip + hamburger */}
+          {/* Mobile: name chip + hamburger */}
           <div className="flex sm:hidden items-center gap-3">
             {truncatedName && (
-              <span style={{
-                fontFamily:    'var(--font-mono)',
-                fontSize:      10,
-                color:         '#7f8e87',
-                letterSpacing: '0.5px',
-              }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#7f8e87', letterSpacing: '0.5px' }}>
                 <span className="blink" style={{ color: '#b7ff61', fontSize: 8, marginRight: 4 }}>●</span>
                 {truncatedName}
               </span>
@@ -234,25 +201,17 @@ export function SiteHeader() {
                   minHeight:     36,
                 }}
               >
-                SIGN IN
+                Sign in
               </button>
             )}
-            {/* Hamburger button */}
             <button
               onClick={() => setMenuOpen(true)}
               aria-label="Open menu"
               style={{
-                background: 'none',
-                border:     'none',
-                cursor:     'pointer',
-                padding:    '8px 4px',
-                display:    'flex',
-                flexDirection: 'column',
-                gap:        5,
-                minHeight:  44,
-                minWidth:   44,
-                alignItems: 'center',
-                justifyContent: 'center',
+                background: 'none', border: 'none', cursor: 'pointer',
+                padding: '8px 4px', display: 'flex', flexDirection: 'column',
+                gap: 5, minHeight: 44, minWidth: 44,
+                alignItems: 'center', justifyContent: 'center',
               }}
             >
               {[0, 1, 2].map((i) => (
@@ -261,10 +220,10 @@ export function SiteHeader() {
             </button>
           </div>
 
-          {/* Desktop auth area */}
+          {/* Desktop auth */}
           <div className="hidden sm:flex items-center" style={{ gap: 16 }}>
             {!ready && (
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a7055' }}>…</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a6050' }}>…</span>
             )}
             {ready && !authenticated && (
               <button
@@ -285,7 +244,7 @@ export function SiteHeader() {
                 onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
               >
-                SIGN IN
+                Sign in
               </button>
             )}
             {ready && authenticated && (
@@ -293,19 +252,12 @@ export function SiteHeader() {
                 <button
                   onClick={() => setDropOpen((o) => !o)}
                   style={{
-                    display:    'flex',
-                    alignItems: 'center',
-                    gap:        8,
-                    fontFamily: 'var(--font-mono)',
-                    fontSize:   11,
-                    letterSpacing: '1px',
-                    color:      displayName ? '#eef4f0' : '#7f8e87',
-                    background: 'none',
-                    border:     '1px solid rgba(255,255,255,0.07)',
-                    padding:    '5px 10px',
-                    cursor:     'pointer',
-                    transition: 'border-color 150ms ease',
-                    minHeight:  36,
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '1px',
+                    color: displayName ? '#eef4f0' : '#7f8e87',
+                    background: 'none', border: '1px solid rgba(255,255,255,0.07)',
+                    padding: '5px 10px', cursor: 'pointer',
+                    transition: 'border-color 150ms ease', minHeight: 36,
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(183,255,97,0.2)'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}
@@ -319,53 +271,40 @@ export function SiteHeader() {
                   <div
                     className="absolute right-0 top-full"
                     style={{
-                      marginTop:      4,
-                      background:     'rgba(11,16,20,0.98)',
-                      border:         '1px solid rgba(255,255,255,0.1)',
-                      backdropFilter: 'blur(16px)',
-                      minWidth:       180,
-                      zIndex:         300,
-                      boxShadow:      '0 8px 32px rgba(0,0,0,0.6)',
+                      marginTop: 4, background: 'rgba(11,16,20,0.98)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      backdropFilter: 'blur(16px)', minWidth: 180, zIndex: 300,
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
                     }}
                   >
                     {profileHref && (
-                      <DropLink href={profileHref} onClick={() => setDropOpen(false)}>MY PROFILE →</DropLink>
+                      <DropLink href={profileHref} onClick={() => setDropOpen(false)}>My Profile →</DropLink>
                     )}
                     {navProfile?.kind === 'participant' && (
                       <>
-                        <DropLink href="/dashboard" onClick={() => setDropOpen(false)}>DASHBOARD</DropLink>
-                        <DropLink href="/dashboard/preferences" onClick={() => setDropOpen(false)}>PREFERENCES</DropLink>
+                        <DropLink href="/dashboard" onClick={() => setDropOpen(false)}>Dashboard</DropLink>
+                        <DropLink href="/dashboard/preferences" onClick={() => setDropOpen(false)}>Preferences</DropLink>
                       </>
                     )}
                     {navProfile?.kind === 'experimenter' && (
-                      <DropLink href="/dashboard/experiments" onClick={() => setDropOpen(false)}>MY STUDIES</DropLink>
+                      <DropLink href="/dashboard/experiments" onClick={() => setDropOpen(false)}>My Studies</DropLink>
                     )}
                     {!navProfile && (
-                      <DropLink href="/onboarding" onClick={() => setDropOpen(false)}>COMPLETE SETUP</DropLink>
+                      <DropLink href="/onboarding" onClick={() => setDropOpen(false)}>Complete Setup</DropLink>
                     )}
                     <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                       <button
                         onClick={() => { setDropOpen(false); logout(); }}
                         style={{
-                          width:      '100%',
-                          textAlign:  'left',
-                          display:    'flex',
-                          alignItems: 'center',
-                          padding:    '10px 16px',
-                          fontFamily: 'var(--font-mono)',
-                          fontSize:   11,
-                          letterSpacing: '1px',
-                          color:      '#4a7055',
-                          background: 'none',
-                          border:     'none',
-                          cursor:     'pointer',
-                          transition: 'color 150ms ease',
-                          minHeight:  44,
+                          width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center',
+                          padding: '10px 16px', fontFamily: 'var(--font-mono)', fontSize: 11,
+                          letterSpacing: '1px', color: '#4a6050', background: 'none', border: 'none',
+                          cursor: 'pointer', transition: 'color 150ms ease', minHeight: 44,
                         }}
                         onMouseEnter={(e) => { e.currentTarget.style.color = '#7f8e87'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.color = '#4a7055'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = '#4a6050'; }}
                       >
-                        SIGN OUT
+                        Sign out
                       </button>
                     </div>
                   </div>
@@ -376,70 +315,41 @@ export function SiteHeader() {
         </div>
       </header>
 
-      {/* ── Mobile full-screen overlay menu ── */}
+      {/* Mobile overlay menu */}
       {menuOpen && (
-        <div
-          style={{
-            position:   'fixed',
-            inset:      0,
-            zIndex:     500,
-            background: '#050709',
-            display:    'flex',
-            flexDirection: 'column',
-            overflowY:  'auto',
-          }}
-        >
-          {/* Overlay header */}
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 500, background: '#050709',
+          display: 'flex', flexDirection: 'column', overflowY: 'auto',
+        }}>
           <div style={{
-            display:        'flex',
-            alignItems:     'center',
-            justifyContent: 'space-between',
-            padding:        '0 16px',
-            height:         52,
-            borderBottom:   '1px solid rgba(77,255,128,0.08)',
-            flexShrink:     0,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '0 16px', height: 56, borderBottom: '1px solid rgba(255,255,255,0.06)',
+            flexShrink: 0,
           }}>
-            <span style={{
-              fontFamily:    'var(--font-heading)',
-              fontWeight:    700,
-              fontSize:      20,
-              letterSpacing: '5px',
-              color:         '#b7ff61',
-              textTransform: 'uppercase',
-            }}>
-              BIOME
+            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, letterSpacing: '5px', textTransform: 'uppercase' }}>
+              <span style={{ color: '#b7ff61' }}>BIO</span><span style={{ color: '#22d3ee' }}>ME</span>
             </span>
             <button
               onClick={() => setMenuOpen(false)}
               aria-label="Close menu"
               style={{
-                background: 'none',
-                border:     'none',
-                cursor:     'pointer',
-                color:      '#aab8b1',
-                fontSize:   22,
-                minHeight:  44,
-                minWidth:   44,
-                display:    'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: '#aab8b1', fontSize: 22, minHeight: 44, minWidth: 44,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
             >
               ✕
             </button>
           </div>
 
-          {/* Nav links */}
           <div style={{ flex: 1 }}>
-            <OverlayLink href="/experiments"   onClick={() => setMenuOpen(false)}>Explore</OverlayLink>
-            <OverlayLink href="/post"           onClick={() => setMenuOpen(false)}>Post Study</OverlayLink>
+            <OverlayLink href="/run-a-study"   onClick={() => setMenuOpen(false)}>Run a Study</OverlayLink>
+            <OverlayLink href="/participate"    onClick={() => setMenuOpen(false)}>Participate</OverlayLink>
+            <OverlayLink href="/partners/join"  onClick={() => setMenuOpen(false)}>Partners</OverlayLink>
             <OverlayLink href="/docs"           onClick={() => setMenuOpen(false)}>Docs</OverlayLink>
-            <OverlayLink href="/demo/biome"     onClick={() => setMenuOpen(false)}>Demo</OverlayLink>
 
-            {/* Divider */}
-            <div style={{ height: 1, background: 'rgba(77,255,128,0.08)', margin: '8px 0' }} />
+            <div style={{ height: 1, background: 'rgba(183,255,97,0.06)', margin: '8px 0' }} />
 
-            {/* User section */}
             {ready && authenticated && (
               <>
                 {profileHref && (
@@ -460,24 +370,14 @@ export function SiteHeader() {
                 <button
                   onClick={() => { setMenuOpen(false); logout(); }}
                   style={{
-                    display:       'flex',
-                    alignItems:    'center',
-                    minHeight:     48,
-                    width:         '100%',
-                    padding:       '0 24px',
-                    fontFamily:    'var(--font-mono)',
-                    fontSize:      14,
-                    textTransform: 'uppercase',
-                    letterSpacing: '2px',
-                    color:         '#4a7055',
-                    background:    'none',
-                    border:        'none',
-                    borderBottom:  '1px solid rgba(77,255,128,0.06)',
-                    cursor:        'pointer',
-                    textAlign:     'left',
+                    display: 'flex', alignItems: 'center', minHeight: 48, width: '100%',
+                    padding: '0 24px', fontFamily: 'var(--font-mono)', fontSize: 14,
+                    textTransform: 'uppercase', letterSpacing: '2px', color: '#4a6050',
+                    background: 'none', border: 'none', borderBottom: '1px solid rgba(183,255,97,0.06)',
+                    cursor: 'pointer', textAlign: 'left',
                   }}
                 >
-                  Sign Out
+                  Sign out
                 </button>
               </>
             )}
@@ -486,24 +386,14 @@ export function SiteHeader() {
               <button
                 onClick={() => { setMenuOpen(false); login(); }}
                 style={{
-                  display:       'flex',
-                  alignItems:    'center',
-                  minHeight:     48,
-                  width:         '100%',
-                  padding:       '0 24px',
-                  fontFamily:    'var(--font-mono)',
-                  fontSize:      14,
-                  textTransform: 'uppercase',
-                  letterSpacing: '2px',
-                  color:         '#b7ff61',
-                  background:    'none',
-                  border:        'none',
-                  borderBottom:  '1px solid rgba(77,255,128,0.06)',
-                  cursor:        'pointer',
-                  textAlign:     'left',
+                  display: 'flex', alignItems: 'center', minHeight: 48, width: '100%',
+                  padding: '0 24px', fontFamily: 'var(--font-mono)', fontSize: 14,
+                  textTransform: 'uppercase', letterSpacing: '2px', color: '#b7ff61',
+                  background: 'none', border: 'none', borderBottom: '1px solid rgba(183,255,97,0.06)',
+                  cursor: 'pointer', textAlign: 'left',
                 }}
               >
-                Sign In →
+                Sign in →
               </button>
             )}
           </div>
@@ -513,8 +403,6 @@ export function SiteHeader() {
   );
 }
 
-// ─── Desktop dropdown link ────────────────────────────────────────────────────
-
 function DropLink({ href, onClick, children }: { href: string; onClick: () => void; children: React.ReactNode }) {
   const [hover, setHover] = useState(false);
   return (
@@ -522,17 +410,11 @@ function DropLink({ href, onClick, children }: { href: string; onClick: () => vo
       href={href}
       onClick={onClick}
       style={{
-        display:        'flex',
-        alignItems:     'center',
-        padding:        '10px 16px',
-        fontFamily:     'var(--font-mono)',
-        fontSize:       11,
-        letterSpacing:  '1px',
-        color:          hover ? '#b7ff61' : '#7f8e87',
-        background:     hover ? 'rgba(183,255,97,0.04)' : 'transparent',
-        textDecoration: 'none',
-        transition:     'color 150ms ease, background 150ms ease',
-        minHeight:      44,
+        display: 'flex', alignItems: 'center', padding: '10px 16px',
+        fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '1px',
+        color: hover ? '#b7ff61' : '#7f8e87',
+        background: hover ? 'rgba(183,255,97,0.04)' : 'transparent',
+        textDecoration: 'none', transition: 'color 150ms ease, background 150ms ease', minHeight: 44,
       }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
