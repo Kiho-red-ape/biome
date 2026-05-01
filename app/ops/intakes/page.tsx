@@ -75,7 +75,7 @@ export default async function OpsIntakes({
               ))}
             </div>
 
-            {intake.description && (
+            {!!intake.description && (
               <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#aab8b1', lineHeight: 1.6, marginBottom: 16 }}>
                 {intake.description as string}
               </p>
