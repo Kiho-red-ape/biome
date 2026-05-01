@@ -497,23 +497,6 @@ export default function PostStudyPage() {
           </p>
 
           {/* Activation fee notice */}
-          <div
-            className="rounded p-3 mb-4 flex items-start gap-3"
-            style={{ background: 'rgba(183,255,97,0.04)', border: '1px solid rgba(183,255,97,0.15)' }}
-          >
-            <span className="mono" style={{ color: 'var(--green)', fontSize: 14, flexShrink: 0 }}>◆</span>
-            <div>
-              <p className="mono font-bold" style={{ fontSize: 11, color: 'var(--green)', letterSpacing: '0.1em', marginBottom: 3 }}>
-                STUDY ACTIVATION FEE
-              </p>
-              <p className="mono" style={{ fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.6 }}>
-                Your <strong style={{ color: 'var(--text-bright)' }}>first study is free</strong>.
-                Subsequent studies require a one-time <strong style={{ color: 'var(--text-bright)' }}>$99 activation fee</strong> per study,
-                invoiced before publishing. Fee status is shown on your experimenter dashboard.
-              </p>
-            </div>
-          </div>
-
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
             {/* ── A: Study basics ── */}
@@ -575,25 +558,14 @@ export default function PostStudyPage() {
             </div>
 
             <div className="p-4 rounded" style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.1)' }}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>TOTAL BOUNTY POOL</p>
-                  <p className="mono text-lg font-bold" style={{ color: 'var(--green)' }}>
-                    {totalPool > 0
-                      ? `$${totalPool.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                      : '—'}
-                  </p>
-                </div>
-                <div>
-                  <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>PLATFORM FEE (2.5%)</p>
-                  <p className="mono text-lg font-bold" style={{ color: 'var(--text-dim)' }}>
-                    {platformFee > 0 ? `$${platformFee.toFixed(2)}` : '—'}
-                  </p>
-                </div>
+              <div>
+                <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>TOTAL BOUNTY POOL</p>
+                <p className="mono text-lg font-bold" style={{ color: 'var(--green)' }}>
+                  {totalPool > 0
+                    ? `$${totalPool.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                    : '—'}
+                </p>
               </div>
-              <p className="mono text-xs mt-3" style={{ color: 'var(--text-dim)', opacity: 0.7 }}>
-                2.5% fee applies on completed payouts only.
-              </p>
             </div>
 
             {/* ── C: Eligibility ── */}

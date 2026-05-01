@@ -15,7 +15,7 @@ export default function CreatingStudyPage() {
 
       <DocH2>Draft mode</DocH2>
       <DocP>
-        To create a study, navigate to &quot;Post a Study&quot; from the navigation bar. The study
+        To create a study, navigate to &quot;Run a Study&quot; from the navigation bar. The study
         creation form includes the following sections:
       </DocP>
 
