@@ -41,8 +41,7 @@ export default function StagingBanner() {
             textDecoration: 'none',
             whiteSpace: 'nowrap',
           }}
-          onMouseEnter={e => ((e.target as HTMLAnchorElement).style.textDecoration = 'underline')}
-          onMouseLeave={e => ((e.target as HTMLAnchorElement).style.textDecoration = 'none')}
+          className="link-hover-underline"
         >
           Visit the live site →
         </a>

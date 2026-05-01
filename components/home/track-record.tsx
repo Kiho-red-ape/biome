@@ -78,9 +78,8 @@ export function TrackRecord() {
               Currently onboarding first sponsor studies.{' '}
               <a
                 href="/run-a-study"
-                style={{ color: '#b7ff61', textDecoration: 'none' }}
-                onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-                onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.textDecoration = 'none'; }}
+                className="link-hover-underline"
+                style={{ color: '#b7ff61' }}
               >
                 Run a study with Biome →
               </a>

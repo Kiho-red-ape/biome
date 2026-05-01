@@ -113,6 +113,9 @@ a { color: var(--green); }
 }
 .footer-link:hover { color: #7f8e87; }
 
+.link-hover-underline { text-decoration: none; }
+.link-hover-underline:hover { text-decoration: underline; }
+
 .btn-ghost {
   display:        inline-flex;
   align-items:    center;
