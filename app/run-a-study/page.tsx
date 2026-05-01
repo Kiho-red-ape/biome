@@ -1,3 +1,5 @@
+'use client';
+
 import { SiteHeader } from '@/components/nav/header';
 import Link from 'next/link';
 
