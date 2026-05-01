@@ -85,13 +85,7 @@ export default async function HomePage() {
               ['Terms',   '/legal/tos'],
               ['Privacy', '/privacy'],
             ].map(([label, href]) => (
-              <a
-                key={href}
-                href={href}
-                style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a6050', textDecoration: 'none' }}
-                onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.color = '#7f8e87'; }}
-                onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.color = '#4a6050'; }}
-              >
+              <a key={href} href={href} className="footer-link">
                 {label}
               </a>
             ))}

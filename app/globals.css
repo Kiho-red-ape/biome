@@ -104,6 +104,15 @@ a { color: var(--green); }
 }
 .btn-primary:hover { opacity: 0.85; }
 
+.footer-link {
+  font-family:    var(--font-mono);
+  font-size:      10px;
+  color:          #4a6050;
+  text-decoration: none;
+  transition:     color 150ms ease;
+}
+.footer-link:hover { color: #7f8e87; }
+
 .btn-ghost {
   display:        inline-flex;
   align-items:    center;
