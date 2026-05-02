@@ -5,6 +5,7 @@ import { HowItWorks } from '@/components/home/how-it-works';
 import { ScopeSection } from '@/components/home/scope-section';
 import { Geography } from '@/components/home/geography';
 import { TrackRecord } from '@/components/home/track-record';
+import { BlogPreview } from '@/components/home/blog-preview';
 import { EstimateCta } from '@/components/home/estimate-cta';
 import { PartnersStrip } from '@/components/home/partners-strip';
 import { ClosingCta } from '@/components/home/closing-cta';
@@ -40,6 +41,7 @@ export default async function HomePage() {
       <ScopeSection />
       <Geography />
       <TrackRecord />
+      <BlogPreview />
       <EstimateCta />
       {partners.length > 0 && <PartnersStrip partners={partners} />}
       <ClosingCta />

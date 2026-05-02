@@ -145,7 +145,7 @@ export function HowItWorks() {
         ref={trackRef}
         style={{
           display:                 'flex',
-          gap:                     24,
+          gap:                     20,
           overflowX:               'scroll',
           scrollSnapType:          'x mandatory',
           scrollbarWidth:          'none',
@@ -161,86 +161,78 @@ export function HowItWorks() {
             key={step.num}
             ref={(el) => { cardRefs.current[i] = el; }}
             style={{
-              scrollSnapAlign: 'center',
+              scrollSnapAlign: 'start',
               flexShrink:      0,
-              width:           'clamp(320px, 88vw, 860px)',
-              minHeight:       340,
-              background:      active === i ? 'rgba(183,255,97,0.03)'   : 'rgba(255,255,255,0.015)',
+              width:           320,
+              background:      active === i ? 'rgba(183,255,97,0.03)' : 'rgba(255,255,255,0.015)',
               border:          `1px solid ${active === i ? 'rgba(183,255,97,0.18)' : 'rgba(255,255,255,0.06)'}`,
               borderRadius:    4,
-              padding:         'clamp(32px, 4vw, 48px)',
-              position:        'relative',
               overflow:        'hidden',
               transition:      'border-color 300ms ease, background 300ms ease',
               display:         'flex',
-              alignItems:      'center',
-              gap:             32,
+              flexDirection:   'column',
             }}
           >
-            {/* Faded background number */}
+            {/* Illustration */}
             <div style={{
-              position:    'absolute',
-              top:         -20,
-              left:        20,
-              fontFamily:  'var(--font-heading)',
-              fontWeight:  800,
-              fontSize:    160,
-              lineHeight:  1,
-              color:       active === i ? 'rgba(183,255,97,0.05)' : 'rgba(255,255,255,0.025)',
-              pointerEvents: 'none',
-              userSelect:  'none',
-              transition:  'color 300ms ease',
+              height:       180,
+              flexShrink:   0,
+              overflow:     'hidden',
+              background:   'rgba(11,16,20,0.6)',
+              borderBottom: `1px solid ${active === i ? 'rgba(183,255,97,0.1)' : 'rgba(255,255,255,0.05)'}`,
+              display:      'flex',
+              alignItems:   'center',
+              justifyContent: 'center',
+              transition:   'border-color 300ms ease',
+              opacity:      active === i ? 1 : 0.5,
             }}>
-              {step.num}
+              <IsometricScene scene={step.scene} style={{ width: 280, aspectRatio: '4/3' }} />
             </div>
 
-            {/* Text section */}
-            <div style={{ flex: 1, minWidth: 0, position: 'relative', zIndex: 1 }}>
-              {/* Label */}
+            {/* Content */}
+            <div style={{ padding: '20px 20px 24px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
               <p style={{
                 fontFamily:    'var(--font-mono)',
                 fontSize:      10,
                 letterSpacing: '3px',
                 color:         active === i ? '#b7ff61' : '#5b8a9a',
                 textTransform: 'uppercase',
-                marginBottom:  20,
+                margin:        0,
                 transition:    'color 300ms ease',
               }}>
-                {step.label}
+                {step.num} {step.label}
               </p>
 
-              {/* Headline */}
               <h3 style={{
-                fontFamily:   'var(--font-heading)',
-                fontWeight:   700,
-                fontSize:     'clamp(24px, 3vw, 36px)',
-                lineHeight:   1.15,
-                color:        '#f2faf4',
-                marginBottom: 28,
-                whiteSpace:   'pre-line',
+                fontFamily: 'var(--font-heading)',
+                fontWeight: 700,
+                fontSize:   16,
+                lineHeight: 1.25,
+                color:      '#f2faf4',
+                whiteSpace: 'pre-line',
+                margin:     0,
               }}>
                 {step.headline}
               </h3>
 
-              {/* Description bullets */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {step.desc.map((line) => (
-                  <div key={line} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  <div key={line} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                     <span style={{
-                      fontFamily:  'var(--font-mono)',
-                      fontSize:    11,
-                      color:       active === i ? 'rgba(183,255,97,0.5)' : 'rgba(255,255,255,0.12)',
-                      flexShrink:  0,
-                      marginTop:   2,
-                      transition:  'color 300ms ease',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize:   11,
+                      color:      active === i ? 'rgba(183,255,97,0.4)' : 'rgba(255,255,255,0.1)',
+                      flexShrink: 0,
+                      marginTop:  2,
+                      transition: 'color 300ms ease',
                     }}>
                       —
                     </span>
                     <p style={{
                       fontFamily: 'var(--font-mono)',
-                      fontSize:   13,
+                      fontSize:   12,
                       color:      active === i ? '#aab8b1' : '#5b8a9a',
-                      lineHeight: 1.7,
+                      lineHeight: 1.65,
                       margin:     0,
                       transition: 'color 300ms ease',
                     }}>
@@ -249,19 +241,6 @@ export function HowItWorks() {
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* Illustration — hidden on small screens */}
-            <div
-              className="hidden sm:block"
-              style={{
-                flexShrink: 0,
-                width:      'clamp(140px, 22%, 220px)',
-                opacity:    active === i ? 0.75 : 0.2,
-                transition: 'opacity 400ms ease',
-              }}
-            >
-              <IsometricScene scene={step.scene} />
             </div>
           </div>
         ))}

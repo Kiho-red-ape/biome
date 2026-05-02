@@ -34,6 +34,12 @@ const DIM = 'rgba(183,255,97,0.08)';
 const MID = 'rgba(255,255,255,0.06)';
 const STR = 'rgba(255,255,255,0.18)';
 
+// ── Shared animation CSS ────────────────────────────────────────────────────────
+const ANIM = `
+  @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-4px) } }
+  @keyframes pulse { 0%,100% { opacity: 0.7 } 50% { opacity: 1 } }
+`;
+
 // ── Scene: RECRUIT ─────────────────────────────────────────────────────────────
 // 3×3 isometric grid of participant "slots". Enrolled ones are tall green columns.
 function Recruit() {
@@ -66,6 +72,7 @@ function Recruit() {
               cx={p(gx+0.5, gy+0.5, h+0.5, cx, cy, s).x}
               cy={p(gx+0.5, gy+0.5, h+0.5, cx, cy, s).y}
               r="5" fill={G} opacity="0.7"
+              style={{ animation: `float ${3 + gx * 0.4 + gy * 0.3}s ease-in-out infinite`, animationDelay: `${(gx + gy) * 0.25}s` }}
             />
           )}
         </g>
@@ -75,6 +82,7 @@ function Recruit() {
 
   return (
     <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{ANIM}</style>
       <defs>
         <radialGradient id="rg-recruit" cx="50%" cy="50%" r="50%">
           <stop offset="0%"   stopColor={G} stopOpacity="0.04" />
@@ -116,6 +124,7 @@ function Collect() {
 
   return (
     <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{ANIM}</style>
       {/* Shipping box */}
       {box(0, 0, 2, 3, 2, G)}
       {/* Label on box */}
@@ -135,9 +144,12 @@ function Collect() {
         stroke={C} strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />
       <line x1={dotB.x} y1={dotB.y} x2={dotC.x} y2={dotC.y}
         stroke={C} strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />
-      <circle cx={dotA.x} cy={dotA.y} r="3" fill={G} opacity="0.7" />
-      <circle cx={dotB.x} cy={dotB.y} r="3" fill={C} opacity="0.7" />
-      <circle cx={dotC.x} cy={dotC.y} r="3" fill={A} opacity="0.7" />
+      <circle cx={dotA.x} cy={dotA.y} r="3" fill={G} opacity="0.7"
+        style={{ animation: 'float 3.5s ease-in-out infinite' }} />
+      <circle cx={dotB.x} cy={dotB.y} r="3" fill={C} opacity="0.7"
+        style={{ animation: 'float 3.5s ease-in-out infinite 0.5s' }} />
+      <circle cx={dotC.x} cy={dotC.y} r="3" fill={A} opacity="0.7"
+        style={{ animation: 'float 3.5s ease-in-out infinite 1s' }} />
 
       <text x="200" y="278" textAnchor="middle"
         fontFamily="var(--font-mono)" fontSize="9" fill={C} opacity="0.5" letterSpacing="3">
@@ -167,6 +179,7 @@ function Track() {
 
   return (
     <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{ANIM}</style>
       {/* Screen chassis */}
       <polygon points={poly(...left)}  fill="rgba(0,0,0,0.3)" stroke={STR} strokeWidth="0.8" />
       <polygon points={poly(...right)} fill="rgba(0,0,0,0.2)" stroke={STR} strokeWidth="0.8" />
@@ -189,7 +202,8 @@ function Track() {
               strokeWidth="3" opacity={0.7 + bar.pct * 0.3} />
             {/* Check dot at end */}
             {bar.pct === 1 && (
-              <circle cx={bEnd.x} cy={bEnd.y} r="4" fill={G} opacity="0.9" />
+              <circle cx={bEnd.x} cy={bEnd.y} r="4" fill={G} opacity="0.9"
+                style={{ animation: 'pulse 2.5s ease-in-out infinite' }} />
             )}
           </g>
         );
@@ -217,6 +231,7 @@ function Pay() {
 
   return (
     <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{ANIM}</style>
       <defs>
         <radialGradient id="rg-hub" cx="50%" cy="50%" r="50%">
           <stop offset="0%"   stopColor={G} stopOpacity="0.15" />
@@ -241,15 +256,18 @@ function Pay() {
       <circle cx={hub.x} cy={hub.y} r="40" fill="url(#rg-hub)" />
 
       {/* Hub */}
-      <circle cx={hub.x} cy={hub.y} r="20" stroke={G} strokeWidth="1.5" fill="rgba(183,255,97,0.06)" />
+      <circle cx={hub.x} cy={hub.y} r="20" stroke={G} strokeWidth="1.5" fill="rgba(183,255,97,0.06)"
+        style={{ animation: 'pulse 3s ease-in-out infinite' }} />
       <circle cx={hub.x} cy={hub.y} r="12" fill={G} opacity="0.2" />
-      <circle cx={hub.x} cy={hub.y} r="5"  fill={G} opacity="0.9" />
+      <circle cx={hub.x} cy={hub.y} r="5"  fill={G} opacity="0.9"
+        style={{ animation: 'pulse 2s ease-in-out infinite' }} />
 
       {/* Peripheral nodes */}
       {spokes.map((s, i) => (
         <g key={i}>
           <circle cx={s.x} cy={s.y} r="14" stroke={C} strokeWidth="1" fill="rgba(34,211,238,0.06)" />
-          <circle cx={s.x} cy={s.y} r="5"  fill={C} opacity="0.8" />
+          <circle cx={s.x} cy={s.y} r="5"  fill={C} opacity="0.8"
+            style={{ animation: `float ${3.5 + i * 0.3}s ease-in-out infinite`, animationDelay: `${i * 0.35}s` }} />
         </g>
       ))}
 
@@ -300,15 +318,18 @@ function Deliver() {
 
   return (
     <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{ANIM}</style>
       {docSlice(0,    STR,  0.5)}
       {docSlice(0.5,  STR,  0.65)}
       {docSlice(1.0,  C,    0.8)}
       {docSlice(1.9,  G,    1.0)}
 
       {/* Checkmark badge */}
-      <circle cx={ck.x} cy={ck.y} r="16" fill="rgba(183,255,97,0.1)" stroke={G} strokeWidth="1.2" />
+      <circle cx={ck.x} cy={ck.y} r="16" fill="rgba(183,255,97,0.1)" stroke={G} strokeWidth="1.2"
+        style={{ animation: 'float 4s ease-in-out infinite' }} />
       <text x={ck.x} y={ck.y + 5} textAnchor="middle"
-        fontFamily="system-ui" fontSize="16" fill={G} opacity="0.9">✓</text>
+        fontFamily="system-ui" fontSize="16" fill={G} opacity="0.9"
+        style={{ animation: 'float 4s ease-in-out infinite' }}>✓</text>
 
       <text x="200" y="278" textAnchor="middle"
         fontFamily="var(--font-mono)" fontSize="9" fill={G} opacity="0.5" letterSpacing="3">
@@ -400,6 +421,7 @@ function Design() {
   const flowPts: [number, number][] = [[0.7, 0.7], [2.0, 0.7], [3.3, 1.8], [4.3, 1.8], [4.3, 3.3]];
   return (
     <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{ANIM}</style>
       <polygon points={poly(...left)}  fill="rgba(0,0,0,0.25)" stroke={G} strokeWidth="0.8" />
       <polygon points={poly(...right)} fill="rgba(0,0,0,0.15)" stroke={G} strokeWidth="0.8" />
       <polygon points={poly(...top)}   fill="rgba(11,16,20,0.9)" stroke={G} strokeWidth="0.8" />
@@ -411,7 +433,8 @@ function Design() {
       })}
       {flowPts.map(([fx, fy], i) => {
         const pt = p(fx, fy, 0.32, cx, cy, s);
-        return <circle key={i} cx={pt.x} cy={pt.y} r="5" fill={i === 0 ? G : i === flowPts.length - 1 ? A : C} opacity="0.85" />;
+        return <circle key={i} cx={pt.x} cy={pt.y} r="5" fill={i === 0 ? G : i === flowPts.length - 1 ? A : C} opacity="0.85"
+          style={{ animation: `float ${3 + i * 0.3}s ease-in-out infinite`, animationDelay: `${i * 0.25}s` }} />;
       })}
       <text x="200" y="278" textAnchor="middle"
         fontFamily="var(--font-mono)" fontSize="9" fill={G} opacity="0.5" letterSpacing="3">
@@ -428,6 +451,7 @@ function Approve() {
 
   return (
     <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <style>{ANIM}</style>
       <defs>
         <radialGradient id="rg-approve" cx="50%" cy="50%" r="50%">
           <stop offset="0%"   stopColor={G} stopOpacity="0.1" />
@@ -448,7 +472,8 @@ function Approve() {
         const rad = (angle * Math.PI) / 180;
         const dx = cx + 64 * Math.cos(rad);
         const dy = cy + 64 * Math.sin(rad);
-        return <circle key={i} cx={dx} cy={dy} r="4" fill={i % 2 === 0 ? G : C} opacity={0.5 + (i % 3) * 0.2} />;
+        return <circle key={i} cx={dx} cy={dy} r="4" fill={i % 2 === 0 ? G : C} opacity={0.5 + (i % 3) * 0.2}
+          style={{ animation: `pulse ${2 + i * 0.3}s ease-in-out infinite`, animationDelay: `${i * 0.2}s` }} />;
       })}
       <text x="200" y="278" textAnchor="middle"
         fontFamily="var(--font-mono)" fontSize="9" fill={G} opacity="0.5" letterSpacing="3">
