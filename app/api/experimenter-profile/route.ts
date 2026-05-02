@@ -64,8 +64,7 @@ export async function POST(request: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Notify operator of new researcher application
-  await sendEmail(
+  sendEmail(
     'kishore@biome.to',
     `New researcher application — ${org_name}`,
     `Organization: ${org_name}\n` +
@@ -74,7 +73,7 @@ export async function POST(request: NextRequest) {
     `Expertise: ${(expertise_areas ?? []).join(', ') || '—'}\n\n` +
     `Description:\n${org_description ?? '—'}\n\n` +
     `Review at: https://biome.to/ops/researchers`,
-  );
+  ).catch((err: unknown) => console.error('[experimenter-profile] notification email failed:', err));
 
   return NextResponse.json({ profile: data as ExperimenterProfile }, { status: 201 });
 }

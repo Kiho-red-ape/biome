@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { Suspense } from 'react';
@@ -16,15 +16,8 @@ function OnboardingInner() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Map URL param to internal role value
   const preselectedRole = roleParam === 'participant' ? 'participant' :
                           roleParam === 'researcher'  ? 'experimenter' : null;
-
-  const [selectedRole, setSelectedRole] = useState<'participant' | 'experimenter' | null>(preselectedRole);
-
-  useEffect(() => {
-    if (preselectedRole) setSelectedRole(preselectedRole);
-  }, [preselectedRole]);
 
   const checkExistingProfile = useCallback(async (privyDid: string) => {
     try {
@@ -104,12 +97,12 @@ function OnboardingInner() {
             <div>
               <p className="mono text-xs mb-4" style={{ color: 'var(--text-dim)' }}>// ONBOARDING</p>
               <h1 className="text-xl font-black" style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}>
-                {preselectedRole === 'participant' ? 'Join as a participant' : 'Register as a researcher'}
+                {preselectedRole === 'participant' ? 'Join as a research partner' : 'Register as a researcher'}
               </h1>
               <p className="text-sm mt-2" style={{ color: 'var(--text-dim)' }}>
                 {preselectedRole === 'participant'
-                  ? 'Earn bounties by taking part in health studies.'
-                  : 'Run decentralized studies with our recruitment and logistics platform.'}
+                  ? 'Contribute to real studies. Receive fair compensation.'
+                  : 'Run self-directed studies with our recruitment and logistics platform.'}
               </p>
             </div>
 
@@ -165,16 +158,15 @@ function OnboardingInner() {
             onClick={() => void handleSubmit('participant')}
             disabled={loading}
             className="biome-card rounded p-6 text-left transition-all disabled:opacity-40 w-full"
-            style={{ background: selectedRole === 'participant' ? 'var(--bg3)' : undefined }}
           >
             <p className="text-base font-semibold mb-1" style={{ color: 'var(--text-white)' }}>
-              Participate in studies
+              Join as a research partner
             </p>
             <p className="text-sm" style={{ color: 'var(--text-dim)' }}>
-              Join health studies from home. Earn bounties for completing milestones.
+              Contribute to real studies from home. Receive fair compensation.
             </p>
             <p className="mono text-xs mt-3" style={{ color: 'var(--green)' }}>
-              Participant →
+              Research partner →
             </p>
           </button>
 
@@ -184,7 +176,6 @@ function OnboardingInner() {
             onClick={() => void handleSubmit('experimenter')}
             disabled={loading}
             className="biome-card rounded p-6 text-left transition-all disabled:opacity-40 w-full"
-            style={{ background: selectedRole === 'experimenter' ? 'var(--bg3)' : undefined }}
           >
             <p className="text-base font-semibold mb-1" style={{ color: 'var(--text-white)' }}>
               Run a study

@@ -1,5 +1,17 @@
 import { createServiceClient } from '@/lib/supabase/server';
 
+type ResearcherRow = {
+  id: string;
+  user_id: string;
+  org_name: string;
+  org_website: string | null;
+  org_description: string | null;
+  role_title: string | null;
+  expertise_areas: string[] | null;
+  review_status: string;
+  created_at: string;
+};
+
 export default async function ResearchersPage() {
   const db = createServiceClient();
 
@@ -8,17 +20,7 @@ export default async function ResearchersPage() {
     .select('id, user_id, org_name, org_website, org_description, role_title, expertise_areas, review_status, created_at')
     .order('created_at', { ascending: false });
 
-  const rows = (pending ?? []) as Array<{
-    id: string;
-    user_id: string;
-    org_name: string;
-    org_website: string | null;
-    org_description: string | null;
-    role_title: string | null;
-    expertise_areas: string[] | null;
-    review_status: string;
-    created_at: string;
-  }>;
+  const rows = (pending ?? []) as ResearcherRow[];
 
   const pendingRows = rows.filter(r => r.review_status === 'pending_review');
   const activeRows  = rows.filter(r => r.review_status === 'active');
@@ -33,7 +35,7 @@ export default async function ResearchersPage() {
         Experimenter profiles
       </h1>
 
-      {pendingRows.length > 0 && (
+      {pendingRows.length > 0 ? (
         <section style={{ marginBottom: 48 }}>
           <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px', color: '#22d3ee', textTransform: 'uppercase', marginBottom: 16 }}>
             Pending review ({pendingRows.length})
@@ -44,9 +46,7 @@ export default async function ResearchersPage() {
             ))}
           </div>
         </section>
-      )}
-
-      {pendingRows.length === 0 && (
+      ) : (
         <div style={{ padding: '24px 0', marginBottom: 32 }}>
           <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a' }}>
             No pending applications.
@@ -83,23 +83,7 @@ export default async function ResearchersPage() {
   );
 }
 
-function ResearcherCard({
-  row,
-  compact = false,
-}: {
-  row: {
-    id: string;
-    user_id: string;
-    org_name: string;
-    org_website: string | null;
-    org_description: string | null;
-    role_title: string | null;
-    expertise_areas: string[] | null;
-    review_status: string;
-    created_at: string;
-  };
-  compact?: boolean;
-}) {
+function ResearcherCard({ row, compact = false }: { row: ResearcherRow; compact?: boolean }) {
   const statusColor =
     row.review_status === 'pending_review' ? '#22d3ee' :
     row.review_status === 'active'         ? '#b7ff61' : '#5b8a9a';

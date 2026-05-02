@@ -26,8 +26,6 @@ const createSchema = z.object({
   study_alerts_email:   z.string().email().nullable().optional(),
 });
 
-// ─── GET /api/participant-profile?privyDid=did:privy:xxx ─────────────────────
-// Returns the participant's own profile (no sensitive fields).
 export async function GET(request: NextRequest) {
   const privyDid = request.nextUrl.searchParams.get('privyDid');
   if (!privyDid) {
@@ -51,9 +49,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ profile: data as unknown as ParticipantProfile });
 }
 
-// ─── POST /api/participant-profile ────────────────────────────────────────────
-// Creates a participant_profiles row (Step 1 of participant onboarding).
-// DB trigger auto-generates participant_id and pseudonym — never pass them here.
+// DB trigger auto-generates participant_id and pseudonym on insert — never pass them here.
 export async function POST(request: NextRequest) {
   const body: unknown = await request.json();
   const parsed = createSchema.safeParse(body);
@@ -80,44 +76,34 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Profile already exists' }, { status: 409 });
   }
 
-  // ── Silent anti-fraud checks ──────────────────────────────────────────────
-  let duplicateScore = 0;
+  // Silent anti-fraud checks — run in parallel
+  const [phoneScore, deviceScore] = await Promise.all([
+    phoneNumber
+      ? supabase.from('participant_profiles').select('id').eq('phone_number', phoneNumber).then(async ({ data }) => {
+          if (data && data.length > 0) {
+            await supabase.from('participant_profiles')
+              .update({ flagged: true, duplicate_score: 0.5 })
+              .in('id', data.map((p: { id: string }) => p.id));
+            return 0.5;
+          }
+          return 0;
+        })
+      : Promise.resolve(0),
+    deviceFingerprint
+      ? supabase.from('participant_profiles').select('id, country').eq('device_fingerprint', deviceFingerprint).then(async ({ data }) => {
+          if (data && data.length > 0) {
+            const sameCountry = data.filter((p: { id: string; country: string }) => p.country === country);
+            if (sameCountry.length > 0) {
+              await supabase.from('participant_profiles').update({ flagged: true }).in('id', sameCountry.map((p: { id: string }) => p.id));
+              return 0.5;
+            }
+          }
+          return 0;
+        })
+      : Promise.resolve(0),
+  ]);
 
-  if (phoneNumber) {
-    const { data: phoneMatches } = await supabase
-      .from('participant_profiles')
-      .select('id')
-      .eq('phone_number', phoneNumber);
-
-    if (phoneMatches && phoneMatches.length > 0) {
-      duplicateScore = Math.min(1, duplicateScore + 0.5);
-      await supabase
-        .from('participant_profiles')
-        .update({ flagged: true, duplicate_score: 0.5 })
-        .in('id', phoneMatches.map((p: { id: string }) => p.id));
-    }
-  }
-
-  if (deviceFingerprint) {
-    const { data: deviceMatches } = await supabase
-      .from('participant_profiles')
-      .select('id, country')
-      .eq('device_fingerprint', deviceFingerprint);
-
-    if (deviceMatches && deviceMatches.length > 0) {
-      const sameCountry = deviceMatches.filter(
-        (p: { id: string; country: string }) => p.country === country
-      );
-      if (sameCountry.length > 0) {
-        duplicateScore = Math.min(1, duplicateScore + 0.5);
-        await supabase
-          .from('participant_profiles')
-          .update({ flagged: true })
-          .in('id', sameCountry.map((p: { id: string }) => p.id));
-      }
-    }
-  }
-
+  const duplicateScore = Math.min(1, phoneScore + deviceScore);
   const shouldFlag = duplicateScore >= 0.5;
 
   // Derive verification status from what Privy has confirmed
@@ -151,21 +137,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // ── Create notification_preferences row if study alerts opted in ──────────
   if (study_alerts && study_alerts_email) {
-    await supabase
+    const { error: prefErr } = await supabase
       .from('notification_preferences')
       .upsert(
         { user_id: privyDid, email: study_alerts_email, study_alerts: true },
         { onConflict: 'user_id' }
       );
+    if (prefErr) console.error('[participant-profile] notification_preferences upsert failed:', prefErr.message);
   }
 
   return NextResponse.json({ profile: data as unknown as ParticipantProfile }, { status: 201 });
 }
 
-// ─── PATCH /api/participant-profile ────────────────────────────────────────────
-// Updates participant_profiles for onboarding steps 2, 3, or 4.
 // Immutable fields (year_of_birth, sex, ethnicity, nationality) are locked after first set.
 
 const step2Schema = z.object({
