@@ -273,12 +273,13 @@ function EmailGate({
 function Results({ answers, email }: { answers: Answers; email: string }) {
   const est = calcEstimate(answers);
 
-  const rows: [string, number][] = [
+  const allRows: [string, number][] = [
     ['Recruitment',  est.recruitment],
     ['Sample kits',  est.samples],
     ['IRB support',  est.irb],
     ['Ops fee (8%)', est.ops_fee],
-  ].filter(([, v]) => v > 0) as [string, number][];
+  ];
+  const rows = allRows.filter(([, v]) => v > 0);
 
   return (
     <div>
