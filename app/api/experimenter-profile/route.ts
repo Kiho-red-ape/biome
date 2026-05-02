@@ -75,5 +75,5 @@ export async function POST(request: NextRequest) {
     `Review at: https://biome.to/ops/researchers`,
   ).catch((err: unknown) => console.error('[experimenter-profile] notification email failed:', err));
 
-  return NextResponse.json({ profile: data as ExperimenterProfile }, { status: 201 });
+  return NextResponse.json({ profile: data as unknown as ExperimenterProfile }, { status: 201 });
 }
