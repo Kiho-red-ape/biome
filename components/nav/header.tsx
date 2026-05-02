@@ -168,6 +168,7 @@ export function SiteHeader() {
           <NavLink href="/run-a-study">Run a Study</NavLink>
           <NavLink href="/participate">Participate</NavLink>
           <NavLink href="/partners/join">Partners</NavLink>
+          <NavLink href="/blog">Blog</NavLink>
           <NavLink href="/docs">Docs</NavLink>
         </nav>
 
@@ -346,6 +347,7 @@ export function SiteHeader() {
             <OverlayLink href="/run-a-study"   onClick={() => setMenuOpen(false)}>Run a Study</OverlayLink>
             <OverlayLink href="/participate"    onClick={() => setMenuOpen(false)}>Participate</OverlayLink>
             <OverlayLink href="/partners/join"  onClick={() => setMenuOpen(false)}>Partners</OverlayLink>
+            <OverlayLink href="/blog"           onClick={() => setMenuOpen(false)}>Blog</OverlayLink>
             <OverlayLink href="/docs"           onClick={() => setMenuOpen(false)}>Docs</OverlayLink>
 
             <div style={{ height: 1, background: 'rgba(183,255,97,0.06)', margin: '8px 0' }} />

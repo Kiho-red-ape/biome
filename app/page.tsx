@@ -74,8 +74,7 @@ export default async function HomePage() {
 
           {/* Entity */}
           <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a', letterSpacing: '0.5px', margin: 0 }}>
-            Banano Tech Pvt Ltd · Coimbatore, India ·{' '}
-            <a href="mailto:kishore@biome.to" style={{ color: '#5b8a9a', textDecoration: 'none' }}>kishore@biome.to</a>
+            Biome Inc
           </p>
 
           {/* Links */}

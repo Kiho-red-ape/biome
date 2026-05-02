@@ -147,7 +147,7 @@ export function PartnerJoinForm() {
       }
       setDone(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Email kishore@biome.to directly.');
+      setError(err instanceof Error ? err.message : 'Something went wrong. Email contact@biome.to directly.');
     } finally {
       setSubmitting(false);
     }

@@ -41,7 +41,7 @@ const STEPS: Array<{
     desc: [
       'Compliance-gated participant payouts.',
       'Payments gate on milestone completion.',
-      'Transparent pass-through — no CRO-style markup.',
+      'Full line-item transparency on all costs.',
     ],
   },
   {
@@ -266,18 +266,6 @@ export function HowItWorks() {
           </div>
         ))}
       </div>
-
-      {/* Scroll hint */}
-      <p style={{
-        fontFamily:    'var(--font-mono)',
-        fontSize:      10,
-        color:         '#5b8a9a',
-        letterSpacing: '1px',
-        textAlign:     'center',
-        marginTop:     24,
-      }}>
-        ← scroll or tap pill to navigate →
-      </p>
 
       {/* Hide scrollbar cross-browser */}
       <style>{`

@@ -1,7 +1,7 @@
 // Isometric SVG illustrations for BIOME platform sections.
 // Each scene is a 400×300 viewBox SVG using the BIOME color palette.
 
-type Scene = 'recruit' | 'collect' | 'track' | 'pay' | 'deliver' | 'scope';
+type Scene = 'recruit' | 'collect' | 'track' | 'pay' | 'deliver' | 'scope' | 'design' | 'approve';
 
 interface Props {
   scene: Scene;
@@ -375,6 +375,89 @@ function Scope() {
   );
 }
 
+// ── Scene: DESIGN ─────────────────────────────────────────────────────────────
+// Isometric drafting board with protocol flow mapped on top.
+function Design() {
+  const cx = 200; const cy = 155; const s = 22;
+  const v = (dx: number, dy: number, dz: number) => p(dx, dy, dz, cx, cy, s);
+
+  const top   = [v(0,0,0.3), v(5,0,0.3), v(5,4,0.3), v(0,4,0.3)];
+  const right = [v(5,0,0),   v(5,0,0.3), v(5,4,0.3), v(5,4,0)];
+  const left  = [v(0,4,0),   v(0,4,0.3), v(5,4,0.3), v(5,4,0)];
+
+  const gridLines = [];
+  for (let i = 1; i < 5; i++) {
+    const a = p(i, 0, 0.31, cx, cy, s);
+    const b = p(i, 4, 0.31, cx, cy, s);
+    gridLines.push(<line key={`gx${i}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={G} strokeWidth="0.4" opacity="0.2" />);
+  }
+  for (let j = 1; j < 4; j++) {
+    const a = p(0, j, 0.31, cx, cy, s);
+    const b = p(5, j, 0.31, cx, cy, s);
+    gridLines.push(<line key={`gy${j}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={G} strokeWidth="0.4" opacity="0.2" />);
+  }
+
+  const flowPts: [number, number][] = [[0.7, 0.7], [2.0, 0.7], [3.3, 1.8], [4.3, 1.8], [4.3, 3.3]];
+  return (
+    <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points={poly(...left)}  fill="rgba(0,0,0,0.25)" stroke={G} strokeWidth="0.8" />
+      <polygon points={poly(...right)} fill="rgba(0,0,0,0.15)" stroke={G} strokeWidth="0.8" />
+      <polygon points={poly(...top)}   fill="rgba(11,16,20,0.9)" stroke={G} strokeWidth="0.8" />
+      {gridLines}
+      {flowPts.slice(0, -1).map(([fx, fy], i) => {
+        const a = p(fx, fy, 0.32, cx, cy, s);
+        const b = p(flowPts[i+1][0], flowPts[i+1][1], 0.32, cx, cy, s);
+        return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={G} strokeWidth="1.2" strokeDasharray="3 2" opacity="0.5" />;
+      })}
+      {flowPts.map(([fx, fy], i) => {
+        const pt = p(fx, fy, 0.32, cx, cy, s);
+        return <circle key={i} cx={pt.x} cy={pt.y} r="5" fill={i === 0 ? G : i === flowPts.length - 1 ? A : C} opacity="0.85" />;
+      })}
+      <text x="200" y="278" textAnchor="middle"
+        fontFamily="var(--font-mono)" fontSize="9" fill={G} opacity="0.5" letterSpacing="3">
+        PROTOCOL DESIGN
+      </text>
+    </svg>
+  );
+}
+
+// ── Scene: APPROVE ─────────────────────────────────────────────────────────────
+// Verification badge with radial trust rings.
+function Approve() {
+  const cx = 200; const cy = 148;
+
+  return (
+    <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="rg-approve" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stopColor={G} stopOpacity="0.1" />
+          <stop offset="100%" stopColor={G} stopOpacity="0"    />
+        </radialGradient>
+      </defs>
+      <circle cx={cx} cy={cy} r="80" fill="url(#rg-approve)" />
+      <circle cx={cx} cy={cy} r="64" stroke={G} strokeWidth="0.5" strokeDasharray="6 4" opacity="0.2" />
+      <circle cx={cx} cy={cy} r="46" stroke={G} strokeWidth="0.7" opacity="0.2" fill="rgba(183,255,97,0.03)" />
+      {/* Shield */}
+      <path d={`M ${cx},${cy-30} L ${cx+24},${cy-15} L ${cx+24},${cy+8} Q ${cx+24},${cy+30} ${cx},${cy+34} Q ${cx-24},${cy+30} ${cx-24},${cy+8} L ${cx-24},${cy-15} Z`}
+        fill="rgba(183,255,97,0.08)" stroke={G} strokeWidth="1.2" />
+      {/* Checkmark */}
+      <path d={`M ${cx-11},${cy+3} L ${cx-2},${cy+13} L ${cx+14},${cy-9}`}
+        stroke={G} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9" />
+      {/* Orbiting dots */}
+      {[0, 60, 120, 180, 240, 300].map((angle, i) => {
+        const rad = (angle * Math.PI) / 180;
+        const dx = cx + 64 * Math.cos(rad);
+        const dy = cy + 64 * Math.sin(rad);
+        return <circle key={i} cx={dx} cy={dy} r="4" fill={i % 2 === 0 ? G : C} opacity={0.5 + (i % 3) * 0.2} />;
+      })}
+      <text x="200" y="278" textAnchor="middle"
+        fontFamily="var(--font-mono)" fontSize="9" fill={G} opacity="0.5" letterSpacing="3">
+        BIOME VERIFIED
+      </text>
+    </svg>
+  );
+}
+
 // ── Export ────────────────────────────────────────────────────────────────────
 export function IsometricScene({ scene, className, style }: Props) {
   const scenes: Record<Scene, React.ReactElement> = {
@@ -384,6 +467,8 @@ export function IsometricScene({ scene, className, style }: Props) {
     pay:     <Pay />,
     deliver: <Deliver />,
     scope:   <Scope />,
+    design:  <Design />,
+    approve: <Approve />,
   };
   return (
     <div

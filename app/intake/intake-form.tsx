@@ -170,7 +170,7 @@ export function IntakeForm() {
       if (!res.ok) throw new Error('Submission failed');
       setDone(true);
     } catch {
-      setError('Something went wrong. Please email kishore@biome.to directly.');
+      setError('Something went wrong. Please email contact@biome.to directly.');
     } finally {
       setSubmitting(false);
     }

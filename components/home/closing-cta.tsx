@@ -70,7 +70,7 @@ export function ClosingCta() {
         color:        '#f2faf4',
         marginBottom: 16,
       }}>
-        If you&apos;re running a study that doesn&apos;t need a CRO, we should talk.
+        Running a study and need the operational layer handled?
       </h2>
 
       <p style={{
@@ -138,7 +138,7 @@ export function ClosingCta() {
 
           {formState === 'error' && (
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#ff6b6b', textAlign: 'center' }}>
-              Something went wrong. Email kishore@biome.to directly.
+              Something went wrong. Email contact@biome.to directly.
             </p>
           )}
         </form>
