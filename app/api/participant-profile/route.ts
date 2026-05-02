@@ -13,13 +13,17 @@ const PUBLIC_COLUMNS =
   'completion_rate, dropout_count, no_show_count, onboarding_step, created_at, updated_at';
 
 const createSchema = z.object({
-  privyDid:          z.string().min(1),
-  country:           z.string().min(1),
-  phoneNumber:       z.string().nullable().optional(),
-  phoneVerified:     z.boolean().default(false),
-  emailVerified:     z.boolean().default(false),
-  deviceFingerprint: z.string().nullable().optional(),
-  termsAccepted:     z.literal(true),
+  privyDid:             z.string().min(1),
+  country:              z.string().min(1),
+  phoneNumber:          z.string().nullable().optional(),
+  phoneVerified:        z.boolean().default(false),
+  emailVerified:        z.boolean().default(false),
+  deviceFingerprint:    z.string().nullable().optional(),
+  termsAccepted:        z.literal(true),
+  year_of_birth:        z.number().int().min(1920).max(2010).nullable().optional(),
+  sex_assigned_at_birth: z.enum(['male', 'female', 'intersex', 'prefer_not_to_say']).nullable().optional(),
+  study_alerts:         z.boolean().optional(),
+  study_alerts_email:   z.string().email().nullable().optional(),
 });
 
 // ─── GET /api/participant-profile?privyDid=did:privy:xxx ─────────────────────
@@ -58,8 +62,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { privyDid, country, phoneNumber, phoneVerified, emailVerified, deviceFingerprint } =
-    parsed.data;
+  const {
+    privyDid, country, phoneNumber, phoneVerified, emailVerified, deviceFingerprint,
+    year_of_birth, sex_assigned_at_birth, study_alerts, study_alerts_email,
+  } = parsed.data;
 
   const supabase = createServiceClient();
 
@@ -125,22 +131,34 @@ export async function POST(request: NextRequest) {
   const { data, error } = await supabase
     .from('participant_profiles')
     .insert({
-      user_id:            privyDid,
+      user_id:               privyDid,
       country,
-      phone_number:       phoneNumber ?? null,
-      phone_verified:     phoneVerified,
-      email_verified:     emailVerified,
-      device_fingerprint: deviceFingerprint ?? null,
-      duplicate_score:    duplicateScore,
-      flagged:            shouldFlag,
-      verification_status: verificationStatus,
-      onboarding_step:    1,
+      phone_number:          phoneNumber ?? null,
+      phone_verified:        phoneVerified,
+      email_verified:        emailVerified,
+      device_fingerprint:    deviceFingerprint ?? null,
+      duplicate_score:       duplicateScore,
+      flagged:               shouldFlag,
+      verification_status:   verificationStatus,
+      onboarding_step:       1,
+      year_of_birth:         year_of_birth ?? null,
+      sex_assigned_at_birth: sex_assigned_at_birth ?? null,
     })
     .select(PUBLIC_COLUMNS)
     .single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // ── Create notification_preferences row if study alerts opted in ──────────
+  if (study_alerts && study_alerts_email) {
+    await supabase
+      .from('notification_preferences')
+      .upsert(
+        { user_id: privyDid, email: study_alerts_email, study_alerts: true },
+        { onConflict: 'user_id' }
+      );
   }
 
   return NextResponse.json({ profile: data as unknown as ParticipantProfile }, { status: 201 });

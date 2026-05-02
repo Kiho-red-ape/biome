@@ -6,7 +6,7 @@ const STEPS = [
   { num: '02', label: 'Get matched', desc: 'When a study fits your profile, we notify you.' },
   { num: '03', label: 'Apply and get screened', desc: 'Eligibility check. One-click application.' },
   { num: '04', label: 'Complete milestones', desc: 'Follow the protocol. Submit on time.' },
-  { num: '05', label: 'Get paid', desc: 'Compliance-gated payouts via Stripe.' },
+  { num: '05', label: 'Get paid', desc: 'Compliance-gated payouts. Compensation varies by study.' },
 ];
 
 export default function ParticipatePage() {
@@ -79,7 +79,7 @@ export default function ParticipatePage() {
             Create a profile to get notified when studies open.
           </p>
           <Link
-            href="/onboarding"
+            href="/onboarding?role=participant"
             className="btn-primary"
             style={{ display: 'inline-flex' }}
           >
@@ -152,7 +152,7 @@ export default function ParticipatePage() {
           marginTop:   32,
         }}>
           Already have a profile?{' '}
-          <Link href="/onboarding" style={{ color: '#b7ff61', textDecoration: 'none' }}>
+          <Link href="/onboarding?role=participant" style={{ color: '#b7ff61', textDecoration: 'none' }}>
             Sign in →
           </Link>
         </p>

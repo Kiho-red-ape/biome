@@ -98,6 +98,9 @@ export default function ParticipantOnboardingPage() {
 
   const [checking, setChecking] = useState(true);
   const [country, setCountry] = useState('');
+  const [yearOfBirth, setYearOfBirth] = useState('');
+  const [sex, setSex] = useState('');
+  const [studyAlerts, setStudyAlerts] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [deviceFingerprint, setDeviceFingerprint] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -160,13 +163,17 @@ export default function ParticipantOnboardingPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          privyDid: user.id,
+          privyDid:           user.id,
           country,
-          phoneNumber: linkedPhone,
+          phoneNumber:        linkedPhone,
           phoneVerified,
           emailVerified,
           deviceFingerprint,
-          termsAccepted: true,
+          termsAccepted:      true,
+          year_of_birth:      yearOfBirth ? parseInt(yearOfBirth, 10) : null,
+          sex_assigned_at_birth: sex || null,
+          study_alerts:       studyAlerts,
+          study_alerts_email: emailAddress ?? null,
         }),
       });
 
@@ -384,6 +391,60 @@ export default function ParticipantOnboardingPage() {
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
+            </div>
+
+            {/* Year of birth */}
+            <div>
+              <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>
+                YEAR OF BIRTH
+                <span className="ml-2 opacity-60">(optional — used for study matching)</span>
+              </label>
+              <input
+                type="number"
+                value={yearOfBirth}
+                onChange={(e) => setYearOfBirth(e.target.value)}
+                placeholder="e.g. 1990"
+                min={1920}
+                max={2010}
+                className={inputFocusClass}
+                style={inputStyle}
+              />
+            </div>
+
+            {/* Sex assigned at birth */}
+            <div>
+              <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>
+                SEX ASSIGNED AT BIRTH
+                <span className="ml-2 opacity-60">(optional)</span>
+              </label>
+              <select
+                value={sex}
+                onChange={(e) => setSex(e.target.value)}
+                className={inputFocusClass}
+                style={inputStyle}
+              >
+                <option value="">Prefer not to say</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="intersex">Intersex</option>
+                <option value="prefer_not_to_say">Prefer not to say</option>
+              </select>
+            </div>
+
+            {/* Study alerts */}
+            <div>
+              <label className="flex items-start gap-3 cursor-pointer" style={{ color: 'var(--text-dim)' }}>
+                <input
+                  type="checkbox"
+                  checked={studyAlerts}
+                  onChange={(e) => setStudyAlerts(e.target.checked)}
+                  className="mt-0.5 flex-shrink-0"
+                  style={{ accentColor: 'var(--green)' }}
+                />
+                <span className="text-xs leading-relaxed">
+                  Notify me when new studies open that match my profile.
+                </span>
+              </label>
             </div>
 
             {/* Terms */}

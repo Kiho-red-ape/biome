@@ -39,7 +39,7 @@ const STEPS: Array<{
     num: '04', label: 'PAY', scene: 'pay',
     headline: 'Compliant payouts.\nFull audit trail.',
     desc: [
-      'Stripe Connect to participants in 220+ countries.',
+      'Compliance-gated participant payouts.',
       'Payments gate on milestone completion.',
       'Transparent pass-through — no CRO-style markup.',
     ],

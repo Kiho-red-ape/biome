@@ -117,7 +117,7 @@ export default function RunAStudyPage() {
           },
           {
             label: 'Recruitment — transparent pass-through',
-            desc: 'Typically $100–$400 per enrolled participant.',
+            desc: 'Cost varies by study type, geography, and eligibility criteria.',
           },
           {
             label: 'Sample logistics — transparent pass-through',

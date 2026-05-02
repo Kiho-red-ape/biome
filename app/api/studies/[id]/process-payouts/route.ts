@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
-import { createBatch, addPaymentToBatch, startBatchProcessing } from '@/lib/trolley';
 
 interface Props { params: Promise<{ id: string }> }
 
@@ -14,7 +13,6 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   const supabase = createServiceClient();
 
-  // Verify caller is experimenter or admin
   const { data: exp } = await supabase
     .from('experiments')
     .select('id, title, status, experimenter_id, escrow_status, bounty_per_participant, experiment_code')
@@ -49,38 +47,30 @@ export async function POST(req: NextRequest, { params }: Props) {
     return NextResponse.json({ message: 'No pending payouts to process', paymentsInitiated: 0 });
   }
 
-  // Fetch participant payout details
+  // Fetch participant Stripe onboarding status
   const participantIds = apps.map((a) => a.participant_id as string);
   const { data: ppRows } = await supabase
     .from('participant_profiles')
-    .select('user_id, trolley_recipient_id, payout_method_configured')
+    .select('user_id, stripe_account_id, stripe_onboarding_complete')
     .in('user_id', participantIds);
 
-  const ppMap = new Map((ppRows ?? []).map((p) => [p.user_id, p]));
-
-  const gross      = Number(exp.bounty_per_participant);
-  const fee        = gross * 0.005;
-  const net        = parseFloat((gross - fee).toFixed(2));
-  const description = `BIOME Study ${exp.experiment_code ?? experimentId} Payouts`;
-
-  // Create Trolley batch
-  let batchId: string;
-  try {
-    batchId = await createBatch(description);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed to create batch';
-    return NextResponse.json({ error: msg }, { status: 500 });
+  type PPRow = { user_id: string; stripe_account_id: string | null; stripe_onboarding_complete: boolean };
+  const ppMap = new Map<string, PPRow>();
+  for (const p of (ppRows ?? [])) {
+    ppMap.set(p.user_id, p as unknown as PPRow);
   }
 
-  let initiated = 0;
-  let missing   = 0;
-  const failures: string[] = [];
+  const gross = Number(exp.bounty_per_participant);
+  const fee   = gross * 0.005;
+  const net   = parseFloat((gross - fee).toFixed(2));
+
+  let queued  = 0;
+  let missing = 0;
 
   for (const app of apps) {
     const pp = ppMap.get(app.participant_id as string);
 
-    if (!pp?.trolley_recipient_id || !pp.payout_method_configured) {
-      // Mark as needing payout method
+    if (!pp?.stripe_onboarding_complete) {
       await supabase.from('applications')
         .update({ payout_status: 'method_missing' })
         .eq('id', app.id);
@@ -88,56 +78,27 @@ export async function POST(req: NextRequest, { params }: Props) {
       continue;
     }
 
-    try {
-      const paymentId = await addPaymentToBatch(batchId, {
-        recipientId: pp.trolley_recipient_id,
-        amount:      net,
-        memo:        `BIOME: ${exp.title}`,
-      });
+    // Queue for manual Stripe payout processing
+    await supabase.from('applications').update({
+      payout_status:       'processing',
+      payout_initiated_at: new Date().toISOString(),
+      payout_fee_amount:   fee,
+      payout_net_amount:   net,
+    }).eq('id', app.id);
 
-      await supabase.from('applications').update({
-        trolley_payment_id:  paymentId,
-        trolley_batch_id:    batchId,
-        payout_status:       'processing',
-        payout_initiated_at: new Date().toISOString(),
-        payout_fee_amount:   fee,
-        payout_net_amount:   net,
-      }).eq('id', app.id);
-
-      initiated++;
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Unknown error';
-      failures.push(`${app.id}: ${msg}`);
-      await supabase.from('applications')
-        .update({ payout_status: 'failed' })
-        .eq('id', app.id);
-    }
+    queued++;
   }
 
-  // Start batch processing if any payments were added
-  if (initiated > 0) {
-    try {
-      await startBatchProcessing(batchId);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to start batch';
-      return NextResponse.json({
-        batchId, paymentsInitiated: initiated, paymentsMissing: missing,
-        totalAmount: initiated * net,
-        warning: `Batch created but failed to start: ${msg}`,
-      });
-    }
-
+  if (queued > 0) {
     await supabase.from('experiments')
       .update({ escrow_status: 'partially_released' })
       .eq('id', experimentId);
   }
 
   return NextResponse.json({
-    batchId,
-    paymentsInitiated: initiated,
-    paymentsMissing:   missing,
-    paymentsFailed:    failures.length,
-    totalAmount:       initiated * net,
-    failures:          failures.length > 0 ? failures : undefined,
+    paymentsQueued:  queued,
+    paymentsMissing: missing,
+    totalAmount:     queued * net,
+    note:            'Payments queued for Stripe processing. Stripe Connect integration pending.',
   });
 }

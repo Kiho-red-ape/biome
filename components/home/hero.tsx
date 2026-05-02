@@ -234,7 +234,7 @@ export function HomeHero() {
               Run a study
             </Link>
             <Link
-              href="/participate"
+              href="/onboarding?role=participant"
               style={{
                 fontFamily:     'var(--font-mono)',
                 fontSize:       12,

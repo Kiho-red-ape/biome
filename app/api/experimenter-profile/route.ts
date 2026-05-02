@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { sendEmail } from '@/lib/email';
 import type { ExperimenterProfile } from '@/lib/types';
 import { z } from 'zod';
 
@@ -48,23 +49,32 @@ export async function POST(request: NextRequest) {
     .from('experimenter_profiles')
     .upsert(
       {
-        user_id: privyDid,
+        user_id:         privyDid,
         org_name,
-        org_website: org_website ?? null,
+        org_website:     org_website ?? null,
         org_description: org_description ?? null,
-        role_title: role_title ?? null,
+        role_title:      role_title ?? null,
         expertise_areas: expertise_areas ?? null,
-        // DEMO MODE: auto-approve. Remove this and implement manual review for production.
-        screening_status: 'approved',
-        screened_at: new Date().toISOString(),
-        screened_by: 'auto',
+        review_status:   'pending_review',
       },
       { onConflict: 'user_id' }
     )
-    .select('id, user_id, org_name, screening_status')
+    .select('id, user_id, org_name, review_status')
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Notify operator of new researcher application
+  await sendEmail(
+    'kishore@biome.to',
+    `New researcher application — ${org_name}`,
+    `Organization: ${org_name}\n` +
+    `Website: ${org_website ?? '—'}\n` +
+    `Role: ${role_title ?? '—'}\n` +
+    `Expertise: ${(expertise_areas ?? []).join(', ') || '—'}\n\n` +
+    `Description:\n${org_description ?? '—'}\n\n` +
+    `Review at: https://biome.to/ops/researchers`,
+  );
 
   return NextResponse.json({ profile: data as ExperimenterProfile }, { status: 201 });
 }

@@ -366,6 +366,23 @@ function Results({ answers, email }: { answers: Answers; email: string }) {
         ))}
       </div>
 
+      {/* Disclaimer */}
+      <p style={{
+        fontFamily:  'var(--font-mono)',
+        fontSize:    10,
+        color:       '#5b8a9a',
+        lineHeight:  1.7,
+        marginBottom: 24,
+        padding:     '12px 16px',
+        background:  'rgba(255,255,255,0.02)',
+        border:      '1px solid rgba(255,255,255,0.06)',
+        borderRadius: 2,
+      }}>
+        These figures are illustrative estimates only — not binding quotes.
+        Actual costs depend on study design, geography, eligibility criteria, and lab partner availability.
+        A formal proposal is provided after intake review.
+      </p>
+
       <a
         href="/intake"
         style={{

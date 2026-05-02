@@ -69,6 +69,9 @@ const NAV: { label: string; href: string; children?: { label: string; href: stri
     label: 'Estimate Leads', href: '/ops/estimate-leads',
   },
   {
+    label: 'Researcher Approvals', href: '/ops/researchers',
+  },
+  {
     label: 'Blog', href: '/ops/blog',
     children: [
       { label: 'All posts',   href: '/ops/blog' },

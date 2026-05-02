@@ -9,7 +9,7 @@ const PROFILE_COLS =
   'sample_comfort, language_fluency, weekly_availability_hours, ' +
   'recent_interventions, washout_sensitive, dropout_count, no_show_count, ' +
   'nationality, state_region, urbanicity, ethnicity, gender_identity, ' +
-  'sex_assigned_at_birth, payout_method_configured, payout_method_type';
+  'sex_assigned_at_birth, stripe_account_id, stripe_onboarding_complete';
 
 // GET /api/dashboard?privyDid=did:privy:xxx
 export async function GET(request: NextRequest) {
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     .from('applications')
     .select(
       'id, status, applied_at, approved_at, completed_at, payout_status, ' +
-      'trolley_payment_id, payout_initiated_at, payout_completed_at, payout_net_amount, ' +
+      'payout_initiated_at, payout_completed_at, payout_net_amount, ' +
       'experiments(id, title, category, bounty_per_participant, status, compliance_threshold, duration_weeks, is_remote, region)'
     )
     .eq('participant_id', privyDid)
@@ -187,13 +187,12 @@ export async function GET(request: NextRequest) {
     }).filter(Boolean);
   }
 
-  const p = profile as (typeof profile & { payout_method_configured?: boolean; payout_method_type?: string | null }) | null;
+  const p = profile as (typeof profile & { stripe_onboarding_complete?: boolean }) | null;
 
   return NextResponse.json({
     profile,
     applications: apps ?? [],
     activeStudies,
-    payoutMethodConfigured: p?.payout_method_configured ?? false,
-    payoutMethodType:       p?.payout_method_type ?? null,
+    stripeOnboardingComplete: p?.stripe_onboarding_complete ?? false,
   });
 }

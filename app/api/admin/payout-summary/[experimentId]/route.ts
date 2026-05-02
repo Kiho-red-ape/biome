@@ -33,8 +33,8 @@ export async function GET(req: NextRequest, { params }: Props) {
     .from('applications')
     .select(
       'id, participant_id, status, payout_status, payout_net_amount, ' +
-      'payout_initiated_at, payout_completed_at, trolley_payment_id, trolley_batch_id, ' +
-      'participant_profiles!participant_id(pseudonym, participant_id, payout_method_configured, payout_method_type)'
+      'payout_initiated_at, payout_completed_at, ' +
+      'participant_profiles!participant_id(pseudonym, participant_id, stripe_onboarding_complete)'
     )
     .eq('experiment_id', experimentId)
     .in('status', ['enrolled', 'approved', 'completed']);
@@ -47,13 +47,10 @@ export async function GET(req: NextRequest, { params }: Props) {
     payout_net_amount: number | null;
     payout_initiated_at: string | null;
     payout_completed_at: string | null;
-    trolley_payment_id: string | null;
-    trolley_batch_id: string | null;
     participant_profiles: {
       pseudonym: string;
       participant_id: string;
-      payout_method_configured: boolean;
-      payout_method_type: string | null;
+      stripe_onboarding_complete: boolean;
     } | null;
   }>;
 
@@ -95,10 +92,7 @@ export async function GET(req: NextRequest, { params }: Props) {
       payout_net_amount: r.payout_net_amount,
       payout_initiated_at: r.payout_initiated_at,
       payout_completed_at: r.payout_completed_at,
-      trolley_payment_id:  r.trolley_payment_id,
-      trolley_batch_id:    r.trolley_batch_id,
-      payout_method_configured: r.participant_profiles?.payout_method_configured ?? false,
-      payout_method_type:       r.participant_profiles?.payout_method_type ?? null,
+      stripe_onboarding_complete: r.participant_profiles?.stripe_onboarding_complete ?? false,
     })),
   });
 }
