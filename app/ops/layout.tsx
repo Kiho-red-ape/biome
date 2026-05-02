@@ -65,6 +65,16 @@ const NAV: { label: string; href: string; children?: { label: string; href: stri
       { label: 'Export',           href: '/ops/compliance?tab=export' },
     ],
   },
+  {
+    label: 'Estimate Leads', href: '/ops/estimate-leads',
+  },
+  {
+    label: 'Blog', href: '/ops/blog',
+    children: [
+      { label: 'All posts',   href: '/ops/blog' },
+      { label: 'New post',    href: '/ops/blog/new' },
+    ],
+  },
   { label: 'Reports', href: '/ops/reports' },
 ];
 

@@ -3,9 +3,9 @@ import { SiteHeader } from '@/components/nav/header';
 import { HomeHero } from '@/components/home/hero';
 import { HowItWorks } from '@/components/home/how-it-works';
 import { ScopeSection } from '@/components/home/scope-section';
-import { StudyFit } from '@/components/home/study-fit';
 import { Geography } from '@/components/home/geography';
 import { TrackRecord } from '@/components/home/track-record';
+import { EstimateCta } from '@/components/home/estimate-cta';
 import { PartnersStrip } from '@/components/home/partners-strip';
 import { ClosingCta } from '@/components/home/closing-cta';
 
@@ -38,9 +38,9 @@ export default async function HomePage() {
       <HomeHero />
       <HowItWorks />
       <ScopeSection />
-      <StudyFit />
       <Geography />
       <TrackRecord />
+      <EstimateCta />
       {partners.length > 0 && <PartnersStrip partners={partners} />}
       <ClosingCta />
 
@@ -81,6 +81,7 @@ export default async function HomePage() {
           {/* Links */}
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
             {[
+              ['Blog',    '/blog'],
               ['Docs',    '/docs'],
               ['Terms',   '/legal/tos'],
               ['Privacy', '/privacy'],
