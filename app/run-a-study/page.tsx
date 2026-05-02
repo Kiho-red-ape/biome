@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { SiteHeader } from '@/components/nav/header';
 import Link from 'next/link';
 import { IsometricScene } from '@/components/illustrations/IsometricScene';
@@ -61,7 +61,37 @@ const SCOPE_ROWS: Array<{ biome: string; you: string }> = [
 ];
 
 export default function RunAStudyPage() {
-  const estimateRef = useRef<HTMLDivElement>(null);
+  const estimateRef  = useRef<HTMLDivElement>(null);
+  const journeyRef   = useRef<HTMLDivElement>(null);
+  const journeyCards = useRef<(HTMLDivElement | null)[]>([]);
+  const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    const track = journeyRef.current;
+    if (!track) return;
+    const onScroll = () => {
+      const cx = track.getBoundingClientRect().left + track.getBoundingClientRect().width / 2;
+      let closest = 0, minDist = Infinity;
+      journeyCards.current.forEach((card, i) => {
+        if (!card) return;
+        const r = card.getBoundingClientRect();
+        const d = Math.abs(r.left + r.width / 2 - cx);
+        if (d < minDist) { minDist = d; closest = i; }
+      });
+      setActiveStep(closest);
+    };
+    track.addEventListener('scroll', onScroll, { passive: true });
+    return () => track.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollToStep = useCallback((i: number) => {
+    const card  = journeyCards.current[i];
+    const track = journeyRef.current;
+    if (!card || !track) return;
+    const tr = track.getBoundingClientRect();
+    const cr = card.getBoundingClientRect();
+    track.scrollBy({ left: cr.left - tr.left - (tr.width - cr.width) / 2, behavior: 'smooth' });
+  }, []);
 
   function scrollToEstimate() {
     estimateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -123,67 +153,106 @@ export default function RunAStudyPage() {
         }}>
           // HOW_IT_WORKS
         </p>
+
+        {/* Pill nav */}
+        <div style={{
+          display: 'flex', gap: 8, marginBottom: 32,
+          paddingLeft: 'clamp(16px, 5vw, 80px)', flexWrap: 'wrap',
+        }}>
+          {JOURNEY.map((step, i) => (
+            <button
+              key={step.num}
+              onClick={() => scrollToStep(i)}
+              style={{
+                fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px',
+                textTransform: 'uppercase', padding: '6px 16px',
+                border: `1px solid ${activeStep === i ? '#b7ff61' : 'rgba(255,255,255,0.08)'}`,
+                background: activeStep === i ? 'rgba(183,255,97,0.07)' : 'transparent',
+                color: activeStep === i ? '#b7ff61' : '#5b8a9a',
+                borderRadius: 2, cursor: 'pointer', transition: 'all 150ms ease',
+              }}
+            >
+              {step.num} {step.label}
+            </button>
+          ))}
+        </div>
+
         <div
+          ref={journeyRef}
           className="journey-track"
           style={{
-            display: 'flex', gap: 20, overflowX: 'scroll',
+            display: 'flex', gap: 24, overflowX: 'scroll',
             scrollSnapType: 'x mandatory', scrollbarWidth: 'none',
             WebkitOverflowScrolling: 'touch',
             paddingLeft: 'clamp(16px, 5vw, 80px)',
             paddingRight: 'clamp(16px, 5vw, 80px)',
-            paddingBottom: 8,
+            paddingBottom: 8, cursor: 'grab',
           }}
         >
-          {JOURNEY.map((step) => (
+          {JOURNEY.map((step, i) => (
             <div
               key={step.num}
+              ref={(el) => { journeyCards.current[i] = el; }}
+              className={i % 2 === 0 ? 'flex flex-col sm:flex-row-reverse' : 'flex flex-col sm:flex-row'}
               style={{
-                scrollSnapAlign: 'start', flexShrink: 0, width: 320,
-                background: 'rgba(255,255,255,0.015)',
-                border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 4, display: 'flex', flexDirection: 'column',
-                overflow: 'hidden',
+                scrollSnapAlign: 'center', flexShrink: 0,
+                width: 'clamp(320px, 88vw, 860px)', minHeight: 320,
+                background: activeStep === i ? 'rgba(183,255,97,0.03)' : 'rgba(255,255,255,0.015)',
+                border: `1px solid ${activeStep === i ? 'rgba(183,255,97,0.18)' : 'rgba(255,255,255,0.06)'}`,
+                borderRadius: 4, overflow: 'hidden',
+                transition: 'border-color 300ms ease, background 300ms ease',
               }}
             >
-              {/* Illustration */}
-              <div style={{
-                height: 180, flexShrink: 0, overflow: 'hidden',
-                background: 'rgba(11,16,20,0.6)',
-                borderBottom: '1px solid rgba(255,255,255,0.05)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <IsometricScene scene={step.scene} style={{ width: 280, aspectRatio: '4/3' }} />
+              {/* Illustration — first in DOM → top on mobile */}
+              <div
+                className="w-full sm:w-1/2"
+                style={{
+                  background: 'rgba(11,16,20,0.5)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: 24, minHeight: 200,
+                  opacity: activeStep === i ? 0.9 : 0.3,
+                  transition: 'opacity 400ms ease',
+                }}
+              >
+                <IsometricScene scene={step.scene} />
               </div>
 
-              {/* Content */}
-              <div style={{ padding: '20px 20px 24px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
-                <p style={{
-                  fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px',
-                  color: '#b7ff61', textTransform: 'uppercase', margin: 0,
+              {/* Text */}
+              <div
+                className="w-full sm:w-1/2"
+                style={{
+                  padding: 'clamp(28px, 4vw, 44px)',
+                  display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                }}
+              >
+                <div style={{
+                  fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 64,
+                  lineHeight: 1, color: 'rgba(183,255,97,0.15)', marginBottom: 12,
                 }}>
-                  {step.num} {step.label}
+                  {step.num}
+                </div>
+                <p style={{
+                  fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
+                  color: '#b7ff61', textTransform: 'uppercase', marginBottom: 20,
+                }}>
+                  {step.label}
                 </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#3a4e42', lineHeight: 1.6, margin: 0 }}>
-                    <span style={{ color: '#3a4e42', fontWeight: 600 }}>Traditional: </span>
-                    {step.traditional}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#3a4e42', lineHeight: 1.7, margin: 0 }}>
+                    <span style={{ color: '#3a4e42' }}>Traditional: </span>{step.traditional}
                   </p>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#aab8b1', lineHeight: 1.6, margin: 0 }}>
-                    <span style={{ color: '#b7ff61', fontWeight: 600 }}>With Biome: </span>
-                    {step.withBiome}
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#aab8b1', lineHeight: 1.7, margin: 0 }}>
+                    <span style={{ color: '#b7ff61' }}>With Biome: </span>{step.withBiome}
                   </p>
                 </div>
-                <div style={{ marginTop: 'auto', paddingTop: 8 }}>
-                  <span style={{
-                    display: 'inline-block',
-                    fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '1.5px',
-                    textTransform: 'uppercase',
-                    color: '#b7ff61', border: '1px solid rgba(183,255,97,0.25)',
-                    padding: '3px 10px', borderRadius: 2,
-                  }}>
-                    {step.metric}
-                  </span>
-                </div>
+                <span style={{
+                  display: 'inline-block', alignSelf: 'flex-start',
+                  fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '1.5px',
+                  textTransform: 'uppercase', color: '#b7ff61',
+                  border: '1px solid rgba(183,255,97,0.25)', padding: '3px 10px', borderRadius: 2,
+                }}>
+                  {step.metric}
+                </span>
               </div>
             </div>
           ))}
