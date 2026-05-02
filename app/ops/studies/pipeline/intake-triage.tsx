@@ -44,7 +44,7 @@ export function IntakeTriage({
               padding:      '4px 10px',
               background:   status === s ? 'rgba(255,179,0,0.1)' : 'transparent',
               border:       `1px solid ${status === s ? 'rgba(255,179,0,0.4)' : 'rgba(255,255,255,0.08)'}`,
-              color:        status === s ? '#ffb300' : '#4a6050',
+              color:        status === s ? '#ffb300' : '#5b8a9a',
               cursor:       'pointer',
               borderRadius: 2,
               textTransform: 'uppercase',

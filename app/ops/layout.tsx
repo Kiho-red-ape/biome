@@ -120,7 +120,7 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
   if (!ready || !isAuthorized) {
     return (
       <div style={{ minHeight: '100vh', background: '#050709', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a6050' }}>…</span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>…</span>
       </div>
     );
   }
@@ -149,11 +149,11 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
           }}>
             ◆ OPERATOR MODE
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a6050' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
             {userEmail}
           </span>
         </div>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a6050' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
           {time}
         </span>
       </div>
@@ -199,7 +199,7 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
               padding:       '5px 16px',
               fontFamily:    'var(--font-mono)',
               fontSize:      10,
-              color:         '#4a6050',
+              color:         '#5b8a9a',
               textDecoration: 'none',
               letterSpacing: '0.5px',
             }}

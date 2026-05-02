@@ -22,7 +22,7 @@ const LABEL: React.CSSProperties = {
   fontSize:      10,
   textTransform: 'uppercase',
   letterSpacing: '2px',
-  color:         '#4a6050',
+  color:         '#5b8a9a',
   marginBottom:  6,
 };
 
@@ -163,7 +163,7 @@ export function PartnerJoinForm() {
         <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f2faf4', marginBottom: 8 }}>
           Application received.
         </p>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#4a6050', lineHeight: 1.7 }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a', lineHeight: 1.7 }}>
           We&apos;ll review within 48 hours.
         </p>
       </div>
@@ -222,7 +222,7 @@ export function PartnerJoinForm() {
         <label style={LABEL}>
           Logo <span style={{ color: '#b7ff61', marginLeft: 4 }}>*</span>
         </label>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a6050', marginBottom: 8, lineHeight: 1.5 }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a', marginBottom: 8, lineHeight: 1.5 }}>
           PNG / JPG / SVG · Square · Max 2MB · 640×640px recommended
         </p>
         <label
@@ -248,7 +248,7 @@ export function PartnerJoinForm() {
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#b7ff61' }}>
             Choose file
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a6050' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>
             {fileName ?? 'No file chosen'}
           </span>
         </label>

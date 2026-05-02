@@ -30,7 +30,7 @@ export function Geography() {
         🇮🇳 India &nbsp;·&nbsp; 🇺🇸 United States &nbsp;·&nbsp; 🇬🇧 United Kingdom
       </p>
       <p style={{
-        fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a6050',
+        fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a',
         letterSpacing: '0.5px',
       }}>
         Expanding to EU — evaluated per study.

@@ -37,17 +37,17 @@ export default async function OpsParticipants({
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               {['ID', 'Pseudonym', 'Country', 'Studies', 'Completion', 'Score', 'Verified', 'Flagged', 'Actions'].map((h) => (
-                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#4a6050', fontWeight: 400, letterSpacing: '1px', whiteSpace: 'nowrap' }}>{h}</th>
+                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#5b8a9a', fontWeight: 400, letterSpacing: '1px', whiteSpace: 'nowrap' }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
-              <tr><td colSpan={9} style={{ padding: 24, color: '#4a6050', textAlign: 'center' }}>No participants found.</td></tr>
+              <tr><td colSpan={9} style={{ padding: 24, color: '#5b8a9a', textAlign: 'center' }}>No participants found.</td></tr>
             )}
             {rows.map((p) => (
               <tr key={p.participant_id as string} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                <td style={{ padding: '8px 12px', color: '#4a6050' }}>{p.participant_id as string}</td>
+                <td style={{ padding: '8px 12px', color: '#5b8a9a' }}>{p.participant_id as string}</td>
                 <td style={{ padding: '8px 12px', color: '#f2faf4' }}>{p.pseudonym as string}</td>
                 <td style={{ padding: '8px 12px', color: '#aab8b1' }}>{(p.country as string | null) ?? '—'}</td>
                 <td style={{ padding: '8px 12px', color: '#aab8b1' }}>{(p.previous_study_count as number | null) ?? 0}</td>
@@ -57,10 +57,10 @@ export default async function OpsParticipants({
                 <td style={{ padding: '8px 12px', color: '#b7ff61' }}>
                   {p.reliability_score != null ? (p.reliability_score as number).toFixed(1) : '—'}
                 </td>
-                <td style={{ padding: '8px 12px', color: (p.verification_status as string) === 'fully_verified' ? '#b7ff61' : '#4a6050' }}>
+                <td style={{ padding: '8px 12px', color: (p.verification_status as string) === 'fully_verified' ? '#b7ff61' : '#5b8a9a' }}>
                   {(p.verification_status as string) === 'fully_verified' ? '✓' : '—'}
                 </td>
-                <td style={{ padding: '8px 12px', color: p.violation_flagged ? '#ffb300' : '#4a6050' }}>
+                <td style={{ padding: '8px 12px', color: p.violation_flagged ? '#ffb300' : '#5b8a9a' }}>
                   {p.violation_flagged ? '⚠' : '—'}
                 </td>
                 <td style={{ padding: '8px 12px' }}>

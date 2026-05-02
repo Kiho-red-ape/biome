@@ -71,11 +71,11 @@ export function PartnersStrip({ partners }: { partners: Partner[] }) {
           href="/partners/join"
           style={{
             fontFamily: 'var(--font-mono)', fontSize: 11,
-            color: '#4a6050', textDecoration: 'none',
+            color: '#5b8a9a', textDecoration: 'none',
             transition: 'color 150ms ease',
           }}
           onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.color = '#b7ff61'; }}
-          onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.color = '#4a6050'; }}
+          onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.color = '#5b8a9a'; }}
         >
           Interested in partnering? Learn more →
         </a>

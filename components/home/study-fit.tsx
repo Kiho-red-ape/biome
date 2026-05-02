@@ -65,8 +65,8 @@ export function StudyFit() {
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
               {DECLINED.map((item) => (
                 <li key={item} style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-                  <span style={{ color: '#4a6050', fontFamily: 'var(--font-mono)', fontSize: 11, flexShrink: 0 }}>×</span>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#4a6050' }}>{item}</span>
+                  <span style={{ color: '#5b8a9a', fontFamily: 'var(--font-mono)', fontSize: 11, flexShrink: 0 }}>×</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a' }}>{item}</span>
                 </li>
               ))}
             </ul>

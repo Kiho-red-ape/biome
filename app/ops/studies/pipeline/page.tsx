@@ -6,7 +6,7 @@ const STATUS_COLOR: Record<string, string> = {
   reviewing: '#22d3ee',
   qualified: '#b7ff61',
   nurture:   '#aab8b1',
-  declined:  '#4a6050',
+  declined:  '#5b8a9a',
   converted: '#b7ff61',
 };
 
@@ -27,7 +27,7 @@ export default async function OpsPipeline() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {rows.length === 0 && (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a6050' }}>No intakes yet.</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>No intakes yet.</p>
         )}
         {rows.map((intake) => (
           <div key={intake.id as string} style={{
@@ -39,14 +39,14 @@ export default async function OpsPipeline() {
                 <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f2faf4', marginBottom: 2 }}>
                   {intake.study_title as string}
                 </p>
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a6050' }}>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
                   {intake.organization as string} · {intake.name as string} · {intake.email as string}
                 </p>
               </div>
               <span style={{
                 fontFamily:    'var(--font-mono)',
                 fontSize:      10,
-                color:         STATUS_COLOR[(intake.triage_status as string) ?? 'new'] ?? '#4a6050',
+                color:         STATUS_COLOR[(intake.triage_status as string) ?? 'new'] ?? '#5b8a9a',
                 background:    'rgba(255,255,255,0.04)',
                 border:        '1px solid rgba(255,255,255,0.08)',
                 padding:       '3px 10px',
@@ -67,7 +67,7 @@ export default async function OpsPipeline() {
                 ['IRB',          intake.irb_status as string | null],
                 ['Submitted',    new Date(intake.created_at as string).toLocaleDateString()],
               ].filter(([, v]) => v).map(([k, v]) => (
-                <span key={k as string} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a6050' }}>
+                <span key={k as string} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
                   <span style={{ color: '#7f8e87' }}>{k as string}:</span> {String(v)}
                 </span>
               ))}

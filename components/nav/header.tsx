@@ -223,7 +223,7 @@ export function SiteHeader() {
           {/* Desktop auth */}
           <div className="hidden sm:flex items-center" style={{ gap: 16 }}>
             {!ready && (
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a6050' }}>…</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>…</span>
             )}
             {ready && !authenticated && (
               <button
@@ -298,11 +298,11 @@ export function SiteHeader() {
                         style={{
                           width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center',
                           padding: '10px 16px', fontFamily: 'var(--font-mono)', fontSize: 11,
-                          letterSpacing: '1px', color: '#4a6050', background: 'none', border: 'none',
+                          letterSpacing: '1px', color: '#5b8a9a', background: 'none', border: 'none',
                           cursor: 'pointer', transition: 'color 150ms ease', minHeight: 44,
                         }}
                         onMouseEnter={(e) => { e.currentTarget.style.color = '#7f8e87'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.color = '#4a6050'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = '#5b8a9a'; }}
                       >
                         Sign out
                       </button>
@@ -372,7 +372,7 @@ export function SiteHeader() {
                   style={{
                     display: 'flex', alignItems: 'center', minHeight: 48, width: '100%',
                     padding: '0 24px', fontFamily: 'var(--font-mono)', fontSize: 14,
-                    textTransform: 'uppercase', letterSpacing: '2px', color: '#4a6050',
+                    textTransform: 'uppercase', letterSpacing: '2px', color: '#5b8a9a',
                     background: 'none', border: 'none', borderBottom: '1px solid rgba(183,255,97,0.06)',
                     cursor: 'pointer', textAlign: 'left',
                   }}

@@ -35,7 +35,7 @@ export default function PartnerJoinPage() {
         <p style={{
           fontFamily:   'var(--font-mono)',
           fontSize:     12,
-          color:        '#4a6050',
+          color:        '#5b8a9a',
           lineHeight:   1.7,
           marginBottom: 40,
         }}>

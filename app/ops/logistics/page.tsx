@@ -42,7 +42,7 @@ export default async function OpsLogistics({
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {rows.length === 0 && (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a6050' }}>No kits found.</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>No kits found.</p>
         )}
         {rows.map((kit) => {
           const overdue = isOverdue(kit);
@@ -60,7 +60,7 @@ export default async function OpsLogistics({
                     {kit.kit_type as string} kit · {kit.participant_id as string}
                     {overdue && <span style={{ color: '#ffb300', marginLeft: 8 }}>⚠ OVERDUE</span>}
                   </p>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a6050' }}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
                     {exp?.title ?? 'Unknown study'} · Created {new Date(kit.created_at as string).toLocaleDateString()}
                   </p>
                 </div>

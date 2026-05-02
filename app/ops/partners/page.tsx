@@ -29,7 +29,7 @@ export default async function OpsPartners({
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {rows.length === 0 && (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a6050' }}>No {filterStatus} partner applications.</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>No {filterStatus} partner applications.</p>
         )}
         {rows.map((p) => (
           <div key={p.id as string} style={{
@@ -48,13 +48,13 @@ export default async function OpsPartners({
               <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
                 <div>
                   <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f2faf4', marginBottom: 2 }}>{p.name as string}</p>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a6050' }}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
                     {p.category as string} · {(p.region as string | null) ?? 'Region not specified'} · {p.email as string}
                   </p>
                 </div>
                 <span style={{
                   fontFamily: 'var(--font-mono)', fontSize: 10,
-                  color: p.status === 'approved' ? '#b7ff61' : p.status === 'rejected' ? '#4a6050' : '#ffb300',
+                  color: p.status === 'approved' ? '#b7ff61' : p.status === 'rejected' ? '#5b8a9a' : '#ffb300',
                   padding: '3px 10px', background: 'rgba(255,255,255,0.03)',
                   border: '1px solid rgba(255,255,255,0.07)', borderRadius: 2, letterSpacing: '1px',
                   textTransform: 'uppercase', alignSelf: 'flex-start',

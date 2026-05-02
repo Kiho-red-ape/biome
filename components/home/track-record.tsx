@@ -42,7 +42,7 @@ export function TrackRecord() {
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#aab8b1', marginBottom: 8 }}>
               50 participants · Microbiome · India · 2023
             </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a6050', lineHeight: 1.6 }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a', lineHeight: 1.6 }}>
               Decentralized citizen science study through MicrobiomeDAO predecessor.
             </p>
           </div>
@@ -69,12 +69,12 @@ export function TrackRecord() {
           </div>
           <div style={{ paddingTop: 8 }}>
             <p style={{
-              fontFamily: 'var(--font-mono)', fontSize: 13, color: '#4a6050',
+              fontFamily: 'var(--font-mono)', fontSize: 13, color: '#5b8a9a',
               marginBottom: 4,
             }}>
               active sponsor studies
             </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a6050', lineHeight: 1.6 }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a', lineHeight: 1.6 }}>
               Currently onboarding first sponsor studies.{' '}
               <a
                 href="/run-a-study"

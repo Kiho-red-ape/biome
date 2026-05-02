@@ -83,7 +83,7 @@ export default function RunAStudyPage() {
           <div>
             <p style={{
               fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px',
-              color: '#4a6050', textTransform: 'uppercase', marginBottom: 16,
+              color: '#5b8a9a', textTransform: 'uppercase', marginBottom: 16,
             }}>
               Not built for
             </p>
@@ -93,7 +93,7 @@ export default function RunAStudyPage() {
               'Imaging',
               'Pediatric / IND/CTA territory',
             ].map((item) => (
-              <p key={item} style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#4a6050', marginBottom: 8 }}>
+              <p key={item} style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a', marginBottom: 8 }}>
                 {item}
               </p>
             ))}
@@ -135,7 +135,7 @@ export default function RunAStudyPage() {
             <p style={{
               fontFamily:  'var(--font-mono)',
               fontSize:    11,
-              color:       '#4a6050',
+              color:       '#5b8a9a',
               lineHeight:  1.7,
               whiteSpace:  'pre-line',
             }}>
@@ -167,7 +167,7 @@ export default function RunAStudyPage() {
         <p style={{
           fontFamily:  'var(--font-mono)',
           fontSize:    11,
-          color:       '#4a6050',
+          color:       '#5b8a9a',
           lineHeight:  1.8,
         }}>
           M.Sc. Synthetic Biology · Biopharma R&amp;D · Nucleate Alumni<br />
@@ -191,7 +191,7 @@ export default function RunAStudyPage() {
             style={{
               fontFamily:  'var(--font-mono)',
               fontSize:    12,
-              color:       '#4a6050',
+              color:       '#5b8a9a',
               textDecoration: 'none',
               display:     'flex',
               alignItems:  'center',
@@ -199,7 +199,7 @@ export default function RunAStudyPage() {
               transition:  'color 150ms ease',
             }}
             onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.color = '#aab8b1'; }}
-            onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.color = '#4a6050'; }}
+            onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.color = '#5b8a9a'; }}
           >
             kishore@biome.to
           </a>

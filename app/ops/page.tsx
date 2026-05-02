@@ -15,7 +15,7 @@ function Stat({ label, value, sub }: { label: string; value: string | number; su
       <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 28, color: '#f2faf4', lineHeight: 1 }}>
         {value}
       </p>
-      {sub && <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a6050', marginTop: 4 }}>{sub}</p>}
+      {sub && <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a', marginTop: 4 }}>{sub}</p>}
     </div>
   );
 }
@@ -58,7 +58,7 @@ export default async function OpsOverview() {
         <Stat label="Partner apps"        value={pendingPartners ?? 0}      sub="pending review" />
       </div>
 
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a6050', lineHeight: 2 }}>
+      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a', lineHeight: 2 }}>
         Use the sidebar to navigate. All counts are live from the database.
       </p>
     </div>

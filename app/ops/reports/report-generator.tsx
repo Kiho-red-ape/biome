@@ -49,7 +49,7 @@ export function ReportGenerator({ studies }: { studies: Study[] }) {
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 24 }}>
         <div>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a6050', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 6 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#5b8a9a', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 6 }}>
             Select study
           </p>
           <select
@@ -77,7 +77,7 @@ export function ReportGenerator({ studies }: { studies: Study[] }) {
             fontFamily: 'var(--font-mono)', fontSize: 11, padding: '8px 20px',
             background: selectedStudy ? 'rgba(255,179,0,0.08)' : 'transparent',
             border: `1px solid ${selectedStudy ? 'rgba(255,179,0,0.3)' : 'rgba(255,255,255,0.06)'}`,
-            color: selectedStudy ? '#ffb300' : '#4a6050',
+            color: selectedStudy ? '#ffb300' : '#5b8a9a',
             cursor: selectedStudy ? 'pointer' : 'default',
             borderRadius: 2, textTransform: 'uppercase', letterSpacing: '1px',
           }}

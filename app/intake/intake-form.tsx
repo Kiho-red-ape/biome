@@ -22,7 +22,7 @@ const LABEL: React.CSSProperties = {
   fontSize:      10,
   textTransform: 'uppercase',
   letterSpacing: '2px',
-  color:         '#4a6050',
+  color:         '#5b8a9a',
   marginBottom:  6,
 };
 
@@ -186,7 +186,7 @@ export function IntakeForm() {
         <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f2faf4', marginBottom: 8 }}>
           Received.
         </p>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#4a6050', lineHeight: 1.7 }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a', lineHeight: 1.7 }}>
           We&apos;ll review your submission and get back to you within 48 hours.
         </p>
       </div>
@@ -249,7 +249,7 @@ export function IntakeForm() {
                 padding:       '6px 12px',
                 background:    geography.includes(opt) ? 'rgba(183,255,97,0.1)' : 'transparent',
                 border:        `1px solid ${geography.includes(opt) ? 'rgba(183,255,97,0.4)' : 'rgba(255,255,255,0.1)'}`,
-                color:         geography.includes(opt) ? '#b7ff61' : '#4a6050',
+                color:         geography.includes(opt) ? '#b7ff61' : '#5b8a9a',
                 cursor:        'pointer',
                 borderRadius:  2,
                 transition:    'all 150ms ease',
@@ -276,7 +276,7 @@ export function IntakeForm() {
                 padding:      '6px 12px',
                 background:   sampleTypes.includes(opt) ? 'rgba(183,255,97,0.1)' : 'transparent',
                 border:       `1px solid ${sampleTypes.includes(opt) ? 'rgba(183,255,97,0.4)' : 'rgba(255,255,255,0.1)'}`,
-                color:        sampleTypes.includes(opt) ? '#b7ff61' : '#4a6050',
+                color:        sampleTypes.includes(opt) ? '#b7ff61' : '#5b8a9a',
                 cursor:       'pointer',
                 borderRadius: 2,
                 transition:   'all 150ms ease',

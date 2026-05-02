@@ -10,7 +10,7 @@
   --color-cyan:         #22d3ee;
   --color-amber:        #ffb300;
   --color-text:         #aab8b1;
-  --color-text-dim:     #4a6050;
+  --color-text-dim:     #5b8a9a;
   --color-text-bright:  #ddeedd;
   --color-text-white:   #f2faf4;
 
@@ -28,7 +28,7 @@
   --cyan:         #22d3ee;
   --amber:        #ffb300;
   --text:         #aab8b1;
-  --text-dim:     #4a6050;
+  --text-dim:     #5b8a9a;
   --text-bright:  #ddeedd;
   --text-white:   #f2faf4;
   --line:         rgba(183,255,97,0.08);
@@ -107,7 +107,7 @@ a { color: var(--green); }
 .footer-link {
   font-family:    var(--font-mono);
   font-size:      10px;
-  color:          #4a6050;
+  color:          #5b8a9a;
   text-decoration: none;
   transition:     color 150ms ease;
 }

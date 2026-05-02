@@ -73,9 +73,9 @@ export default async function HomePage() {
           </span>
 
           {/* Entity */}
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a6050', letterSpacing: '0.5px', margin: 0 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a', letterSpacing: '0.5px', margin: 0 }}>
             Banano Tech Pvt Ltd · Coimbatore, India ·{' '}
-            <a href="mailto:kishore@biome.to" style={{ color: '#4a6050', textDecoration: 'none' }}>kishore@biome.to</a>
+            <a href="mailto:kishore@biome.to" style={{ color: '#5b8a9a', textDecoration: 'none' }}>kishore@biome.to</a>
           </p>
 
           {/* Links */}
@@ -95,7 +95,7 @@ export default async function HomePage() {
           <p style={{
             fontFamily:    'var(--font-mono)',
             fontSize:      10,
-            color:         '#4a6050',
+            color:         '#5b8a9a',
             letterSpacing: '0.3px',
             lineHeight:    1.6,
             margin:        0,

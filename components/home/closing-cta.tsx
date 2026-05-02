@@ -63,13 +63,13 @@ export function ClosingCta() {
           style={{
             fontFamily:    'var(--font-mono)',
             fontSize:      13,
-            color:         '#4a6050',
+            color:         '#5b8a9a',
             textDecoration: 'none',
             letterSpacing: '0.3px',
             transition:    'color 150ms ease',
           }}
           onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.color = '#aab8b1'; }}
-          onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.color = '#4a6050'; }}
+          onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.color = '#5b8a9a'; }}
         >
           kishore@biome.to
         </a>

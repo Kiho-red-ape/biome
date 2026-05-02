@@ -49,7 +49,7 @@ export function PartnerActions({
             style={{
               fontFamily: 'var(--font-mono)', fontSize: 10, padding: '5px 12px',
               background: 'transparent', border: '1px solid rgba(255,255,255,0.08)',
-              color: '#4a6050', cursor: 'pointer', borderRadius: 2, textTransform: 'uppercase', letterSpacing: '1px',
+              color: '#5b8a9a', cursor: 'pointer', borderRadius: 2, textTransform: 'uppercase', letterSpacing: '1px',
             }}
           >
             Reject

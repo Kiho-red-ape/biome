@@ -71,7 +71,7 @@ export default function ParticipatePage() {
           <p style={{
             fontFamily:   'var(--font-mono)',
             fontSize:     11,
-            color:        '#4a6050',
+            color:        '#5b8a9a',
             lineHeight:   1.7,
             marginBottom: 24,
           }}>
@@ -136,7 +136,7 @@ export default function ParticipatePage() {
                 }}>
                   {step.label}
                 </p>
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a6050' }}>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>
                   {step.desc}
                 </p>
               </div>
@@ -148,7 +148,7 @@ export default function ParticipatePage() {
         <p style={{
           fontFamily:  'var(--font-mono)',
           fontSize:    11,
-          color:       '#4a6050',
+          color:       '#5b8a9a',
           marginTop:   32,
         }}>
           Already have a profile?{' '}
