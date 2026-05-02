@@ -57,14 +57,14 @@ export function EstimateLeadRow({ lead }: Props) {
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f2faf4' }}>
             {(lead.email as string)}
           </span>
-          {lead.organization && (
+          {!!lead.organization && (
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a', marginLeft: 10 }}>
               {lead.organization as string}
             </span>
           )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          {lead.estimated_total && (
+          {!!lead.estimated_total && (
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#b7ff61' }}>
               ${(lead.estimated_total as number).toLocaleString()}
             </span>
