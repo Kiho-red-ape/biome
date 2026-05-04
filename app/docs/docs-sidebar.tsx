@@ -28,6 +28,7 @@ const NAV = [
       { label: 'Screening applicants',    href: '/docs/researchers/screening'      },
       { label: 'Launching a study',       href: '/docs/researchers/launching'      },
       { label: 'Compliance & verification',href: '/docs/researchers/compliance'    },
+      { label: 'Budget estimator',         href: '/docs/researchers/budget-estimator' },
     ],
   },
   {
