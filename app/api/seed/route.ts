@@ -317,6 +317,112 @@ const COMMENTS = [
   { id: 'c8000005-0000-0000-0000-000000000008', experiment_id: 'a1b2c3d4-0008-0008-0008-000000000008', author_id: 'did:privy:seed-user5', parent_id: null,                                    upvotes: 12, content: 'The PSS-4 questionnaire at week 8 was eye-opening — I hadn\'t realised how much my stress had come down since week 0. The numbers were quite different.',                  created_at: '2026-02-24T16:30:00Z' },
 ];
 
+// ─── Demo accounts ────────────────────────────────────────────────────────────
+// These DIDs are placeholders. After creating Privy accounts for each email,
+// update the env vars and re-run the seed:
+//   DEMO_PARTICIPANT_DID  → participant@biome.to
+//   DEMO_RESEARCHER_DID   → researcher@biome.to
+//   DEMO_PARTNER_DID      → partner@biome.to
+//
+// Until env vars are set, the seed uses synthetic IDs so development works.
+
+const DEMO_PARTICIPANT_DID = process.env.DEMO_PARTICIPANT_DID ?? 'did:privy:demo-participant-biome';
+const DEMO_RESEARCHER_DID  = process.env.DEMO_RESEARCHER_DID  ?? 'did:privy:demo-researcher-biome';
+const DEMO_PARTNER_DID     = process.env.DEMO_PARTNER_DID     ?? 'did:privy:demo-partner-biome';
+
+// hello@biome.to is a contact-only email — no platform profile needed.
+
+const DEMO_PROFILES = [
+  {
+    id:           DEMO_PARTICIPANT_DID,
+    auth_type:    'email' as const,
+    display_name: 'Demo Participant',
+    role:         'participant' as const,
+    bio:          'Demo participant account for platform walkthroughs. Shows a full recruitment → approval → active study participation flow.',
+    region:       'United Kingdom',
+  },
+  {
+    id:           DEMO_RESEARCHER_DID,
+    auth_type:    'email' as const,
+    display_name: 'BIOME Demo Researcher',
+    role:         'experimenter' as const,
+    bio:          'Demo researcher account. Shows the experimenter dashboard with a live recruiting study, screened applicants, and milestone tracking.',
+    region:       'United States',
+  },
+  {
+    id:           DEMO_PARTNER_DID,
+    auth_type:    'email' as const,
+    display_name: 'BIOME Partner Org',
+    role:         'experimenter' as const,
+    bio:          'Demo partner account for organisations evaluating BIOME as a recruitment layer for their research programmes.',
+    region:       'Global',
+  },
+];
+
+const DEMO_ORG_PROFILES = [
+  {
+    id:                  'dddddddd-0001-0001-0001-000000000001',
+    user_id:             DEMO_RESEARCHER_DID,
+    org_name:            'BIOME Demo Researcher',
+    org_description:     'Demo researcher account showcasing the full BIOME experimenter experience — study creation, applicant screening, milestone tracking, and payout coordination.',
+    expertise_areas:     ['Sleep', 'Nutrition', 'Longevity', 'Behavioral Science'],
+    screening_status:    'approved',
+    experiments_posted:  1,
+    verified_experiments:1,
+  },
+  {
+    id:                  'dddddddd-0002-0002-0002-000000000002',
+    user_id:             DEMO_PARTNER_DID,
+    org_name:            'BIOME Partner Org',
+    org_description:     'Partner organisation demo profile. Illustrates how research teams, DeSci protocols, and supplement brands use BIOME as their participant recruitment layer.',
+    expertise_areas:     ['Microbiome', 'Supplements', 'Digital Health'],
+    screening_status:    'approved',
+    experiments_posted:  0,
+    verified_experiments:0,
+  },
+];
+
+// ─── Demo researcher's live study ──────────────────────────────────────────────
+// An actively recruiting study tied to researcher@biome.to, with realistic data.
+
+const DEMO_RESEARCHER_EXPERIMENT = {
+  id:                       'dddddddd-exp1-exp1-exp1-000000000001',
+  experimenter_id:           DEMO_RESEARCHER_DID,
+  title:                    'Omega-3 & Inflammatory Markers — 12-Week Trial',
+  short_description:        '2g daily Omega-3 (triglyceride form) for 12 weeks. Blood spot samples at weeks 0, 6, and 12. $120 reward. Remote worldwide.',
+  description:              'We are investigating whether 2g/day of high-absorption triglyceride-form Omega-3 supplementation measurably reduces inflammatory markers (hsCRP, IL-6) over 12 weeks in healthy adults aged 25–55. Participants receive three dried blood spot (DBS) collection kits at home (weeks 0, 6, 12), take 2 capsules daily, and complete a weekly digital log. No clinic visits. BIOME Verified protocol.',
+  category:                 'Nutrition',
+  status:                   'recruiting' as const,
+  bounty_per_participant:   120,
+  total_bounty_pool:        18000,
+  slots_total:              150,
+  slots_filled:             43,
+  duration_weeks:           12,
+  region:                   'Remote',
+  is_remote:                true,
+  is_verified:              true,
+  verification_level:       'biome' as const,
+  external_comms_url:       'https://discord.gg/biome',
+  tests_needed:             'Three DBS blood spot collections (home kit, weeks 0/6/12). Weekly supplement compliance log. Fortnightly subjective wellbeing check-in.',
+  inclusion_criteria:       'Aged 25–55\nNo current Omega-3 or fish oil supplement\nNo fish allergy\nWorldwide — remote eligible\nHealthy adult, no chronic inflammatory conditions',
+  exclusion_criteria:       'Fish or shellfish allergy\nAnticoagulant medication\nPregnant or breastfeeding\nChron\'s disease, rheumatoid arthritis, or other active inflammatory condition\nCurrently taking NSAIDs daily',
+  iec_approval:             'BIOME Internal Ethics Review — Protocol BM-2026-OM3-001. Non-interventional supplement study. Registered with Open Science Framework.',
+  task_summary:             'Home DBS blood spot collection (3×) + weekly digital log',
+};
+
+// ─── Demo participant's application ────────────────────────────────────────────
+// participant@biome.to has an approved application to the Magnesium study (a1b2c3d4-0001).
+
+const DEMO_PARTICIPANT_APPLICATION = {
+  id:             'dddddddd-app1-app1-app1-000000000001',
+  experiment_id:  'a1b2c3d4-0001-0001-0001-000000000001',  // Magnesium & Sleep Quality
+  participant_id: DEMO_PARTICIPANT_DID,
+  status:         'approved' as const,
+  applied_at:     '2026-04-10T09:00:00Z',
+  approved_at:    '2026-04-11T14:00:00Z',
+  payout_status:  'pending' as const,
+};
+
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
@@ -329,17 +435,17 @@ export async function POST(request: NextRequest) {
 
   const { error: expErr } = await supabase
     .from('profiles')
-    .upsert([...EXPERIMENTER_PROFILES, ...PARTICIPANT_PROFILES], { onConflict: 'id' });
+    .upsert([...EXPERIMENTER_PROFILES, ...PARTICIPANT_PROFILES, ...DEMO_PROFILES], { onConflict: 'id' });
   if (expErr) return NextResponse.json({ error: `profiles: ${expErr.message}` }, { status: 500 });
 
   const { error: orgErr } = await supabase
     .from('experimenter_profiles')
-    .upsert(EXPERIMENTER_ORG_PROFILES, { onConflict: 'user_id' });
+    .upsert([...EXPERIMENTER_ORG_PROFILES, ...DEMO_ORG_PROFILES], { onConflict: 'user_id' });
   if (orgErr) return NextResponse.json({ error: `experimenter_profiles: ${orgErr.message}` }, { status: 500 });
 
   const { error: expErrExp } = await supabase
     .from('experiments')
-    .upsert(EXPERIMENTS, { onConflict: 'id' });
+    .upsert([...EXPERIMENTS, DEMO_RESEARCHER_EXPERIMENT], { onConflict: 'id' });
   if (expErrExp) return NextResponse.json({ error: `experiments: ${expErrExp.message}` }, { status: 500 });
 
   const { error: commentErr } = await supabase
@@ -347,11 +453,23 @@ export async function POST(request: NextRequest) {
     .upsert(COMMENTS, { onConflict: 'id' });
   if (commentErr) return NextResponse.json({ error: `comments: ${commentErr.message}` }, { status: 500 });
 
+  // Demo participant application — upsert into applications table
+  const { error: appErr } = await supabase
+    .from('applications')
+    .upsert([DEMO_PARTICIPANT_APPLICATION], { onConflict: 'id' });
+  if (appErr) return NextResponse.json({ error: `demo application: ${appErr.message}` }, { status: 500 });
+
   return NextResponse.json({
     ok: true,
-    profiles: EXPERIMENTER_PROFILES.length + PARTICIPANT_PROFILES.length,
-    experimenter_org_profiles: EXPERIMENTER_ORG_PROFILES.length,
-    experiments: EXPERIMENTS.length,
-    comments: COMMENTS.length,
+    profiles:                  EXPERIMENTER_PROFILES.length + PARTICIPANT_PROFILES.length + DEMO_PROFILES.length,
+    experimenter_org_profiles: EXPERIMENTER_ORG_PROFILES.length + DEMO_ORG_PROFILES.length,
+    experiments:               EXPERIMENTS.length + 1,
+    comments:                  COMMENTS.length,
+    demo_applications:         1,
+    demo_accounts: {
+      participant: DEMO_PARTICIPANT_DID,
+      researcher:  DEMO_RESEARCHER_DID,
+      partner:     DEMO_PARTNER_DID,
+    },
   });
 }
