@@ -33,8 +33,9 @@ function formatDate(d: string | null) {
   return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-export default async function PostPage({ params }: { params: { slug: string } }) {
-  const post = await getPost(params.slug);
+export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = await getPost(slug);
   if (!post) notFound();
 
   const paragraphs = (text: string) =>

@@ -15,16 +15,16 @@ const updateSchema = z.object({
   status:              z.enum(['draft', 'published']).optional(),
 });
 
+type Props = { params: Promise<{ id: string }> };
+
 // GET /api/blog/[id] — fetch single post (full content)
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: NextRequest, { params }: Props) {
+  const { id } = await params;
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('blog_posts')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: error.code === 'PGRST116' ? 404 : 500 });
@@ -32,10 +32,8 @@ export async function GET(
 }
 
 // PATCH /api/blog/[id] — update post (author only)
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: Props) {
+  const { id } = await params;
   const body: unknown = await request.json();
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
@@ -44,11 +42,10 @@ export async function PATCH(
 
   const supabase = createServiceClient();
 
-  // Verify ownership
   const { data: existing } = await supabase
     .from('blog_posts')
     .select('id, author_id, status')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -73,7 +70,7 @@ export async function PATCH(
   const { data, error } = await supabase
     .from('blog_posts')
     .update(updates)
-    .eq('id', params.id)
+    .eq('id', id)
     .select()
     .single();
 
@@ -81,27 +78,24 @@ export async function PATCH(
   return NextResponse.json({ post: data });
 }
 
-// DELETE /api/blog/[id] — delete post (author only, drafts only by default)
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+// DELETE /api/blog/[id] — delete post (author only)
+export async function DELETE(request: NextRequest, { params }: Props) {
+  const { id } = await params;
   const privyDid = request.nextUrl.searchParams.get('privyDid');
   if (!privyDid) return NextResponse.json({ error: 'privyDid required' }, { status: 400 });
 
   const supabase = createServiceClient();
 
-  // Verify ownership
   const { data: existing } = await supabase
     .from('blog_posts')
     .select('id, author_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   if (existing.author_id !== privyDid) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { error } = await supabase.from('blog_posts').delete().eq('id', params.id);
+  const { error } = await supabase.from('blog_posts').delete().eq('id', id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

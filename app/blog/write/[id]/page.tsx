@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import Link from 'next/link';
@@ -27,7 +27,8 @@ type Post = {
   tags: string[]; status: 'draft' | 'published';
 };
 
-export default function EditPage({ params }: { params: { id: string } }) {
+export default function EditPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const { user, ready, authenticated } = usePrivy();
 
@@ -47,7 +48,7 @@ export default function EditPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     if (!ready || !authenticated) return;
-    fetch(`/api/blog/${params.id}`)
+    fetch(`/api/blog/${id}`)
       .then(r => r.json())
       .then((d: { post?: Post }) => {
         const p = d.post;
@@ -64,7 +65,7 @@ export default function EditPage({ params }: { params: { id: string } }) {
         setTags(p.tags.join(', '));
       })
       .finally(() => setLoading(false));
-  }, [ready, authenticated, params.id, user?.id, router]);
+  }, [ready, authenticated, id, user?.id, router]);
 
   if (!ready || loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
