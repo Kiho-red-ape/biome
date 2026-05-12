@@ -37,11 +37,17 @@ export default function PayoutsPage() {
       <DocTable
         headers={['Fee', 'Amount', 'Charged to', 'Description']}
         rows={[
-          ['Platform fee',        '2.5% of completed payouts',          'Researcher',    'Charged on successfully completed participant payouts'],
-          ['BIOME Verified',      '~$1,000 per study',                   'Researcher',    'Optional protocol review and credentialing by BIOME'],
-          ['Payout processing',   '0.5% of payout amount',              'Participant',   'Deducted from payout during processing'],
+          ['Biome operations fee', '$8,000–10,000 per study (negotiable)', 'Researcher',  'Covers platform, compliance, project management, data delivery, and reporting'],
+          ['Pass-through costs',   'At cost + 50% coordination margin',    'Researcher',  'Recruitment, kits, shipping, phlebotomy, lab analysis, participant compensation — all itemised'],
+          ['BIOME Verified',       '$500–1,000 per study',                  'Researcher',  'Optional protocol review by BIOME\'s science team'],
+          ['Payout processing',    '0.5% of payout amount',                 'Participant', 'Deducted from participant payout during processing'],
         ]}
       />
+      <DocP>
+        Use the <a href="/run-a-study" style={{ color: 'var(--green)', textDecoration: 'none' }}>Study Cost Estimator</a> to
+        generate a fully itemised indicative budget before engaging. All pass-through costs are visible
+        line-by-line with zero hidden markup beyond the stated coordination margin.
+      </DocP>
       <DocP>
         Third-party fees (banking, PayPal, blockchain network, currency conversion) may also apply
         and are outside BIOME&apos;s control.

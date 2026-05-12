@@ -13,11 +13,19 @@ export default function ResearchersPage() {
         investigators. To post studies, you first need to create an experimenter profile.
       </DocLead>
 
+      <DocH2>Estimating study cost</DocH2>
+      <DocP>
+        Before registering, use the <a href="/run-a-study#estimate" style={{ color: 'var(--green)', textDecoration: 'none' }}>Study Cost Estimator</a> on
+        the Run a Study page to get an indicative budget. Enter your study type, participant count,
+        geography, and sample types. The estimator shows fully itemised pass-through costs plus a
+        Biome operations fee. This is not a quote — final pricing is confirmed in conversation.
+      </DocP>
+
       <DocH2>Creating your organization profile</DocH2>
       <DocP>During registration:</DocP>
       <DocOL items={[
         'Sign in with email or wallet through Privy',
-        'Complete basic profile (display name, region)',
+        'Complete basic profile (region)',
         'Select the "Experimenter" or "Both" role',
         'Fill in your organization details: name, website, description, your title, and expertise areas',
         'Accept the Platform Terms of Service',

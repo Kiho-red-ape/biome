@@ -1,591 +1,515 @@
 'use client';
 
 import { useState } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
+import { calculateEstimate, type EstimateResult } from '@/lib/estimate-calculator';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-interface Answers {
-  study_type:   string;
-  sponsor_type: string;
-  participants: number | null;
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function fmt(n: number) {
+  return '$' + n.toLocaleString('en-US');
+}
+
+const MONO: CSSProperties = { fontFamily: 'var(--font-mono)' };
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface FormState {
+  studyType:    string;
+  participants: number;
   duration:     string;
   geography:    string[];
   samples:      string[];
-  irb_status:   string;
+  irbStatus:    string;
+  email:        string;
 }
 
-const EMPTY: Answers = {
-  study_type:   '',
-  sponsor_type: '',
-  participants: null,
-  duration:     '',
+const INITIAL: FormState = {
+  studyType:    '',
+  participants: 50,
+  duration:     '4_8',
   geography:    [],
   samples:      [],
-  irb_status:   '',
+  irbStatus:    '',
+  email:        '',
 };
 
-// ── Pricing constants ─────────────────────────────────────────────────────────
-const RECRUITMENT_BASE = 35;   // $ per participant
-const GEO_MULTIPLIER: Record<string, number> = {
-  'India':          1.0,
-  'United States':  1.8,
-  'United Kingdom': 1.6,
-  'EU':             1.5,
-  'Multiple':       2.0,
-};
-const SAMPLE_COST: Record<string, number> = {
-  'Survey only':    0,
-  'Saliva':         12,
-  'Stool kit':      28,
-  'Blood spot':     22,
-  'Blood draw':     65,
-  'Urine':          10,
-  'Wearable data':  15,
-};
-const DURATION_MULTIPLIER: Record<string, number> = {
-  '< 2 weeks':   1.0,
-  '2–4 weeks':   1.1,
-  '1–3 months':  1.2,
-  '3–6 months':  1.35,
-  '6–12 months': 1.5,
-  '> 12 months': 1.7,
-};
-const IRB_COST: Record<string, number> = {
-  'We have IRB approval':    0,
-  'Need IRB guidance':      1500,
-  'Not applicable':          0,
-  'Not sure':               500,
-};
-const OPS_FEE_RATE = 0.08; // 8% of study subtotal
+// ─── Option rows ──────────────────────────────────────────────────────────────
 
-function calcEstimate(a: Answers): {
-  recruitment: number; samples: number; irb: number; ops_fee: number; total: number;
-} {
-  const n       = a.participants ?? 0;
-  const geo     = a.geography.length > 1
-    ? GEO_MULTIPLIER['Multiple']
-    : GEO_MULTIPLIER[a.geography[0] ?? 'India'] ?? 1.0;
-  const dur     = DURATION_MULTIPLIER[a.duration] ?? 1.0;
-  const sampleC = a.samples.reduce((acc, s) => acc + (SAMPLE_COST[s] ?? 0), 0);
+const STUDY_TYPES = [
+  { value: 'survey',              label: 'Survey / Questionnaire' },
+  { value: 'behavioral',          label: 'Behavioral / Observational' },
+  { value: 'cognitive_behavioral',label: 'Cognitive / Behavioral' },
+  { value: 'consumer_product',    label: 'Consumer product testing' },
+  { value: 'device',              label: 'Device / Wearable' },
+  { value: 'supplement_novel',    label: 'Supplement / Nutrition' },
+  { value: 'biomarker',           label: 'Biomarker / Clinical' },
+  { value: 'condition_specific',  label: 'Condition-specific cohort' },
+];
 
-  const recruitment = Math.round(n * RECRUITMENT_BASE * geo * dur);
-  const samples     = Math.round(n * sampleC);
-  const irb         = IRB_COST[a.irb_status] ?? 0;
-  const subtotal    = recruitment + samples + irb;
-  const ops_fee     = Math.round(subtotal * OPS_FEE_RATE);
-  const total       = subtotal + ops_fee;
+const DURATIONS = [
+  { value: '2_4',    label: '2–4 weeks'  },
+  { value: '4_8',    label: '4–8 weeks'  },
+  { value: '8_12',   label: '8–12 weeks' },
+  { value: '12_24',  label: '12–24 weeks'},
+  { value: '24_plus',label: '24+ weeks'  },
+];
 
-  return { recruitment, samples, irb, ops_fee, total };
+const GEOGRAPHIES = [
+  { value: 'india', label: 'India'   },
+  { value: 'us',    label: 'US'      },
+  { value: 'uk',    label: 'UK'      },
+  { value: 'eu',    label: 'EU'      },
+];
+
+const SAMPLES = [
+  { value: 'stool',            label: 'Stool (microbiome)'   },
+  { value: 'saliva',           label: 'Saliva'               },
+  { value: 'dried_blood_spot', label: 'Dried blood spot'     },
+  { value: 'blood_draw',       label: 'Venous blood draw'    },
+  { value: 'urine',            label: 'Urine'                },
+  { value: 'wearable',         label: 'Wearable / device data' },
+  { value: 'none',             label: 'No samples (survey only)' },
+];
+
+const IRB_OPTIONS = [
+  { value: 'approved', label: 'Approved / in progress' },
+  { value: 'unsure',   label: 'Not sure'               },
+  { value: 'na',       label: 'Not required'           },
+];
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: ReactNode }) {
+  return (
+    <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 16 }}>
+      // {children}
+    </p>
+  );
 }
 
-// ── Shared UI primitives ──────────────────────────────────────────────────────
-function OptionButton({
-  label, selected, onClick,
-}: { label: string; selected: boolean; onClick: () => void }) {
+function FieldLabel({ children }: { children: ReactNode }) {
+  return (
+    <p style={{ ...MONO, fontSize: 11, letterSpacing: '2px', color: '#5b8a9a', textTransform: 'uppercase', marginBottom: 10 }}>
+      {children}
+    </p>
+  );
+}
+
+function PillButton({
+  active, onClick, children,
+}: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
     <button
       type="button"
       onClick={onClick}
       style={{
-        fontFamily:    'var(--font-mono)',
-        fontSize:      12,
-        letterSpacing: '0.5px',
-        padding:       '10px 18px',
-        border:        `1px solid ${selected ? '#b7ff61' : 'rgba(255,255,255,0.1)'}`,
-        background:    selected ? 'rgba(183,255,97,0.08)' : 'transparent',
-        color:         selected ? '#b7ff61' : '#aab8b1',
-        borderRadius:  2,
-        cursor:        'pointer',
-        transition:    'all 120ms ease',
-        textAlign:     'left',
+        ...MONO, fontSize: 11, padding: '7px 14px',
+        border: `1px solid ${active ? '#b7ff61' : 'rgba(255,255,255,0.1)'}`,
+        background: active ? 'rgba(183,255,97,0.08)' : 'transparent',
+        color: active ? '#b7ff61' : '#7f9a8a',
+        borderRadius: 2, cursor: 'pointer', transition: 'all 150ms ease',
+        whiteSpace: 'nowrap' as const,
       }}
     >
-      {label}
+      {children}
     </button>
   );
 }
 
-function StepLabel({ num, total }: { num: number; total: number }) {
-  return (
-    <p style={{
-      fontFamily:    'var(--font-mono)',
-      fontSize:      10,
-      letterSpacing: '2px',
-      color:         '#5b8a9a',
-      marginBottom:  16,
-    }}>
-      STEP {num} OF {total}
-    </p>
+// ─── Results display ──────────────────────────────────────────────────────────
+
+function EstimateDisplay({
+  result, onRecalculate,
+}: { result: EstimateResult; onRecalculate: () => void }) {
+  const divider = (
+    <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '8px 0' }} />
   );
-}
-
-function NavButtons({
-  onBack, onNext, nextLabel = 'Next →', canProceed,
-}: { onBack?: () => void; onNext: () => void; nextLabel?: string; canProceed: boolean }) {
-  return (
-    <div style={{ display: 'flex', gap: 12, marginTop: 32 }}>
-      {onBack && (
-        <button
-          type="button"
-          onClick={onBack}
-          style={{
-            fontFamily:    'var(--font-mono)',
-            fontSize:      11,
-            letterSpacing: '1px',
-            padding:       '0 20px',
-            height:        40,
-            border:        '1px solid rgba(255,255,255,0.1)',
-            background:    'transparent',
-            color:         '#5b8a9a',
-            borderRadius:  2,
-            cursor:        'pointer',
-          }}
-        >
-          ← Back
-        </button>
-      )}
-      <button
-        type="button"
-        onClick={onNext}
-        disabled={!canProceed}
-        style={{
-          fontFamily:    'var(--font-mono)',
-          fontSize:      11,
-          letterSpacing: '1.5px',
-          textTransform: 'uppercase',
-          padding:       '0 28px',
-          height:        40,
-          border:        '1px solid #b7ff61',
-          background:    canProceed ? 'rgba(183,255,97,0.08)' : 'transparent',
-          color:         canProceed ? '#b7ff61' : '#5b8a9a',
-          borderRadius:  2,
-          cursor:        canProceed ? 'pointer' : 'not-allowed',
-          transition:    'all 120ms ease',
-        }}
-      >
-        {nextLabel}
-      </button>
-    </div>
-  );
-}
-
-// ── Email gate ─────────────────────────────────────────────────────────────────
-function EmailGate({
-  answers, onDone,
-}: { answers: Answers; onDone: (email: string, org: string) => void }) {
-  const [email, setEmail]   = useState('');
-  const [org,   setOrg]     = useState('');
-  const [state, setState]   = useState<'idle' | 'sending' | 'error'>('idle');
-
-  const estimate = calcEstimate(answers);
-
-  async function submit() {
-    if (!email.trim()) return;
-    setState('sending');
-    try {
-      const res = await fetch('/api/estimate', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          email:             email.trim(),
-          organization:      org.trim(),
-          study_type:        answers.study_type,
-          sponsor_type:      answers.sponsor_type,
-          participants:      answers.participants,
-          duration:          answers.duration,
-          geography:         answers.geography,
-          samples:           answers.samples,
-          irb_status:        answers.irb_status,
-          estimated_total:   estimate.total,
-          estimated_ops_fee: estimate.ops_fee,
-          estimate_breakdown: {
-            recruitment: estimate.recruitment,
-            samples:     estimate.samples,
-            irb:         estimate.irb,
-            ops_fee:     estimate.ops_fee,
-            total:       estimate.total,
-          },
-        }),
-      });
-      if (!res.ok) throw new Error();
-      onDone(email.trim(), org.trim());
-    } catch {
-      setState('error');
-    }
-  }
-
-  const inputStyle: React.CSSProperties = {
-    fontFamily:    'var(--font-mono)',
-    fontSize:      13,
-    color:         '#f2faf4',
-    background:    'rgba(255,255,255,0.04)',
-    border:        '1px solid rgba(255,255,255,0.12)',
-    borderRadius:  2,
-    padding:       '0 16px',
-    height:        46,
-    width:         '100%',
-    outline:       'none',
-    letterSpacing: '0.3px',
-  };
 
   return (
-    <div>
-      <StepLabel num={8} total={7} />
-      <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(20px, 3vw, 28px)', color: '#f2faf4', marginBottom: 12 }}>
-        Where should we send your estimate?
-      </h2>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a', marginBottom: 28 }}>
-        Your estimate will be emailed to you. We may follow up with more detail.
-      </p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 400 }}>
-        <input type="text"  placeholder="Your name or organization" value={org}   onChange={(e) => setOrg(e.target.value)}   style={inputStyle} />
-        <input type="email" placeholder="Work email address"        value={email} onChange={(e) => setEmail(e.target.value)} required style={inputStyle} />
-        <button
-          type="button"
-          onClick={submit}
-          disabled={!email.trim() || state === 'sending'}
-          style={{
-            fontFamily:    'var(--font-mono)',
-            fontSize:      12,
-            letterSpacing: '1.5px',
-            textTransform: 'uppercase',
-            height:        46,
-            border:        '1px solid #b7ff61',
-            background:    email.trim() ? 'rgba(183,255,97,0.1)' : 'transparent',
-            color:         email.trim() ? '#b7ff61' : '#5b8a9a',
-            borderRadius:  2,
-            cursor:        email.trim() ? 'pointer' : 'not-allowed',
-          }}
-        >
-          {state === 'sending' ? 'Sending...' : 'View my estimate →'}
-        </button>
-        {state === 'error' && (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#ff6b6b' }}>
-            Something went wrong. Try again.
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <SectionLabel>ESTIMATE_COMPLETE</SectionLabel>
+        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(28px, 4vw, 36px)', color: '#f2faf4', lineHeight: 1, marginBottom: 8 }}>
+          {fmt(result.total)}
+        </p>
+        <p style={{ ...MONO, fontSize: 12, color: '#5b8a9a' }}>
+          Estimated total · {result.participants} participants · {result.duration.replace('_', '–').replace('plus', '+')} weeks
+        </p>
+      </div>
+
+      {/* Line items */}
+      <div style={{ border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, overflow: 'hidden', marginBottom: 24 }}>
+
+        {result.lineItems.map((item, i) => (
+          <div key={i} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'transparent' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+              <span style={{ ...MONO, fontSize: 12, color: '#d0e0d5' }}>{item.label}</span>
+              <span style={{ ...MONO, fontSize: 12, color: '#f2faf4', flexShrink: 0 }}>{fmt(item.amount)}</span>
+            </div>
+            <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', margin: '3px 0 0' }}>{item.description}</p>
+          </div>
+        ))}
+
+        {divider}
+
+        {/* Pass-through subtotal */}
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+            <span style={{ ...MONO, fontSize: 12, color: '#d0e0d5' }}>Pass-through subtotal</span>
+            <span style={{ ...MONO, fontSize: 12, color: '#f2faf4', flexShrink: 0 }}>{fmt(result.subtotalPassThrough)}</span>
+          </div>
+          <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', margin: '3px 0 0' }}>Includes 50% coordination margin</p>
+        </div>
+
+        {/* Ops fee — highlighted */}
+        <div style={{ padding: '12px 16px', background: 'rgba(183,255,97,0.04)', borderBottom: '1px solid rgba(183,255,97,0.08)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+            <span style={{ ...MONO, fontSize: 12, color: '#b7ff61' }}>Biome operations fee</span>
+            <span style={{ ...MONO, fontSize: 12, color: '#b7ff61', flexShrink: 0 }}>{fmt(result.opsFee)}</span>
+          </div>
+          <p style={{ ...MONO, fontSize: 11, color: 'rgba(183,255,97,0.5)', margin: '3px 0 0' }}>
+            Platform, compliance, reporting, project management, data delivery
           </p>
-        )}
-      </div>
-    </div>
-  );
-}
+        </div>
 
-// ── Results view ──────────────────────────────────────────────────────────────
-function Results({ answers, email }: { answers: Answers; email: string }) {
-  const est = calcEstimate(answers);
-
-  const allRows: [string, number][] = [
-    ['Recruitment',  est.recruitment],
-    ['Sample kits',  est.samples],
-    ['IRB support',  est.irb],
-    ['Ops fee (8%)', est.ops_fee],
-  ];
-  const rows = allRows.filter(([, v]) => v > 0);
-
-  return (
-    <div>
-      <p style={{
-        fontFamily:    'var(--font-mono)',
-        fontSize:      10,
-        letterSpacing: '3px',
-        color:         '#b7ff61',
-        textTransform: 'uppercase',
-        marginBottom:  20,
-      }}>
-        // ESTIMATE_COMPLETE
-      </p>
-      <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(22px, 3vw, 32px)', color: '#f2faf4', marginBottom: 8 }}>
-        Your estimate is ready.
-      </h2>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a', marginBottom: 40 }}>
-        Sent to {email} · All figures are estimates, not binding quotes.
-      </p>
-
-      {/* Total */}
-      <div style={{
-        background:   'rgba(183,255,97,0.05)',
-        border:       '1px solid rgba(183,255,97,0.2)',
-        borderRadius: 4,
-        padding:      '24px 28px',
-        marginBottom: 24,
-        display:      'flex',
-        justifyContent: 'space-between',
-        alignItems:   'center',
-      }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#aab8b1', letterSpacing: '1px' }}>
-          ESTIMATED TOTAL
-        </span>
-        <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(28px, 4vw, 40px)', color: '#b7ff61' }}>
-          ${est.total.toLocaleString()}
-        </span>
-      </div>
-
-      {/* Breakdown */}
-      <div style={{
-        border:       '1px solid rgba(255,255,255,0.06)',
-        borderRadius: 4,
-        overflow:     'hidden',
-        marginBottom: 32,
-      }}>
-        {rows.map(([label, amount], idx) => (
-          <div key={label} style={{
-            display:        'flex',
-            justifyContent: 'space-between',
-            padding:        '14px 20px',
-            borderTop:      idx > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-            background:     idx % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent',
-          }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#aab8b1' }}>{label}</span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f2faf4' }}>${amount.toLocaleString()}</span>
+        {/* Total */}
+        <div style={{ padding: '14px 16px', background: 'rgba(183,255,97,0.02)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+            <span style={{ ...MONO, fontSize: 13, letterSpacing: '2px', textTransform: 'uppercase' as const, color: '#f2faf4' }}>TOTAL</span>
+            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: '#f2faf4' }}>{fmt(result.total)}</span>
           </div>
-        ))}
+          <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', margin: '4px 0 0', textAlign: 'right' as const }}>
+            {fmt(result.perParticipant)} per participant
+          </p>
+        </div>
       </div>
 
-      {/* Study summary */}
-      <div style={{
-        background:   'rgba(255,255,255,0.02)',
-        border:       '1px solid rgba(255,255,255,0.06)',
-        borderRadius: 4,
-        padding:      '20px 24px',
-        marginBottom: 32,
-        display:      'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-        gap:          12,
-      }}>
-        {[
-          ['Study type',    answers.study_type],
-          ['Participants',  `${answers.participants ?? '—'}`],
-          ['Duration',      answers.duration],
-          ['Geography',     answers.geography.join(', ')],
-          ['Samples',       answers.samples.join(', ') || 'Survey only'],
-          ['IRB',           answers.irb_status],
-        ].map(([k, v]) => (
-          <div key={k}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#5b8a9a', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 4 }}>{k}</p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#aab8b1' }}>{v}</p>
-          </div>
-        ))}
-      </div>
+      {/* Warnings */}
+      {result.warnings.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+          {result.warnings.map((w, i) => (
+            <div key={i} style={{
+              padding: '10px 14px', borderRadius: 2,
+              border: '1px solid rgba(255,179,0,0.2)', background: 'rgba(255,179,0,0.04)',
+              display: 'flex', gap: 10, alignItems: 'flex-start',
+            }}>
+              <span style={{ ...MONO, fontSize: 11, color: '#ffb300', flexShrink: 0 }}>!</span>
+              <p style={{ ...MONO, fontSize: 11, color: '#c8a060', lineHeight: 1.7, margin: 0 }}>{w}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Disclaimer */}
-      <p style={{
-        fontFamily:  'var(--font-mono)',
-        fontSize:    10,
-        color:       '#5b8a9a',
-        lineHeight:  1.7,
-        marginBottom: 24,
-        padding:     '12px 16px',
-        background:  'rgba(255,255,255,0.02)',
-        border:      '1px solid rgba(255,255,255,0.06)',
-        borderRadius: 2,
-      }}>
-        These figures are illustrative estimates only — not binding quotes.
-        Actual costs depend on study design, geography, eligibility criteria, and lab partner availability.
-        A formal proposal is provided after intake review.
+      <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', lineHeight: 1.7, marginBottom: 24 }}>
+        This is an automated indicative estimate. Not a quote or binding offer.
+        Final scope confirmed in conversation. Pass-through costs subject to
+        partner rates at engagement.
       </p>
 
-      <a
-        href="/intake"
-        style={{
-          fontFamily:     'var(--font-mono)',
-          fontSize:       12,
-          letterSpacing:  '1.5px',
-          textTransform:  'uppercase',
-          color:          '#b7ff61',
-          border:         '1px solid #b7ff61',
-          padding:        '0 28px',
-          height:         46,
-          display:        'inline-flex',
-          alignItems:     'center',
-          textDecoration: 'none',
-          borderRadius:   2,
-        }}
-      >
-        Proceed to full intake →
-      </a>
+      {/* Actions */}
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' as const }}>
+        <a
+          href="/intake"
+          style={{
+            ...MONO, fontSize: 12, padding: '12px 24px',
+            background: '#b7ff61', color: '#050709',
+            borderRadius: 2, textDecoration: 'none', fontWeight: 700,
+            transition: 'opacity 150ms ease',
+          }}
+        >
+          Start a conversation →
+        </a>
+        <button
+          type="button"
+          onClick={onRecalculate}
+          style={{
+            ...MONO, fontSize: 12, padding: '12px 24px',
+            border: '1px solid rgba(255,255,255,0.1)', background: 'transparent',
+            color: '#7f9a8a', borderRadius: 2, cursor: 'pointer',
+            transition: 'all 150ms ease',
+          }}
+        >
+          Recalculate
+        </button>
+      </div>
     </div>
   );
 }
 
-// ── Main wizard ───────────────────────────────────────────────────────────────
-export function EstimateWizard() {
-  const [step,    setStep]    = useState(1);
-  const [answers, setAnswers] = useState<Answers>({ ...EMPTY });
-  const [email,   setEmail]   = useState('');
+// ─── Email gate ───────────────────────────────────────────────────────────────
 
-  function update<K extends keyof Answers>(key: K, val: Answers[K]) {
-    setAnswers(prev => ({ ...prev, [key]: val }));
+function EmailGate({ onSubmit }: { onSubmit: (email: string) => void }) {
+  const [email, setEmail] = useState('');
+  const [err, setErr]     = useState('');
+
+  function handleSubmit(e: { preventDefault: () => void }) {
+    e.preventDefault();
+    if (!email.includes('@') || !email.includes('.')) {
+      setErr('Enter a valid email.');
+      return;
+    }
+    onSubmit(email);
   }
 
-  function toggleArray(key: 'geography' | 'samples', val: string) {
-    setAnswers(prev => {
-      const arr = prev[key] as string[];
-      return { ...prev, [key]: arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val] };
+  return (
+    <div style={{ padding: '32px', border: '1px solid rgba(183,255,97,0.12)', borderRadius: 4, background: 'rgba(183,255,97,0.02)' }}>
+      <SectionLabel>ALMOST_THERE</SectionLabel>
+      <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: '#f2faf4', marginBottom: 8 }}>
+        Enter your email to view the estimate.
+      </p>
+      <p style={{ ...MONO, fontSize: 12, color: '#5b8a9a', lineHeight: 1.7, marginBottom: 24 }}>
+        We'll send you a copy and someone from the team will follow up to discuss.
+      </p>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => { setEmail(e.target.value); setErr(''); }}
+          placeholder="you@institution.edu"
+          required
+          style={{
+            ...MONO, fontSize: 13, flex: 1, minWidth: 200,
+            padding: '10px 16px', borderRadius: 2,
+            background: 'rgba(255,255,255,0.03)',
+            border: `1px solid ${err ? 'rgba(255,100,100,0.4)' : 'rgba(255,255,255,0.1)'}`,
+            color: '#f2faf4', outline: 'none',
+          }}
+        />
+        <button
+          type="submit"
+          style={{
+            ...MONO, fontSize: 12, fontWeight: 700,
+            padding: '10px 24px', background: '#b7ff61', color: '#050709',
+            border: 'none', borderRadius: 2, cursor: 'pointer',
+          }}
+        >
+          View estimate →
+        </button>
+      </form>
+      {err && <p style={{ ...MONO, fontSize: 11, color: '#ff6464', marginTop: 8 }}>{err}</p>}
+    </div>
+  );
+}
+
+// ─── Main wizard ──────────────────────────────────────────────────────────────
+
+export function EstimateWizard() {
+  const [form,   setForm]   = useState<FormState>(INITIAL);
+  const [result, setResult] = useState<EstimateResult | null>(null);
+  const [gated,  setGated]  = useState(false); // show email gate
+  const [errors, setErrors] = useState<string[]>([]);
+
+  function toggleGeo(v: string) {
+    setForm((f: FormState) => ({
+      ...f,
+      geography: f.geography.includes(v)
+        ? f.geography.filter((g: string) => g !== v)
+        : [...f.geography, v],
+    }));
+  }
+
+  function toggleSample(v: string) {
+    setForm((f: FormState) => {
+      // 'none' is exclusive
+      if (v === 'none') return { ...f, samples: ['none'] };
+      const without = f.samples.filter((s: string) => s !== 'none');
+      return {
+        ...f,
+        samples: without.includes(v)
+          ? without.filter((s: string) => s !== v)
+          : [...without, v],
+      };
     });
   }
 
-  const questionStyle: React.CSSProperties = {
-    fontFamily:   'var(--font-heading)',
-    fontWeight:   700,
-    fontSize:     'clamp(20px, 3vw, 28px)',
-    color:        '#f2faf4',
-    marginBottom: 24,
-    lineHeight:   1.2,
-  };
+  function validate() {
+    const errs: string[] = [];
+    if (!form.studyType)        errs.push('Select a study type.');
+    if (form.geography.length === 0) errs.push('Select at least one geography.');
+    if (form.samples.length === 0)   errs.push('Select sample type(s).');
+    if (!form.irbStatus)        errs.push('Select IRB status.');
+    return errs;
+  }
 
-  if (step === 9) return <Results answers={answers} email={email} />;
+  function handleCalculate() {
+    const errs = validate();
+    if (errs.length > 0) { setErrors(errs); return; }
+    setErrors([]);
+    setGated(true);
+  }
 
-  if (step === 8) return (
-    <EmailGate
-      answers={answers}
-      onDone={(em) => { setEmail(em); setStep(9); }}
-    />
-  );
+  function handleEmailSubmit(email: string) {
+    setForm((f: FormState) => ({ ...f, email }));
+    const r = calculateEstimate(form);
+    setResult(r);
+    setGated(false);
+
+    // Fire-and-forget notify
+    fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: email,
+        email,
+        subject: 'Estimate request',
+        message: `Estimate request from ${email}\n\nStudy type: ${form.studyType}\nParticipants: ${form.participants}\nDuration: ${form.duration}\nGeography: ${form.geography.join(', ')}\nSamples: ${form.samples.join(', ')}\nIRB: ${form.irbStatus}\n\nTotal: $${calculateEstimate(form).total.toLocaleString()}`,
+      }),
+    }).catch(() => null);
+  }
+
+  if (result) {
+    return (
+      <EstimateDisplay
+        result={result}
+        onRecalculate={() => { setResult(null); setGated(false); }}
+      />
+    );
+  }
+
+  if (gated) {
+    return <EmailGate onSubmit={handleEmailSubmit} />;
+  }
 
   return (
-    <div>
-      {/* Progress bar */}
-      <div style={{
-        height:       2,
-        background:   'rgba(255,255,255,0.06)',
-        borderRadius: 1,
-        marginBottom: 40,
-        overflow:     'hidden',
-      }}>
-        <div style={{
-          height:     '100%',
-          width:      `${(step / 7) * 100}%`,
-          background: '#b7ff61',
-          borderRadius: 1,
-          transition: 'width 300ms ease',
-        }} />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+
+      {/* Study type */}
+      <div>
+        <FieldLabel>Study type *</FieldLabel>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {STUDY_TYPES.map(t => (
+            <PillButton
+              key={t.value}
+              active={form.studyType === t.value}
+              onClick={() => setForm((f: FormState) => ({ ...f, studyType: t.value }))}
+            >
+              {t.label}
+            </PillButton>
+          ))}
+        </div>
       </div>
 
-      {/* Step 1 — Study type */}
-      {step === 1 && (
-        <div>
-          <StepLabel num={1} total={7} />
-          <h2 style={questionStyle}>What type of study are you running?</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-            {['Dietary intervention', 'Microbiome / gut health', 'Sleep study', 'Cognitive / behavioral', 'Supplement / nutraceutical', 'Digital health / wearable', 'Skin / dermatology', 'Mental health', 'Other'].map(t => (
-              <OptionButton key={t} label={t} selected={answers.study_type === t} onClick={() => update('study_type', t)} />
-            ))}
-          </div>
-          <NavButtons onNext={() => setStep(2)} canProceed={!!answers.study_type} />
+      {/* Participants */}
+      <div>
+        <FieldLabel>Number of participants *</FieldLabel>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <input
+            type="range"
+            min={10} max={500} step={5}
+            value={form.participants}
+            onChange={(e) => setForm((f: FormState) => ({ ...f, participants: Number(e.target.value) }))}
+            style={{ flex: 1, accentColor: '#b7ff61' }}
+          />
+          <span style={{ ...MONO, fontSize: 16, color: '#f2faf4', minWidth: 40, textAlign: 'right' }}>
+            {form.participants}
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+          {[25, 50, 100, 200].map(n => (
+            <PillButton
+              key={n}
+              active={form.participants === n}
+              onClick={() => setForm((f: FormState) => ({ ...f, participants: n }))}
+            >
+              {n}
+            </PillButton>
+          ))}
+        </div>
+      </div>
+
+      {/* Duration */}
+      <div>
+        <FieldLabel>Study duration *</FieldLabel>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {DURATIONS.map(d => (
+            <PillButton
+              key={d.value}
+              active={form.duration === d.value}
+              onClick={() => setForm((f: FormState) => ({ ...f, duration: d.value }))}
+            >
+              {d.label}
+            </PillButton>
+          ))}
+        </div>
+      </div>
+
+      {/* Geography */}
+      <div>
+        <FieldLabel>Geography * (select all that apply)</FieldLabel>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {GEOGRAPHIES.map(g => (
+            <PillButton
+              key={g.value}
+              active={form.geography.includes(g.value)}
+              onClick={() => toggleGeo(g.value)}
+            >
+              {g.label}
+            </PillButton>
+          ))}
+        </div>
+      </div>
+
+      {/* Samples */}
+      <div>
+        <FieldLabel>Sample / data types * (select all that apply)</FieldLabel>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {SAMPLES.map(s => (
+            <PillButton
+              key={s.value}
+              active={form.samples.includes(s.value)}
+              onClick={() => toggleSample(s.value)}
+            >
+              {s.label}
+            </PillButton>
+          ))}
+        </div>
+      </div>
+
+      {/* IRB status */}
+      <div>
+        <FieldLabel>IRB / ethics status *</FieldLabel>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {IRB_OPTIONS.map(o => (
+            <PillButton
+              key={o.value}
+              active={form.irbStatus === o.value}
+              onClick={() => setForm((f: FormState) => ({ ...f, irbStatus: o.value }))}
+            >
+              {o.label}
+            </PillButton>
+          ))}
+        </div>
+        <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', marginTop: 8, lineHeight: 1.6 }}>
+          IRB is the researcher's responsibility. Biome does not provide IRB services.
+        </p>
+      </div>
+
+      {/* Validation errors */}
+      {errors.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {errors.map((e, i) => (
+            <p key={i} style={{ ...MONO, fontSize: 11, color: '#ffb300' }}>— {e}</p>
+          ))}
         </div>
       )}
 
-      {/* Step 2 — Sponsor type */}
-      {step === 2 && (
-        <div>
-          <StepLabel num={2} total={7} />
-          <h2 style={questionStyle}>Who is sponsoring this study?</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-            {['Startup / founder', 'Brand / CPG company', 'University / research lab', 'DAO / DeSci project', 'Pharma / biotech', 'Individual researcher', 'Other'].map(t => (
-              <OptionButton key={t} label={t} selected={answers.sponsor_type === t} onClick={() => update('sponsor_type', t)} />
-            ))}
-          </div>
-          <NavButtons onBack={() => setStep(1)} onNext={() => setStep(3)} canProceed={!!answers.sponsor_type} />
-        </div>
-      )}
-
-      {/* Step 3 — Participants */}
-      {step === 3 && (
-        <div>
-          <StepLabel num={3} total={7} />
-          <h2 style={questionStyle}>How many participants do you need?</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-            {[25, 50, 100, 200, 500, 1000].map(n => (
-              <OptionButton key={n} label={`${n}`} selected={answers.participants === n} onClick={() => update('participants', n)} />
-            ))}
-          </div>
-          <div style={{ marginTop: 20, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a' }}>Custom:</span>
-            <input
-              type="number"
-              min={10}
-              max={5000}
-              placeholder="Enter number"
-              value={answers.participants && ![25,50,100,200,500,1000].includes(answers.participants) ? answers.participants : ''}
-              onChange={(e) => update('participants', parseInt(e.target.value) || null)}
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize:   13,
-                color:      '#f2faf4',
-                background: 'rgba(255,255,255,0.04)',
-                border:     '1px solid rgba(255,255,255,0.12)',
-                borderRadius: 2,
-                padding:    '0 12px',
-                height:     40,
-                width:      120,
-                outline:    'none',
-              }}
-            />
-          </div>
-          <NavButtons onBack={() => setStep(2)} onNext={() => setStep(4)} canProceed={!!answers.participants && answers.participants > 0} />
-        </div>
-      )}
-
-      {/* Step 4 — Duration */}
-      {step === 4 && (
-        <div>
-          <StepLabel num={4} total={7} />
-          <h2 style={questionStyle}>How long will the study run?</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-            {['< 2 weeks', '2–4 weeks', '1–3 months', '3–6 months', '6–12 months', '> 12 months'].map(t => (
-              <OptionButton key={t} label={t} selected={answers.duration === t} onClick={() => update('duration', t)} />
-            ))}
-          </div>
-          <NavButtons onBack={() => setStep(3)} onNext={() => setStep(5)} canProceed={!!answers.duration} />
-        </div>
-      )}
-
-      {/* Step 5 — Geography */}
-      {step === 5 && (
-        <div>
-          <StepLabel num={5} total={7} />
-          <h2 style={questionStyle}>Where will participants be located?</h2>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a', marginBottom: 20 }}>
-            Select all that apply.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-            {['India', 'United States', 'United Kingdom', 'EU'].map(g => (
-              <OptionButton key={g} label={g} selected={answers.geography.includes(g)} onClick={() => toggleArray('geography', g)} />
-            ))}
-          </div>
-          <NavButtons onBack={() => setStep(4)} onNext={() => setStep(6)} canProceed={answers.geography.length > 0} />
-        </div>
-      )}
-
-      {/* Step 6 — Samples */}
-      {step === 6 && (
-        <div>
-          <StepLabel num={6} total={7} />
-          <h2 style={questionStyle}>What data or samples will you collect?</h2>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a', marginBottom: 20 }}>
-            Select all that apply.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-            {['Survey only', 'Saliva', 'Stool kit', 'Blood spot', 'Blood draw', 'Urine', 'Wearable data'].map(s => (
-              <OptionButton key={s} label={s} selected={answers.samples.includes(s)} onClick={() => toggleArray('samples', s)} />
-            ))}
-          </div>
-          <NavButtons onBack={() => setStep(5)} onNext={() => setStep(7)} canProceed={answers.samples.length > 0} />
-        </div>
-      )}
-
-      {/* Step 7 — IRB */}
-      {step === 7 && (
-        <div>
-          <StepLabel num={7} total={7} />
-          <h2 style={questionStyle}>What is your IRB / ethics status?</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-            {['We have IRB approval', 'Need IRB guidance', 'Not applicable', 'Not sure'].map(t => (
-              <OptionButton key={t} label={t} selected={answers.irb_status === t} onClick={() => update('irb_status', t)} />
-            ))}
-          </div>
-          <NavButtons onBack={() => setStep(6)} onNext={() => setStep(8)} nextLabel="Get my estimate →" canProceed={!!answers.irb_status} />
-        </div>
-      )}
+      {/* CTA */}
+      <button
+        type="button"
+        onClick={handleCalculate}
+        style={{
+          ...MONO, fontSize: 13, fontWeight: 700, letterSpacing: '1px',
+          padding: '14px 32px', background: '#b7ff61', color: '#050709',
+          border: 'none', borderRadius: 2, cursor: 'pointer',
+          alignSelf: 'flex-start', transition: 'opacity 150ms ease',
+        }}
+      >
+        Get estimate →
+      </button>
     </div>
   );
 }
