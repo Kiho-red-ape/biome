@@ -54,7 +54,7 @@ INSERT INTO participant_profiles (
 
 -- ── Demo experiment ──────────────────────────────────────────────────────────
 INSERT INTO experiments (
-  id, experimenter_id, title, description, category, study_type,
+  id, experimenter_id, title, description, category,
   status, bounty_per_participant, total_bounty_pool, slots_total, slots_filled,
   duration_weeks, region, is_remote, is_verified, verification_level,
   task_summary, commenced, compliance_threshold, created_at, updated_at
@@ -63,7 +63,7 @@ INSERT INTO experiments (
   'demo:researcher',
   'Gut Microbiome & Diet Correlation Study',
   E'This 8-week observational study investigates the relationship between daily diet patterns and gut microbiome diversity in healthy adults.\n\nParticipants complete weekly food journals and submit stool samples at weeks 2, 4, and 8. All sample collection kits are shipped directly to participants.\n\nYou will receive:\n— A stool collection kit (OmniGene-Gut) shipped to your door\n— Detailed instructions for each milestone\n— Your personalised microbiome diversity report at study end\n— Compensation of $120 on verified completion',
-  'Microbiome', 'Observational',
+  'Microbiome',
   'active', 120, 6000, 50, 1, 8,
   'Remote / Global', true, true, 'biome',
   'Weekly food journal + stool sample × 3',
