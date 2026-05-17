@@ -4,45 +4,64 @@ import { useRef } from 'react';
 import { SiteHeader } from '@/components/nav/header';
 import Link from 'next/link';
 import { EstimateWizard } from '@/app/estimate/estimate-wizard';
+import { StepsCarousel, type CarouselStep } from '@/components/ui/steps-carousel';
 
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
 
-const JOURNEY = [
+const JOURNEY: CarouselStep[] = [
   {
-    num: '01', label: 'DESIGN',
-    traditional: 'Protocol review takes 6–18 months to operationalise',
-    withBiome:   'Study design to live in under 30 days',
-    metric:      '< 30 days',
+    num: '01', label: 'DESIGN', scene: 'design',
+    headline: 'Study design\nto live in under 30 days.',
+    desc: [
+      'Protocol review → live study in < 30 days.',
+      'We handle the ops. You own the science.',
+      'Compliance-ready from day one.',
+    ],
   },
   {
-    num: '02', label: 'APPROVE',
-    traditional: 'IRB queue and manual review cycles',
-    withBiome:   'Compliance-ready infrastructure, audit bundle included',
-    metric:      'Compliance-ready',
+    num: '02', label: 'APPROVE', scene: 'approve',
+    headline: 'Compliance-ready.\nAudit bundle included.',
+    desc: [
+      'Infrastructure built around IRB requirements.',
+      'Consent capture, comms log, audit export.',
+      'No manual review cycle delays.',
+    ],
   },
   {
-    num: '03', label: 'RECRUIT',
-    traditional: 'Passive ads, slow enrolment, unverified cohorts',
-    withBiome:   'Targeted network of verified research partners',
-    metric:      '1,000+ partners',
+    num: '03', label: 'RECRUIT', scene: 'recruit',
+    headline: 'Targeted cohort.\nVerified participants.',
+    desc: [
+      'Network of 1,000+ verified research partners.',
+      'Screened against your exact eligibility criteria.',
+      'Faster enrolment than passive ads.',
+    ],
   },
   {
-    num: '04', label: 'TRACK',
-    traditional: 'Spreadsheets and email chains',
-    withBiome:   'Live dashboard, automated dropout alerts',
-    metric:      'Real-time',
+    num: '04', label: 'TRACK', scene: 'track',
+    headline: 'Live dashboard.\nDropouts flagged automatically.',
+    desc: [
+      'Real-time compliance monitoring.',
+      'Automated dropout alerts and reminders.',
+      'Weekly sponsor reports included.',
+    ],
   },
   {
-    num: '05', label: 'COLLECT',
-    traditional: 'Coordinate labs and kit logistics manually',
-    withBiome:   'Kits dispatched, tracked, and returned globally',
-    metric:      'Global logistics',
+    num: '05', label: 'COLLECT', scene: 'collect',
+    headline: 'Samples shipped.\nTracked. Logged.',
+    desc: [
+      'Kits dispatched globally from partner labs.',
+      'Stool, saliva, blood spot, urine, wearable data.',
+      'Partner phlebotomy for blood draws.',
+    ],
   },
   {
-    num: '06', label: 'DELIVER',
-    traditional: 'Raw files, manual packaging for archive',
-    withBiome:   'Clean export + full audit bundle',
-    metric:      'Compliance bundle',
+    num: '06', label: 'DELIVER', scene: 'deliver',
+    headline: 'Clean data out.\nFull audit bundle.',
+    desc: [
+      'Structured export with chain-of-custody log.',
+      'Consent records, comms log, payout summary.',
+      'Compliance bundle ready for sponsor archive.',
+    ],
   },
 ];
 
@@ -68,63 +87,29 @@ export default function RunAStudyPage() {
       <SiteHeader />
 
       {/* ── Hero ── */}
-      <section style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(48px, 8vw, 96px) 24px 64px' }}>
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(48px, 8vw, 96px) 24px 48px' }}>
         <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 20 }}>
           // RUN_A_STUDY
         </p>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(26px, 4vw, 40px)', lineHeight: 1.15, color: '#f2faf4', marginBottom: 16 }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(28px, 4vw, 44px)', lineHeight: 1.1, color: '#f2faf4', marginBottom: 16 }}>
           Run your study.<br />Your protocol. Your pace.
         </h1>
         <p style={{ ...MONO, fontSize: 13, color: '#aab8b1', lineHeight: 1.9, marginBottom: 36, maxWidth: 560 }}>
-          Biome gives you the operational infrastructure to recruit, track, and
-          manage a decentralised study without outsourcing control.
+          Biome gives you the operational infrastructure to recruit, track, and manage a decentralised study
+          without outsourcing control.
         </p>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
           <button onClick={scrollToEstimate} className="btn-primary" style={{ display: 'inline-flex' }}>
             Get an estimate →
           </button>
-          <Link
-            href="/contact"
-            style={{ ...MONO, fontSize: 12, color: '#5b8a9a', textDecoration: 'none', display: 'flex', alignItems: 'center', minHeight: 46 }}
-          >
-            Or talk to us directly →
+          <Link href="/contact" style={{ ...MONO, fontSize: 12, color: '#5b8a9a', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: 46 }}>
+            Contact us →
           </Link>
         </div>
       </section>
 
-      {/* ── Journey ── */}
-      <section style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px 80px' }}>
-        <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 32 }}>
-          // HOW_IT_WORKS
-        </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          {JOURNEY.map((step, i) => (
-            <div
-              key={step.num}
-              style={{
-                display: 'grid', gridTemplateColumns: '56px 1fr 1fr auto',
-                gap: 24, alignItems: 'center',
-                padding: '16px 20px',
-                background: i % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'rgba(183,255,97,0.015)',
-                border: '1px solid rgba(255,255,255,0.05)',
-                borderRadius: 2,
-              }}
-            >
-              <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 28, color: 'rgba(183,255,97,0.2)', lineHeight: 1 }}>{step.num}</span>
-              <div>
-                <p style={{ ...MONO, fontSize: 10, letterSpacing: '2px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 4 }}>{step.label}</p>
-                <p style={{ ...MONO, fontSize: 12, color: '#3a4e42', lineHeight: 1.5, margin: 0 }}>{step.traditional}</p>
-              </div>
-              <p style={{ ...MONO, fontSize: 12, color: '#aab8b1', lineHeight: 1.5, margin: 0 }}>
-                <span style={{ color: '#b7ff61' }}>With Biome: </span>{step.withBiome}
-              </p>
-              <span style={{ ...MONO, fontSize: 9, letterSpacing: '1px', textTransform: 'uppercase' as const, color: '#b7ff61', border: '1px solid rgba(183,255,97,0.25)', padding: '3px 10px', borderRadius: 2, whiteSpace: 'nowrap' as const }}>
-                {step.metric}
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* ── Journey carousel ── */}
+      <StepsCarousel steps={JOURNEY} sectionLabel="THE_JOURNEY" />
 
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px' }}>
 

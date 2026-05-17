@@ -2,41 +2,62 @@
 
 import { SiteHeader } from '@/components/nav/header';
 import Link from 'next/link';
+import { StepsCarousel, type CarouselStep } from '@/components/ui/steps-carousel';
 
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
 
-const STEPS = [
+const STEPS: CarouselStep[] = [
   {
-    num: '01', label: 'VERIFY',
-    headline: 'Build your research partner profile.',
-    desc: 'Email and demographics. Optional phone verification for higher-value studies.',
+    num: '01', label: 'VERIFY', scene: 'approve',
+    headline: 'Build your\nresearch partner profile.',
+    desc: [
+      'Email + optional phone verification.',
+      'Profile anchors your participant identity.',
+      'Higher verification = higher-value studies.',
+    ],
   },
   {
-    num: '02', label: 'MATCH',
-    headline: 'Get matched to relevant studies.',
-    desc: 'When a study fits your profile, you receive a notification. No searching required.',
+    num: '02', label: 'MATCH', scene: 'recruit',
+    headline: 'Get matched to\nrelevant studies.',
+    desc: [
+      'Studies surface automatically based on your profile.',
+      'No manual searching required.',
+      'Opt in to study alerts via email.',
+    ],
   },
   {
-    num: '03', label: 'APPLY',
-    headline: 'Apply in one step.',
-    desc: 'Eligibility check. One-click application. The researcher reviews and approves.',
+    num: '03', label: 'APPLY', scene: 'scope',
+    headline: 'Apply in\none step.',
+    desc: [
+      'One-click application after eligibility check.',
+      'Researcher reviews and approves.',
+      'No lengthy screening forms.',
+    ],
   },
   {
-    num: '04', label: 'CONTRIBUTE',
-    headline: 'Complete your milestones.',
-    desc: 'Follow the study protocol from home. Submit on time. Track your progress.',
+    num: '04', label: 'CONTRIBUTE', scene: 'collect',
+    headline: 'Complete your\nmilestones.',
+    desc: [
+      'Follow the study protocol from home.',
+      'Submit samples or data on schedule.',
+      'Track progress on your dashboard.',
+    ],
   },
   {
-    num: '05', label: 'EARN',
-    headline: 'Receive your compensation.',
-    desc: 'Compliance-gated reimbursement released when your milestones are verified.',
+    num: '05', label: 'EARN', scene: 'pay',
+    headline: 'Receive your\ncompensation.',
+    desc: [
+      'Compliance-gated payout on milestone completion.',
+      'Full transparency on what you earn.',
+      'Crypto or fiat depending on the study.',
+    ],
   },
 ];
 
 const DATA_POINTS = [
-  'You decide which studies you apply to — no auto-enrolment.',
-  'Identifiable information is never shared with researchers without your consent.',
-  'Profile data is used only for study matching — never sold.',
+  'You decide which studies to apply to — no auto-enrolment.',
+  'Identifiable information is never shared without your consent.',
+  'Profile data is used only for matching — never sold.',
   'You can delete your account at any time.',
 ];
 
@@ -46,20 +67,16 @@ export default function ParticipatePage() {
       <SiteHeader />
 
       {/* ── Hero ── */}
-      <section style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(48px, 8vw, 96px) 24px 64px' }}>
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(48px, 8vw, 96px) 24px 48px' }}>
         <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 20 }}>
           // JOIN_THE_NETWORK
         </p>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(26px, 4vw, 40px)', lineHeight: 1.15, color: '#f2faf4', marginBottom: 8 }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(28px, 4vw, 44px)', lineHeight: 1.1, color: '#f2faf4', marginBottom: 12 }}>
           Join the new clinical economy.
         </h1>
-        <p style={{ ...MONO, fontSize: 12, color: '#5b8a9a', letterSpacing: '0.5px', marginBottom: 24 }}>
-          Join the founding cohort of research partners.
-        </p>
-        <p style={{ ...MONO, fontSize: 13, color: '#aab8b1', lineHeight: 1.9, marginBottom: 36, maxWidth: 520 }}>
-          Biome runs decentralised studies in microbiome, nutrition, sleep,
-          wearables, and longevity. Research partners complete milestones from
-          home and receive compensation on completion.
+        <p style={{ ...MONO, fontSize: 13, color: '#aab8b1', lineHeight: 1.9, marginBottom: 36, maxWidth: 560 }}>
+          Biome runs decentralised studies in microbiome, nutrition, sleep, wearables, and longevity.
+          Research partners complete milestones from home and receive compensation on completion.
         </p>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
           <Link href="/onboarding?role=participant" className="btn-primary" style={{ display: 'inline-flex' }}>
@@ -72,38 +89,8 @@ export default function ParticipatePage() {
         </div>
       </section>
 
-      {/* ── How it works ── */}
-      <section style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px 80px' }}>
-        <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 32 }}>
-          // HOW_IT_WORKS
-        </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          {STEPS.map((step, i) => (
-            <div
-              key={step.num}
-              style={{
-                display: 'grid', gridTemplateColumns: '56px 1fr 2fr',
-                gap: 24, alignItems: 'flex-start',
-                padding: '20px 24px',
-                background: i % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'rgba(183,255,97,0.015)',
-                border: '1px solid rgba(255,255,255,0.05)',
-                borderRadius: 2,
-              }}
-            >
-              <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 32, color: 'rgba(183,255,97,0.18)', lineHeight: 1 }}>{step.num}</span>
-              <div>
-                <p style={{ ...MONO, fontSize: 10, letterSpacing: '2px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 6 }}>{step.label}</p>
-              </div>
-              <div>
-                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(14px, 1.8vw, 18px)', color: '#f2faf4', lineHeight: 1.2, marginBottom: 6 }}>
-                  {step.headline}
-                </p>
-                <p style={{ ...MONO, fontSize: 12, color: '#aab8b1', lineHeight: 1.7, margin: 0 }}>{step.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* ── How it works carousel ── */}
+      <StepsCarousel steps={STEPS} sectionLabel="HOW_IT_WORKS" />
 
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '0 24px' }}>
 

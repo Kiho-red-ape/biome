@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { Suspense } from 'react';
 
+const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
+
 function OnboardingInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,10 +38,9 @@ function OnboardingInner() {
   }, [router]);
 
   useEffect(() => {
-    if (!ready) return;
-    if (!authenticated || !user) { router.replace('/'); return; }
+    if (!ready || !authenticated || !user) return;
     void checkExistingProfile(user.id);
-  }, [ready, authenticated, user, checkExistingProfile, router]);
+  }, [ready, authenticated, user, checkExistingProfile]);
 
   async function handleSubmit(role: 'participant' | 'experimenter') {
     if (!user) return;
@@ -85,6 +86,42 @@ function OnboardingInner() {
       <div className="min-h-screen flex items-center justify-center">
         <span className="mono text-sm" style={{ color: 'var(--text-dim)' }}>// LOADING...</span>
       </div>
+    );
+  }
+
+  // ── Not authenticated — show sign-in prompt ────────────────────────────────
+  if (!authenticated) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: '#050709' }}>
+        <div style={{ textAlign: 'center', maxWidth: 400 }}>
+          <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 20 }}>
+            // SIGN_IN_REQUIRED
+          </p>
+          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 24, color: '#f2faf4', marginBottom: 12 }}>
+            {preselectedRole === 'participant' ? 'Join as a research partner' :
+             preselectedRole === 'experimenter' ? 'Register as a researcher' :
+             'Sign in to continue'}
+          </h1>
+          <p style={{ ...MONO, fontSize: 12, color: '#5b8a9a', lineHeight: 1.7, marginBottom: 32 }}>
+            {preselectedRole === 'participant'
+              ? 'Create your account to join research studies and earn compensation.'
+              : preselectedRole === 'experimenter'
+              ? 'Create your account to start running studies on Biome.'
+              : 'Sign in or create an account to get started.'}
+          </p>
+          <button
+            onClick={login}
+            style={{
+              fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '2px',
+              textTransform: 'uppercase', padding: '12px 32px',
+              background: 'rgba(183,255,97,0.08)', border: '1px solid rgba(183,255,97,0.3)',
+              color: '#b7ff61', borderRadius: 2, cursor: 'pointer', width: '100%',
+            }}
+          >
+            Sign in / Create account →
+          </button>
+        </div>
+      </main>
     );
   }
 

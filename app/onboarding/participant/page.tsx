@@ -135,13 +135,9 @@ export default function ParticipantOnboardingPage() {
   }, [router]);
 
   useEffect(() => {
-    if (!ready) return;
-    if (!authenticated || !user) {
-      router.replace('/');
-      return;
-    }
+    if (!ready || !authenticated || !user) return;
     void checkExisting(user.id);
-  }, [ready, authenticated, user, checkExisting, router]);
+  }, [ready, authenticated, user, checkExisting]);
 
   // Derive phone/email from Privy linked accounts
   const phoneAccount = user?.linkedAccounts?.find(a => a.type === 'phone');
@@ -204,7 +200,7 @@ export default function ParticipantOnboardingPage() {
 
   // ── Loading / auth guard ───────────────────────────────────────────────────
 
-  if (!ready || checking) {
+  if (!ready || (!authenticated && !checking) || checking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>

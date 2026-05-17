@@ -23,7 +23,13 @@ export default function ExperimenterOnboardingPage() {
   const [submitted,    setSubmitted]    = useState<{ id: string; org_name: string } | null>(null);
 
   if (!ready) return null;
-  if (!authenticated || !user) { router.replace('/'); return null; }
+  if (!authenticated || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#050709' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>// SIGN_IN_REQUIRED — use the Sign in button in the top nav</span>
+      </div>
+    );
+  }
 
   function toggleExpertise(opt: string) {
     setExpertise((prev) => prev.includes(opt) ? prev.filter((x) => x !== opt) : [...prev, opt]);
