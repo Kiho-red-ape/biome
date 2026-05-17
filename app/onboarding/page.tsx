@@ -10,7 +10,7 @@ const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
 function OnboardingInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, ready, authenticated } = usePrivy();
+  const { user, ready, authenticated, login } = usePrivy();
 
   const roleParam = searchParams.get('role'); // 'participant' | 'researcher'
 
