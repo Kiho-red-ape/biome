@@ -148,12 +148,17 @@ VALUES (
 
 -- ── 9. Participant milestones ─────────────────────────────────────────────────
 
+-- Add application_id column if the live DB requires it
+ALTER TABLE participant_milestones
+  ADD COLUMN IF NOT EXISTS application_id uuid;
+
 INSERT INTO participant_milestones (
-  experiment_id, participant_id, study_milestone_id, status, completed_at, submitted_at
+  experiment_id, participant_id, application_id, study_milestone_id, status, completed_at, submitted_at
 )
 SELECT
   sm.experiment_id,
   'demo:participant',
+  a.id,
   sm.id,
   CASE
     WHEN sm.week_number <= 2 THEN 'verified'
@@ -163,6 +168,9 @@ SELECT
   CASE WHEN sm.week_number <= 2 THEN now() - interval '7 days' ELSE NULL END,
   CASE WHEN sm.week_number IN (2,3) THEN now() - interval '3 days' ELSE NULL END
 FROM study_milestones sm
+JOIN applications a
+  ON a.experiment_id = sm.experiment_id
+ AND a.participant_id = 'demo:participant'
 WHERE sm.experiment_id = '00000000-0001-0000-0000-000000000001'
 ON CONFLICT DO NOTHING;
 
