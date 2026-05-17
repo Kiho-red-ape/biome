@@ -72,6 +72,9 @@ const NAV: { label: string; href: string; children?: { label: string; href: stri
     label: 'Researcher Approvals', href: '/ops/researchers',
   },
   {
+    label: 'Notifications', href: '/ops/notifications',
+  },
+  {
     label: 'Blog', href: '/ops/blog',
     children: [
       { label: 'All posts',   href: '/ops/blog' },
