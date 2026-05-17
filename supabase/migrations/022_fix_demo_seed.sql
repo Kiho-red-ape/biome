@@ -1,10 +1,24 @@
 -- Migration 022: Fix demo seed data (corrects bugs in 021)
 
+-- ── Schema repair: ensure participant_milestones has participant_id ───────────
+-- The column may be absent if migration 008 was applied to an older DB schema.
+ALTER TABLE participant_milestones
+  ADD COLUMN IF NOT EXISTS participant_id text;
+
 -- ── Clean up any broken 021 seed data ────────────────────────────────────────
-DELETE FROM participant_milestones WHERE participant_id = 'demo:participant';
+-- Delete by experiment_id (avoids column-name assumptions on participant_milestones)
+DELETE FROM participant_milestones
+  WHERE experiment_id IN (
+    SELECT id FROM experiments WHERE experimenter_id = 'demo:researcher'
+    UNION ALL
+    SELECT '00000000-0001-0000-0000-000000000001'::uuid
+  );
 DELETE FROM applications
-  WHERE participant_id = 'demo:participant'
-     OR experiment_id::text = 'demo-exp-0001-0000-0000-000000000001';  -- old bad UUID (will be ignored if invalid)
+  WHERE experiment_id IN (
+    SELECT id FROM experiments WHERE experimenter_id = 'demo:researcher'
+    UNION ALL
+    SELECT '00000000-0001-0000-0000-000000000001'::uuid
+  );
 DELETE FROM study_milestones WHERE experiment_id = '00000000-0001-0000-0000-000000000001';
 DELETE FROM experiments WHERE experimenter_id = 'demo:researcher';
 DELETE FROM experimenter_profiles WHERE user_id IN ('demo:researcher', 'demo:partner');
@@ -105,7 +119,7 @@ SELECT
   CASE WHEN sm.week_number IN (2,3) THEN now() - interval '3 days' ELSE NULL END
 FROM study_milestones sm
 WHERE sm.experiment_id = '00000000-0001-0000-0000-000000000001'
-ON CONFLICT (study_milestone_id, participant_id) DO NOTHING;
+ON CONFLICT DO NOTHING;
 
 -- ── In-app welcome notifications for demo participant ────────────────────────
 INSERT INTO notifications (user_id, type, payload) VALUES
