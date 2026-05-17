@@ -27,3 +27,23 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { id } = await req.json() as { id: string };
+    if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
+    const db = createServiceClient();
+    // Only allow deletion of drafts
+    const { data: post } = await db.from('blog_posts').select('status').eq('id', id).single();
+    if (!post) return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    if (post.status === 'published') {
+      return NextResponse.json({ error: 'Cannot delete a published post. Archive it first.' }, { status: 400 });
+    }
+    const { error } = await db.from('blog_posts').delete().eq('id', id);
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
+  }
+}
+

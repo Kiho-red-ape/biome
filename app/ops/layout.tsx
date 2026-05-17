@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-const OPERATOR_EMAIL = 'kishore@biome.to';
+const OPERATOR_EMAILS = ['kishore@biome.to', 'hello@biome.to'];
 
 const NAV: { label: string; href: string; children?: { label: string; href: string }[] }[] = [
   { label: 'Overview',   href: '/ops' },
@@ -79,6 +79,7 @@ const NAV: { label: string; href: string; children?: { label: string; href: stri
     ],
   },
   { label: 'Reports', href: '/ops/reports' },
+  { label: 'Demo Seed', href: '/ops/demo-seed' },
 ];
 
 function SidebarLink({ href, label }: { href: string; label: string }) {
@@ -114,10 +115,10 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
   const [time, setTime] = useState('');
 
   const userEmail = user?.email?.address ?? null;
-  const isAuthorized = authenticated && userEmail === OPERATOR_EMAIL;
+  const isAuthorized = authenticated && !!userEmail && OPERATOR_EMAILS.includes(userEmail);
 
   useEffect(() => {
-    if (ready && (!authenticated || (userEmail && userEmail !== OPERATOR_EMAIL))) {
+    if (ready && (!authenticated || (userEmail && !OPERATOR_EMAILS.includes(userEmail)))) {
       router.replace('/');
     }
   }, [ready, authenticated, userEmail, router]);
