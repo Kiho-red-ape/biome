@@ -1,6 +1,6 @@
 import {
   DocLabel, DocH1, DocH2, DocP, DocLead,
-  DocUL, DocTable, DocNav,
+  DocUL, DocNav,
 } from '../docs-components';
 
 export default function PayoutsPage() {
@@ -31,26 +31,6 @@ export default function PayoutsPage() {
         Payout timing is not guaranteed. Processing time varies based on method, provider, banking
         systems, currency conversion, and compliance checks. If currency conversion is required, the
         payout provider may apply its own exchange rate, spread, and fees.
-      </DocP>
-
-      <DocH2>Fee structure</DocH2>
-      <DocTable
-        headers={['Fee', 'Amount', 'Charged to', 'Description']}
-        rows={[
-          ['Biome operations fee', '$8,000–10,000 per study (negotiable)', 'Researcher',  'Covers platform, compliance, project management, data delivery, and reporting'],
-          ['Pass-through costs',   'At cost + 50% coordination margin',    'Researcher',  'Recruitment, kits, shipping, phlebotomy, lab analysis, participant compensation — all itemised'],
-          ['BIOME Verified',       '$500–1,000 per study',                  'Researcher',  'Optional protocol review by BIOME\'s science team'],
-          ['Payout processing',    '0.5% of payout amount',                 'Participant', 'Deducted from participant payout during processing'],
-        ]}
-      />
-      <DocP>
-        Use the <a href="/run-a-study" style={{ color: 'var(--green)', textDecoration: 'none' }}>Study Cost Estimator</a> to
-        generate a fully itemised indicative budget before engaging. All pass-through costs are visible
-        line-by-line with zero hidden markup beyond the stated coordination margin.
-      </DocP>
-      <DocP>
-        Third-party fees (banking, PayPal, blockchain network, currency conversion) may also apply
-        and are outside BIOME&apos;s control.
       </DocP>
 
       <DocH2>Deposits</DocH2>

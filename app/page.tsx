@@ -2,7 +2,6 @@ import { createAnonClient } from '@/lib/supabase/anon';
 import { SiteHeader } from '@/components/nav/header';
 import { HomeHero } from '@/components/home/hero';
 import { HowItWorks } from '@/components/home/how-it-works';
-import { ScopeSection } from '@/components/home/scope-section';
 import { Geography } from '@/components/home/geography';
 import { TrackRecord } from '@/components/home/track-record';
 import { BlogPreview } from '@/components/home/blog-preview';
@@ -38,7 +37,6 @@ export default async function HomePage() {
 
       <HomeHero />
       <HowItWorks />
-      <ScopeSection />
       <Geography />
       <TrackRecord />
       <BlogPreview />

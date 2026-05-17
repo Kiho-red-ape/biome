@@ -239,7 +239,7 @@ export default function ContactPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <Field label="Organization">
-                  <FocusInput name="organization" placeholder="University / Company / DAO" required />
+                  <FocusInput name="organization" placeholder="University / Company / Organization" required />
                 </Field>
                 <Field label="Website or LinkedIn">
                   <FocusInput name="website" type="url" placeholder="https://…" />
@@ -256,7 +256,6 @@ export default function ContactPage() {
                     'Startup / Biotech',
                     'Pharmaceutical',
                     'Independent researcher',
-                    'DAO / Web3 project',
                     'Other',
                   ]}
                 />

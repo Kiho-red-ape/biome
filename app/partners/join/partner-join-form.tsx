@@ -113,13 +113,11 @@ export function PartnerJoinForm() {
   const categoryRef = useRef<HTMLSelectElement>(null);
   const descRef     = useRef<HTMLTextAreaElement>(null);
   const regionRef   = useRef<HTMLSelectElement>(null);
-  const fileRef     = useRef<HTMLInputElement>(null);
 
   const [agreed,     setAgreed]     = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done,       setDone]       = useState(false);
   const [error,      setError]      = useState<string | null>(null);
-  const [fileName,   setFileName]   = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -127,20 +125,19 @@ export function PartnerJoinForm() {
     setSubmitting(true);
     setError(null);
 
-    const file = fileRef.current?.files?.[0];
-    if (!file) { setError('Logo is required.'); setSubmitting(false); return; }
-
-    const formData = new FormData();
-    formData.append('name',        nameRef.current?.value?.trim() ?? '');
-    formData.append('email',       emailRef.current?.value?.trim() ?? '');
-    formData.append('website',     websiteRef.current?.value?.trim() ?? '');
-    formData.append('category',    categoryRef.current?.value ?? '');
-    formData.append('description', descRef.current?.value?.trim() ?? '');
-    formData.append('region',      regionRef.current?.value ?? '');
-    formData.append('logo',        file);
-
     try {
-      const res = await fetch('/api/partners/apply', { method: 'POST', body: formData });
+      const res = await fetch('/api/partners/apply', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name:        nameRef.current?.value?.trim() ?? '',
+          email:       emailRef.current?.value?.trim() ?? '',
+          website:     websiteRef.current?.value?.trim() ?? '',
+          category:    categoryRef.current?.value ?? '',
+          description: descRef.current?.value?.trim() ?? '',
+          region:      regionRef.current?.value ?? '',
+        }),
+      });
       if (!res.ok) {
         const d = await res.json() as { error?: string };
         throw new Error(d.error ?? 'Submission failed');
@@ -157,14 +154,17 @@ export function PartnerJoinForm() {
     return (
       <div style={{
         background: 'rgba(183,255,97,0.04)', border: '1px solid rgba(183,255,97,0.15)',
-        padding: 40, borderRadius: 2, textAlign: 'center',
+        padding: 40, borderRadius: 2,
       }}>
         <p style={{ fontFamily: 'var(--font-heading)', fontSize: 28, color: '#b7ff61', marginBottom: 12 }}>✓</p>
-        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f2faf4', marginBottom: 8 }}>
+        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f2faf4', marginBottom: 12 }}>
           Application received.
         </p>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a', lineHeight: 1.7 }}>
-          We&apos;ll review within 48 hours.
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#aab8b1', lineHeight: 1.8, marginBottom: 8 }}>
+          We&apos;ll review within 48 hours and send a follow-up email with a link to complete your partner profile — including logo upload and service details.
+        </p>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a', lineHeight: 1.6 }}>
+          Questions? <a href="mailto:contact@biome.to" style={{ color: '#aab8b1', textDecoration: 'none' }}>contact@biome.to</a>
         </p>
       </div>
     );
@@ -216,43 +216,6 @@ export function PartnerJoinForm() {
           options={['India', 'United States', 'United Kingdom', 'EU', 'Australia', 'Singapore', 'Canada', 'Global', 'Other']}
         />
       </Field>
-
-      {/* Logo upload */}
-      <div style={{ marginBottom: 20 }}>
-        <label style={LABEL}>
-          Logo <span style={{ color: '#b7ff61', marginLeft: 4 }}>*</span>
-        </label>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a', marginBottom: 8, lineHeight: 1.5 }}>
-          PNG / JPG / SVG · Square · Max 2MB · 640×640px recommended
-        </p>
-        <label
-          style={{
-            display:       'flex',
-            alignItems:    'center',
-            gap:           12,
-            background:    '#0b1014',
-            border:        '1px solid rgba(255,255,255,0.09)',
-            padding:       '10px 14px',
-            borderRadius:  2,
-            cursor:        'pointer',
-          }}
-        >
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".png,.jpg,.jpeg,.svg"
-            required
-            style={{ display: 'none' }}
-            onChange={(e) => setFileName(e.target.files?.[0]?.name ?? null)}
-          />
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#b7ff61' }}>
-            Choose file
-          </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>
-            {fileName ?? 'No file chosen'}
-          </span>
-        </label>
-      </div>
 
       {/* Agreement */}
       <div style={{

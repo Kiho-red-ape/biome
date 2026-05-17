@@ -3,50 +3,27 @@ import { createServiceClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
+    const body = await req.json() as {
+      name?: string; email?: string; website?: string;
+      category?: string; description?: string; region?: string;
+    };
 
-    const name        = formData.get('name') as string | null;
-    const email       = formData.get('email') as string | null;
-    const website     = formData.get('website') as string | null;
-    const category    = formData.get('category') as string | null;
-    const description = formData.get('description') as string | null;
-    const region      = formData.get('region') as string | null;
-    const logo        = formData.get('logo') as File | null;
+    const { name, email, website, category, description, region } = body;
 
-    if (!name || !email || !category || !logo) {
+    if (!name?.trim() || !email?.trim() || !category?.trim()) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-
-    if (logo.size > 2 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Logo must be under 2MB' }, { status: 400 });
     }
 
     const supabase = createServiceClient();
 
-    // Upload logo to Supabase Storage
-    const ext      = logo.name.split('.').pop() ?? 'png';
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error: uploadError } = await supabase.storage
-      .from('partner-logos')
-      .upload(fileName, logo, { contentType: logo.type, upsert: false });
-
-    if (uploadError) {
-      console.error('logo upload error:', uploadError);
-      return NextResponse.json({ error: 'Logo upload failed' }, { status: 500 });
-    }
-
-    const { data: urlData } = supabase.storage
-      .from('partner-logos')
-      .getPublicUrl(fileName);
-
     const { error: dbError } = await supabase.from('partner_applications').insert({
-      name,
-      email,
-      website:     website || null,
+      name:        name.trim(),
+      email:       email.trim(),
+      website:     website?.trim() || null,
       category,
-      description: description || null,
+      description: description?.trim() || null,
       region:      region || null,
-      logo_url:    urlData.publicUrl,
+      logo_url:    null,
       status:      'pending',
     });
 
