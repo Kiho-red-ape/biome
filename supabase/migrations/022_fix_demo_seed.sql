@@ -1,25 +1,17 @@
 -- Migration 022: Fix demo seed data (corrects bugs in 021)
 
--- ── Schema repair: ensure participant_milestones has participant_id ───────────
--- The column may be absent if migration 008 was applied to an older DB schema.
+-- ── Schema repair: add missing columns to participant_milestones ─────────────
 ALTER TABLE participant_milestones
+  ADD COLUMN IF NOT EXISTS experiment_id  uuid,
   ADD COLUMN IF NOT EXISTS participant_id text;
 
 -- ── Clean up any broken 021 seed data ────────────────────────────────────────
--- Delete by experiment_id (avoids column-name assumptions on participant_milestones)
-DELETE FROM participant_milestones
-  WHERE experiment_id IN (
-    SELECT id FROM experiments WHERE experimenter_id = 'demo:researcher'
-    UNION ALL
-    SELECT '00000000-0001-0000-0000-000000000001'::uuid
-  );
+-- Deleting experiments cascades to study_milestones → participant_milestones.
+-- Applications are deleted first to avoid FK conflicts.
 DELETE FROM applications
   WHERE experiment_id IN (
     SELECT id FROM experiments WHERE experimenter_id = 'demo:researcher'
-    UNION ALL
-    SELECT '00000000-0001-0000-0000-000000000001'::uuid
   );
-DELETE FROM study_milestones WHERE experiment_id = '00000000-0001-0000-0000-000000000001';
 DELETE FROM experiments WHERE experimenter_id = 'demo:researcher';
 DELETE FROM experimenter_profiles WHERE user_id IN ('demo:researcher', 'demo:partner');
 DELETE FROM participant_profiles WHERE user_id = 'demo:participant';
