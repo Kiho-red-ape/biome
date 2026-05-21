@@ -157,9 +157,5 @@ WHERE sm.experiment_id = '00000000-0001-0000-0000-000000000001'
 ON CONFLICT DO NOTHING;
 
 -- ── 10. Welcome notifications ─────────────────────────────────────────────────
-
-INSERT INTO notifications (user_id, type, payload) VALUES
-  ('demo:participant', 'study_match',        '{"title":"New study available","message":"You have been matched to the Gut Microbiome & Diet Correlation Study. Your profile meets the eligibility criteria — apply now."}'),
-  ('demo:participant', 'milestone_verified', '{"title":"Milestone verified","message":"Your Week 2 stool sample has been verified. Great work — keep it up!"}'),
-  ('demo:participant', 'info',               '{"title":"Welcome to Biome","message":"Your participant profile is active. You will receive notifications when new studies match your profile."}')
-ON CONFLICT DO NOTHING;
+-- Skipped: live notifications table has a different schema from migration 008.
+-- Notifications can be sent manually from /ops/notifications once seed is applied.
