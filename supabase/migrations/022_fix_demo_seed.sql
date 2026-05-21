@@ -3,22 +3,18 @@
 
 -- ── 1. Schema repairs ─────────────────────────────────────────────────────────
 
--- profiles.email (added in migration 015)
 ALTER TABLE profiles
   ADD COLUMN IF NOT EXISTS email text;
 
--- experimenter_profiles.review_status (added in migration 020)
 ALTER TABLE experimenter_profiles
   ADD COLUMN IF NOT EXISTS review_status text NOT NULL DEFAULT 'active'
     CHECK (review_status IN ('pending_review', 'active', 'rejected'));
 
--- experiments: columns from migrations 008 and 013
 ALTER TABLE experiments
   ADD COLUMN IF NOT EXISTS task_summary         text,
   ADD COLUMN IF NOT EXISTS commenced            boolean NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS compliance_threshold integer NOT NULL DEFAULT 80;
 
--- study_milestones: create if migration 008 was not applied
 CREATE TABLE IF NOT EXISTS study_milestones (
   id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   experiment_id  uuid        NOT NULL REFERENCES experiments(id) ON DELETE CASCADE,
@@ -31,13 +27,9 @@ CREATE TABLE IF NOT EXISTS study_milestones (
   created_at     timestamptz NOT NULL DEFAULT now()
 );
 
--- participant_milestones: add missing columns (table already exists in live DB)
--- participant_milestones: only add application_id if missing (the NOT NULL column the live DB requires)
--- Do NOT add experiment_id/participant_id — the live table has a different schema from migration 008
 ALTER TABLE participant_milestones
   ADD COLUMN IF NOT EXISTS application_id uuid;
 
--- notifications: create if migration 008 was not applied
 CREATE TABLE IF NOT EXISTS notifications (
   id         uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id    text        NOT NULL,
@@ -47,7 +39,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
--- ── 2. Clean up broken 021 seed data ─────────────────────────────────────────
+-- ── 2. Clean up broken seed data ─────────────────────────────────────────────
 
 DELETE FROM applications
   WHERE experiment_id IN (
@@ -62,8 +54,8 @@ DELETE FROM profiles WHERE id IN ('demo:researcher', 'demo:participant', 'demo:p
 
 INSERT INTO profiles (id, auth_type, email, role, region, created_at) VALUES
   ('demo:researcher', 'email', 'researcher@biome.to', 'experimenter', 'Global / Remote', now() - interval '30 days'),
-  ('demo:participant', 'email', 'participant@biome.to', 'participant', 'United Kingdom', now() - interval '25 days'),
-  ('demo:partner',    'email', 'partner@biome.to',    'experimenter', 'United States',  now() - interval '20 days')
+  ('demo:participant', 'email', 'participant@biome.to', 'participant',  'United Kingdom',  now() - interval '25 days'),
+  ('demo:partner',    'email', 'partner@biome.to',    'experimenter', 'United States',   now() - interval '20 days')
 ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, role = EXCLUDED.role;
 
 -- ── 4. Experimenter profiles ──────────────────────────────────────────────────
@@ -115,7 +107,7 @@ INSERT INTO experiments (
   true, 80,
   now() - interval '14 days', now()
 ) ON CONFLICT (id) DO UPDATE
-  SET status    = 'active',
+  SET status       = 'active',
       slots_filled = 1,
       commenced    = true;
 
@@ -123,13 +115,13 @@ INSERT INTO experiments (
 
 INSERT INTO study_milestones (experiment_id, week_number, title, description, milestone_type, sort_order)
 VALUES
-  ('00000000-0001-0000-0000-000000000001', 1, 'Baseline food journal',  'Record everything you eat and drink for 7 days using the provided template.', 'self_report', 1),
-  ('00000000-0001-0000-0000-000000000001', 2, 'Week 2 stool sample',   'Collect your first stool sample using the OmniGene-Gut kit and return via prepaid shipping.', 'self_report', 2),
-  ('00000000-0001-0000-0000-000000000001', 3, 'Mid-study food journal', 'Continue recording your diet for 7 days. Note any changes from baseline.', 'self_report', 3),
-  ('00000000-0001-0000-0000-000000000001', 4, 'Week 4 stool sample',   'Collect your second stool sample and return it via prepaid shipping.', 'self_report', 4),
-  ('00000000-0001-0000-0000-000000000001', 6, 'Dietary habits survey',  'Complete the 15-minute dietary habits and lifestyle questionnaire.', 'self_report', 5),
-  ('00000000-0001-0000-0000-000000000001', 8, 'Final stool sample',     'Collect your final stool sample and return it via prepaid shipping.', 'self_report', 6),
-  ('00000000-0001-0000-0000-000000000001', 8, 'Completion survey',      'Complete the 10-minute end-of-study feedback survey.', 'self_report', 7)
+  ('00000000-0001-0000-0000-000000000001', 1, 'Baseline food journal',   'Record everything you eat and drink for 7 days using the provided template.', 'self_report', 1),
+  ('00000000-0001-0000-0000-000000000001', 2, 'Week 2 stool sample',    'Collect your first stool sample using the OmniGene-Gut kit and return via prepaid shipping.', 'self_report', 2),
+  ('00000000-0001-0000-0000-000000000001', 3, 'Mid-study food journal',  'Continue recording your diet for 7 days. Note any changes from baseline.', 'self_report', 3),
+  ('00000000-0001-0000-0000-000000000001', 4, 'Week 4 stool sample',    'Collect your second stool sample and return it via prepaid shipping.', 'self_report', 4),
+  ('00000000-0001-0000-0000-000000000001', 6, 'Dietary habits survey',   'Complete the 15-minute dietary habits and lifestyle questionnaire.', 'self_report', 5),
+  ('00000000-0001-0000-0000-000000000001', 8, 'Final stool sample',      'Collect your final stool sample and return it via prepaid shipping.', 'self_report', 6),
+  ('00000000-0001-0000-0000-000000000001', 8, 'Completion survey',       'Complete the 10-minute end-of-study feedback survey.', 'self_report', 7)
 ON CONFLICT DO NOTHING;
 
 -- ── 8. Demo application ───────────────────────────────────────────────────────
@@ -144,10 +136,9 @@ VALUES (
 ) ON CONFLICT (experiment_id, participant_id) DO NOTHING;
 
 -- ── 9. Participant milestones ─────────────────────────────────────────────────
--- Only use columns confirmed to exist in the live DB (from NOT NULL error evidence):
--- application_id, study_milestone_id, status, completed_at, submitted_at
+-- Columns confirmed from live DB error rows: application_id, study_milestone_id, status, due_date
 
-INSERT INTO participant_milestones (application_id, study_milestone_id, status)
+INSERT INTO participant_milestones (application_id, study_milestone_id, status, due_date)
 SELECT
   a.id,
   sm.id,
@@ -155,7 +146,9 @@ SELECT
     WHEN sm.week_number <= 2 THEN 'verified'
     WHEN sm.week_number = 3 THEN 'submitted'
     ELSE 'pending'
-  END
+  END,
+  -- due_date = study start (14 days ago) + milestone week
+  (now() - interval '14 days' + (sm.week_number * interval '7 days'))::date
 FROM study_milestones sm
 JOIN applications a
   ON a.experiment_id = sm.experiment_id
@@ -166,7 +159,7 @@ ON CONFLICT DO NOTHING;
 -- ── 10. Welcome notifications ─────────────────────────────────────────────────
 
 INSERT INTO notifications (user_id, type, payload) VALUES
-  ('demo:participant', 'study_match',       '{"title":"New study available","message":"You have been matched to the Gut Microbiome & Diet Correlation Study. Your profile meets the eligibility criteria — apply now."}'),
+  ('demo:participant', 'study_match',        '{"title":"New study available","message":"You have been matched to the Gut Microbiome & Diet Correlation Study. Your profile meets the eligibility criteria — apply now."}'),
   ('demo:participant', 'milestone_verified', '{"title":"Milestone verified","message":"Your Week 2 stool sample has been verified. Great work — keep it up!"}'),
-  ('demo:participant', 'info',              '{"title":"Welcome to Biome","message":"Your participant profile is active. You will receive notifications when new studies match your profile."}')
+  ('demo:participant', 'info',               '{"title":"Welcome to Biome","message":"Your participant profile is active. You will receive notifications when new studies match your profile."}')
 ON CONFLICT DO NOTHING;
