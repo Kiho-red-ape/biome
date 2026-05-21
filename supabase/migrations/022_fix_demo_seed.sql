@@ -32,13 +32,10 @@ CREATE TABLE IF NOT EXISTS study_milestones (
 );
 
 -- participant_milestones: add missing columns (table already exists in live DB)
+-- participant_milestones: only add application_id if missing (the NOT NULL column the live DB requires)
+-- Do NOT add experiment_id/participant_id — the live table has a different schema from migration 008
 ALTER TABLE participant_milestones
-  ADD COLUMN IF NOT EXISTS experiment_id      uuid,
-  ADD COLUMN IF NOT EXISTS participant_id     text,
-  ADD COLUMN IF NOT EXISTS study_milestone_id uuid,
-  ADD COLUMN IF NOT EXISTS status             text NOT NULL DEFAULT 'pending',
-  ADD COLUMN IF NOT EXISTS completed_at       timestamptz,
-  ADD COLUMN IF NOT EXISTS submitted_at       timestamptz;
+  ADD COLUMN IF NOT EXISTS application_id uuid;
 
 -- notifications: create if migration 008 was not applied
 CREATE TABLE IF NOT EXISTS notifications (
@@ -147,17 +144,11 @@ VALUES (
 ) ON CONFLICT (experiment_id, participant_id) DO NOTHING;
 
 -- ── 9. Participant milestones ─────────────────────────────────────────────────
+-- Only use columns confirmed to exist in the live DB (from NOT NULL error evidence):
+-- application_id, study_milestone_id, status, completed_at, submitted_at
 
--- Add application_id column if the live DB requires it
-ALTER TABLE participant_milestones
-  ADD COLUMN IF NOT EXISTS application_id uuid;
-
-INSERT INTO participant_milestones (
-  experiment_id, participant_id, application_id, study_milestone_id, status, completed_at, submitted_at
-)
+INSERT INTO participant_milestones (application_id, study_milestone_id, status, completed_at, submitted_at)
 SELECT
-  sm.experiment_id,
-  'demo:participant',
   a.id,
   sm.id,
   CASE
