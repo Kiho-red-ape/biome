@@ -147,7 +147,7 @@ VALUES (
 -- Only use columns confirmed to exist in the live DB (from NOT NULL error evidence):
 -- application_id, study_milestone_id, status, completed_at, submitted_at
 
-INSERT INTO participant_milestones (application_id, study_milestone_id, status, completed_at, submitted_at)
+INSERT INTO participant_milestones (application_id, study_milestone_id, status)
 SELECT
   a.id,
   sm.id,
@@ -155,9 +155,7 @@ SELECT
     WHEN sm.week_number <= 2 THEN 'verified'
     WHEN sm.week_number = 3 THEN 'submitted'
     ELSE 'pending'
-  END,
-  CASE WHEN sm.week_number <= 2 THEN now() - interval '7 days' ELSE NULL END,
-  CASE WHEN sm.week_number IN (2,3) THEN now() - interval '3 days' ELSE NULL END
+  END
 FROM study_milestones sm
 JOIN applications a
   ON a.experiment_id = sm.experiment_id
