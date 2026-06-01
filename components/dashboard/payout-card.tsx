@@ -25,6 +25,14 @@ function relDate(d: string) {
   return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
+  pending:        { bg: 'var(--off-white)', color: 'var(--gray)',  label: 'Eligible'       },
+  method_missing: { bg: 'var(--amber)',     color: 'var(--black)', label: 'Setup Required' },
+  processing:     { bg: 'var(--navy)',      color: 'var(--white)', label: 'Processing'     },
+  paid:           { bg: 'var(--black)',     color: 'var(--amber)', label: 'Paid ✓'         },
+  failed:         { bg: '#dc2626',          color: 'var(--white)', label: 'Failed ⚠'       },
+};
+
 export function PayoutCard({
   studyTitle, grossAmount, payoutStatus, payoutMethodConfigured,
   payoutMethodType, payoutNetAmount, payoutInitiatedAt, payoutCompletedAt,
@@ -35,6 +43,7 @@ export function PayoutCard({
 
   const fee = grossAmount * 0.005;
   const net = payoutNetAmount ?? parseFloat((grossAmount - fee).toFixed(2));
+  const sc  = STATUS_CONFIG[payoutStatus] ?? { bg: 'var(--off-white)', color: 'var(--gray)', label: payoutStatus };
 
   async function handleSetupPayout() {
     setLoading(true);
@@ -58,41 +67,56 @@ export function PayoutCard({
     }
   }
 
-  const statusConfig: Record<string, { color: string; label: string }> = {
-    pending:        { color: 'var(--text-dim)',  label: 'ELIGIBLE' },
-    method_missing: { color: 'var(--amber)',     label: 'SETUP REQUIRED' },
-    processing:     { color: 'var(--cyan)',      label: 'PROCESSING' },
-    paid:           { color: 'var(--green)',     label: 'PAID ✓' },
-    failed:         { color: '#ff8f8f',          label: 'FAILED ⚠' },
-  };
-  const sc = statusConfig[payoutStatus] ?? { color: 'var(--text-dim)', label: payoutStatus.toUpperCase() };
-
   return (
-    <div className="rounded overflow-hidden" style={{ border: '1px solid rgba(77,255,128,0.08)' }}>
+    <div style={{ border: '2px solid var(--black)', background: 'var(--white)' }}>
       {/* Header */}
-      <div className="px-4 py-3 flex items-center justify-between gap-3"
-        style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.06)' }}>
-        <div className="min-w-0">
-          <Link href={`/experiments/${experimentId}`}
-            className="text-sm font-medium no-underline truncate block hover:opacity-80 transition-opacity"
-            style={{ color: 'var(--text-bright)' }}>
-            {studyTitle}
-          </Link>
-        </div>
-        <span className="mono text-xs px-2 py-0.5 rounded shrink-0"
-          style={{ color: sc.color, border: `1px solid ${sc.color}40`, background: `${sc.color}10`, fontSize: 9, letterSpacing: '1px' }}>
+      <div style={{
+        padding:        '12px 20px',
+        borderBottom:   '2px solid var(--black)',
+        display:        'flex',
+        alignItems:     'center',
+        justifyContent: 'space-between',
+        gap:            12,
+        background:     'var(--off-white)',
+      }}>
+        <Link href={`/experiments/${experimentId}`} style={{
+          fontFamily:     'var(--font-body)',
+          fontSize:       14,
+          fontWeight:     500,
+          color:          'var(--black)',
+          textDecoration: 'none',
+          flex:           1,
+          minWidth:       0,
+          overflow:       'hidden',
+          textOverflow:   'ellipsis',
+          whiteSpace:     'nowrap',
+        }}>
+          {studyTitle}
+        </Link>
+        <span style={{
+          fontFamily:    'var(--font-display)',
+          fontSize:      9,
+          fontWeight:    700,
+          letterSpacing: '1.5px',
+          textTransform: 'uppercase' as const,
+          background:    sc.bg,
+          color:         sc.color,
+          border:        '1.5px solid var(--black)',
+          padding:       '3px 8px',
+          flexShrink:    0,
+        }}>
           {sc.label}
         </span>
       </div>
 
       {/* Body */}
-      <div className="px-4 py-4" style={{ background: 'var(--bg)' }}>
-        {/* Amount row */}
-        <div className="flex items-baseline gap-2 mb-3">
-          <span className="mono text-xl font-bold tabular-nums" style={{ color: payoutStatus === 'paid' ? 'var(--green)' : 'var(--text-white)' }}>
+      <div style={{ padding: '16px 20px' }}>
+        {/* Amount */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 12 }}>
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 22, color: payoutStatus === 'paid' ? 'var(--black)' : 'var(--black)' }}>
             {fmt(net)}
           </span>
-          <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--gray)' }}>
             net ({fmt(grossAmount)} − {fmt(fee)} processing)
           </span>
         </div>
@@ -100,43 +124,32 @@ export function PayoutCard({
         {/* Status-specific body */}
         {payoutStatus === 'pending' && !payoutMethodConfigured && (
           <div>
-            <div className="rounded px-3 py-2 mb-3 flex items-center gap-2"
-              style={{ background: 'rgba(255,179,0,0.06)', border: '1px solid rgba(255,179,0,0.2)' }}>
-              <span style={{ color: 'var(--amber)', fontSize: 12 }}>⚠</span>
-              <p className="mono text-xs" style={{ color: 'var(--amber)' }}>
+            <div style={{ padding: '10px 14px', marginBottom: 12, border: '2px solid var(--amber)', background: 'rgba(245,158,11,0.06)' }}>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--black)', margin: 0 }}>
                 Set up your payout method to receive payment.
               </p>
             </div>
-            {error && <p className="mono text-xs mb-2" style={{ color: '#ff8f8f' }}>{error}</p>}
-            <button
-              onClick={handleSetupPayout}
-              disabled={loading}
-              className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-40"
-              style={{ background: 'var(--green)', color: '#060a14' }}
-            >
+            {error && <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: '#dc2626', marginBottom: 8 }}>{error}</p>}
+            <button onClick={handleSetupPayout} disabled={loading} className="btn-primary"
+              style={{ cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}>
               {loading ? 'Loading...' : 'Set up payout →'}
             </button>
           </div>
         )}
 
         {payoutStatus === 'pending' && payoutMethodConfigured && (
-          <div className="flex items-center gap-3">
-            <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-              Payout method: <span style={{ color: 'var(--green)' }}>{payoutMethodType ?? 'configured'} ✓</span>
-            </span>
-            <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-              · Payout being prepared
-            </span>
-          </div>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--gray)' }}>
+            Payout method: <strong style={{ color: 'var(--black)' }}>{payoutMethodType ?? 'configured'} ✓</strong> · Payout being prepared.
+          </p>
         )}
 
         {payoutStatus === 'processing' && (
           <div>
-            <p className="mono text-xs mb-1" style={{ color: 'var(--cyan)' }}>
-              Transfer in progress — 2–5 business days
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--navy)', marginBottom: 4 }}>
+              Transfer in progress — 2–5 business days.
             </p>
             {payoutInitiatedAt && (
-              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--gray)' }}>
                 Initiated {relDate(payoutInitiatedAt)}
               </p>
             )}
@@ -144,23 +157,19 @@ export function PayoutCard({
         )}
 
         {payoutStatus === 'paid' && (
-          <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--gray)' }}>
             Paid {payoutCompletedAt ? relDate(payoutCompletedAt) : ''}
           </p>
         )}
 
         {payoutStatus === 'failed' && (
           <div>
-            <p className="mono text-xs mb-2" style={{ color: '#ff8f8f' }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: '#dc2626', marginBottom: 10 }}>
               Payout failed. Verify your payout details and contact hello@biome.to.
             </p>
-            {error && <p className="mono text-xs mb-2" style={{ color: '#ff8f8f' }}>{error}</p>}
-            <button
-              onClick={handleSetupPayout}
-              disabled={loading}
-              className="mono text-xs px-4 py-2 rounded transition-all hover:opacity-80 disabled:opacity-40"
-              style={{ border: '1px solid rgba(255,143,143,0.3)', color: '#ff8f8f' }}
-            >
+            {error && <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: '#dc2626', marginBottom: 8 }}>{error}</p>}
+            <button onClick={handleSetupPayout} disabled={loading} className="btn-primary"
+              style={{ cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}>
               {loading ? 'Loading...' : 'Update payout method →'}
             </button>
           </div>

@@ -5,7 +5,7 @@ import { StatsBar } from '@/components/home/stats-bar';
 import { HowItWorks } from '@/components/home/how-it-works';
 import { ScopeSection } from '@/components/home/scope-section';
 import { EstimateCta } from '@/components/home/estimate-cta';
-import { TrackRecord } from '@/components/home/track-record';
+import { TestimonialsMarquee } from '@/components/home/testimonials-marquee';
 import { BlogPreview } from '@/components/home/blog-preview';
 import { PartnersStrip } from '@/components/home/partners-strip';
 import { ClosingCta } from '@/components/home/closing-cta';
@@ -39,7 +39,7 @@ export default async function HomePage() {
       <HowItWorks />
       <ScopeSection />
       <EstimateCta />
-      <TrackRecord />
+      <TestimonialsMarquee />
       <BlogPreview />
       {partners.length > 0 && <PartnersStrip partners={partners} />}
       <ClosingCta />

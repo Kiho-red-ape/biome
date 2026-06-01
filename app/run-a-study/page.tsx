@@ -126,11 +126,11 @@ export default function RunAStudyPage() {
       {/* ── Scope ── */}
       <ScopeSection />
 
-      {/* ── Estimator (navy) ── */}
-      <section ref={estimateRef} style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+      {/* ── Estimator (off-white) ── */}
+      <section ref={estimateRef} style={{ background: 'var(--off-white)', borderBottom: '3px solid var(--black)' }}>
         <div className="section-inner">
-          <span className="section-label">Cost estimator</span>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--white)', marginBottom: 40 }}>
+          <span className="section-label section-label-dark">Cost estimator</span>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--black)', marginBottom: 40 }}>
             Know your cost before you commit.
           </h2>
           <EstimateWizard />

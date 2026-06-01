@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { Identicon } from '@/components/identicon';
-import { reputationBadge, countryFlag, categoryColor } from '@/lib/utils/profile';
+import { countryFlag } from '@/lib/utils/profile';
 import type { ParticipantProfile } from '@/lib/types';
 import { PayoutCard } from '@/components/dashboard/payout-card';
+import { SiteHeader } from '@/components/nav/header';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,39 +71,52 @@ type DashboardData = {
   payoutMethodType: string | null;
 };
 
-const STATUS_COLORS: Record<string, string> = {
+// ─── Status maps ──────────────────────────────────────────────────────────────
+
+const STATUS_BG: Record<string, string> = {
   applied:    'var(--amber)',
-  approved:   'var(--green)',
-  waitlisted: '#a05c10',
-  enrolled:   'var(--cyan)',
-  active:     'var(--cyan)',
-  completed:  'var(--green)',
-  withdrawn:  'var(--text-dim)',
-  rejected:   '#7a3535',
+  approved:   'var(--navy)',
+  waitlisted: 'rgba(0,0,0,0.08)',
+  enrolled:   'var(--navy)',
+  active:     'var(--navy)',
+  completed:  'var(--black)',
+  withdrawn:  'rgba(0,0,0,0.06)',
+  rejected:   '#dc2626',
+};
+
+const STATUS_COLOR: Record<string, string> = {
+  applied:    'var(--black)',
+  approved:   'var(--white)',
+  waitlisted: 'var(--gray)',
+  enrolled:   'var(--white)',
+  active:     'var(--white)',
+  completed:  'var(--white)',
+  withdrawn:  'var(--gray)',
+  rejected:   'var(--white)',
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  applied:    'UNDER REVIEW',
-  approved:   'ACCEPTED',
-  waitlisted: 'WAITLISTED',
-  enrolled:   'ENROLLED',
-  active:     'ACTIVE',
-  completed:  'COMPLETED ✓',
-  withdrawn:  'WITHDRAWN',
-  rejected:   'NOT SELECTED',
+  applied:    'Under Review',
+  approved:   'Accepted',
+  waitlisted: 'Waitlisted',
+  enrolled:   'Enrolled',
+  active:     'Active',
+  completed:  'Completed',
+  withdrawn:  'Withdrawn',
+  rejected:   'Not Selected',
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function profileCompleteness(p: ParticipantProfile): { pct: number; missing: string[] } {
+function profileCompleteness(p: ParticipantProfile): { pct: number; missing: { label: string; href: string }[] } {
   const checks = [
-    { done: p.onboarding_step >= 1,                            label: 'Account verified'             },
-    { done: !!p.year_of_birth && !!p.nationality,              label: 'Demographics completed'        },
-    { done: !!p.smartphone_os,                                 label: 'Capability profile filled'     },
-    { done: p.previous_study_count > 0 || !!p.recent_interventions, label: 'Research history added' },
+    { done: p.onboarding_step >= 1,                            label: 'Account verified',       href: '/onboarding/participant'        },
+    { done: !!p.year_of_birth && !!p.nationality,              label: 'Demographics completed',  href: '/onboarding/participant/step-2' },
+    { done: !!p.smartphone_os,                                 label: 'Capability profile filled',href: '/onboarding/participant/step-3' },
+    { done: p.previous_study_count > 0 || !!p.recent_interventions, label: 'Research history added', href: '/onboarding/participant/step-4' },
   ];
   const done    = checks.filter((c) => c.done).length;
-  const missing = checks.filter((c) => !c.done).map((c) => c.label);
+  const missing = checks.filter((c) => !c.done).map((c) => ({ label: c.label, href: c.href }));
   return { pct: Math.round((done / checks.length) * 100), missing };
 }
 
@@ -118,19 +132,50 @@ function relDate(dateStr: string): string {
   return `${Math.floor(d / 30)}mo ago`;
 }
 
-function complianceColor(score: number, threshold: number): string {
-  if (score >= threshold)          return 'var(--green)';
-  if (score >= threshold - 10)     return 'var(--amber)';
-  return 'var(--amber)';
+function reputationLabel(rate: number | null | undefined): { label: string; bg: string; color: string } {
+  if (rate == null) return { label: 'New',           bg: 'var(--off-white)', color: 'var(--gray)'  };
+  if (rate >= 95)   return { label: 'Excellent',     bg: 'var(--black)',    color: 'var(--amber)' };
+  if (rate >= 80)   return { label: 'Strong',        bg: 'var(--navy)',     color: 'var(--white)' };
+  return               { label: 'Needs Review',  bg: 'var(--amber)',   color: 'var(--black)' };
+}
+
+// ─── Card shell ───────────────────────────────────────────────────────────────
+
+function DashCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <div style={{
+      background: 'var(--white)',
+      border:     '3px solid var(--black)',
+      boxShadow:  '4px 4px 0 var(--black)',
+      marginBottom: 24,
+      ...style,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+function CardLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{
+      padding:      '14px 24px',
+      borderBottom: '3px solid var(--black)',
+      fontFamily:   'var(--font-display)',
+      fontSize:     11,
+      fontWeight:   600,
+      letterSpacing:'3px',
+      textTransform:'uppercase' as const,
+      color:        'var(--black)',
+      background:   'var(--off-white)',
+    }}>
+      {children}
+    </div>
+  );
 }
 
 // ─── Active Study Card ────────────────────────────────────────────────────────
 
-function ActiveStudyCard({
-  study,
-  privyDid,
-  onRefresh,
-}: {
+function ActiveStudyCard({ study, privyDid, onRefresh }: {
   study: ActiveStudy;
   privyDid: string;
   onRefresh: () => void;
@@ -138,18 +183,14 @@ function ActiveStudyCard({
   const [submitting, setSubmitting] = useState<string | null>(null);
   const { experiment: exp, milestones, complianceScore, payoutEligible, currentWeek } = study;
 
-  // Group milestones by week
   const weekMap = new Map<number, MilestoneRow[]>();
   for (const m of milestones) {
     if (!weekMap.has(m.week_number)) weekMap.set(m.week_number, []);
     weekMap.get(m.week_number)!.push(m);
   }
-  const weeks = Array.from(weekMap.entries()).sort(([a], [b]) => a - b);
-
-  const totalWeeks    = exp.duration_weeks ?? weeks.length;
-  const progressPct   = totalWeeks > 0 ? Math.min(100, Math.round((currentWeek / totalWeeks) * 100)) : 0;
-  const scoreColor    = complianceColor(complianceScore, exp.compliance_threshold);
-  const cc            = categoryColor(exp.category);
+  const weeks     = Array.from(weekMap.entries()).sort(([a], [b]) => a - b);
+  const totalWeeks = exp.duration_weeks ?? weeks.length;
+  const progressPct = totalWeeks > 0 ? Math.min(100, Math.round((currentWeek / totalWeeks) * 100)) : 0;
 
   async function submit(milestoneId: string) {
     setSubmitting(milestoneId);
@@ -165,205 +206,234 @@ function ActiveStudyCard({
     }
   }
 
+  const complianceOk = complianceScore >= exp.compliance_threshold;
+
   return (
-    <div className="rounded overflow-hidden mb-4" style={{ border: '1px solid rgba(77,255,128,0.10)' }}>
-      {/* Card header */}
-      <div className="px-4 py-3 flex items-center justify-between gap-3" style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.06)' }}>
-        <div className="flex items-center gap-2 min-w-0">
-          <span
-            className="mono text-xs px-1.5 py-0.5 rounded shrink-0"
-            style={{ color: cc, border: `1px solid ${cc}30`, background: `${cc}08` }}
-          >
-            {exp.category.toUpperCase()}
-          </span>
-          <Link
-            href={`/experiments/${exp.id}`}
-            className="text-sm font-medium no-underline truncate hover:opacity-80 transition-opacity"
-            style={{ color: 'var(--text-bright)' }}
-          >
+    <DashCard style={{ marginBottom: 16 }}>
+      {/* Study header */}
+      <div style={{
+        padding:        '16px 24px',
+        borderBottom:   '3px solid var(--black)',
+        display:        'flex',
+        alignItems:     'flex-start',
+        justifyContent: 'space-between',
+        gap:            12,
+        background:     'var(--navy)',
+      }}>
+        <div style={{ minWidth: 0 }}>
+          <Link href={`/experiments/${exp.id}`} style={{
+            fontFamily:     'var(--font-display)',
+            fontWeight:     600,
+            fontSize:       16,
+            color:          'var(--white)',
+            textDecoration: 'none',
+          }}>
             {exp.title}
           </Link>
+          <div style={{ marginTop: 6 }}>
+            <span style={{
+              fontFamily:    'var(--font-display)',
+              fontSize:      9,
+              fontWeight:    600,
+              letterSpacing: '1.5px',
+              textTransform: 'uppercase' as const,
+              background:    'var(--amber)',
+              color:         'var(--black)',
+              padding:       '2px 6px',
+              border:        '1.5px solid var(--black)',
+            }}>
+              {exp.category}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div style={{
+            fontFamily: 'var(--font-display)',
+            fontWeight: 700,
+            fontSize:   18,
+            color:      'var(--amber)',
+          }}>
+            {fmt(exp.bounty_per_participant)}
+          </div>
           {payoutEligible ? (
-            <span className="mono text-xs" style={{ color: 'var(--green)' }}>✓ payout eligible</span>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
+              payout eligible
+            </span>
           ) : (
-            <span className="mono text-xs" style={{ color: 'var(--amber)' }}>⚠ compliance at risk</span>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--amber)' }}>
+              compliance at risk
+            </span>
           )}
-          <span className="mono text-xs font-bold" style={{ color: 'var(--green)' }}>{fmt(exp.bounty_per_participant)}</span>
         </div>
       </div>
 
-      {/* Metrics bar */}
-      <div className="px-4 py-3 grid grid-cols-3 gap-4" style={{ background: 'var(--bg)', borderBottom: '1px solid rgba(77,255,128,0.04)' }}>
-        {/* Compliance score */}
-        <div>
-          <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>COMPLIANCE</p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-1 rounded overflow-hidden" style={{ background: 'rgba(77,255,128,0.08)' }}>
-              <div
-                className="h-1 rounded transition-all"
-                style={{ width: `${complianceScore}%`, background: scoreColor }}
-              />
+      {/* Metrics row */}
+      <div style={{
+        display:      'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        borderBottom: '3px solid var(--black)',
+      }}>
+        {[
+          {
+            label: 'Compliance',
+            value: `${complianceScore}%`,
+            sub:   `threshold ${exp.compliance_threshold}%`,
+            color: complianceOk ? 'var(--black)' : '#dc2626',
+          },
+          {
+            label: 'Progress',
+            value: `Week ${currentWeek}/${totalWeeks}`,
+            sub:   `${progressPct}% elapsed`,
+            color: 'var(--black)',
+          },
+          {
+            label: 'Milestones',
+            value: `${milestones.filter(m => m.status === 'completed').length}/${milestones.length}`,
+            sub:   `${milestones.filter(m => m.status === 'missed').length} missed`,
+            color: 'var(--black)',
+          },
+        ].map((m, i) => (
+          <div key={m.label} style={{
+            padding:      '16px 20px',
+            borderRight:  i < 2 ? '2px solid var(--black)' : 'none',
+          }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' as const, color: 'var(--gray)', marginBottom: 6 }}>
+              {m.label}
             </div>
-            <span className="mono text-xs tabular-nums" style={{ color: scoreColor }}>{complianceScore}%</span>
-          </div>
-          <p className="mono text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>
-            threshold {exp.compliance_threshold}%
-          </p>
-        </div>
-
-        {/* Study progress */}
-        <div>
-          <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>PROGRESS</p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-1 rounded overflow-hidden" style={{ background: 'rgba(77,255,128,0.08)' }}>
-              <div
-                className="h-1 rounded transition-all"
-                style={{ width: `${progressPct}%`, background: 'var(--cyan)' }}
-              />
+            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 20, color: m.color }}>
+              {m.value}
             </div>
-            <span className="mono text-xs tabular-nums" style={{ color: 'var(--cyan)' }}>
-              W{currentWeek}/{totalWeeks}
-            </span>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--gray)', marginTop: 2 }}>
+              {m.sub}
+            </div>
           </div>
-          <p className="mono text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>
-            {progressPct}% elapsed
-          </p>
-        </div>
+        ))}
+      </div>
 
-        {/* Milestones summary */}
-        <div>
-          <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>MILESTONES</p>
-          <p className="mono text-sm tabular-nums" style={{ color: 'var(--text-white)' }}>
-            {milestones.filter((m) => m.status === 'completed').length}
-            <span style={{ color: 'var(--text-dim)' }}>/{milestones.length}</span>
-          </p>
-          <p className="mono text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>
-            {milestones.filter((m) => m.status === 'missed').length} missed
-          </p>
+      {/* Progress bar */}
+      <div style={{ padding: '0 0 0 0', borderBottom: weeks.length > 0 ? '2px solid rgba(0,0,0,0.08)' : 'none' }}>
+        <div style={{ height: 6, background: 'var(--off-white)' }}>
+          <div style={{ height: '100%', width: `${progressPct}%`, background: complianceOk ? 'var(--amber)' : '#dc2626', transition: 'width 400ms' }} />
         </div>
       </div>
 
       {/* Milestone timeline */}
       {weeks.length > 0 && (
-        <div className="px-4 py-4" style={{ background: 'var(--bg)' }}>
-          {weeks.map(([weekNum, wMilestones], wi) => {
+        <div style={{ padding: '20px 24px' }}>
+          {weeks.map(([weekNum, wMilestones]) => {
             const isCurrentWeek = weekNum === currentWeek;
             const isPast        = weekNum < currentWeek;
             return (
-              <div key={weekNum} className="flex gap-3">
-                {/* Spine */}
-                <div className="flex flex-col items-center" style={{ width: 20 }}>
-                  <div
-                    className="w-3 h-3 rounded-full shrink-0 mt-0.5"
-                    style={{
-                      background: isCurrentWeek ? 'var(--cyan)' : isPast ? 'var(--green-dim)' : 'rgba(77,255,128,0.15)',
-                      border:     isCurrentWeek ? '2px solid var(--cyan)' : 'none',
-                    }}
-                  />
-                  {wi < weeks.length - 1 && (
-                    <div className="flex-1 w-px mt-1" style={{ background: 'rgba(77,255,128,0.10)', minHeight: 16 }} />
+              <div key={weekNum} style={{ marginBottom: 16 }}>
+                <div style={{
+                  fontFamily:    'var(--font-display)',
+                  fontSize:      11,
+                  fontWeight:    600,
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase' as const,
+                  color:         isCurrentWeek ? 'var(--black)' : 'var(--gray)',
+                  marginBottom:  8,
+                  display:       'flex',
+                  alignItems:    'center',
+                  gap:           8,
+                }}>
+                  Week {weekNum}
+                  {isCurrentWeek && (
+                    <span style={{ background: 'var(--amber)', color: 'var(--black)', padding: '1px 6px', border: '1.5px solid var(--black)', fontSize: 9 }}>
+                      Current
+                    </span>
                   )}
                 </div>
-
-                {/* Week content */}
-                <div className="flex-1 pb-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span
-                      className="mono text-xs"
-                      style={{ color: isCurrentWeek ? 'var(--cyan)' : isPast ? 'var(--text-dim)' : 'var(--text-dim)' }}
-                    >
-                      Week {weekNum}
-                    </span>
-                    {isCurrentWeek && (
-                      <span className="mono text-xs px-1.5 py-0.5 rounded" style={{ color: 'var(--cyan)', background: 'rgba(0,229,255,0.08)', border: '1px solid rgba(0,229,255,0.20)' }}>
-                        current
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    {wMilestones.map((m) => {
-                      const isPending   = m.status === 'pending';
-                      const isCompleted = ['submitted', 'completed', 'verified'].includes(m.status);
-                      const isMissed    = ['missed', 'rejected'].includes(m.status);
-                      const isSelfReport = m.milestone_type === 'self_report';
-
-                      return (
-                        <div key={m.id} className="flex items-center justify-between gap-3 px-3 py-2 rounded" style={{ background: 'var(--bg2)' }}>
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span style={{
-                              color:    isCompleted ? 'var(--green)' : isMissed ? 'var(--amber)' : 'var(--text-dim)',
-                              fontSize: 12,
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {wMilestones.map((m) => {
+                    const isCompleted  = ['submitted', 'completed', 'verified'].includes(m.status);
+                    const isMissed     = ['missed', 'rejected'].includes(m.status);
+                    const isPending    = m.status === 'pending';
+                    const isSelfReport = m.milestone_type === 'self_report';
+                    return (
+                      <div key={m.id} style={{
+                        display:        'flex',
+                        alignItems:     'center',
+                        justifyContent: 'space-between',
+                        padding:        '10px 16px',
+                        border:         '2px solid var(--black)',
+                        background:     isCompleted ? 'var(--off-white)' : 'var(--white)',
+                        gap:            12,
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                          <span style={{
+                            fontFamily: 'var(--font-display)',
+                            fontWeight: 700,
+                            fontSize:   14,
+                            color:      isCompleted ? 'var(--gray)' : isMissed ? '#dc2626' : 'var(--black)',
+                            flexShrink: 0,
+                          }}>
+                            {isCompleted ? '✓' : isMissed ? '✗' : '○'}
+                          </span>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{
+                              fontFamily: 'var(--font-body)',
+                              fontSize:   13,
+                              color:      isCompleted ? 'var(--gray)' : 'var(--black)',
+                              overflow:   'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace:  'nowrap',
                             }}>
-                              {isCompleted ? '✓' : isMissed ? '✗' : '○'}
-                            </span>
-                            <div className="min-w-0">
-                              <p
-                                className="text-xs truncate"
-                                style={{ color: isCompleted ? 'var(--text-dim)' : 'var(--text-bright)' }}
-                              >
-                                {m.title}
-                              </p>
-                              <p className="mono text-xs" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
-                                {isSelfReport ? 'you report' : 'experimenter confirms'}
-                              </p>
+                              {m.title}
+                            </div>
+                            <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, color: 'var(--gray)', marginTop: 1 }}>
+                              {isSelfReport ? 'You report' : 'Experimenter confirms'}
                             </div>
                           </div>
-
-                          <div className="shrink-0">
-                            {isCompleted && (
-                              <span className="mono text-xs" style={{ color: 'var(--green)' }}>
-                                {m.status === 'submitted' ? 'submitted' : 'done'}
-                              </span>
-                            )}
-                            {isMissed && m.status === 'rejected' && (
-                              <div className="flex items-center gap-2">
-                                <span className="mono text-xs" style={{ color: 'var(--amber)' }}>rejected</span>
-                                <Link
-                                  href={`/disputes/raise?milestone_id=${m.id}&application_id=${study.applicationId}&experiment_id=${study.experiment.id}`}
-                                  className="mono text-xs no-underline transition-opacity hover:opacity-80"
-                                  style={{ color: 'var(--cyan)', fontSize: 10 }}
-                                >
-                                  DISPUTE →
-                                </Link>
-                              </div>
-                            )}
-                            {isMissed && m.status === 'missed' && (
-                              <span className="mono text-xs" style={{ color: 'var(--amber)' }}>missed</span>
-                            )}
-                            {isPending && isSelfReport && (
-                              <button
-                                onClick={() => void submit(m.id)}
-                                disabled={submitting === m.id}
-                                className="mono text-xs transition-opacity hover:opacity-80 disabled:opacity-40"
-                                style={{ color: 'var(--green)', cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
-                              >
-                                {submitting === m.id ? '...' : 'Submit →'}
-                              </button>
-                            )}
-                            {isPending && !isSelfReport && (
-                              <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>awaiting</span>
-                            )}
-                          </div>
                         </div>
-                      );
-                    })}
-                  </div>
+                        <div style={{ flexShrink: 0 }}>
+                          {isCompleted && (
+                            <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 600, color: 'var(--gray)' }}>
+                              Done
+                            </span>
+                          )}
+                          {isMissed && m.status === 'rejected' && (
+                            <Link href={`/disputes/raise?milestone_id=${m.id}&application_id=${isPast}&experiment_id=${exp.id}`}
+                              style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 700, color: '#dc2626', textDecoration: 'none' }}>
+                              Dispute →
+                            </Link>
+                          )}
+                          {isMissed && m.status === 'missed' && (
+                            <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, color: '#dc2626' }}>Missed</span>
+                          )}
+                          {isPending && isSelfReport && (
+                            <button
+                              onClick={() => void submit(m.id)}
+                              disabled={submitting === m.id}
+                              style={{
+                                fontFamily:  'var(--font-display)',
+                                fontSize:    11,
+                                fontWeight:  700,
+                                background:  'var(--amber)',
+                                color:       'var(--black)',
+                                border:      '2px solid var(--black)',
+                                padding:     '4px 10px',
+                                cursor:      submitting === m.id ? 'not-allowed' : 'pointer',
+                                opacity:     submitting === m.id ? 0.5 : 1,
+                              }}
+                            >
+                              {submitting === m.id ? '...' : 'Submit →'}
+                            </button>
+                          )}
+                          {isPending && !isSelfReport && (
+                            <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, color: 'var(--gray)' }}>Awaiting</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
           })}
         </div>
       )}
-
-      {weeks.length === 0 && (
-        <div className="px-4 py-6 text-center" style={{ background: 'var(--bg)' }}>
-          <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// MILESTONES_NOT_YET_GENERATED — study not yet commenced</p>
-        </div>
-      )}
-    </div>
+    </DashCard>
   );
 }
 
@@ -396,21 +466,49 @@ export default function DashboardPage() {
     void loadDashboard(user.id);
   }, [ready, authenticated, user, router, loadDashboard]);
 
-  // ── Guards ────────────────────────────────────────────────────────────────
-
+  // ── Loading ────────────────────────────────────────────────────────────────
   if (!ready || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// LOADING_DASHBOARD...</span>
-      </div>
+      <main style={{ minHeight: '100vh', background: 'var(--off-white)' }}>
+        <SiteHeader />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+          <div style={{
+            border:     '3px solid var(--black)',
+            boxShadow:  '4px 4px 0 var(--black)',
+            background: 'var(--white)',
+            padding:    '32px 48px',
+            fontFamily: 'var(--font-display)',
+            fontWeight: 600,
+            fontSize:   16,
+            color:      'var(--black)',
+          }}>
+            Loading dashboard...
+          </div>
+        </div>
+      </main>
     );
   }
 
+  // ── Error ──────────────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="mono text-xs" style={{ color: 'var(--amber)' }}>// ERROR: {error}</p>
-      </div>
+      <main style={{ minHeight: '100vh', background: 'var(--off-white)' }}>
+        <SiteHeader />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+          <div style={{
+            border:     '3px solid #dc2626',
+            boxShadow:  '4px 4px 0 #dc2626',
+            background: 'var(--white)',
+            padding:    '32px 48px',
+            fontFamily: 'var(--font-display)',
+            fontWeight: 600,
+            fontSize:   15,
+            color:      '#dc2626',
+          }}>
+            Error: {error}
+          </div>
+        </div>
+      </main>
     );
   }
 
@@ -421,105 +519,125 @@ export default function DashboardPage() {
 
   const { profile, applications, activeStudies, payoutMethodConfigured, payoutMethodType } = data;
 
-  // ── Derived stats ─────────────────────────────────────────────────────────
-
+  // ── Derived stats ──────────────────────────────────────────────────────────
   const completed    = applications.filter((a) => a.status === 'completed');
   const totalEarned  = completed.reduce((s, a) => s + (a.experiments?.bounty_per_participant ?? 0), 0);
-  const badge        = reputationBadge(profile.completion_rate);
   const completeness = profileCompleteness(profile);
+  const repBadge     = reputationLabel(profile.completion_rate);
+
+  // ── Payouts ────────────────────────────────────────────────────────────────
+  const payoutApps = applications.filter((a) =>
+    ['approved', 'enrolled', 'completed'].includes(a.status) ||
+    ['processing', 'paid', 'failed', 'method_missing'].includes(a.payout_status)
+  );
 
   return (
-    <main className="min-h-screen px-4 py-8">
-      <div className="max-w-3xl mx-auto">
+    <main style={{ minHeight: '100vh', background: 'var(--off-white)' }}>
+      <SiteHeader />
 
-        {/* Nav */}
-        <div className="flex items-center justify-between mb-8">
-          <Link href="/" className="mono text-xs no-underline" style={{ color: 'var(--text-dim)' }}>← BIOME</Link>
-          <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// PARTICIPANT_DASHBOARD</span>
-        </div>
-
-        {/* ── Identity strip ───────────────────────────────────────── */}
-        <div className="flex items-center gap-4 mb-6 p-4 rounded" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
-          <Identicon participantId={profile.participant_id} size={48} />
-          <div className="flex-1 min-w-0">
-            <p className="font-bold leading-tight" style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}>
-              {profile.pseudonym}
-            </p>
-            <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-              {profile.participant_id} · {countryFlag(profile.country)} {profile.country}
-            </p>
+      {/* ── Identity strip (navy) ── */}
+      <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+        <div style={{ maxWidth: 860, margin: '0 auto', padding: '32px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ border: '3px solid var(--amber)', flexShrink: 0 }}>
+              <Identicon participantId={profile.participant_id} size={56} />
+            </div>
+            <div>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 20, color: 'var(--white)', lineHeight: 1.2 }}>
+                {profile.pseudonym}
+              </div>
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+                {profile.participant_id} · {countryFlag(profile.country)} {profile.country}
+              </div>
+            </div>
           </div>
-          <Link
-            href={`/profile/${profile.participant_id}`}
-            className="mono text-xs no-underline transition-opacity hover:opacity-80"
-            style={{ color: 'var(--green)', flexShrink: 0 }}
-          >
-            Public profile →
-          </Link>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <Link href={`/profile/${profile.participant_id}`}
+              style={{
+                fontFamily:     'var(--font-display)',
+                fontSize:       12,
+                fontWeight:     600,
+                color:          'var(--black)',
+                background:     'var(--amber)',
+                border:         '2px solid var(--black)',
+                padding:        '8px 16px',
+                textDecoration: 'none',
+                letterSpacing:  '1px',
+              }}>
+              Public Profile →
+            </Link>
+          </div>
         </div>
+      </section>
 
-        {/* ── Stats bar ────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      {/* ── Main content ── */}
+      <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 24px 80px' }}>
+
+        {/* Stats row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0, border: '3px solid var(--black)', boxShadow: '4px 4px 0 var(--black)', marginBottom: 24, background: 'var(--white)' }}
+          className="dash-stats-grid">
           {[
-            { label: 'TOTAL EARNED',    value: fmt(totalEarned),                                                          color: 'var(--green)'      },
-            { label: 'STUDIES',         value: String(completed.length),                                                  color: 'var(--text-white)' },
-            { label: 'COMPLETION RATE', value: profile.completion_rate != null ? `${profile.completion_rate.toFixed(0)}%` : '—', color: 'var(--text-white)' },
-            { label: 'REPUTATION',      value: badge.label,                                                               color: badge.color         },
-          ].map((s) => (
-            <div key={s.label} className="rounded p-4" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
-              <p className="mono text-xs mb-1.5" style={{ color: 'var(--text-dim)' }}>{s.label}</p>
-              <p className="mono text-xl font-bold tabular-nums" style={{ color: s.color }}>{s.value}</p>
+            { label: 'Earned',          value: fmt(totalEarned),                                          sub: 'total'           },
+            { label: 'Studies',         value: String(completed.length),                                  sub: 'completed'       },
+            { label: 'Completion Rate', value: profile.completion_rate != null ? `${profile.completion_rate.toFixed(0)}%` : '—', sub: 'avg' },
+            { label: 'Reputation',      value: repBadge.label, valueBg: repBadge.bg, valueColor: repBadge.color, sub: '' },
+          ].map((s, i) => (
+            <div key={s.label} style={{
+              padding:     '20px',
+              borderRight: i < 3 ? '2px solid var(--black)' : 'none',
+              textAlign:   'center',
+            }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' as const, color: 'var(--gray)', marginBottom: 8 }}>
+                {s.label}
+              </div>
+              {s.valueBg ? (
+                <span style={{ background: s.valueBg, color: s.valueColor, border: '2px solid var(--black)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, padding: '4px 10px', display: 'inline-block' }}>
+                  {s.value}
+                </span>
+              ) : (
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 22, color: 'var(--black)', lineHeight: 1 }}>
+                  {s.value}
+                </div>
+              )}
+              {s.sub && (
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--gray)', marginTop: 4 }}>
+                  {s.sub}
+                </div>
+              )}
             </div>
           ))}
         </div>
 
-        {/* ── Profile completeness ─────────────────────────────────── */}
-        <div className="rounded p-5 mb-6" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
-          <div className="flex items-center justify-between mb-3">
-            <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// PROFILE_COMPLETENESS</p>
-            <span className="mono text-xs" style={{ color: completeness.pct === 100 ? 'var(--green)' : 'var(--text-dim)' }}>
-              {completeness.pct}%
-            </span>
-          </div>
-          <div className="w-full h-1.5 rounded overflow-hidden mb-4" style={{ background: 'rgba(77,255,128,0.08)' }}>
-            <div
-              className="h-1.5 rounded transition-all"
-              style={{ width: `${completeness.pct}%`, background: completeness.pct === 100 ? 'var(--green)' : 'var(--green-dim)' }}
-            />
-          </div>
-
-          {completeness.missing.length === 0 ? (
-            <p className="mono text-xs" style={{ color: 'var(--green)' }}>✓ Profile complete. You are eligible for all experiments.</p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {completeness.missing.map((m, i) => {
-                const stepMap: Record<string, string> = {
-                  'Demographics completed':     '/onboarding/participant/step-2',
-                  'Capability profile filled':  '/onboarding/participant/step-3',
-                  'Research history added':     '/onboarding/participant/step-4',
-                };
-                const href = stepMap[m] ?? '/onboarding/participant';
-                return (
-                  <div key={i} className="flex items-center justify-between">
-                    <p className="text-xs" style={{ color: 'var(--text-dim)' }}>
-                      <span style={{ color: 'var(--amber)' }}>○</span> {m}
-                    </p>
-                    <Link href={href} className="mono text-xs no-underline transition-opacity hover:opacity-80" style={{ color: 'var(--green)' }}>
+        {/* Profile completeness */}
+        {completeness.pct < 100 && (
+          <DashCard>
+            <CardLabel>Profile Completeness — {completeness.pct}%</CardLabel>
+            <div style={{ padding: '0' }}>
+              {/* Progress bar */}
+              <div style={{ height: 8, background: 'var(--off-white)', borderBottom: '2px solid rgba(0,0,0,0.1)' }}>
+                <div style={{ height: '100%', width: `${completeness.pct}%`, background: completeness.pct === 100 ? 'var(--black)' : 'var(--amber)', transition: 'width 400ms' }} />
+              </div>
+              <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {completeness.missing.map((m) => (
+                  <div key={m.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', border: '2px solid var(--black)', background: 'var(--white)' }}>
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--black)' }}>
+                      {m.label}
+                    </span>
+                    <Link href={m.href} style={{ fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700, color: 'var(--black)', background: 'var(--amber)', border: '2px solid var(--black)', padding: '5px 12px', textDecoration: 'none' }}>
                       Complete →
                     </Link>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          )}
-        </div>
+          </DashCard>
+        )}
 
-        {/* ── Active studies ────────────────────────────────────────── */}
+        {/* Active studies */}
         {activeStudies.length > 0 && (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// ACTIVE_STUDIES</p>
-              <span className="mono text-xs" style={{ color: 'var(--cyan)' }}>[{activeStudies.length}]</span>
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase' as const, color: 'var(--black)', marginBottom: 16 }}>
+              Active Studies ({activeStudies.length})
             </div>
             {activeStudies.map((study) => (
               <ActiveStudyCard
@@ -532,149 +650,108 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* ── Payouts ──────────────────────────────────────────────── */}
-        {(() => {
-          // Show for approved/enrolled/completed — gives early payout setup prompt
-          const payoutApps = applications.filter((a) =>
-            ['approved', 'enrolled', 'completed'].includes(a.status) ||
-            ['processing', 'paid', 'failed', 'method_missing'].includes(a.payout_status)
-          );
-          if (payoutApps.length === 0) return null;
-          return (
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// PAYOUTS</p>
-                <span className="mono text-xs" style={{ color: 'var(--green)' }}>[{payoutApps.length}]</span>
-                {!payoutMethodConfigured && (
-                  <span className="mono text-xs px-2 py-0.5 rounded" style={{ color: 'var(--amber)', background: 'rgba(255,179,0,0.08)', border: '1px solid rgba(255,179,0,0.2)' }}>
-                    ⚠ payout method not set up
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-col gap-3">
-                {payoutApps.map((app) => (
-                  <PayoutCard
-                    key={app.id}
-                    applicationId={app.id}
-                    studyTitle={app.experiments?.title ?? '—'}
-                    grossAmount={app.experiments?.bounty_per_participant ?? 0}
-                    payoutStatus={app.payout_status}
-                    payoutMethodConfigured={payoutMethodConfigured}
-                    payoutMethodType={payoutMethodType}
-                    payoutNetAmount={app.payout_net_amount}
-                    payoutInitiatedAt={app.payout_initiated_at}
-                    payoutCompletedAt={app.payout_completed_at}
-                    privyDid={user!.id}
-                    experimentId={app.experiments?.id ?? ''}
-                  />
-                ))}
-              </div>
+        {/* Payouts */}
+        {payoutApps.length > 0 && (
+          <DashCard>
+            <CardLabel>
+              Payouts ({payoutApps.length})
+              {!payoutMethodConfigured && (
+                <span style={{ marginLeft: 12, background: 'var(--amber)', color: 'var(--black)', border: '1.5px solid var(--black)', padding: '1px 8px', fontSize: 9, fontWeight: 700 }}>
+                  Payout method not set up
+                </span>
+              )}
+            </CardLabel>
+            <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {payoutApps.map((app) => (
+                <PayoutCard
+                  key={app.id}
+                  applicationId={app.id}
+                  studyTitle={app.experiments?.title ?? '—'}
+                  grossAmount={app.experiments?.bounty_per_participant ?? 0}
+                  payoutStatus={app.payout_status}
+                  payoutMethodConfigured={payoutMethodConfigured}
+                  payoutMethodType={payoutMethodType}
+                  payoutNetAmount={app.payout_net_amount}
+                  payoutInitiatedAt={app.payout_initiated_at}
+                  payoutCompletedAt={app.payout_completed_at}
+                  privyDid={user!.id}
+                  experimentId={app.experiments?.id ?? ''}
+                />
+              ))}
             </div>
-          );
-        })()}
+          </DashCard>
+        )}
 
-        {/* ── Applications table ───────────────────────────────────── */}
-        <div className="rounded overflow-hidden mb-6" style={{ border: '1px solid rgba(77,255,128,0.08)' }}>
-          <div className="px-4 py-3 flex items-center gap-2" style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.06)' }}>
-            <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// MY_APPLICATIONS</p>
-            <span className="mono text-xs" style={{ color: 'var(--green)' }}>[{applications.length}]</span>
-          </div>
+        {/* Applications */}
+        <DashCard>
+          <CardLabel>My Applications ({applications.length})</CardLabel>
 
           {applications.length === 0 ? (
-            <div className="px-4 py-10 text-center" style={{ background: 'var(--bg)' }}>
-              <p className="mono text-xs mb-3" style={{ color: 'var(--text-dim)' }}>// NO_APPLICATIONS_YET</p>
-              <Link
-                href="/"
-                className="mono text-xs no-underline transition-opacity hover:opacity-80"
-                style={{ color: 'var(--green)' }}
-              >
-                Browse open bounties →
+            <div style={{ padding: '48px 24px', textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, color: 'var(--black)', marginBottom: 12 }}>
+                No applications yet
+              </div>
+              <Link href="/" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-flex' }}>
+                Browse Open Bounties →
               </Link>
             </div>
           ) : (
-            <div style={{ background: 'var(--bg)' }}>
-              {applications.map((app) => {
+            <div>
+              {applications.map((app, i) => {
                 const exp = app.experiments;
-                const cc  = categoryColor(exp?.category ?? '');
-                const sc  = STATUS_COLORS[app.status] ?? 'var(--text-dim)';
-                const sl  = STATUS_LABELS[app.status] ?? app.status.toUpperCase();
-                const isUnderReview = app.status === 'applied';
-                const isAccepted    = app.status === 'approved';
-                const isWaitlisted  = app.status === 'waitlisted';
-                const isRejected    = app.status === 'rejected';
-                const isCompleted   = app.status === 'completed';
+                const sl  = STATUS_LABELS[app.status] ?? app.status;
+                const bg  = STATUS_BG[app.status] ?? 'var(--off-white)';
+                const fc  = STATUS_COLOR[app.status] ?? 'var(--black)';
                 return (
-                  <div
-                    key={app.id}
-                    className="px-4 py-4"
-                    style={{ borderBottom: '1px solid rgba(77,255,128,0.05)' }}
-                  >
-                    {/* Row header */}
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <div className="flex-1 min-w-0">
-                        {exp ? (
-                          <Link href={`/experiments/${exp.id}`} className="no-underline group">
-                            <span className="text-sm font-medium group-hover:opacity-80 transition-opacity" style={{ color: 'var(--text-bright)' }}>
-                              {exp.title}
-                            </span>
-                          </Link>
-                        ) : <span className="text-sm" style={{ color: 'var(--text-dim)' }}>—</span>}
-                        <div className="flex items-center gap-2 mt-1">
-                          {exp && (
-                            <span className="mono text-xs px-1.5 py-0.5 rounded" style={{ color: cc, border: `1px solid ${cc}30`, background: `${cc}08`, fontSize: 9 }}>
-                              {exp.category.toUpperCase()}
-                            </span>
-                          )}
-                          <span className="mono text-xs" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
-                            Applied {relDate(app.applied_at)}
+                  <div key={app.id} style={{
+                    padding:      '16px 24px',
+                    borderBottom: i < applications.length - 1 ? '2px solid rgba(0,0,0,0.1)' : 'none',
+                    display:      'flex',
+                    alignItems:   'flex-start',
+                    justifyContent: 'space-between',
+                    gap:          12,
+                  }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      {exp ? (
+                        <Link href={`/experiments/${exp.id}`} style={{ fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 500, color: 'var(--black)', textDecoration: 'none' }}>
+                          {exp.title}
+                        </Link>
+                      ) : (
+                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--gray)' }}>—</span>
+                      )}
+                      <div style={{ display: 'flex', gap: 12, marginTop: 6, flexWrap: 'wrap' }}>
+                        {exp && (
+                          <span style={{ fontFamily: 'var(--font-display)', fontSize: 9, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' as const, background: 'var(--off-white)', color: 'var(--gray)', border: '1.5px solid var(--black)', padding: '1px 6px' }}>
+                            {exp.category}
                           </span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-1 shrink-0">
-                        <span
-                          className="mono text-xs px-2 py-0.5 rounded"
-                          style={{
-                            color: sc,
-                            border: `1px solid ${sc}40`,
-                            background: `${sc}10`,
-                            fontSize: 9, letterSpacing: '1px',
-                          }}
-                        >
-                          {sl}
+                        )}
+                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--gray)' }}>
+                          Applied {relDate(app.applied_at)}
                         </span>
-                        {(isCompleted || isAccepted) && (
-                          <span className="mono text-xs tabular-nums" style={{ color: 'var(--green)' }}>
-                            {fmt(exp?.bounty_per_participant ?? 0)}
+                        {exp?.duration_weeks && (
+                          <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--gray)' }}>
+                            {exp.duration_weeks} weeks
                           </span>
                         )}
                       </div>
                     </div>
-
-                    {/* Sub-row: eligibility + compliance info */}
-                    <div className="flex flex-wrap gap-x-4 gap-y-1">
-                      {app.eligibility_status && (
-                        <span className="mono text-xs" style={{ fontSize: 10, color: app.eligibility_status === 'eligible' ? 'var(--green)' : 'var(--amber)' }}>
-                          {app.eligibility_status === 'eligible' ? '✓ Eligible' : '⚠ Not eligible'} (quiz)
-                        </span>
-                      )}
-                      {exp?.compliance_threshold != null && (isUnderReview || isAccepted || isWaitlisted) && (
-                        <span className="mono text-xs" style={{ fontSize: 10, color: 'var(--text-dim)' }}>
-                          {exp.compliance_threshold}% compliance required
-                        </span>
-                      )}
-                      {exp?.duration_weeks != null && (isUnderReview || isAccepted || isWaitlisted) && (
-                        <span className="mono text-xs" style={{ fontSize: 10, color: 'var(--text-dim)' }}>
-                          ~{exp.duration_weeks} weeks
-                        </span>
-                      )}
-                      {isRejected && (
-                        <span className="mono text-xs" style={{ fontSize: 10, color: 'var(--text-dim)' }}>
-                          Your application was not selected for this study.
-                        </span>
-                      )}
-                      {isWaitlisted && (
-                        <span className="mono text-xs" style={{ fontSize: 10, color: '#a05c10' }}>
-                          You&apos;ll be notified if a spot opens.
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+                      <span style={{
+                        fontFamily:    'var(--font-display)',
+                        fontSize:      9,
+                        fontWeight:    700,
+                        letterSpacing: '1.5px',
+                        textTransform: 'uppercase' as const,
+                        background:    bg,
+                        color:         fc,
+                        border:        '1.5px solid var(--black)',
+                        padding:       '3px 8px',
+                      }}>
+                        {sl}
+                      </span>
+                      {['completed', 'approved'].includes(app.status) && exp && (
+                        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14, color: 'var(--black)' }}>
+                          {fmt(exp.bounty_per_participant)}
                         </span>
                       )}
                     </div>
@@ -683,35 +760,49 @@ export default function DashboardPage() {
               })}
             </div>
           )}
-        </div>
+        </DashCard>
 
-        {/* ── Achievements (placeholder) ───────────────────────────── */}
-        <div className="rounded p-5" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
-          <p className="mono text-xs mb-4" style={{ color: 'var(--text-dim)' }}>// ACHIEVEMENTS</p>
-          <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+        {/* Achievements */}
+        <DashCard>
+          <CardLabel>Achievements</CardLabel>
+          <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }} className="dash-badges-grid">
             {[
-              { icon: '🔬', label: 'First Study'   },
-              { icon: '⭐', label: '5 Completed'   },
-              { icon: '💯', label: '100% Streak'   },
-              { icon: '🏆', label: 'Top 10'        },
-              { icon: '🧬', label: 'Verified'      },
+              { icon: '🔬', label: 'First Study'  },
+              { icon: '⭐', label: '5 Completed'  },
+              { icon: '💯', label: '100% Streak'  },
+              { icon: '🏆', label: 'Top 10'       },
+              { icon: '🧬', label: 'Verified'     },
             ].map((a) => (
-              <div
-                key={a.label}
-                className="rounded p-3 flex flex-col items-center gap-2 opacity-30"
-                style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.06)' }}
-              >
-                <span className="text-2xl">{a.icon}</span>
-                <p className="mono text-xs text-center" style={{ color: 'var(--text-dim)' }}>{a.label}</p>
+              <div key={a.label} style={{
+                border:      '2px solid var(--black)',
+                padding:     '16px 8px',
+                display:     'flex',
+                flexDirection: 'column',
+                alignItems:  'center',
+                gap:         8,
+                opacity:     0.35,
+                background:  'var(--off-white)',
+              }}>
+                <span style={{ fontSize: 24 }}>{a.icon}</span>
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, textAlign: 'center', color: 'var(--black)' }}>
+                  {a.label}
+                </span>
               </div>
             ))}
           </div>
-          <p className="mono text-xs mt-4 text-center" style={{ color: 'var(--text-dim)' }}>
-            // COMING_SOON — unlock badges by completing experiments
-          </p>
-        </div>
+          <div style={{ padding: '0 24px 20px', fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--gray)', textAlign: 'center' }}>
+            Unlock badges by completing experiments
+          </div>
+        </DashCard>
 
       </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .dash-stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .dash-badges-grid { grid-template-columns: repeat(3, 1fr) !important; }
+        }
+      `}</style>
     </main>
   );
 }
