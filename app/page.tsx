@@ -3,7 +3,6 @@ import { SiteHeader } from '@/components/nav/header';
 import { HomeHero } from '@/components/home/hero';
 import { StatsBar } from '@/components/home/stats-bar';
 import { HowItWorks } from '@/components/home/how-it-works';
-import { ScopeSection } from '@/components/home/scope-section';
 import { EstimateCta } from '@/components/home/estimate-cta';
 import { TestimonialsMarquee } from '@/components/home/testimonials-marquee';
 import { BlogPreview } from '@/components/home/blog-preview';
@@ -37,7 +36,6 @@ export default async function HomePage() {
       <HomeHero />
       <StatsBar />
       <HowItWorks />
-      <ScopeSection />
       <EstimateCta />
       <TestimonialsMarquee />
       <BlogPreview />

@@ -1,63 +1,91 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 
-function HeroGeometry() {
+function StudyCardSVG() {
   return (
-    <svg viewBox="0 0 500 500" style={{ width: '100%', height: 'auto', maxWidth: 480 }}>
-      {/* Large circle — outline only */}
-      <circle cx="260" cy="240" r="180" stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none" />
-      {/* Amber block — solid, offset */}
-      <rect x="80" y="80" width="180" height="180" fill="rgba(245,158,11,0.55)" />
-      {/* White outline rectangle — overlapping */}
-      <rect x="200" y="160" width="220" height="200" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="3" />
-      {/* Small amber square — bottom right accent */}
-      <rect x="340" y="340" width="80" height="80" fill="rgba(245,158,11,0.8)" />
-      {/* Horizontal lines — grid feel */}
-      <line x1="80" y1="320" x2="420" y2="320" stroke="rgba(255,255,255,0.12)" strokeWidth="2" />
-      <line x1="80" y1="350" x2="320" y2="350" stroke="rgba(255,255,255,0.08)" strokeWidth="2" />
-      {/* Dot grid cluster */}
-      {[0,1,2,3,4].flatMap(row =>
-        [0,1,2,3,4].map(col => (
-          <circle
-            key={`${row}-${col}`}
-            cx={360 + col * 16}
-            cy={160 + row * 16}
-            r="2"
-            fill="rgba(255,255,255,0.2)"
-          />
-        ))
-      )}
-      {/* Inner circle detail */}
-      <circle cx="170" cy="170" r="60" fill="none" stroke="rgba(245,158,11,0.4)" strokeWidth="1.5" strokeDasharray="8 4" />
+    <svg viewBox="0 0 480 380" style={{ width: '100%', height: 'auto', maxWidth: 480 }} aria-hidden="true">
+      {/* ── Main study card ── */}
+      {/* Shadow */}
+      <rect x={32} y={32} width={360} height={220} fill="rgba(0,0,0,0.6)" />
+      {/* Card */}
+      <rect x={26} y={26} width={360} height={220} fill="#ffffff" stroke="#000000" strokeWidth={3} />
+
+      {/* Status badge */}
+      <rect x={42} y={44} width={88} height={24} fill="#f59e0b" stroke="#000000" strokeWidth={2} />
+      <text x={86} y={60} textAnchor="middle" fill="#000000" fontSize={9} fontWeight={700} fontFamily="Space Grotesk, sans-serif" letterSpacing={2}>RECRUITING</text>
+
+      {/* Study title lines */}
+      <rect x={42} y={82} width={220} height={10} fill="#0f1a2e" rx={0} />
+      <rect x={42} y={100} width={160} height={10} fill="rgba(15,26,46,0.35)" rx={0} />
+
+      {/* Category + region tags */}
+      <rect x={42} y={126} width={60} height={18} fill="none" stroke="#000000" strokeWidth={1.5} />
+      <text x={72} y={139} textAnchor="middle" fill="#000000" fontSize={8} fontWeight={600} fontFamily="Space Grotesk, sans-serif" letterSpacing={1}>MICROBIOME</text>
+      <rect x={112} y={126} width={46} height={18} fill="none" stroke="#000000" strokeWidth={1.5} />
+      <text x={135} y={139} textAnchor="middle" fill="#000000" fontSize={8} fontWeight={600} fontFamily="Space Grotesk, sans-serif" letterSpacing={1}>REMOTE</text>
+
+      {/* Divider */}
+      <line x1={42} y1={158} x2={372} y2={158} stroke="rgba(0,0,0,0.15)" strokeWidth={1.5} />
+
+      {/* Stats row */}
+      <text x={42} y={178} fill="#64748b" fontSize={9} fontFamily="Space Grotesk, sans-serif" letterSpacing={2} fontWeight={600}>BOUNTY</text>
+      <text x={42} y={196} fill="#0f1a2e" fontSize={20} fontFamily="Space Grotesk, sans-serif" fontWeight={700}>$240</text>
+
+      <text x={160} y={178} fill="#64748b" fontSize={9} fontFamily="Space Grotesk, sans-serif" letterSpacing={2} fontWeight={600}>DURATION</text>
+      <text x={160} y={196} fill="#0f1a2e" fontSize={20} fontFamily="Space Grotesk, sans-serif" fontWeight={700}>8 wks</text>
+
+      <text x={280} y={178} fill="#64748b" fontSize={9} fontFamily="Space Grotesk, sans-serif" letterSpacing={2} fontWeight={600}>SLOTS</text>
+      <text x={280} y={196} fill="#0f1a2e" fontSize={20} fontFamily="Space Grotesk, sans-serif" fontWeight={700}>42<tspan fill="#64748b" fontSize={14}>/50</tspan></text>
+
+      {/* Progress bar */}
+      <rect x={42} y={218} width={330} height={10} fill="rgba(0,0,0,0.06)" stroke="#000000" strokeWidth={1.5} />
+      <rect x={42} y={218} width={277} height={10} fill="#f59e0b" />
+
+      {/* ── Second card (smaller, offset below-right) ── */}
+      <rect x={246} y={258} width={220} height={96} fill="rgba(0,0,0,0.5)" />
+      <rect x={240} y={252} width={220} height={96} fill="#0f1a2e" stroke="#f59e0b" strokeWidth={2.5} />
+
+      <rect x={256} y={268} width={56} height={18} fill="rgba(245,158,11,0.2)" stroke="#f59e0b" strokeWidth={1.5} />
+      <text x={284} y={281} textAnchor="middle" fill="#f59e0b" fontSize={8} fontWeight={700} fontFamily="Space Grotesk, sans-serif" letterSpacing={1.5}>ACTIVE</text>
+
+      <rect x={256} y={296} width={140} height={8} fill="rgba(255,255,255,0.15)" />
+      <rect x={256} y={312} width={100} height={8} fill="rgba(255,255,255,0.08)" />
+
+      <text x={440} y={326} textAnchor="end" fill="#f59e0b" fontSize={16} fontWeight={700} fontFamily="Space Grotesk, sans-serif">$180</text>
+
+      {/* ── Corner bracket decorations ── */}
+      <path d="M440,20 L460,20 L460,40" stroke="rgba(245,158,11,0.4)" strokeWidth={2.5} fill="none" />
+      <path d="M20,340 L20,360 L40,360" stroke="rgba(255,255,255,0.15)" strokeWidth={2.5} fill="none" />
+
+      {/* ── Floating label ── */}
+      <rect x={310} y={44} width={76} height={22} fill="rgba(0,0,0,0.7)" stroke="rgba(255,255,255,0.15)" strokeWidth={1} />
+      <text x={348} y={59} textAnchor="middle" fill="rgba(255,255,255,0.6)" fontSize={9} fontFamily="Space Grotesk, sans-serif" letterSpacing={1}>LIVE NOW</text>
     </svg>
   );
 }
 
 export function HomeHero() {
-  const [hoverRun, setHoverRun] = useState(false);
-
   return (
     <section
       style={{
-        background:  'var(--navy)',
-        minHeight:   '90vh',
-        display:     'flex',
-        alignItems:  'center',
+        background:   'var(--navy)',
+        minHeight:    '88vh',
+        display:      'flex',
+        alignItems:   'center',
         borderBottom: '3px solid var(--black)',
       }}
     >
       <div
         style={{
-          maxWidth: 1200,
-          margin:   '0 auto',
-          padding:  'clamp(60px, 10vh, 100px) 24px',
-          width:    '100%',
-          display:  'grid',
-          gridTemplateColumns: 'minmax(0, 55%) minmax(0, 45%)',
-          gap:      64,
-          alignItems: 'center',
+          maxWidth:            1200,
+          margin:              '0 auto',
+          padding:             'clamp(60px, 10vh, 100px) 24px',
+          width:               '100%',
+          display:             'grid',
+          gridTemplateColumns: 'minmax(0, 54%) minmax(0, 46%)',
+          gap:                 64,
+          alignItems:          'center',
         }}
         className="hero-grid"
       >
@@ -91,40 +119,35 @@ export function HomeHero() {
           <p style={{
             fontFamily:  'var(--font-body)',
             fontSize:    18,
-            color:       'rgba(255,255,255,0.8)',
-            lineHeight:  1.5,
+            color:       'rgba(255,255,255,0.75)',
+            lineHeight:  1.6,
             maxWidth:    420,
             marginBottom: 40,
           }}>
-            Protocol to data. You own the science. We run the operations.
+            From protocol to clean data — recruitment, compliance, logistics,
+            and payouts. You own the science. We run the operations.
           </p>
 
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            <Link
-              href="/run-a-study"
-              className="btn-primary"
-              onMouseEnter={() => setHoverRun(true)}
-              onMouseLeave={() => setHoverRun(false)}
-              style={{ transform: hoverRun ? 'translate(-2px,-2px)' : 'none', boxShadow: hoverRun ? '6px 6px 0 var(--black)' : '4px 4px 0 var(--black)' }}
-            >
+            <Link href="/run-a-study" className="btn-primary">
               Run a study →
             </Link>
             <Link href="/onboarding?role=participant" className="btn-secondary">
-              Join as partner
+              Join as participant
             </Link>
           </div>
         </div>
 
-        {/* RIGHT — decorative geometry, desktop only */}
+        {/* RIGHT — study card visualization */}
         <div className="hero-art" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <HeroGeometry />
+          <StudyCardSVG />
         </div>
       </div>
 
       <style>{`
         @media (max-width: 768px) {
           .hero-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
-          .hero-art { display: none !important; }
+          .hero-art  { display: none !important; }
         }
       `}</style>
     </section>

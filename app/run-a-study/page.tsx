@@ -18,72 +18,122 @@ const JOURNEY_CARDS = [
 
 export default function RunAStudyPage() {
   const estimateRef = useRef<HTMLDivElement>(null);
-  const [hoverEstimate, setHoverEstimate] = useState(false);
-  const [hoverContact, setHoverContact] = useState(false);
 
   return (
     <main style={{ minHeight: '100vh' }}>
       <SiteHeader />
 
-      {/* ── Hero (navy, ~60vh) ── */}
+      {/* ── Hero (navy, two-column) ── */}
       <section style={{
         background:   'var(--navy)',
-        minHeight:    '60vh',
-        display:      'flex',
-        alignItems:   'center',
         borderBottom: '3px solid var(--black)',
       }}>
-        <div className="section-inner" style={{ maxWidth: 720 }}>
-          <span style={{
-            fontFamily:    'var(--font-display)',
-            fontSize:      13,
-            fontWeight:    600,
-            letterSpacing: '3px',
-            textTransform: 'uppercase',
-            color:         'var(--amber)',
-            display:       'block',
-            marginBottom:  20,
-          }}>
-            Run a Study
-          </span>
-          <h1 style={{
-            fontFamily:   'var(--font-display)',
-            fontWeight:   700,
-            fontSize:     'clamp(28px, 4vw, 48px)',
-            lineHeight:   1.08,
-            color:        'var(--white)',
-            marginBottom: 24,
-          }}>
-            Your protocol. Our operations.
-          </h1>
-          <p style={{
-            fontFamily:   'var(--font-body)',
-            fontSize:     17,
-            color:        'rgba(255,255,255,0.75)',
-            lineHeight:   1.5,
-            maxWidth:     520,
-            marginBottom: 40,
-          }}>
-            Recruit, track, and manage your study with infrastructure — not outsourcing.
-          </p>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            <button
-              className="btn-primary"
-              onClick={() => estimateRef.current?.scrollIntoView({ behavior: 'smooth' })}
-              onMouseEnter={() => setHoverEstimate(true)}
-              onMouseLeave={() => setHoverEstimate(false)}
-              style={{ transform: hoverEstimate ? 'translate(-2px,-2px)' : 'none', boxShadow: hoverEstimate ? '6px 6px 0 var(--black)' : '4px 4px 0 var(--black)' }}
-            >
-              Get an estimate →
-            </button>
-            <Link
-              href="/contact"
-              className="btn-secondary"
-              onMouseEnter={() => setHoverContact(true)}
-              onMouseLeave={() => setHoverContact(false)}
-            >
-              Contact us
-            </Link>
+        <div
+          style={{
+            maxWidth:            1200,
+            margin:              '0 auto',
+            padding:             'clamp(60px, 9vh, 96px) 24px',
+            display:             'grid',
+            gridTemplateColumns: 'minmax(0, 54%) minmax(0, 46%)',
+            gap:                 64,
+            alignItems:          'center',
+          }}
+          className="ras-hero-grid"
+        >
+          {/* Left */}
+          <div>
+            <span style={{
+              fontFamily:    'var(--font-display)',
+              fontSize:      13,
+              fontWeight:    600,
+              letterSpacing: '3px',
+              textTransform: 'uppercase',
+              color:         'var(--amber)',
+              display:       'block',
+              marginBottom:  20,
+            }}>
+              Run a Study
+            </span>
+            <h1 style={{
+              fontFamily:   'var(--font-display)',
+              fontWeight:   700,
+              fontSize:     'clamp(28px, 4vw, 52px)',
+              lineHeight:   1.08,
+              color:        'var(--white)',
+              marginBottom: 24,
+            }}>
+              Your protocol.<br />
+              <span style={{ color: 'var(--amber)' }}>Our operations.</span>
+            </h1>
+            <p style={{
+              fontFamily:   'var(--font-body)',
+              fontSize:     17,
+              color:        'rgba(255,255,255,0.75)',
+              lineHeight:   1.6,
+              maxWidth:     460,
+              marginBottom: 40,
+            }}>
+              Recruit, track, and manage your study with infrastructure — not outsourcing.
+              IRB coordination, kit logistics, and compliance tracking included.
+            </p>
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <button
+                className="btn-primary"
+                onClick={() => estimateRef.current?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Get an estimate →
+              </button>
+              <Link href="/contact" className="btn-secondary">
+                Contact us
+              </Link>
+            </div>
+          </div>
+
+          {/* Right — what's included checklist */}
+          <div className="ras-hero-right" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <div style={{
+              border:     '3px solid rgba(255,255,255,0.2)',
+              background: 'rgba(255,255,255,0.04)',
+            }}>
+              <div style={{
+                padding:      '14px 20px',
+                borderBottom: '2px solid rgba(255,255,255,0.1)',
+                fontFamily:   'var(--font-display)',
+                fontSize:     11,
+                fontWeight:   600,
+                letterSpacing:'3px',
+                textTransform:'uppercase' as const,
+                color:        'var(--amber)',
+              }}>
+                What&apos;s included
+              </div>
+              {[
+                ['Recruitment',     'Verified cohort matched to your criteria'],
+                ['Compliance',      'Real-time tracking, automated alerts'],
+                ['Kit logistics',   'Sample dispatch and lab intake managed'],
+                ['IRB support',     'Compliance-ready documentation'],
+                ['Data delivery',   'Structured output with full audit bundle'],
+                ['Payouts',         'Participant compensation handled end-to-end'],
+              ].map(([title, desc], i, arr) => (
+                <div key={title} style={{
+                  padding:      '14px 20px',
+                  borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none',
+                  display:      'flex',
+                  alignItems:   'flex-start',
+                  gap:          12,
+                }}>
+                  <span style={{ color: 'var(--amber)', fontWeight: 700, fontSize: 14, flexShrink: 0, marginTop: 1 }}>✓</span>
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 13, color: 'var(--white)', marginBottom: 2 }}>
+                      {title}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.4 }}>
+                      {desc}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -154,6 +204,10 @@ export default function RunAStudyPage() {
       <style>{`
         @media (max-width: 900px) { .journey-grid { grid-template-columns: repeat(2, 1fr) !important; } }
         @media (max-width: 640px) { .journey-grid { grid-template-columns: 1fr !important; } }
+        @media (max-width: 768px) {
+          .ras-hero-grid  { grid-template-columns: 1fr !important; gap: 32px !important; }
+          .ras-hero-right { display: none !important; }
+        }
       `}</style>
     </main>
   );
