@@ -23,7 +23,6 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
     setLoading(true);
     setError('');
 
-    // Fire-and-forget notification
     fetch('/api/contact', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -43,32 +42,32 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
     setLoading(false);
   }
 
-  const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
-
   if (submitted) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <p style={{ ...MONO, fontSize: 12, color: '#f59e0b' }}>
-          ✓ Email noted. Your download is ready:
+        <p style={{
+          fontFamily: 'var(--font-display)',
+          fontSize:   14,
+          fontWeight: 600,
+          color:      'var(--black)',
+        }}>
+          Email noted. Your download is ready:
         </p>
         <a
           href={artifactUrl}
           target="_blank"
           rel="noopener noreferrer"
-          style={{
-            ...MONO, fontSize: 12, fontWeight: 700,
-            display:    'inline-flex',
-            padding:    '12px 28px',
-            background: '#f59e0b',
-            color:      '#050709',
-            borderRadius: 2,
-            textDecoration: 'none',
-            alignSelf: 'flex-start',
-          }}
+          className="btn-primary"
+          style={{ alignSelf: 'flex-start', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
         >
           {artifactLabel} ↓
         </a>
-        <p style={{ ...MONO, fontSize: 11, color: '#475569', lineHeight: 1.6 }}>
+        <p style={{
+          fontFamily: 'var(--font-body)',
+          fontSize:   12,
+          color:      'var(--gray)',
+          lineHeight: 1.6,
+        }}>
           We may follow up with related resources. Unsubscribe anytime.
         </p>
       </div>
@@ -77,7 +76,7 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 480 }}>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' }}>
         <input
           type="email"
           value={email}
@@ -85,28 +84,27 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
           placeholder="your@email.com"
           required
           style={{
-            ...MONO, fontSize: 13, flex: 1, minWidth: 200,
-            padding:    '10px 14px',
-            background: 'rgba(255,255,255,0.03)',
-            border:     `1px solid ${error ? 'rgba(255,100,100,0.4)' : 'rgba(255,255,255,0.1)'}`,
-            borderRadius: 2, color: '#f8fafc', outline: 'none',
+            flex:        1,
+            minWidth:    200,
+            borderRight: 'none',
+            borderColor: error ? '#dc2626' : 'var(--black)',
           }}
         />
         <button
           type="submit"
           disabled={loading}
-          style={{
-            ...MONO, fontSize: 12, fontWeight: 700,
-            padding:  '10px 24px',
-            background: '#f59e0b', color: '#060a14',
-            border: 'none', borderRadius: 2, cursor: loading ? 'not-allowed' : 'pointer',
-          }}
+          className="btn-primary"
+          style={{ borderRadius: 0, cursor: loading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}
         >
           {loading ? '…' : 'Get it →'}
         </button>
       </div>
-      {error && <p style={{ ...MONO, fontSize: 11, color: '#ff6464' }}>{error}</p>}
-      <p style={{ ...MONO, fontSize: 11, color: '#475569' }}>
+      {error && (
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: '#dc2626', margin: 0 }}>
+          {error}
+        </p>
+      )}
+      <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--gray)', margin: 0 }}>
         No spam. Just the file and occasional related updates.
       </p>
     </form>

@@ -9,28 +9,15 @@ export function PartnerFormToggle() {
   return (
     <div>
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(o => !o)}
+        className="btn-primary"
         style={{
-          display:       'inline-flex',
-          alignItems:    'center',
-          gap:           8,
-          fontFamily:    'var(--font-mono)',
-          fontSize:      12,
-          letterSpacing: '1px',
-          textTransform: 'uppercase',
-          color:         '#050709',
-          background:    '#f59e0b',
-          border:        'none',
-          padding:       '10px 20px',
-          borderRadius:  2,
-          cursor:        'pointer',
-          transition:    'opacity 150ms ease',
-          minHeight:     46,
+          gap: 10,
+          transform: 'none',
+          boxShadow: '4px 4px 0 var(--black)',
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.88'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
       >
-        Become a partner {open ? '▴' : '▾'}
+        Apply to partner {open ? '▴' : '▾'}
       </button>
 
       <div

@@ -24,109 +24,197 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   if (!data) notFound();
   const post = data as Post;
 
-  const MONO = 'var(--font-mono)';
-  const HEAD = 'var(--font-heading)';
-
   return (
-    <main style={{ minHeight: '100vh' }}>
+    <main style={{ minHeight: '100vh', background: 'var(--off-white)' }}>
       <SiteHeader />
-      <article
-        style={{ maxWidth: 680, margin: '0 auto', paddingTop: 'clamp(48px, 8vh, 80px)', paddingBottom: 96 }}
-        className="px-4 sm:px-6 lg:px-8"
-      >
-        {/* Back */}
-        <Link
-          href="/blog"
-          style={{ fontFamily: MONO, fontSize: 11, color: '#475569', textDecoration: 'none', letterSpacing: '0.5px', display: 'inline-block', marginBottom: 40 }}
-        >
-          ← Blog
-        </Link>
 
-        {/* Tags */}
-        {post.tags.length > 0 && (
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-            {post.tags.map(tag => (
-              <span key={tag} style={{
-                fontFamily: MONO, fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase',
-                color: '#38bdf8', border: '1px solid rgba(56,189,248,0.2)', padding: '2px 8px', borderRadius: 2,
-              }}>
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
+      {/* ── Post header (navy) ── */}
+      <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', padding: 'clamp(40px, 6vw, 72px) 24px' }}>
 
-        {/* Title */}
-        <h1 style={{ fontFamily: HEAD, fontWeight: 700, fontSize: 'clamp(26px, 4vw, 44px)', color: '#f8fafc', lineHeight: 1.1, marginBottom: 16 }}>
-          {post.title}
-        </h1>
-
-        {/* Meta */}
-        <div style={{ display: 'flex', gap: 16, marginBottom: 40, flexWrap: 'wrap' }}>
-          <span style={{ fontFamily: MONO, fontSize: 12, color: '#475569' }}>{post.author}</span>
-          <span style={{ fontFamily: MONO, fontSize: 12, color: '#475569' }}>
-            {new Date(post.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-          </span>
-        </div>
-
-        {/* ── PUBLIC HOOK — top of fold, always visible ── */}
-        {post.hook && (
-          <div style={{
-            marginBottom: 48, paddingBottom: 40,
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
+          {/* Back link */}
+          <Link href="/blog" style={{
+            fontFamily:     'var(--font-display)',
+            fontSize:       13,
+            fontWeight:     600,
+            color:          'rgba(255,255,255,0.5)',
+            textDecoration: 'none',
+            display:        'inline-block',
+            marginBottom:   32,
+            letterSpacing:  '0.5px',
           }}>
-            <p style={{
-              fontFamily: HEAD, fontWeight: 700,
-              fontSize:   'clamp(18px, 2.5vw, 24px)',
-              color:      '#f8fafc',
-              lineHeight: 1.4,
-            }}>
-              {post.hook}
-            </p>
-          </div>
-        )}
-
-        {/* ── SUBSTANCE — main body ── */}
-        <div style={{
-          fontFamily: MONO, fontSize: 14, color: '#94a3b8',
-          lineHeight: 1.9, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-          marginBottom: post.artifact_url ? 64 : 0,
-        }}>
-          {post.content}
-        </div>
-
-        {/* ── GATED ARTIFACT ── */}
-        {post.artifact_url && (
-          <div style={{
-            marginTop: 64, paddingTop: 48, borderTop: '1px solid rgba(255,255,255,0.06)',
-          }}>
-            <p style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 16 }}>
-              // FREE_RESOURCE
-            </p>
-            <h2 style={{ fontFamily: HEAD, fontWeight: 700, fontSize: 'clamp(18px, 2.5vw, 24px)', color: '#f8fafc', marginBottom: 8 }}>
-              {post.artifact_label ?? 'Download the worksheet'}
-            </h2>
-            <p style={{ fontFamily: MONO, fontSize: 12, color: '#475569', lineHeight: 1.7, marginBottom: 24 }}>
-              Enter your email and we'll send you the template directly.
-            </p>
-            <ArtifactGate
-              artifactUrl={post.artifact_url}
-              artifactLabel={post.artifact_label ?? 'Download worksheet'}
-              postSlug={post.slug}
-            />
-          </div>
-        )}
-
-        {/* Footer */}
-        <div style={{ marginTop: 64, paddingTop: 32, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <Link
-            href="/blog"
-            style={{ fontFamily: MONO, fontSize: 11, color: '#475569', textDecoration: 'none', letterSpacing: '0.5px' }}
-          >
-            ← Back to blog
+            ← Blog
           </Link>
+
+          {/* Tags */}
+          {post.tags.length > 0 && (
+            <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+              {post.tags.map(tag => (
+                <span key={tag} style={{
+                  fontFamily:    'var(--font-display)',
+                  fontSize:      10,
+                  fontWeight:    600,
+                  letterSpacing: '1.5px',
+                  textTransform: 'uppercase',
+                  background:    'var(--amber)',
+                  color:         'var(--black)',
+                  padding:       '3px 8px',
+                  border:        '2px solid var(--black)',
+                }}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Title */}
+          <h1 style={{
+            fontFamily:   'var(--font-display)',
+            fontWeight:   700,
+            fontSize:     'clamp(26px, 4vw, 44px)',
+            color:        'var(--white)',
+            lineHeight:   1.1,
+            marginBottom: 24,
+          }}>
+            {post.title}
+          </h1>
+
+          {/* Meta */}
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{
+              fontFamily: 'var(--font-body)',
+              fontSize:   13,
+              fontWeight: 500,
+              color:      'rgba(255,255,255,0.7)',
+            }}>
+              {post.author}
+            </span>
+            <span style={{ width: 4, height: 4, background: 'var(--amber)', display: 'inline-block' }} />
+            <span style={{
+              fontFamily: 'var(--font-body)',
+              fontSize:   13,
+              color:      'rgba(255,255,255,0.45)',
+            }}>
+              {new Date(post.published_at).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric',
+              })}
+            </span>
+          </div>
         </div>
-      </article>
+      </section>
+
+      {/* ── Post body (off-white) ── */}
+      <section style={{ background: 'var(--off-white)', borderBottom: '3px solid var(--black)' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', padding: 'clamp(40px, 6vw, 72px) 24px' }}>
+
+          {/* Hook — prominent pull quote */}
+          {post.hook && (
+            <div style={{
+              borderLeft:   '5px solid var(--amber)',
+              paddingLeft:  28,
+              marginBottom: 48,
+            }}>
+              <p style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 700,
+                fontSize:   'clamp(18px, 2.5vw, 24px)',
+                color:      'var(--black)',
+                lineHeight: 1.4,
+                margin:     0,
+              }}>
+                {post.hook}
+              </p>
+            </div>
+          )}
+
+          {/* Main body */}
+          <div style={{
+            fontFamily: 'var(--font-body)',
+            fontSize:   16,
+            color:      'var(--black)',
+            lineHeight: 1.8,
+            whiteSpace: 'pre-wrap',
+            wordBreak:  'break-word',
+          }}>
+            {post.content}
+          </div>
+
+          {/* ── Gated artifact ── */}
+          {post.artifact_url && (
+            <div style={{
+              marginTop:  64,
+              border:     '3px solid var(--black)',
+              boxShadow:  '5px 5px 0 var(--black)',
+              background: 'var(--white)',
+              padding:    '36px 32px',
+            }}>
+              <span style={{
+                fontFamily:    'var(--font-display)',
+                fontSize:      11,
+                fontWeight:    600,
+                letterSpacing: '3px',
+                textTransform: 'uppercase',
+                color:         'var(--amber)',
+                display:       'block',
+                marginBottom:  12,
+              }}>
+                Free Resource
+              </span>
+              <h2 style={{
+                fontFamily:   'var(--font-display)',
+                fontWeight:   700,
+                fontSize:     'clamp(18px, 2.5vw, 24px)',
+                color:        'var(--black)',
+                marginBottom: 8,
+              }}>
+                {post.artifact_label ?? 'Download the worksheet'}
+              </h2>
+              <p style={{
+                fontFamily:   'var(--font-body)',
+                fontSize:     14,
+                color:        'var(--gray)',
+                lineHeight:   1.6,
+                marginBottom: 24,
+              }}>
+                Enter your email and we'll send you the template directly.
+              </p>
+              <ArtifactGate
+                artifactUrl={post.artifact_url}
+                artifactLabel={post.artifact_label ?? 'Download worksheet'}
+                postSlug={post.slug}
+              />
+            </div>
+          )}
+
+          {/* Back link */}
+          <div style={{ marginTop: 64, paddingTop: 32, borderTop: '3px solid var(--black)' }}>
+            <Link href="/blog" style={{
+              fontFamily:     'var(--font-display)',
+              fontSize:       13,
+              fontWeight:     600,
+              color:          'var(--gray)',
+              textDecoration: 'none',
+              letterSpacing:  '0.5px',
+            }}>
+              ← Back to blog
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer style={{ background: 'var(--black)', borderTop: '3px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
+          <Link href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--white)', textDecoration: 'none' }}>
+            BIO<span style={{ color: 'var(--amber)' }}>ME</span>
+          </Link>
+          <nav style={{ display: 'flex', gap: 24 }}>
+            {[['Blog', '/blog'], ['Docs', '/docs'], ['Terms', '/legal/tos'], ['Privacy', '/privacy']].map(([l, h]) => (
+              <a key={h} href={h} className="footer-link">{l}</a>
+            ))}
+          </nav>
+        </div>
+      </footer>
     </main>
   );
 }

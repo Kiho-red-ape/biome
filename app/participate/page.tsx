@@ -2,130 +2,154 @@
 
 import { SiteHeader } from '@/components/nav/header';
 import Link from 'next/link';
-import { StepsCarousel, type CarouselStep } from '@/components/ui/steps-carousel';
+import { BrutalistIcon } from '@/components/icons/BrutalistIcon';
 
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
-
-const STEPS: CarouselStep[] = [
-  {
-    num: '01', label: 'VERIFY', scene: 'approve',
-    headline: 'Build your\nresearch partner profile.',
-    desc: [
-      'Email + optional phone verification.',
-      'Profile anchors your participant identity.',
-      'Higher verification = higher-value studies.',
-    ],
-  },
-  {
-    num: '02', label: 'MATCH', scene: 'recruit',
-    headline: 'Get matched to\nrelevant studies.',
-    desc: [
-      'Studies surface automatically based on your profile.',
-      'No manual searching required.',
-      'Opt in to study alerts via email.',
-    ],
-  },
-  {
-    num: '03', label: 'APPLY', scene: 'scope',
-    headline: 'Apply in\none step.',
-    desc: [
-      'One-click application after eligibility check.',
-      'Researcher reviews and approves.',
-      'No lengthy screening forms.',
-    ],
-  },
-  {
-    num: '04', label: 'CONTRIBUTE', scene: 'collect',
-    headline: 'Complete your\nmilestones.',
-    desc: [
-      'Follow the study protocol from home.',
-      'Submit samples or data on schedule.',
-      'Track progress on your dashboard.',
-    ],
-  },
-  {
-    num: '05', label: 'EARN', scene: 'pay',
-    headline: 'Receive your\ncompensation.',
-    desc: [
-      'Compliance-gated payout on milestone completion.',
-      'Full transparency on what you earn.',
-      'Crypto or fiat depending on the study.',
-    ],
-  },
+const STEPS = [
+  { num: '01', icon: 'verify'     as const, title: 'Verify',     desc: 'Create your profile. Two minutes.'            },
+  { num: '02', icon: 'match'      as const, title: 'Match',      desc: 'Studies surface based on your profile.'       },
+  { num: '03', icon: 'approve'    as const, title: 'Apply',      desc: 'Review protocol. One-click application.'      },
+  { num: '04', icon: 'contribute' as const, title: 'Contribute', desc: 'Complete milestones from home.'                },
+  { num: '05', icon: 'earn'       as const, title: 'Earn',       desc: 'Compensation on verified completion.'          },
 ];
 
-const DATA_POINTS = [
-  'You decide which studies to apply to — no auto-enrolment.',
-  'Identifiable information is never shared without your consent.',
-  'Profile data is used only for matching — never sold.',
-  'You can delete your account at any time.',
+const DATA_COMMITMENTS = [
+  'Your identity is pseudonymized.',
+  'Your data is never sold.',
+  'You choose every study you join.',
 ];
 
 export default function ParticipatePage() {
   return (
-    <main style={{ minHeight: '100vh', background: '#060a14' }}>
+    <main style={{ minHeight: '100vh' }}>
       <SiteHeader />
 
-      {/* ── Hero ── */}
-      <section style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(48px, 8vw, 96px) 24px 48px' }}>
-        <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 20 }}>
-          // JOIN_THE_NETWORK
-        </p>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(28px, 4vw, 44px)', lineHeight: 1.1, color: '#f8fafc', marginBottom: 12 }}>
-          Join the new clinical economy.
-        </h1>
-        <p style={{ ...MONO, fontSize: 13, color: '#94a3b8', lineHeight: 1.9, marginBottom: 36, maxWidth: 560 }}>
-          Biome runs decentralised studies in microbiome, nutrition, sleep, wearables, and longevity.
-          Research partners complete milestones from home and receive compensation on completion.
-        </p>
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-          <Link href="/onboarding?role=participant" className="btn-primary" style={{ display: 'inline-flex' }}>
-            Create your profile →
-          </Link>
-          <p style={{ ...MONO, fontSize: 11, color: '#475569', margin: 0 }}>
-            Already a member?{' '}
-            <Link href="/dashboard" style={{ color: '#f59e0b', textDecoration: 'none' }}>Sign in →</Link>
+      {/* ── Hero (navy) ── */}
+      <section style={{
+        background:   'var(--navy)',
+        minHeight:    '60vh',
+        display:      'flex',
+        alignItems:   'center',
+        borderBottom: '3px solid var(--black)',
+      }}>
+        <div className="section-inner" style={{ maxWidth: 680 }}>
+          <span style={{
+            fontFamily:    'var(--font-display)',
+            fontSize:      13,
+            fontWeight:    600,
+            letterSpacing: '3px',
+            textTransform: 'uppercase',
+            color:         'var(--amber)',
+            display:       'block',
+            marginBottom:  20,
+          }}>
+            Join the Network
+          </span>
+          <h1 style={{
+            fontFamily:   'var(--font-display)',
+            fontWeight:   700,
+            fontSize:     'clamp(28px, 4vw, 48px)',
+            lineHeight:   1.08,
+            color:        'var(--white)',
+            marginBottom: 24,
+          }}>
+            Contribute to studies that matter.
+          </h1>
+          <p style={{
+            fontFamily:   'var(--font-body)',
+            fontSize:     17,
+            color:        'rgba(255,255,255,0.8)',
+            lineHeight:   1.5,
+            maxWidth:     480,
+            marginBottom: 40,
+          }}>
+            You&apos;re a research partner, not a test subject. Fair compensation. Pseudonymized identity.
           </p>
+          <Link href="/onboarding?role=participant" className="btn-primary">
+            Join the network →
+          </Link>
         </div>
       </section>
 
-      {/* ── How it works carousel ── */}
-      <StepsCarousel steps={STEPS} sectionLabel="HOW_IT_WORKS" />
-
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: '0 24px' }}>
-
-        {/* ── Your data ── */}
-        <section style={{ marginBottom: 80, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 64 }}>
-          <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 24 }}>
-            // YOUR_DATA
-          </p>
-          <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(18px, 2.5vw, 24px)', color: '#f8fafc', marginBottom: 24, lineHeight: 1.2 }}>
-            Your data. Your choice.
+      {/* ── How it works (white, 5 cards) ── */}
+      <section style={{ background: 'var(--white)', borderBottom: '3px solid var(--black)' }}>
+        <div className="section-inner">
+          <span className="section-label section-label-dark">How it works</span>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--black)', marginBottom: 48 }}>
+            Five steps to your first study.
           </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {DATA_POINTS.map((item) => (
-              <div key={item} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                <span style={{ ...MONO, fontSize: 11, color: 'rgba(245,158,11,0.4)', flexShrink: 0, marginTop: 2 }}>—</span>
-                <p style={{ ...MONO, fontSize: 12, color: '#94a3b8', lineHeight: 1.7, margin: 0 }}>{item}</p>
+
+          <div
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}
+            className="steps-grid"
+          >
+            {STEPS.map(step => (
+              <div key={step.num} className="brutalist-card" style={{ background: 'var(--off-white)' }}>
+                <span className="card-number-bg">{step.num}</span>
+                <div style={{ marginBottom: 16 }}>
+                  <BrutalistIcon name={step.icon} size={48} color="var(--black)" strokeWidth={2.5} />
+                </div>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color: 'var(--black)', marginBottom: 8 }}>
+                  {step.title}
+                </h3>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--gray)', margin: 0, lineHeight: 1.5 }}>
+                  {step.desc}
+                </p>
               </div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ── Bottom CTA ── */}
-        <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 48, paddingBottom: 80 }}>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center', marginBottom: 24 }}>
-            <Link href="/onboarding?role=participant" className="btn-primary" style={{ display: 'inline-flex' }}>
-              Join the network →
-            </Link>
+      {/* ── Data commitments (navy) ── */}
+      <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+        <div className="section-inner" style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto', padding: '80px 24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {DATA_COMMITMENTS.map(line => (
+              <p key={line} style={{
+                fontFamily: 'var(--font-body)',
+                fontSize:   20,
+                fontWeight: 500,
+                color:      'var(--white)',
+                margin:     0,
+                lineHeight: 1.4,
+              }}>
+                {line}
+              </p>
+            ))}
           </div>
-          <p style={{ ...MONO, fontSize: 11, color: '#475569', lineHeight: 1.7 }}>
-            Questions?{' '}
-            <a href="mailto:contact@biome.to" style={{ color: '#94a3b8', textDecoration: 'none' }}>contact@biome.to</a>
-          </p>
-        </section>
+        </div>
+      </section>
 
-      </div>
+      {/* ── CTA (amber) ── */}
+      <section style={{ background: 'var(--amber)', borderTop: '3px solid var(--black)', borderBottom: '3px solid var(--black)' }}>
+        <div className="section-inner" style={{ textAlign: 'center' }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--black)', marginBottom: 32 }}>
+            Ready to contribute?
+          </h2>
+          <Link href="/onboarding?role=participant" className="btn-black">
+            Create your profile →
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer style={{ background: 'var(--black)', borderTop: '3px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
+          <Link href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--white)', textDecoration: 'none' }}>
+            BIO<span style={{ color: 'var(--amber)' }}>ME</span>
+          </Link>
+          <nav style={{ display: 'flex', gap: 24 }}>
+            {[['Blog', '/blog'], ['Docs', '/docs'], ['Terms', '/legal/tos'], ['Privacy', '/privacy']].map(([l, h]) => (
+              <a key={h} href={h} className="footer-link">{l}</a>
+            ))}
+          </nav>
+        </div>
+      </footer>
+
+      <style>{`
+        @media (max-width: 900px) { .steps-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 640px) { .steps-grid { grid-template-columns: 1fr !important; } }
+      `}</style>
     </main>
   );
 }

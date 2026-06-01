@@ -1,171 +1,160 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { SiteHeader } from '@/components/nav/header';
 import Link from 'next/link';
 import { EstimateWizard } from '@/app/estimate/estimate-wizard';
-import { StepsCarousel, type CarouselStep } from '@/components/ui/steps-carousel';
+import { ScopeSection } from '@/components/home/scope-section';
+import { BrutalistIcon } from '@/components/icons/BrutalistIcon';
 
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
-
-const JOURNEY: CarouselStep[] = [
-  {
-    num: '01', label: 'DESIGN', scene: 'design',
-    headline: 'Study design\nto live in under 30 days.',
-    desc: [
-      'Protocol review → live study in < 30 days.',
-      'We handle the ops. You own the science.',
-      'Compliance-ready from day one.',
-    ],
-  },
-  {
-    num: '02', label: 'APPROVE', scene: 'approve',
-    headline: 'Compliance-ready.\nAudit bundle included.',
-    desc: [
-      'Infrastructure built around IRB requirements.',
-      'Consent capture, comms log, audit export.',
-      'No manual review cycle delays.',
-    ],
-  },
-  {
-    num: '03', label: 'RECRUIT', scene: 'recruit',
-    headline: 'Targeted cohort.\nVerified participants.',
-    desc: [
-      'Network of 1,000+ verified research partners.',
-      'Screened against your exact eligibility criteria.',
-      'Faster enrolment than passive ads.',
-    ],
-  },
-  {
-    num: '04', label: 'TRACK', scene: 'track',
-    headline: 'Live dashboard.\nDropouts flagged automatically.',
-    desc: [
-      'Real-time compliance monitoring.',
-      'Automated dropout alerts and reminders.',
-      'Weekly sponsor reports included.',
-    ],
-  },
-  {
-    num: '05', label: 'COLLECT', scene: 'collect',
-    headline: 'Samples shipped.\nTracked. Logged.',
-    desc: [
-      'Kits dispatched globally from partner labs.',
-      'Stool, saliva, blood spot, urine, wearable data.',
-      'Partner phlebotomy for blood draws.',
-    ],
-  },
-  {
-    num: '06', label: 'DELIVER', scene: 'deliver',
-    headline: 'Clean data out.\nFull audit bundle.',
-    desc: [
-      'Structured export with chain-of-custody log.',
-      'Consent records, comms log, payout summary.',
-      'Compliance bundle ready for sponsor archive.',
-    ],
-  },
-];
-
-const SCOPE_ROWS = [
-  { biome: 'Participant recruitment',             you: 'Study protocol'                      },
-  { biome: 'Eligibility screening',              you: 'Scientific design'                   },
-  { biome: 'Sample kit logistics',               you: 'Research questions'                  },
-  { biome: 'Milestone tracking & alerts',        you: 'Regulatory responsibility'           },
-  { biome: 'Compliance-gated payouts',           you: 'IRB submission (your institution)'   },
-  { biome: 'Structured data export',             you: 'Publication and IP'                  },
-  { biome: 'Audit bundle (consent, comms, log)', you: 'Sponsor relationship'                },
+const JOURNEY_CARDS = [
+  { num: '01', icon: 'design'   as const, title: 'Design',   desc: 'Protocol to live study in under 30 days.'        },
+  { num: '02', icon: 'approve'  as const, title: 'Approve',  desc: 'Compliance-ready infrastructure from day one.'   },
+  { num: '03', icon: 'recruit'  as const, title: 'Recruit',  desc: 'Verified cohort. Screened to your criteria.'     },
+  { num: '04', icon: 'track'    as const, title: 'Track',    desc: 'Real-time compliance. Automated alerts.'         },
+  { num: '05', icon: 'collect'  as const, title: 'Collect',  desc: 'Kits dispatched. Samples tracked to lab.'       },
+  { num: '06', icon: 'deliver'  as const, title: 'Deliver',  desc: 'Structured data. Full audit bundle.'             },
 ];
 
 export default function RunAStudyPage() {
   const estimateRef = useRef<HTMLDivElement>(null);
-
-  function scrollToEstimate() {
-    estimateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  const [hoverEstimate, setHoverEstimate] = useState(false);
+  const [hoverContact, setHoverContact] = useState(false);
 
   return (
-    <main style={{ minHeight: '100vh', background: '#060a14' }}>
+    <main style={{ minHeight: '100vh' }}>
       <SiteHeader />
 
-      {/* ── Hero ── */}
-      <section style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(48px, 8vw, 96px) 24px 48px' }}>
-        <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 20 }}>
-          // RUN_A_STUDY
-        </p>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(28px, 4vw, 44px)', lineHeight: 1.1, color: '#f8fafc', marginBottom: 16 }}>
-          Run your study.<br />Your protocol. Your pace.
-        </h1>
-        <p style={{ ...MONO, fontSize: 13, color: '#94a3b8', lineHeight: 1.9, marginBottom: 36, maxWidth: 560 }}>
-          Biome gives you the operational infrastructure to recruit, track, and manage a decentralised study
-          without outsourcing control.
-        </p>
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-          <button onClick={scrollToEstimate} className="btn-primary" style={{ display: 'inline-flex' }}>
-            Get an estimate →
-          </button>
-          <Link href="/contact" style={{ ...MONO, fontSize: 12, color: '#475569', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: 46 }}>
-            Contact us →
-          </Link>
+      {/* ── Hero (navy, ~60vh) ── */}
+      <section style={{
+        background:   'var(--navy)',
+        minHeight:    '60vh',
+        display:      'flex',
+        alignItems:   'center',
+        borderBottom: '3px solid var(--black)',
+      }}>
+        <div className="section-inner" style={{ maxWidth: 720 }}>
+          <span style={{
+            fontFamily:    'var(--font-display)',
+            fontSize:      13,
+            fontWeight:    600,
+            letterSpacing: '3px',
+            textTransform: 'uppercase',
+            color:         'var(--amber)',
+            display:       'block',
+            marginBottom:  20,
+          }}>
+            Run a Study
+          </span>
+          <h1 style={{
+            fontFamily:   'var(--font-display)',
+            fontWeight:   700,
+            fontSize:     'clamp(28px, 4vw, 48px)',
+            lineHeight:   1.08,
+            color:        'var(--white)',
+            marginBottom: 24,
+          }}>
+            Your protocol. Our operations.
+          </h1>
+          <p style={{
+            fontFamily:   'var(--font-body)',
+            fontSize:     17,
+            color:        'rgba(255,255,255,0.75)',
+            lineHeight:   1.5,
+            maxWidth:     520,
+            marginBottom: 40,
+          }}>
+            Recruit, track, and manage your study with infrastructure — not outsourcing.
+          </p>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            <button
+              className="btn-primary"
+              onClick={() => estimateRef.current?.scrollIntoView({ behavior: 'smooth' })}
+              onMouseEnter={() => setHoverEstimate(true)}
+              onMouseLeave={() => setHoverEstimate(false)}
+              style={{ transform: hoverEstimate ? 'translate(-2px,-2px)' : 'none', boxShadow: hoverEstimate ? '6px 6px 0 var(--black)' : '4px 4px 0 var(--black)' }}
+            >
+              Get an estimate →
+            </button>
+            <Link
+              href="/contact"
+              className="btn-secondary"
+              onMouseEnter={() => setHoverContact(true)}
+              onMouseLeave={() => setHoverContact(false)}
+            >
+              Contact us
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ── Journey carousel ── */}
-      <StepsCarousel steps={JOURNEY} sectionLabel="THE_JOURNEY" />
+      {/* ── Journey (white, 6 cards) ── */}
+      <section style={{ background: 'var(--white)', borderBottom: '3px solid var(--black)' }}>
+        <div className="section-inner">
+          <span className="section-label section-label-dark">Your study journey</span>
+          <h2 style={{
+            fontFamily:   'var(--font-display)',
+            fontSize:     'clamp(24px, 3vw, 36px)',
+            color:        'var(--black)',
+            marginBottom: 48,
+          }}>
+            Six phases. Handled end to end.
+          </h2>
 
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px' }}>
-
-        {/* ── Scope table ── */}
-        <section style={{ marginBottom: 80 }}>
-          <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 24 }}>
-            // SCOPE
-          </p>
-          <div style={{ border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, overflow: 'hidden' }}>
-            <div className="grid grid-cols-2">
-              <div style={{ padding: '10px 16px', background: 'rgba(245,158,11,0.04)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-                <p style={{ ...MONO, fontSize: 10, letterSpacing: '2px', color: '#f59e0b', textTransform: 'uppercase', margin: 0 }}>Biome handles</p>
-              </div>
-              <div style={{ padding: '10px 16px', borderLeft: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}>
-                <p style={{ ...MONO, fontSize: 10, letterSpacing: '2px', color: '#475569', textTransform: 'uppercase', margin: 0 }}>You keep</p>
-              </div>
-            </div>
-            {SCOPE_ROWS.map((row, i) => (
-              <div key={i} className="grid grid-cols-2" style={{ borderBottom: i < SCOPE_ROWS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
-                <div style={{ padding: '12px 16px', background: 'rgba(245,158,11,0.015)' }}>
-                  <p style={{ ...MONO, fontSize: 12, color: '#94a3b8', margin: 0 }}>{row.biome}</p>
+          <div
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}
+            className="journey-grid"
+          >
+            {JOURNEY_CARDS.map(card => (
+              <div key={card.num} className="brutalist-card" style={{ background: 'var(--off-white)' }}>
+                <span className="card-number-bg">{card.num}</span>
+                <div style={{ marginBottom: 16 }}>
+                  <BrutalistIcon name={card.icon} size={48} color="var(--black)" strokeWidth={2.5} />
                 </div>
-                <div style={{ padding: '12px 16px', borderLeft: '1px solid rgba(255,255,255,0.07)' }}>
-                  <p style={{ ...MONO, fontSize: 12, color: '#475569', margin: 0 }}>{row.you}</p>
-                </div>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color: 'var(--black)', marginBottom: 8 }}>
+                  {card.title}
+                </h3>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--gray)', margin: 0, lineHeight: 1.5 }}>
+                  {card.desc}
+                </p>
               </div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ── Estimator ── */}
-        <section ref={estimateRef} style={{ marginBottom: 80, scrollMarginTop: 80 }}>
-          <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 24 }}>
-            // ESTIMATE
-          </p>
+      {/* ── Scope ── */}
+      <ScopeSection />
+
+      {/* ── Estimator (navy) ── */}
+      <section ref={estimateRef} style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+        <div className="section-inner">
+          <span className="section-label">Cost estimator</span>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--white)', marginBottom: 40 }}>
+            Know your cost before you commit.
+          </h2>
           <EstimateWizard />
-        </section>
+        </div>
+      </section>
 
-        {/* ── Bottom CTA ── */}
-        <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 48, paddingBottom: 80 }}>
-          <p style={{ ...MONO, fontSize: 12, color: '#475569', lineHeight: 1.8, marginBottom: 24 }}>
-            Prefer a direct conversation? Reach us at{' '}
-            <a href="mailto:contact@biome.to" style={{ color: '#94a3b8', textDecoration: 'none' }}>contact@biome.to</a>
-            {' '}or use our contact form.
-          </p>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-            <button onClick={scrollToEstimate} className="btn-primary" style={{ display: 'inline-flex' }}>
-              Get an estimate →
-            </button>
-            <Link href="/contact" style={{ ...MONO, fontSize: 12, color: '#475569', textDecoration: 'none', display: 'flex', alignItems: 'center', minHeight: 46 }}>
-              Contact us →
-            </Link>
-          </div>
-        </section>
+      {/* Footer */}
+      <footer style={{ background: 'var(--black)', borderTop: '3px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
+          <Link href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--white)', textDecoration: 'none' }}>
+            BIO<span style={{ color: 'var(--amber)' }}>ME</span>
+          </Link>
+          <nav style={{ display: 'flex', gap: 24 }}>
+            {[['Blog', '/blog'], ['Docs', '/docs'], ['Terms', '/legal/tos'], ['Privacy', '/privacy']].map(([label, href]) => (
+              <a key={href} href={href} className="footer-link">{label}</a>
+            ))}
+          </nav>
+        </div>
+      </footer>
 
-      </div>
+      <style>{`
+        @media (max-width: 900px) { .journey-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+        @media (max-width: 640px) { .journey-grid { grid-template-columns: 1fr !important; } }
+      `}</style>
     </main>
   );
 }
