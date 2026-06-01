@@ -39,8 +39,9 @@ function OnboardingInner() {
 
   useEffect(() => {
     if (!ready || !authenticated || !user) return;
+    if (preselectedRole) return; // user has explicit role intent — don't override with existing profile
     void checkExistingProfile(user.id);
-  }, [ready, authenticated, user, checkExistingProfile]);
+  }, [ready, authenticated, user, preselectedRole, checkExistingProfile]);
 
   async function handleSubmit(role: 'participant' | 'experimenter') {
     if (!user) return;
