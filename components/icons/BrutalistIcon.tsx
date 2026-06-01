@@ -132,7 +132,7 @@ export function BrutalistIcon({ name, size = 64, color = 'currentColor', strokeW
         <svg {...props}>
           {/* Bell */}
           <path d="M32 8 Q44 8 44 24 L44 38 L50 44 L14 44 L20 38 L20 24 Q20 8 32 8" />
-          <arc cx="32" cy="44" r="6" />
+          <circle cx="32" cy="46" r="5" />
           <line x1="32" y1="44" x2="32" y2="52" />
           <line x1="26" y1="52" x2="38" y2="52" />
           {/* Notification dot */}
