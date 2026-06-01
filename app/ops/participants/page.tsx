@@ -1,52 +1,59 @@
-import { createServiceClient } from '@/lib/supabase/server';
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-export default async function OpsParticipants({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
-  const { filter } = await searchParams;
-  const db = createServiceClient();
+const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
 
-  // Query ALL profiles with role=participant, left-joining participant_profiles.
-  // This shows everyone who authenticated via Privy, even if onboarding is incomplete.
-  const { data: profileRows } = await db
-    .from('profiles')
-    .select('id, email, region, created_at')
-    .eq('role', 'participant')
-    .order('created_at', { ascending: false });
+interface User {
+  privy_id: string;
+  email: string | null;
+  created_at: string;
+  supabase_role: string | null;
+  supabase_region: string | null;
+  participant_id: string | null;
+  verification_status: string | null;
+  previous_study_count: number | null;
+  country: string | null;
+  in_supabase: boolean;
+  onboarded: boolean;
+}
 
-  const userIds = (profileRows ?? []).map(p => p.id as string);
+function verBadge(u: User) {
+  if (!u.in_supabase) return { label: 'NOT SYNCED', color: '#ff6464' };
+  if (!u.onboarded)   return { label: 'NO PROFILE', color: '#3a4a43' };
+  const s = u.verification_status;
+  if (s === 'fully_verified')  return { label: 'FULL',    color: '#b7ff61' };
+  if (s === 'phone_verified')  return { label: 'PHONE',   color: '#22d3ee' };
+  if (s === 'email_verified')  return { label: 'EMAIL',   color: '#ffb300' };
+  return { label: 'PENDING', color: '#5b5b3a' };
+}
 
-  // Fetch participant_profiles separately to avoid join column assumptions
-  const ppMap: Record<string, Record<string, unknown>> = {};
-  if (userIds.length > 0) {
-    const { data: ppRows } = await db
-      .from('participant_profiles')
-      .select('user_id, participant_id, pseudonym, country, email_verified, phone_verified, verification_status, previous_study_count, reliability_score, onboarding_step')
-      .in('user_id', userIds);
-    (ppRows ?? []).forEach((r: Record<string, unknown>) => {
-      ppMap[r.user_id as string] = r;
-    });
-  }
+export default function OpsParticipants() {
+  const [users,   setUsers]   = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error,   setError]   = useState<string | null>(null);
+  const [filter,  setFilter]  = useState<'all' | 'onboarded' | 'not_synced' | 'verified'>('all');
 
-  const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
+  useEffect(() => {
+    fetch('/api/ops/privy-users')
+      .then(r => r.json())
+      .then((d: { users?: User[]; error?: string }) => {
+        if (d.error) { setError(d.error); return; }
+        setUsers(d.users ?? []);
+      })
+      .catch(e => setError(String(e)))
+      .finally(() => setLoading(false));
+  }, []);
 
-  // Merge rows
-  let rows = (profileRows ?? []).map(p => ({
-    ...p,
-    ...(ppMap[p.id as string] ?? {}),
-  })) as Record<string, unknown>[];
+  const filtered = users.filter(u => {
+    if (filter === 'onboarded')  return u.onboarded;
+    if (filter === 'not_synced') return !u.in_supabase;
+    if (filter === 'verified')   return u.verification_status === 'fully_verified';
+    return true;
+  });
 
-  // Apply filters
-  if (filter === 'verified')  rows = rows.filter(r => r.verification_status === 'fully_verified');
-  if (filter === 'onboarding') rows = rows.filter(r => !ppMap[r.id as string]);
-
-  function verBadge(r: Record<string, unknown>) {
-    if (!ppMap[r.id as string]) return { label: 'NO PROFILE', color: '#3a4a43' };
-    const s = r.verification_status as string | undefined;
-    if (s === 'fully_verified')  return { label: 'FULL',    color: '#b7ff61' };
-    if (s === 'phone_verified')  return { label: 'PHONE',   color: '#22d3ee' };
-    if (s === 'email_verified')  return { label: 'EMAIL',   color: '#ffb300' };
-    return { label: 'PENDING', color: '#5b5b3a' };
-  }
+  const notSynced = users.filter(u => !u.in_supabase).length;
 
   return (
     <div>
@@ -57,9 +64,14 @@ export default async function OpsParticipants({ searchParams }: { searchParams: 
             // PARTICIPANTS
           </p>
           <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f2faf4', marginBottom: 4 }}>
-            Research Partners
+            All Users
           </h1>
-          <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a' }}>{rows.length} total · {Object.keys(ppMap).length} fully onboarded</p>
+          {!loading && (
+            <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a' }}>
+              {users.length} in Privy · {users.filter(u => u.onboarded).length} onboarded
+              {notSynced > 0 && <span style={{ color: '#ff6464' }}> · {notSynced} not synced to Supabase</span>}
+            </p>
+          )}
         </div>
         <Link href="/ops/notifications" style={{
           ...MONO, fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
@@ -73,78 +85,87 @@ export default async function OpsParticipants({ searchParams }: { searchParams: 
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
-        {[
-          { label: 'All',        href: '/ops/participants' },
-          { label: 'Verified',   href: '/ops/participants?filter=verified' },
-          { label: 'Incomplete', href: '/ops/participants?filter=onboarding' },
-        ].map(({ label, href }) => {
-          const key = label.toLowerCase();
-          const active = (!filter && label === 'All') || filter === key;
-          return (
-            <Link key={label} href={href} style={{
-              ...MONO, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
-              padding: '5px 14px',
-              border: `1px solid ${active ? '#ffb300' : 'rgba(255,255,255,0.08)'}`,
-              background: active ? 'rgba(255,179,0,0.06)' : 'transparent',
-              color: active ? '#ffb300' : '#5b8a9a',
-              borderRadius: 2, textDecoration: 'none',
-            }}>{label}</Link>
-          );
-        })}
+        {([
+          { key: 'all',        label: 'All' },
+          { key: 'onboarded',  label: 'Onboarded' },
+          { key: 'verified',   label: 'Verified' },
+          { key: 'not_synced', label: 'Not Synced' },
+        ] as const).map(({ key, label }) => (
+          <button key={key} onClick={() => setFilter(key)} style={{
+            ...MONO, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
+            padding: '5px 14px', cursor: 'pointer',
+            border: `1px solid ${filter === key ? '#ffb300' : 'rgba(255,255,255,0.08)'}`,
+            background: filter === key ? 'rgba(255,179,0,0.06)' : 'transparent',
+            color: filter === key ? '#ffb300' : '#5b8a9a',
+            borderRadius: 2,
+          }}>{label}</button>
+        ))}
       </div>
 
-      {/* Table */}
-      <div style={{ overflowX: 'auto', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 4 }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', ...MONO, fontSize: 11 }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}>
-              {['Email', 'Participant ID', 'Country', 'Status', 'Email ✓', 'Phone ✓', 'Studies', 'Score', 'Joined', 'Actions'].map(h => (
-                <th key={h} style={{ textAlign: 'left', padding: '10px 12px', color: '#5b8a9a', fontWeight: 400, letterSpacing: '1px', whiteSpace: 'nowrap', fontSize: 10 }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && (
-              <tr><td colSpan={10} style={{ padding: 32, color: '#5b8a9a', textAlign: 'center' }}>No participants found.</td></tr>
-            )}
-            {rows.map(p => {
-              const badge = verBadge(p);
-              const hasProfile = !!ppMap[p.id as string];
-              return (
-                <tr key={p.id as string} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', opacity: hasProfile ? 1 : 0.6 }}>
-                  <td style={{ padding: '10px 12px', color: '#f2faf4', fontSize: 11 }}>{(p.email as string | null) ?? '—'}</td>
-                  <td style={{ padding: '10px 12px', color: '#5b8a9a', whiteSpace: 'nowrap', fontSize: 10 }}>
-                    {(p.participant_id as string | null) ?? <span style={{ color: '#3a4a43' }}>not set</span>}
-                  </td>
-                  <td style={{ padding: '10px 12px', color: '#aab8b1', whiteSpace: 'nowrap' }}>
-                    {(p.country as string | null) ?? (p.region as string | null) ?? '—'}
-                  </td>
-                  <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
-                    <span style={{ fontSize: 9, letterSpacing: '1px', padding: '2px 8px', border: `1px solid ${badge.color}44`, color: badge.color, borderRadius: 2 }}>
-                      {badge.label}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px 12px', color: p.email_verified ? '#b7ff61' : '#3a4a43' }}>{p.email_verified ? '✓' : '—'}</td>
-                  <td style={{ padding: '10px 12px', color: p.phone_verified ? '#22d3ee' : '#3a4a43' }}>{p.phone_verified ? '✓' : '—'}</td>
-                  <td style={{ padding: '10px 12px', color: '#aab8b1' }}>{(p.previous_study_count as number | null) ?? '—'}</td>
-                  <td style={{ padding: '10px 12px', color: '#b7ff61' }}>
-                    {p.reliability_score != null ? (p.reliability_score as number).toFixed(2) : '—'}
-                  </td>
-                  <td style={{ padding: '10px 12px', color: '#5b8a9a', whiteSpace: 'nowrap', fontSize: 10 }}>
-                    {new Date(p.created_at as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' })}
-                  </td>
-                  <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
-                    <Link href={`/ops/notifications?to=${encodeURIComponent((p.participant_id as string) ?? (p.id as string))}`}
-                      style={{ ...MONO, fontSize: 10, color: '#5b8a9a', textDecoration: 'none' }}>
-                      Notify
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      {loading && (
+        <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', padding: '32px 0' }}>// Loading from Privy...</p>
+      )}
+
+      {error && (
+        <div style={{ ...MONO, fontSize: 11, color: '#ff6464', background: 'rgba(255,100,100,0.06)', border: '1px solid rgba(255,100,100,0.2)', padding: '16px', borderRadius: 2, marginBottom: 24 }}>
+          <p style={{ fontWeight: 700, marginBottom: 4 }}>Failed to load Privy users</p>
+          <p style={{ color: '#aab8b1' }}>{error}</p>
+          <p style={{ marginTop: 8, color: '#5b8a9a' }}>
+            Make sure <code>PRIVY_APP_SECRET</code> is set in your environment variables (Netlify → Site config → Environment variables).
+          </p>
+        </div>
+      )}
+
+      {!loading && !error && (
+        <div style={{ overflowX: 'auto', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 4 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', ...MONO, fontSize: 11 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}>
+                {['Email', 'Participant ID', 'Status', 'Role', 'Country', 'Studies', 'Joined', 'Actions'].map(h => (
+                  <th key={h} style={{ textAlign: 'left', padding: '10px 12px', color: '#5b8a9a', fontWeight: 400, letterSpacing: '1px', whiteSpace: 'nowrap', fontSize: 10 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 && (
+                <tr><td colSpan={8} style={{ padding: 32, color: '#5b8a9a', textAlign: 'center' }}>No users found.</td></tr>
+              )}
+              {filtered.map(u => {
+                const badge = verBadge(u);
+                return (
+                  <tr key={u.privy_id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', opacity: u.in_supabase ? 1 : 0.5 }}>
+                    <td style={{ padding: '10px 12px', color: '#f2faf4' }}>{u.email ?? <span style={{ color: '#3a4a43' }}>—</span>}</td>
+                    <td style={{ padding: '10px 12px', color: '#5b8a9a', whiteSpace: 'nowrap', fontSize: 10 }}>
+                      {u.participant_id ?? <span style={{ color: '#3a4a43' }}>—</span>}
+                    </td>
+                    <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 9, letterSpacing: '1px', padding: '2px 8px', border: `1px solid ${badge.color}44`, color: badge.color, borderRadius: 2 }}>
+                        {badge.label}
+                      </span>
+                    </td>
+                    <td style={{ padding: '10px 12px', color: '#aab8b1' }}>{u.supabase_role ?? '—'}</td>
+                    <td style={{ padding: '10px 12px', color: '#aab8b1', whiteSpace: 'nowrap' }}>
+                      {u.country ?? u.supabase_region ?? '—'}
+                    </td>
+                    <td style={{ padding: '10px 12px', color: '#aab8b1' }}>{u.previous_study_count ?? '—'}</td>
+                    <td style={{ padding: '10px 12px', color: '#5b8a9a', whiteSpace: 'nowrap', fontSize: 10 }}>
+                      {new Date(u.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' })}
+                    </td>
+                    <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
+                      {u.participant_id && (
+                        <Link href={`/ops/notifications?to=${encodeURIComponent(u.participant_id)}`}
+                          style={{ ...MONO, fontSize: 10, color: '#5b8a9a', textDecoration: 'none' }}>
+                          Notify
+                        </Link>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
