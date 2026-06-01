@@ -1,165 +1,312 @@
 @import "tailwindcss";
 
-/* ─── BIOME Design Tokens ──────────────────────────────────── */
-@theme {
-  --color-bg:           #060a14;
-  --color-bg2:          #0c1220;
-  --color-bg3:          #111e32;
-  --color-amber:        #f59e0b;
-  --color-amber-dim:    #b45309;
-  --color-sky:          #38bdf8;
-  --color-red:          #f87171;
-  --color-text:         #94a3b8;
-  --color-text-dim:     #475569;
-  --color-text-bright:  #e2e8f0;
-  --color-text-white:   #f8fafc;
+/* ─── BRUTALIST DESIGN SYSTEM ──────────────────────────────── */
 
-  --font-heading: 'Space Grotesk', sans-serif;
-  --font-body:    'IBM Plex Sans', sans-serif;
-  --font-mono:    'IBM Plex Mono', monospace;
-}
-
-/* ─── CSS Variables ────────────────────────────────────────── */
 :root {
-  --bg:           #060a14;
-  --bg2:          #0c1220;
-  --bg3:          #111e32;
-  --amber:        #f59e0b;
-  --amber-dim:    #b45309;
-  --sky:          #38bdf8;
-  --red:          #f87171;
-  --text:         #94a3b8;
-  --text-dim:     #475569;
-  --text-bright:  #e2e8f0;
-  --text-white:   #f8fafc;
-  --line:         rgba(248,250,252,0.06);
+  /* Core palette */
+  --navy:          #0f1a2e;
+  --navy-deep:     #060d1a;
+  --amber:         #f59e0b;
+  --amber-bright:  #fbbf24;
+  --white:         #ffffff;
+  --off-white:     #f1f5f9;
+  --black:         #000000;
+  --gray:          #64748b;
 
-  /* Legacy aliases — kept so existing components don't break */
+  /* Structural */
+  --border:        #000000;
+  --shadow:        #000000;
+  --shadow-amber:  #b45309;
+
+  /* Section backgrounds */
+  --bg-navy:    #0f1a2e;
+  --bg-white:   #ffffff;
+  --bg-amber:   #f59e0b;
+  --bg-black:   #000000;
+  --bg-offwhite: #f1f5f9;
+
+  /* Fonts */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'IBM Plex Mono', monospace; /* forms only */
+
+  /* Legacy aliases — prevent broken var() refs in non-rebuilt pages */
+  --bg:           #0f1a2e;
+  --bg2:          #0f1a2e;
+  --bg3:          #1a2942;
   --green:        #f59e0b;
   --green-dim:    #b45309;
   --cyan:         #38bdf8;
-  --bg2-legacy:   #0c1220;
+  --text:         #94a3b8;
+  --text-dim:     rgba(255,255,255,0.6);
+  --text-bright:  #f1f5f9;
+  --text-white:   #ffffff;
+  --line:         rgba(255,255,255,0.1);
+  --font-heading: 'Space Grotesk', sans-serif;
 }
 
-/* ─── Base ─────────────────────────────────────────────────── */
+/* ─── RESET ─────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin:     0;
+  padding:    0;
+}
+
 html {
-  background-color: var(--bg);
-  color: var(--text);
+  background: var(--navy);
+  color: var(--white);
+  scroll-behavior: smooth;
 }
 
 body {
-  min-height: 100vh;
+  font-family:    var(--font-body);
+  font-size:      16px;
+  line-height:    1.5;
+  min-height:     100vh;
+  background:     var(--navy);
+  overflow-x:     hidden;
+}
+
+main, header, footer, #app-root {
   position: relative;
-  overflow-x: hidden;
-  font-family: var(--font-body);
-  background-color: var(--bg);
+  z-index:  2;
 }
 
-/* ─── Subtle dot grid ──────────────────────────────────────── */
-body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 0;
-  pointer-events: none;
-  background-image: radial-gradient(rgba(248,250,252,0.04) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-
-/* ─── Content sits above grid ──────────────────────────────── */
-main, header, footer, #app-root { position: relative; z-index: 2; }
-
-/* ─── Typography ───────────────────────────────────────────── */
+/* ─── TYPOGRAPHY ────────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  color: var(--text-white);
+  font-family:  var(--font-display);
+  font-weight:  700;
+  line-height:  1.1;
+  color:        inherit;
 }
 
-p { color: var(--text); }
-
-/* ─── Links ────────────────────────────────────────────────── */
-a { color: var(--amber); }
-
-/* ─── Mono util ────────────────────────────────────────────── */
-.mono {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
+p {
+  font-family: var(--font-body);
+  font-size:   16px;
+  line-height: 1.6;
 }
 
-/* ─── Buttons ──────────────────────────────────────────────── */
-.btn-primary {
-  display:        inline-flex;
-  align-items:    center;
-  justify-content: center;
-  font-family:    var(--font-mono);
-  font-size:      11px;
+/* ─── SECTION BACKGROUNDS ───────────────────────────────────── */
+.section-navy   { background: var(--navy);    color: var(--white);   }
+.section-white  { background: var(--white);   color: var(--black);   }
+.section-amber  { background: var(--amber);   color: var(--black);   }
+.section-black  { background: var(--black);   color: var(--white);   }
+.section-offwhite { background: var(--off-white); color: var(--black); }
+
+/* ─── SECTION LAYOUT ────────────────────────────────────────── */
+.section-inner {
+  max-width:  1200px;
+  margin:     0 auto;
+  padding:    80px 24px;
+}
+
+@media (max-width: 768px) {
+  .section-inner { padding: 48px 20px; }
+}
+
+/* ─── SECTION LABEL ─────────────────────────────────────────── */
+.section-label {
+  font-family:    var(--font-display);
+  font-size:      13px;
   font-weight:    600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color:          #060a14;
-  background:     var(--amber);
-  border:         2px solid var(--amber);
-  padding:        0 20px;
-  min-height:     44px;
-  text-decoration: none;
-  cursor:         pointer;
-  transition:     opacity 150ms ease;
-  border-radius:  0;
-}
-.btn-primary:hover { opacity: 0.85; }
-
-.footer-link {
-  font-family:    var(--font-mono);
-  font-size:      10px;
-  color:          #475569;
-  text-decoration: none;
-  transition:     color 150ms ease;
-}
-.footer-link:hover { color: #94a3b8; }
-
-.link-hover-underline { text-decoration: none; }
-.link-hover-underline:hover { text-decoration: underline; }
-
-.btn-ghost {
-  display:        inline-flex;
-  align-items:    center;
-  justify-content: center;
-  font-family:    var(--font-mono);
-  font-size:      11px;
-  font-weight:    600;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   text-transform: uppercase;
   color:          var(--amber);
-  background:     transparent;
-  border:         2px solid rgba(245,158,11,0.35);
-  padding:        0 20px;
-  min-height:     44px;
-  text-decoration: none;
-  cursor:         pointer;
-  transition:     border-color 150ms ease, color 150ms ease;
-  border-radius:  0;
+  margin-bottom:  16px;
+  display:        block;
 }
-.btn-ghost:hover {
+
+.section-label-dark {
+  color: var(--black);
+}
+
+/* ─── BRUTALIST CARD ────────────────────────────────────────── */
+.brutalist-card {
+  background:    var(--white);
+  border:        3px solid var(--black);
+  box-shadow:    5px 5px 0 var(--black);
+  border-radius: 0;
+  padding:       32px;
+  position:      relative;
+  overflow:      hidden;
+}
+
+.brutalist-card-navy {
+  background:    var(--navy);
+  border:        3px solid rgba(255,255,255,0.3);
+  box-shadow:    5px 5px 0 rgba(255,255,255,0.1);
+  border-radius: 0;
+  padding:       32px;
+  position:      relative;
+  overflow:      hidden;
+}
+
+/* ─── BUTTONS ───────────────────────────────────────────────── */
+.btn-primary {
+  display:          inline-flex;
+  align-items:      center;
+  justify-content:  center;
+  font-family:      var(--font-display);
+  font-size:        14px;
+  font-weight:      700;
+  letter-spacing:   1.5px;
+  text-transform:   uppercase;
+  color:            var(--black);
+  background:       var(--amber);
+  border:           3px solid var(--black);
+  box-shadow:       4px 4px 0 var(--black);
+  border-radius:    0;
+  min-height:       52px;
+  padding:          14px 28px;
+  text-decoration:  none;
+  cursor:           pointer;
+  transition:       transform 100ms ease, box-shadow 100ms ease;
+  white-space:      nowrap;
+}
+
+.btn-primary:hover {
+  transform:  translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
+}
+
+.btn-secondary {
+  display:          inline-flex;
+  align-items:      center;
+  justify-content:  center;
+  font-family:      var(--font-display);
+  font-size:        14px;
+  font-weight:      700;
+  letter-spacing:   1.5px;
+  text-transform:   uppercase;
+  color:            var(--white);
+  background:       transparent;
+  border:           3px solid rgba(255,255,255,0.5);
+  box-shadow:       none;
+  border-radius:    0;
+  min-height:       52px;
+  padding:          14px 28px;
+  text-decoration:  none;
+  cursor:           pointer;
+  transition:       border-color 150ms ease, color 150ms ease;
+  white-space:      nowrap;
+}
+
+.btn-secondary:hover {
   border-color: var(--amber);
+  color:        var(--amber);
 }
 
-/* ─── Hover amber ──────────────────────────────────────────── */
-.hover-green {
-  color: var(--text-dim);
+.btn-black {
+  display:          inline-flex;
+  align-items:      center;
+  justify-content:  center;
+  font-family:      var(--font-display);
+  font-size:        14px;
+  font-weight:      700;
+  letter-spacing:   1.5px;
+  text-transform:   uppercase;
+  color:            var(--amber);
+  background:       var(--black);
+  border:           3px solid var(--black);
+  box-shadow:       4px 4px 0 rgba(0,0,0,0.3);
+  border-radius:    0;
+  min-height:       52px;
+  padding:          14px 28px;
+  text-decoration:  none;
+  cursor:           pointer;
+  transition:       transform 100ms ease, box-shadow 100ms ease;
+  white-space:      nowrap;
+}
+
+.btn-black:hover {
+  transform:  translate(-2px, -2px);
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.3);
+}
+
+/* ─── FORM INPUTS ───────────────────────────────────────────── */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+select,
+textarea {
+  font-family:   var(--font-body);
+  font-size:     16px;
+  color:         var(--black);
+  background:    var(--white);
+  border:        3px solid var(--black);
+  border-radius: 0;
+  padding:       14px 16px;
+  width:         100%;
+  outline:       none;
+  transition:    box-shadow 100ms ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 4px 4px 0 var(--amber);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--gray);
+}
+
+/* ─── THICK DIVIDERS ────────────────────────────────────────── */
+.divider {
+  height:     4px;
+  background: var(--black);
+  width:      100%;
+}
+
+.divider-amber {
+  height:     4px;
+  background: var(--amber);
+  width:      100%;
+}
+
+/* ─── LINKS ─────────────────────────────────────────────────── */
+a { color: inherit; text-decoration: none; }
+
+/* ─── LEGACY UTILITY CLASSES ────────────────────────────────── */
+.mono {
+  font-family:    var(--font-mono);
+  font-size:      12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* keep old btn-ghost pointing to btn-secondary behavior */
+.btn-ghost { composes: btn-secondary; }
+
+.footer-link {
+  font-family:  var(--font-body);
+  font-size:    14px;
+  color:        var(--gray);
   text-decoration: none;
-  transition: color 150ms ease;
+  transition:   color 150ms ease;
 }
-.hover-green:hover { color: var(--amber); }
+.footer-link:hover { color: var(--amber); }
 
-/* ─── Blink animation ──────────────────────────────────────── */
+.biome-card {
+  background: var(--navy);
+  border:     1px solid rgba(255,255,255,0.1);
+}
+.biome-card:hover {
+  border-color: rgba(245,158,11,0.3);
+}
+
+/* ─── ANIMATIONS (only essential) ──────────────────────────── */
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0; }
 }
 .blink { animation: blink 1.2s step-end infinite; }
 
-/* ─── Ticker ───────────────────────────────────────────────── */
 @keyframes ticker-scroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
@@ -170,33 +317,24 @@ a { color: var(--amber); }
   animation:  ticker-scroll 40s linear infinite;
 }
 
-/* ─── Fade-in on scroll ────────────────────────────────────── */
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.fade-up { animation: fade-up 0.5s ease forwards; }
-
-/* ─── Form inputs ──────────────────────────────────────────── */
-input, select, textarea {
-  font-family: var(--font-mono);
-  background:  var(--bg2);
-  color:       var(--text-white);
-  border:      1px solid rgba(248,250,252,0.09);
-  outline:     none;
-  border-radius: 0;
-}
-input:focus, select:focus, textarea:focus {
-  border-color: rgba(245,158,11,0.45);
-  box-shadow:   0 0 0 2px rgba(245,158,11,0.06);
+/* ─── CARD NUMBER WATERMARK ─────────────────────────────────── */
+.card-number-bg {
+  position:      absolute;
+  top:           -8px;
+  right:         16px;
+  font-family:   var(--font-display);
+  font-weight:   700;
+  font-size:     80px;
+  line-height:   1;
+  color:         var(--amber);
+  opacity:       0.15;
+  pointer-events: none;
+  user-select:   none;
 }
 
-/* ─── Biome card ───────────────────────────────────────────── */
-.biome-card {
-  background:   var(--bg2);
-  border:       1px solid rgba(248,250,252,0.07);
-  transition:   border-color 150ms ease;
-}
-.biome-card:hover {
-  border-color: rgba(245,158,11,0.3);
+/* ─── AMBER SECTION SEPARATOR ───────────────────────────────── */
+.amber-bar {
+  background:  var(--amber);
+  border-top:  3px solid var(--black);
+  border-bottom: 3px solid var(--black);
 }

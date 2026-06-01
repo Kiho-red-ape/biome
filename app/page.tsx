@@ -1,11 +1,12 @@
 import { createAnonClient } from '@/lib/supabase/anon';
 import { SiteHeader } from '@/components/nav/header';
 import { HomeHero } from '@/components/home/hero';
+import { StatsBar } from '@/components/home/stats-bar';
 import { HowItWorks } from '@/components/home/how-it-works';
-import { Geography } from '@/components/home/geography';
+import { ScopeSection } from '@/components/home/scope-section';
+import { EstimateCta } from '@/components/home/estimate-cta';
 import { TrackRecord } from '@/components/home/track-record';
 import { BlogPreview } from '@/components/home/blog-preview';
-import { EstimateCta } from '@/components/home/estimate-cta';
 import { PartnersStrip } from '@/components/home/partners-strip';
 import { ClosingCta } from '@/components/home/closing-cta';
 
@@ -18,7 +19,6 @@ interface Partner {
 export default async function HomePage() {
   const supabase = createAnonClient();
 
-  // Only fetch approved homepage partners — table may not exist yet on first deploy
   let partners: Partner[] = [];
   try {
     const { data } = await supabase
@@ -34,75 +34,39 @@ export default async function HomePage() {
   return (
     <main style={{ minHeight: '100vh' }}>
       <SiteHeader />
-
       <HomeHero />
+      <StatsBar />
       <HowItWorks />
-      <Geography />
+      <ScopeSection />
+      <EstimateCta />
       <TrackRecord />
       <BlogPreview />
-      <EstimateCta />
       {partners.length > 0 && <PartnersStrip partners={partners} />}
       <ClosingCta />
 
-      <footer
-        style={{
-          borderTop:     '1px solid rgba(248,250,252,0.06)',
-          paddingTop:    48,
-          paddingBottom: 48,
-        }}
-        className="px-4 sm:px-6 lg:px-10"
-      >
+      {/* Footer */}
+      <footer style={{ background: 'var(--black)', borderTop: '3px solid rgba(255,255,255,0.1)' }}>
         <div style={{
-          maxWidth:      900,
-          margin:        '0 auto',
-          display:       'flex',
-          flexDirection: 'column',
-          gap:           20,
-          alignItems:    'center',
-          textAlign:     'center',
+          maxWidth:       1200,
+          margin:         '0 auto',
+          padding:        '40px 24px',
+          display:        'flex',
+          alignItems:     'center',
+          justifyContent: 'space-between',
+          flexWrap:       'wrap',
+          gap:            20,
         }}>
-          {/* Logo */}
-          <span style={{
-            fontFamily:    'var(--font-heading)',
-            fontWeight:    700,
-            fontSize:      18,
-            letterSpacing: '3px',
-            textTransform: 'uppercase',
-            color:         '#f8fafc',
-          }}>
-            BIO<span style={{ color: '#f59e0b' }}>ME</span>
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--white)' }}>
+            BIO<span style={{ color: 'var(--amber)' }}>ME</span>
           </span>
-
-          {/* Entity */}
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#334155', letterSpacing: '0.5px', margin: 0 }}>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--gray)' }}>
             Biome Inc
-          </p>
-
-          {/* Links */}
-          <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center' }}>
-            {[
-              ['Blog',    '/blog'],
-              ['Docs',    '/docs'],
-              ['Terms',   '/legal/tos'],
-              ['Privacy', '/privacy'],
-            ].map(([label, href]) => (
-              <a key={href} href={href} className="footer-link">
-                {label}
-              </a>
+          </span>
+          <nav style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+            {[['Blog', '/blog'], ['Docs', '/docs'], ['Terms', '/legal/tos'], ['Privacy', '/privacy']].map(([label, href]) => (
+              <a key={href} href={href} className="footer-link">{label}</a>
             ))}
-          </div>
-
-          {/* Vision line */}
-          <p style={{
-            fontFamily:  'var(--font-body)',
-            fontSize:    13,
-            color:       '#334155',
-            lineHeight:  1.6,
-            margin:      0,
-            maxWidth:    500,
-          }}>
-            Building the operations layer for the next generation of human studies.
-          </p>
+          </nav>
         </div>
       </footer>
     </main>

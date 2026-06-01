@@ -1,90 +1,111 @@
 const BIOME_HANDLES = [
-  'Participant recruitment',
+  'Recruitment',
   'Eligibility screening',
-  'Informed consent capture',
-  'Sample collection logistics',
+  'Consent capture',
+  'Sample logistics',
   'Compliance tracking',
-  'Participant payouts',
-  'Data export + audit trail',
+  'Payouts',
+  'Data export',
 ];
 
-const STAYS_WITH_YOU = [
-  'Protocol design',
-  'IRB / ethics submission',
-  'Regulatory filings',
+const YOU_KEEP = [
+  'Protocol',
+  'IRB / ethics',
   'Medical oversight',
-  'Biostatistics',
-  'Clinical study report',
-  'Lab assay execution',
+  'Analysis',
+  'Regulatory',
+  'Publication',
 ];
 
 export function ScopeSection() {
   return (
-    <section
-      style={{ paddingTop: 96, paddingBottom: 96, maxWidth: 900, margin: '0 auto' }}
-      className="px-4 sm:px-6 lg:px-10"
-    >
-      <p style={{
-        fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px',
-        color: '#f59e0b', textTransform: 'uppercase', marginBottom: 40,
-      }}>
-        // SCOPE
-      </p>
+    <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+      <div className="section-inner">
+        <h2 style={{
+          fontFamily:   'var(--font-display)',
+          fontSize:     'clamp(26px, 3vw, 40px)',
+          color:        'var(--white)',
+          marginBottom: 48,
+          lineHeight:   1.1,
+        }}>
+          What we handle.<br />
+          <span style={{ color: 'var(--amber)' }}>What you keep.</span>
+        </h2>
 
-      <div
-        style={{
-          background:   'rgba(255,255,255,0.015)',
-          border:       '1px solid rgba(255,255,255,0.06)',
-          padding:      'clamp(24px, 4vw, 40px)',
-          borderRadius: 2,
-        }}
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 40 }}>
-          {/* Left — what Biome handles */}
+        <div
+          style={{
+            display:             'grid',
+            gridTemplateColumns: '1fr 4px 1fr',
+            gap:                 40,
+            alignItems:          'start',
+          }}
+          className="scope-grid"
+        >
+          {/* Left — Biome handles */}
           <div>
             <p style={{
-              fontFamily:    'var(--font-mono)',
-              fontSize:      11,
+              fontFamily:    'var(--font-display)',
+              fontSize:      13,
+              fontWeight:    600,
               letterSpacing: '2px',
-              color:         '#f59e0b',
               textTransform: 'uppercase',
-              marginBottom:  20,
+              color:         'var(--amber)',
+              marginBottom:  24,
             }}>
-              What Biome handles
+              Biome handles
             </p>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {BIOME_HANDLES.map((item) => (
-                <li key={item} style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-                  <span style={{ color: '#f59e0b', fontFamily: 'var(--font-mono)', fontSize: 11, flexShrink: 0 }}>✓</span>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#94a3b8' }}>{item}</span>
-                </li>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {BIOME_HANDLES.map(item => (
+                <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ color: 'var(--amber)', fontWeight: 700, fontSize: 18, flexShrink: 0 }}>✓</span>
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 17, fontWeight: 500, color: 'var(--white)' }}>
+                    {item}
+                  </span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
-          {/* Right — stays with you */}
+          {/* Amber divider */}
+          <div style={{ background: 'var(--amber)', width: 4, alignSelf: 'stretch', minHeight: 200 }} className="scope-divider" />
+
+          {/* Right — You keep */}
           <div>
             <p style={{
-              fontFamily:    'var(--font-mono)',
-              fontSize:      11,
+              fontFamily:    'var(--font-display)',
+              fontSize:      13,
+              fontWeight:    600,
               letterSpacing: '2px',
-              color:         '#94a3b8',
               textTransform: 'uppercase',
-              marginBottom:  20,
+              color:         'rgba(255,255,255,0.5)',
+              marginBottom:  24,
             }}>
-              What stays with you
+              You keep
             </p>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {STAYS_WITH_YOU.map((item) => (
-                <li key={item} style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-                  <span style={{ color: '#475569', fontFamily: 'var(--font-mono)', fontSize: 11, flexShrink: 0 }}>—</span>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#475569' }}>{item}</span>
-                </li>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {YOU_KEEP.map(item => (
+                <span key={item} style={{ fontFamily: 'var(--font-body)', fontSize: 17, color: 'rgba(255,255,255,0.55)' }}>
+                  {item}
+                </span>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .scope-grid {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+          .scope-divider {
+            width: 100% !important;
+            min-height: 4px !important;
+            height: 4px !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

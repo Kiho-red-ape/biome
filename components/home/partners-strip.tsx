@@ -11,29 +11,21 @@ interface Partner {
 
 function PartnerLogo({ partner }: { partner: Partner }) {
   const [hover, setHover] = useState(false);
-
   return (
     <div
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        width:      80,
-        height:     80,
-        display:    'flex',
+        width:   90,
+        height:  90,
+        display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        filter:     hover ? 'grayscale(0) opacity(1)' : 'grayscale(1) opacity(0.4)',
+        filter:  hover ? 'grayscale(0) opacity(1)' : 'grayscale(1) opacity(0.5)',
         transition: 'filter 200ms ease',
-        flexShrink: 0,
       }}
     >
-      <Image
-        src={partner.logo_url}
-        alt={partner.name}
-        width={80}
-        height={80}
-        style={{ objectFit: 'contain', maxWidth: 80, maxHeight: 80 }}
-      />
+      <Image src={partner.logo_url} alt={partner.name} width={90} height={90} style={{ objectFit: 'contain' }} />
     </div>
   );
 }
@@ -42,44 +34,35 @@ export function PartnersStrip({ partners }: { partners: Partner[] }) {
   if (partners.length === 0) return null;
 
   return (
-    <section
-      style={{ paddingTop: 0, paddingBottom: 96, maxWidth: 900, margin: '0 auto' }}
-      className="px-4 sm:px-6 lg:px-10"
-    >
-      <p style={{
-        fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px',
-        color: '#f59e0b', textTransform: 'uppercase', marginBottom: 40,
-        textAlign: 'center',
-      }}>
-        Partners
-      </p>
-
-      <div style={{
-        display:        'flex',
-        flexWrap:       'wrap',
-        justifyContent: 'center',
-        gap:            32,
-        marginBottom:   24,
-      }}>
-        {partners.map((p) => (
-          <PartnerLogo key={p.id} partner={p} />
-        ))}
-      </div>
-
-      <p style={{ textAlign: 'center' }}>
+    <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+      <div className="section-inner" style={{ textAlign: 'center' }}>
+        <span className="section-label" style={{ marginBottom: 40, display: 'block' }}>Partners</span>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 40, marginBottom: 32 }}>
+          {partners.map(p => <PartnerLogo key={p.id} partner={p} />)}
+        </div>
         <a
           href="/partners/join"
           style={{
-            fontFamily: 'var(--font-mono)', fontSize: 11,
-            color: '#475569', textDecoration: 'none',
-            transition: 'color 150ms ease',
+            fontFamily:  'var(--font-display)',
+            fontSize:    14,
+            fontWeight:  600,
+            color:       'rgba(255,255,255,0.6)',
+            borderBottom: '2px solid rgba(255,255,255,0.3)',
+            paddingBottom: 2,
+            transition:  'color 150ms, border-color 150ms',
           }}
-          onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.color = '#f59e0b'; }}
-          onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.color = '#475569'; }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLAnchorElement).style.color = 'var(--amber)';
+            (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--amber)';
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.6)';
+            (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.3)';
+          }}
         >
-          Interested in partnering? Learn more →
+          Interested in partnering? →
         </a>
-      </p>
+      </div>
     </section>
   );
 }
