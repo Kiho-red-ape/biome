@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
+import { SiteHeader } from '@/components/nav/header';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -25,70 +26,132 @@ const WEARABLES    = ['Apple Watch', 'Fitbit', 'Garmin', 'Oura Ring', 'Whoop', '
 const SAMPLE_TYPES = ['Blood draw', 'Saliva', 'Urine', 'Stool', 'Skin swab', 'Hair', 'None'];
 const LANGUAGES    = ['English', 'Spanish', 'French', 'German', 'Mandarin', 'Japanese', 'Portuguese', 'Hindi', 'Arabic'];
 
-function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+// ─── Brutalist helpers ────────────────────────────────────────────────────────
+
+function CardLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="flex items-center justify-between cursor-pointer">
-      <span className="text-sm" style={{ color: 'var(--text-bright)' }}>{label}</span>
-      <div
-        onClick={() => onChange(!checked)}
-        className="relative rounded-full transition-all"
-        style={{
-          width:      40,
-          height:     22,
-          background: checked ? 'var(--green)' : 'rgba(77,255,128,0.12)',
-          border:     `1px solid ${checked ? 'var(--green)' : 'rgba(77,255,128,0.2)'}`,
-          cursor:     'pointer',
-          flexShrink: 0,
-        }}
-      >
-        <div
-          className="absolute top-0.5 rounded-full transition-all"
-          style={{
-            width:      16,
-            height:     16,
-            background: checked ? '#050709' : 'rgba(77,255,128,0.4)',
-            left:       checked ? 20 : 2,
-          }}
-        />
-      </div>
-    </label>
+    <p style={{
+      fontFamily:    'var(--font-display)',
+      fontSize:      10,
+      fontWeight:    600,
+      letterSpacing: '2.5px',
+      textTransform: 'uppercase',
+      color:         'var(--gray)',
+      marginBottom:  20,
+    }}>
+      {children}
+    </p>
   );
 }
 
-function CheckGroup({
-  label,
+function FieldLabel({ children, hint }: { children: React.ReactNode; hint?: string }) {
+  return (
+    <p style={{
+      fontFamily:    'var(--font-display)',
+      fontSize:      10,
+      fontWeight:    600,
+      letterSpacing: '1.5px',
+      textTransform: 'uppercase',
+      color:         'var(--black)',
+      marginBottom:  10,
+    }}>
+      {children}
+      {hint && (
+        <span style={{ fontFamily: 'var(--font-body)', fontWeight: 400, fontSize: 10, letterSpacing: 0, textTransform: 'none', color: 'var(--gray)', marginLeft: 8 }}>
+          {hint}
+        </span>
+      )}
+    </p>
+  );
+}
+
+function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+      <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--black)', lineHeight: 1.4 }}>
+        {label}
+      </span>
+      <button
+        type="button"
+        onClick={() => onChange(!checked)}
+        style={{
+          width:      52,
+          height:     28,
+          flexShrink: 0,
+          background: checked ? 'var(--amber)' : 'var(--off-white)',
+          border:     '2.5px solid var(--black)',
+          boxShadow:  checked ? '2px 2px 0 var(--black)' : 'none',
+          cursor:     'pointer',
+          position:   'relative',
+          transition: 'background 0.1s',
+          display:    'flex',
+          alignItems: 'center',
+          padding:    '0 4px',
+        }}
+      >
+        <div style={{
+          width:      16,
+          height:     16,
+          background: 'var(--black)',
+          position:   'absolute',
+          left:       checked ? 28 : 4,
+          transition: 'left 0.1s',
+        }} />
+      </button>
+    </div>
+  );
+}
+
+function PillGroup({
   options,
   value,
   onChange,
+  multi = false,
 }: {
-  label: string;
   options: string[];
-  value: string[];
-  onChange: (v: string[]) => void;
+  value: string | string[] | null;
+  onChange: (v: string | string[]) => void;
+  multi?: boolean;
 }) {
+  function isActive(opt: string) {
+    if (multi) return Array.isArray(value) && value.includes(opt);
+    return value === opt;
+  }
   function toggle(opt: string) {
-    onChange(value.includes(opt) ? value.filter((v) => v !== opt) : [...value, opt]);
+    if (multi) {
+      const arr = Array.isArray(value) ? value : [];
+      onChange(arr.includes(opt) ? arr.filter((v) => v !== opt) : [...arr, opt]);
+    } else {
+      onChange(value === opt ? null : opt);
+    }
   }
   return (
-    <div>
-      <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)' }}>{label}</p>
-      <div className="flex flex-wrap gap-2">
-        {options.map((opt) => (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+      {options.map((opt) => {
+        const active = isActive(opt);
+        return (
           <button
             key={opt}
             type="button"
             onClick={() => toggle(opt)}
-            className="mono text-xs px-2.5 py-1.5 rounded transition-all"
             style={{
-              border:     `1px solid ${value.includes(opt) ? 'var(--green)' : 'rgba(77,255,128,0.15)'}`,
-              color:      value.includes(opt) ? 'var(--green)' : 'var(--text-dim)',
-              background: value.includes(opt) ? 'rgba(77,255,128,0.08)' : 'transparent',
+              fontFamily:    'var(--font-display)',
+              fontSize:      11,
+              fontWeight:    600,
+              letterSpacing: '0.5px',
+              background:    active ? 'var(--amber)' : 'var(--white)',
+              color:         'var(--black)',
+              border:        '2px solid var(--black)',
+              boxShadow:     active ? '2px 2px 0 var(--black)' : 'none',
+              padding:       '6px 14px',
+              cursor:        'pointer',
+              textTransform: 'capitalize',
             }}
           >
             {opt}
           </button>
-        ))}
-      </div>
+        );
+      })}
     </div>
   );
 }
@@ -135,7 +198,7 @@ export default function PreferencesPage() {
       if (!res.ok) {
         setMsg({ text: `Error: ${String(data.error ?? 'Save failed')}`, ok: false });
       } else {
-        setMsg({ text: '✓ Preferences saved', ok: true });
+        setMsg({ text: 'Preferences saved', ok: true });
         setPrefs(form);
       }
     } finally {
@@ -149,112 +212,153 @@ export default function PreferencesPage() {
 
   if (!ready || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// LOADING...</span>
-      </div>
+      <main style={{ minHeight: '100vh', background: 'var(--off-white)' }}>
+        <SiteHeader />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: 'var(--gray)' }}>
+            Loading...
+          </span>
+        </div>
+      </main>
     );
   }
 
   if (!form) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="mono text-xs" style={{ color: 'var(--amber)' }}>
-          // No participant profile found.{' '}
-          <Link href="/onboarding/participant" style={{ color: 'var(--green)' }}>Complete onboarding →</Link>
-        </p>
-      </div>
+      <main style={{ minHeight: '100vh', background: 'var(--off-white)' }}>
+        <SiteHeader />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', flexDirection: 'column', gap: 20 }}>
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, color: 'var(--black)' }}>
+            No participant profile found.
+          </p>
+          <Link href="/onboarding/participant" className="btn-primary">
+            Complete onboarding →
+          </Link>
+        </div>
+      </main>
     );
   }
 
   const dirty = JSON.stringify(form) !== JSON.stringify(prefs);
 
   return (
-    <main className="min-h-screen px-4 py-8">
-      <div className="max-w-2xl mx-auto">
+    <main style={{ minHeight: '100vh', background: 'var(--off-white)' }}>
+      <SiteHeader />
 
-        {/* Nav */}
-        <div className="flex items-center justify-between mb-8">
-          <Link href="/dashboard" className="mono text-xs no-underline" style={{ color: 'var(--text-dim)' }}>
-            ← DASHBOARD
+      {/* ── Page header (navy) ── */}
+      <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px 36px' }}>
+          <Link href="/dashboard" style={{
+            fontFamily:     'var(--font-display)',
+            fontSize:       12,
+            fontWeight:     600,
+            color:          'rgba(255,255,255,0.4)',
+            textDecoration: 'none',
+            display:        'inline-block',
+            marginBottom:   20,
+            letterSpacing:  '0.5px',
+          }}>
+            ← Dashboard
           </Link>
-          <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// PREFERENCES</span>
+          <h1 style={{
+            fontFamily: 'var(--font-display)',
+            fontWeight: 700,
+            fontSize:   'clamp(22px, 3vw, 32px)',
+            color:      'var(--white)',
+            lineHeight: 1.1,
+            marginBottom: 8,
+          }}>
+            Study Preferences
+          </h1>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'rgba(255,255,255,0.5)', margin: 0 }}>
+            Helps us match you to relevant studies. All fields optional.
+          </p>
         </div>
+      </section>
 
-        <div className="flex flex-col gap-5">
+      {/* ── Form body ── */}
+      <div style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px 80px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-          {/* ── Device & tech ──────────────────────────────────── */}
-          <section className="rounded p-5" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
-            <p className="mono text-xs mb-4" style={{ color: 'var(--text-dim)' }}>// DEVICE_PROFILE</p>
-
-            <div className="flex flex-col gap-4">
-              <div>
-                <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)' }}>SMARTPHONE OS</p>
-                <div className="flex gap-2">
-                  {['ios', 'android', 'both', 'none'].map((os) => (
-                    <button
-                      key={os}
-                      type="button"
-                      onClick={() => set('smartphone_os', os)}
-                      className="mono text-xs px-3 py-1.5 rounded transition-all capitalize"
-                      style={{
-                        border:     `1px solid ${form.smartphone_os === os ? 'var(--green)' : 'rgba(77,255,128,0.15)'}`,
-                        color:      form.smartphone_os === os ? 'var(--green)' : 'var(--text-dim)',
-                        background: form.smartphone_os === os ? 'rgba(77,255,128,0.08)' : 'transparent',
-                      }}
-                    >
-                      {os}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <CheckGroup
-                label="WEARABLE DEVICES"
-                options={WEARABLES}
-                value={form.wearable_devices ?? []}
-                onChange={(v) => set('wearable_devices', v)}
-              />
-
-              <div>
-                <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)' }}>INTERNET RELIABILITY</p>
-                <div className="flex gap-2">
-                  {['stable', 'intermittent', 'limited'].map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => set('internet_reliability', r)}
-                      className="mono text-xs px-3 py-1.5 rounded transition-all capitalize"
-                      style={{
-                        border:     `1px solid ${form.internet_reliability === r ? 'var(--green)' : 'rgba(77,255,128,0.15)'}`,
-                        color:      form.internet_reliability === r ? 'var(--green)' : 'var(--text-dim)',
-                        background: form.internet_reliability === r ? 'rgba(77,255,128,0.08)' : 'transparent',
-                      }}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-              </div>
+          {/* ── Device & tech ── */}
+          <div style={{
+            border:     '3px solid var(--black)',
+            boxShadow:  '4px 4px 0 var(--black)',
+            background: 'var(--white)',
+          }}>
+            <div style={{
+              padding:      '14px 24px',
+              borderBottom: '3px solid var(--black)',
+              background:   'var(--off-white)',
+            }}>
+              <CardLabel>Device Profile</CardLabel>
             </div>
-          </section>
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-          {/* ── Study availability ────────────────────────────── */}
-          <section className="rounded p-5" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
-            <p className="mono text-xs mb-4" style={{ color: 'var(--text-dim)' }}>// STUDY_AVAILABILITY</p>
-
-            <div className="flex flex-col gap-4">
               <div>
-                <label className="mono text-xs mb-2 block" style={{ color: 'var(--text-dim)' }}>
-                  WEEKLY AVAILABILITY (hours)
-                </label>
+                <FieldLabel>Smartphone OS</FieldLabel>
+                <PillGroup
+                  options={['ios', 'android', 'both', 'none']}
+                  value={form.smartphone_os}
+                  onChange={(v) => set('smartphone_os', v as string)}
+                />
+              </div>
+
+              <div>
+                <FieldLabel>Wearable Devices</FieldLabel>
+                <PillGroup
+                  options={WEARABLES}
+                  value={form.wearable_devices ?? []}
+                  onChange={(v) => set('wearable_devices', v as string[])}
+                  multi
+                />
+              </div>
+
+              <div>
+                <FieldLabel>Internet Reliability</FieldLabel>
+                <PillGroup
+                  options={['stable', 'intermittent', 'limited']}
+                  value={form.internet_reliability}
+                  onChange={(v) => set('internet_reliability', v as string)}
+                />
+              </div>
+
+            </div>
+          </div>
+
+          {/* ── Study availability ── */}
+          <div style={{
+            border:     '3px solid var(--black)',
+            boxShadow:  '4px 4px 0 var(--black)',
+            background: 'var(--white)',
+          }}>
+            <div style={{
+              padding:      '14px 24px',
+              borderBottom: '3px solid var(--black)',
+              background:   'var(--off-white)',
+            }}>
+              <CardLabel>Study Availability</CardLabel>
+            </div>
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+              <div>
+                <FieldLabel>Weekly Availability (hours)</FieldLabel>
                 <input
                   type="number"
                   min={0}
                   max={168}
                   value={form.weekly_availability_hours ?? ''}
                   onChange={(e) => set('weekly_availability_hours', e.target.value === '' ? null : Number(e.target.value))}
-                  className="mono text-sm px-3 py-2 rounded outline-none w-32"
-                  style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                  style={{
+                    fontFamily:  'var(--font-body)',
+                    fontSize:    14,
+                    color:       'var(--black)',
+                    background:  'var(--off-white)',
+                    border:      '2px solid var(--black)',
+                    padding:     '8px 12px',
+                    width:       100,
+                    outline:     'none',
+                  }}
                 />
               </div>
 
@@ -264,108 +368,154 @@ export default function PreferencesPage() {
                 onChange={(v) => set('can_receive_kits', v)}
               />
 
-              <CheckGroup
-                label="SAMPLE COMFORT"
-                options={SAMPLE_TYPES}
-                value={form.sample_comfort ?? []}
-                onChange={(v) => set('sample_comfort', v)}
-              />
-
               <div>
-                <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)' }}>URBANICITY</p>
-                <div className="flex gap-2">
-                  {['urban', 'suburban', 'rural'].map((u) => (
-                    <button
-                      key={u}
-                      type="button"
-                      onClick={() => set('urbanicity', u)}
-                      className="mono text-xs px-3 py-1.5 rounded transition-all capitalize"
-                      style={{
-                        border:     `1px solid ${form.urbanicity === u ? 'var(--green)' : 'rgba(77,255,128,0.15)'}`,
-                        color:      form.urbanicity === u ? 'var(--green)' : 'var(--text-dim)',
-                        background: form.urbanicity === u ? 'rgba(77,255,128,0.08)' : 'transparent',
-                      }}
-                    >
-                      {u}
-                    </button>
-                  ))}
-                </div>
+                <FieldLabel>Sample Comfort</FieldLabel>
+                <PillGroup
+                  options={SAMPLE_TYPES}
+                  value={form.sample_comfort ?? []}
+                  onChange={(v) => set('sample_comfort', v as string[])}
+                  multi
+                />
               </div>
 
               <div>
-                <label className="mono text-xs mb-2 block" style={{ color: 'var(--text-dim)' }}>STATE / REGION</label>
+                <FieldLabel>Urbanicity</FieldLabel>
+                <PillGroup
+                  options={['urban', 'suburban', 'rural']}
+                  value={form.urbanicity}
+                  onChange={(v) => set('urbanicity', v as string)}
+                />
+              </div>
+
+              <div>
+                <FieldLabel>State / Region</FieldLabel>
                 <input
                   type="text"
                   value={form.state_region ?? ''}
                   onChange={(e) => set('state_region', e.target.value || null)}
                   placeholder="e.g. California, Bavaria, Ontario"
-                  className="mono text-sm px-3 py-2 rounded outline-none w-full"
-                  style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                  style={{
+                    fontFamily:  'var(--font-body)',
+                    fontSize:    14,
+                    color:       'var(--black)',
+                    background:  'var(--off-white)',
+                    border:      '2px solid var(--black)',
+                    padding:     '8px 12px',
+                    width:       '100%',
+                    maxWidth:    360,
+                    outline:     'none',
+                    boxSizing:   'border-box',
+                  }}
                 />
               </div>
+
             </div>
-          </section>
+          </div>
 
-          {/* ── Language + study history ───────────────────────── */}
-          <section className="rounded p-5" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
-            <p className="mono text-xs mb-4" style={{ color: 'var(--text-dim)' }}>// RESEARCH_CONTEXT</p>
+          {/* ── Research context ── */}
+          <div style={{
+            border:     '3px solid var(--black)',
+            boxShadow:  '4px 4px 0 var(--black)',
+            background: 'var(--white)',
+          }}>
+            <div style={{
+              padding:      '14px 24px',
+              borderBottom: '3px solid var(--black)',
+              background:   'var(--off-white)',
+            }}>
+              <CardLabel>Research Context</CardLabel>
+            </div>
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-            <div className="flex flex-col gap-4">
-              <CheckGroup
-                label="LANGUAGE FLUENCY"
-                options={LANGUAGES}
-                value={form.language_fluency ?? []}
-                onChange={(v) => set('language_fluency', v)}
-              />
+              <div>
+                <FieldLabel>Language Fluency</FieldLabel>
+                <PillGroup
+                  options={LANGUAGES}
+                  value={form.language_fluency ?? []}
+                  onChange={(v) => set('language_fluency', v as string[])}
+                  multi
+                />
+              </div>
 
               <Toggle
-                label="Washout sensitive (recent substances affect eligibility)"
+                label="Washout sensitive — recent substances may affect my eligibility"
                 checked={form.washout_sensitive ?? false}
                 onChange={(v) => set('washout_sensitive', v)}
               />
 
               <div>
-                <label className="mono text-xs mb-2 block" style={{ color: 'var(--text-dim)' }}>
-                  RECENT INTERVENTIONS
-                  <span className="ml-2" style={{ color: 'var(--text-dim)', fontSize: 9 }}>
-                    (medications, supplements, diets started in the last 3 months)
-                  </span>
-                </label>
+                <FieldLabel hint="medications, supplements, diets started in last 3 months">
+                  Recent Interventions
+                </FieldLabel>
                 <textarea
                   rows={3}
                   value={form.recent_interventions ?? ''}
                   onChange={(e) => set('recent_interventions', e.target.value || null)}
                   placeholder="e.g. Metformin 500mg, Keto diet, Intermittent fasting..."
-                  className="mono text-sm px-3 py-2 rounded outline-none w-full resize-y"
-                  style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                  style={{
+                    fontFamily:  'var(--font-body)',
+                    fontSize:    14,
+                    color:       'var(--black)',
+                    background:  'var(--off-white)',
+                    border:      '2px solid var(--black)',
+                    padding:     '10px 12px',
+                    width:       '100%',
+                    outline:     'none',
+                    resize:      'vertical',
+                    lineHeight:  1.5,
+                    boxSizing:   'border-box',
+                  }}
                 />
               </div>
-            </div>
-          </section>
 
-          {/* Save bar */}
-          <div className="flex items-center gap-4">
+            </div>
+          </div>
+
+          {/* ── Save bar ── */}
+          <div style={{
+            display:     'flex',
+            alignItems:  'center',
+            gap:         16,
+            paddingTop:  8,
+            flexWrap:    'wrap',
+          }}>
             <button
               onClick={() => void save()}
               disabled={saving || !dirty}
-              className="mono text-xs px-6 py-2.5 rounded font-bold transition-all hover:opacity-90 disabled:opacity-40"
-              style={{ background: 'var(--green)', color: '#060a14' }}
+              className="btn-primary"
+              style={{ opacity: saving || !dirty ? 0.45 : 1 }}
             >
               {saving ? 'Saving...' : dirty ? 'Save preferences →' : 'No changes'}
             </button>
             {dirty && (
               <button
                 onClick={() => setForm(prefs)}
-                className="mono text-xs transition-opacity hover:opacity-70"
-                style={{ color: 'var(--text-dim)', background: 'none', border: 'none', cursor: 'pointer' }}
+                style={{
+                  fontFamily:  'var(--font-display)',
+                  fontSize:    12,
+                  fontWeight:  600,
+                  color:       'var(--gray)',
+                  background:  'none',
+                  border:      'none',
+                  cursor:      'pointer',
+                  padding:     0,
+                }}
               >
                 Reset
               </button>
             )}
             {msg && (
-              <p className="mono text-xs" style={{ color: msg.ok ? 'var(--green)' : 'var(--amber)' }}>
-                {msg.text}
-              </p>
+              <span style={{
+                fontFamily: 'var(--font-display)',
+                fontSize:   12,
+                fontWeight: 600,
+                color:      msg.ok ? 'var(--black)' : '#dc2626',
+                background: msg.ok ? 'var(--amber)' : 'rgba(220,38,38,0.1)',
+                border:     `1.5px solid ${msg.ok ? 'var(--black)' : '#dc2626'}`,
+                padding:    '4px 10px',
+              }}>
+                {msg.ok ? '✓ ' : ''}{msg.text}
+              </span>
             )}
           </div>
 

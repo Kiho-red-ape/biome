@@ -3,7 +3,7 @@ import { Identicon } from '@/components/identicon';
 const TESTIMONIALS = [
   {
     id:    'P-3KF8-2MNQ',
-    name:  'Arjun Mehta',
+    name:  'CosmicNomad412',
     role:  'Participant',
     tag:   'First Study',
     quote: "I had no idea what to expect but the onboarding was really straightforward. Got my kit in 3 days and the instructions were clear. Completing it felt genuinely useful — like I actually contributed something real to science.",
@@ -17,28 +17,28 @@ const TESTIMONIALS = [
   },
   {
     id:    'P-1LDT-4RWX',
-    name:  'Priya Nair',
+    name:  'BioTrail88',
     role:  'Participant',
     tag:   'Contributing to Science',
     quote: "I signed up for a microbiome study and ended up learning more about my own gut health than I ever expected. The data they shared back with me was genuinely interesting. Felt like a two-way exchange.",
   },
   {
     id:    'R-8XCM-5FHZ',
-    name:  'Dr. S. Krishnamurthy',
+    name:  'SilentMass_R',
     role:  'Researcher',
     tag:   'Study Operations',
     quote: "We ran a 60-participant supplement trial through Biome. From protocol submission to final data delivery, everything stayed on schedule. The compliance tracking alone saved us weeks of manual follow-up.",
   },
   {
     id:    'L-2QPB-6TNY',
-    name:  'HelixLab Bangalore',
+    name:  'HelixNet_Lab',
     role:  'Lab Partner',
     tag:   'Lab Operations',
     quote: "The sample intake process was organized from the first shipment. Manifests arrived ahead of the kits, labeling was consistent, and study contacts were responsive. That's rare in this space.",
   },
   {
     id:    'P-5HVF-8KCE',
-    name:  'Tanvir Ahmed',
+    name:  'ByteWolf201',
     role:  'Participant',
     tag:   'Remote Participation',
     quote: "I'm based in Dhaka and still got to participate in a European wearable study. The remote setup worked fine — check-ins were async, no scheduling stress. Honestly prefer it this way.",

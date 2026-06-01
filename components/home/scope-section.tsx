@@ -10,7 +10,6 @@ const BIOME_HANDLES = [
 
 const YOU_KEEP = [
   'Protocol',
-  'IRB / ethics',
   'Medical oversight',
   'Analysis',
   'Regulatory',

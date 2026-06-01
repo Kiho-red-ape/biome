@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Identicon } from '@/components/identicon';
 import { ProfileEditSections } from '@/components/profile/edit-sections';
+import { ProfileGated } from '@/components/profile/gated';
 import { ageRange, memberSince, countryFlag } from '@/lib/utils/profile';
 import { SiteHeader } from '@/components/nav/header';
 
@@ -152,6 +153,9 @@ export default async function PublicProfilePage({
           </div>
         </div>
       </section>
+
+      {/* ── Stats row + history (gated) ── */}
+      <ProfileGated>
 
       {/* ── Stats row ── */}
       <section style={{ background: 'var(--white)', borderBottom: '3px solid var(--black)' }}>
@@ -327,6 +331,8 @@ export default async function PublicProfilePage({
           </div>
         </div>
       </section>
+
+      </ProfileGated>
 
       {/* ── Edit sections ── */}
       <section style={{ background: 'var(--off-white)' }}>

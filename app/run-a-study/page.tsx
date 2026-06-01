@@ -74,7 +74,7 @@ export default function RunAStudyPage() {
               marginBottom: 40,
             }}>
               Recruit, track, and manage your study with infrastructure — not outsourcing.
-              IRB coordination, kit logistics, and compliance tracking included.
+              Participant logistics, compliance tracking, and data delivery included.
             </p>
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
               <button
@@ -111,7 +111,6 @@ export default function RunAStudyPage() {
                 ['Recruitment',     'Verified cohort matched to your criteria'],
                 ['Compliance',      'Real-time tracking, automated alerts'],
                 ['Kit logistics',   'Sample dispatch and lab intake managed'],
-                ['IRB support',     'Compliance-ready documentation'],
                 ['Data delivery',   'Structured output with full audit bundle'],
                 ['Payouts',         'Participant compensation handled end-to-end'],
               ].map(([title, desc], i, arr) => (
