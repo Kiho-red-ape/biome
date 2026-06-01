@@ -1,14 +1,11 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { IsometricScene } from '@/components/illustrations/IsometricScene';
-
-type Scene = 'recruit' | 'collect' | 'track' | 'pay' | 'deliver' | 'scope' | 'design' | 'approve';
 
 export interface CarouselStep {
   num: string;
   label: string;
-  scene: Scene;
+  scene: string; // kept for API compatibility, no longer rendered
   headline: string;
   desc: string[];
 }
@@ -58,10 +55,10 @@ export function StepsCarousel({ steps, sectionLabel }: Props) {
       {sectionLabel && (
         <p style={{
           fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px',
-          color: '#b7ff61', textTransform: 'uppercase', marginBottom: 40,
+          color: '#f59e0b', textTransform: 'uppercase', marginBottom: 40,
           paddingLeft: 'clamp(16px, 5vw, 80px)',
         }}>
-          // {sectionLabel}
+          {sectionLabel}
         </p>
       )}
 
@@ -75,12 +72,12 @@ export function StepsCarousel({ steps, sectionLabel }: Props) {
             key={step.num}
             onClick={() => scrollTo(i)}
             style={{
-              fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px',
+              fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '1.5px',
               textTransform: 'uppercase', padding: '6px 16px',
-              border: `1px solid ${active === i ? '#b7ff61' : 'rgba(255,255,255,0.08)'}`,
-              background: active === i ? 'rgba(183,255,97,0.07)' : 'transparent',
-              color: active === i ? '#b7ff61' : '#5b8a9a',
-              borderRadius: 2, cursor: 'pointer', transition: 'all 150ms ease',
+              border: `1px solid ${active === i ? '#f59e0b' : 'rgba(248,250,252,0.08)'}`,
+              background: active === i ? 'rgba(245,158,11,0.07)' : 'transparent',
+              color: active === i ? '#f59e0b' : '#475569',
+              cursor: 'pointer', transition: 'all 150ms ease',
             }}
           >
             {step.num} {step.label}
@@ -92,7 +89,7 @@ export function StepsCarousel({ steps, sectionLabel }: Props) {
       <div
         ref={trackRef}
         style={{
-          display: 'flex', gap: 20, overflowX: 'scroll',
+          display: 'flex', gap: 16, overflowX: 'scroll',
           scrollSnapType: 'x mandatory', scrollbarWidth: 'none',
           paddingLeft:  'clamp(16px, 5vw, 80px)',
           paddingRight: 'clamp(16px, 5vw, 80px)',
@@ -106,62 +103,58 @@ export function StepsCarousel({ steps, sectionLabel }: Props) {
             onClick={() => scrollTo(i)}
             style={{
               scrollSnapAlign: 'center', flexShrink: 0,
-              width: 'clamp(320px, 88vw, 860px)', minHeight: 340,
-              background: active === i ? 'rgba(183,255,97,0.03)' : 'rgba(255,255,255,0.008)',
-              border: `1px solid ${active === i ? 'rgba(183,255,97,0.2)' : 'rgba(255,255,255,0.04)'}`,
-              borderRadius: 4, overflow: 'hidden',
+              width: 'clamp(300px, 80vw, 720px)', minHeight: 280,
+              background: active === i ? 'rgba(245,158,11,0.03)' : 'rgba(248,250,252,0.01)',
+              border: `1px solid ${active === i ? 'rgba(245,158,11,0.3)' : 'rgba(248,250,252,0.05)'}`,
+              overflow: 'hidden',
               transition: 'border-color 300ms ease, background 300ms ease',
-              display: 'flex', flexDirection: 'row',
+              display: 'flex', flexDirection: 'column',
               cursor: active === i ? 'default' : 'pointer',
+              position: 'relative',
             }}
           >
-            {/* ── Text: LEFT ── */}
+            {/* Large dim step number — decorative */}
             <div style={{
-              width: '55%', padding: 'clamp(28px, 4vw, 48px)',
-              display: 'flex', flexDirection: 'column', justifyContent: 'center',
-              position: 'relative',
+              position: 'absolute', top: -8, right: 16,
+              fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 120, lineHeight: 1,
+              color: active === i ? 'rgba(245,158,11,0.08)' : 'rgba(248,250,252,0.025)',
+              transition: 'color 300ms ease', userSelect: 'none', pointerEvents: 'none',
             }}>
-              {/* Large dim number in background */}
-              <div style={{
-                position: 'absolute', top: 12, left: 20,
-                fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 96, lineHeight: 1,
-                color: active === i ? 'rgba(183,255,97,0.09)' : 'rgba(255,255,255,0.03)',
-                transition: 'color 300ms ease', userSelect: 'none', pointerEvents: 'none',
-              }}>
-                {step.num}
-              </div>
+              {step.num}
+            </div>
 
+            <div style={{ padding: 'clamp(28px, 4vw, 48px)', position: 'relative', zIndex: 1 }}>
               <p style={{
-                fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px',
-                color: active === i ? '#b7ff61' : '#3a4e42',
-                textTransform: 'uppercase', marginBottom: 14,
-                position: 'relative', zIndex: 1, transition: 'color 300ms ease',
+                fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2.5px',
+                color: active === i ? '#f59e0b' : '#334155',
+                textTransform: 'uppercase', marginBottom: 16,
+                transition: 'color 300ms ease',
               }}>
                 {step.label}
               </p>
 
               <h3 style={{
                 fontFamily: 'var(--font-heading)', fontWeight: 700,
-                fontSize: 'clamp(18px, 2.2vw, 26px)', color: active === i ? '#f2faf4' : '#3a4e42',
-                lineHeight: 1.2, marginBottom: 20, whiteSpace: 'pre-line',
-                position: 'relative', zIndex: 1, transition: 'color 300ms ease',
+                fontSize: 'clamp(18px, 2.2vw, 26px)',
+                color: active === i ? '#f8fafc' : '#1e293b',
+                lineHeight: 1.2, marginBottom: 24, whiteSpace: 'pre-line',
+                transition: 'color 300ms ease',
               }}>
                 {step.headline}
               </h3>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'relative', zIndex: 1 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {step.desc.map((line) => (
-                  <div key={line} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  <div key={line} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                     <span style={{
-                      fontFamily: 'var(--font-mono)', fontSize: 10, flexShrink: 0,
-                      color: active === i ? 'rgba(183,255,97,0.5)' : 'rgba(255,255,255,0.1)',
+                      fontFamily: 'var(--font-mono)', fontSize: 10, flexShrink: 0, marginTop: 2,
+                      color: active === i ? 'rgba(245,158,11,0.6)' : 'rgba(248,250,252,0.1)',
                       transition: 'color 300ms ease',
                     }}>—</span>
                     <p style={{
-                      fontFamily: 'var(--font-mono)', fontSize: 12,
-                      color: active === i ? '#aab8b1' : '#2a3a32',
-                      lineHeight: 1, margin: 0, whiteSpace: 'nowrap',
-                      overflow: 'hidden', textOverflow: 'ellipsis',
+                      fontFamily: 'var(--font-body)', fontSize: 13,
+                      color: active === i ? '#94a3b8' : '#1e293b',
+                      lineHeight: 1.5, margin: 0,
                       transition: 'color 300ms ease',
                     }}>
                       {line}
@@ -169,17 +162,6 @@ export function StepsCarousel({ steps, sectionLabel }: Props) {
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* ── Art: RIGHT ── */}
-            <div style={{
-              width: '45%', background: 'rgba(11,16,20,0.6)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: 24,
-              opacity: active === i ? 1 : 0.15,
-              transition: 'opacity 400ms ease',
-            }}>
-              <IsometricScene scene={step.scene} />
             </div>
           </div>
         ))}

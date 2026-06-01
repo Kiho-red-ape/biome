@@ -37,8 +37,8 @@ export function PartnerActions({
             disabled={saving}
             style={{
               fontFamily: 'var(--font-mono)', fontSize: 10, padding: '5px 12px',
-              background: 'rgba(183,255,97,0.08)', border: '1px solid rgba(183,255,97,0.25)',
-              color: '#b7ff61', cursor: 'pointer', borderRadius: 2, textTransform: 'uppercase', letterSpacing: '1px',
+              background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)',
+              color: '#f59e0b', cursor: 'pointer', borderRadius: 2, textTransform: 'uppercase', letterSpacing: '1px',
             }}
           >
             Approve
@@ -49,7 +49,7 @@ export function PartnerActions({
             style={{
               fontFamily: 'var(--font-mono)', fontSize: 10, padding: '5px 12px',
               background: 'transparent', border: '1px solid rgba(255,255,255,0.08)',
-              color: '#5b8a9a', cursor: 'pointer', borderRadius: 2, textTransform: 'uppercase', letterSpacing: '1px',
+              color: '#475569', cursor: 'pointer', borderRadius: 2, textTransform: 'uppercase', letterSpacing: '1px',
             }}
           >
             Reject
@@ -63,22 +63,22 @@ export function PartnerActions({
             onClick={() => { const next = !homepage; setHomepage(next); void update({ display_on_homepage: next }); }}
             style={{
               width: 14, height: 14,
-              background: homepage ? '#b7ff61' : 'transparent',
-              border: `1px solid ${homepage ? '#b7ff61' : 'rgba(255,255,255,0.15)'}`,
+              background: homepage ? '#f59e0b' : 'transparent',
+              border: `1px solid ${homepage ? '#f59e0b' : 'rgba(255,255,255,0.15)'}`,
               borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer',
             }}
           >
-            {homepage && <span style={{ color: '#050709', fontSize: 9, fontWeight: 900 }}>✓</span>}
+            {homepage && <span style={{ color: '#060a14', fontSize: 9, fontWeight: 900 }}>✓</span>}
           </div>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#aab8b1' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#94a3b8' }}>
             Show on homepage
           </span>
         </label>
       )}
 
       {saved && (
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#b7ff61' }}>✓ Saved</span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#f59e0b' }}>✓ Saved</span>
       )}
     </div>
   );

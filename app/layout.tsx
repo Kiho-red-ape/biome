@@ -4,8 +4,8 @@ import { Providers } from '@/components/providers';
 import StagingBanner from '@/components/StagingBanner';
 
 export const metadata: Metadata = {
-  title: 'BIOME — Experiment Aggregator',
-  description: 'The CoinGecko of scientific experiments. Discover bounty-based experiments, earn rewards, advance science.',
+  title: 'BIOME — Clinical Operations Platform',
+  description: 'The operations layer for decentralized human studies. Recruitment, logistics, compliance, and payouts — protocol to data without a CRO.',
 };
 
 export default function RootLayout({
@@ -19,7 +19,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
       </head>

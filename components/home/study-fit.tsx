@@ -22,7 +22,7 @@ export function StudyFit() {
     >
       <p style={{
         fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px',
-        color: '#b7ff61', textTransform: 'uppercase', marginBottom: 40,
+        color: '#f59e0b', textTransform: 'uppercase', marginBottom: 40,
       }}>
         // STUDY_FIT
       </p>
@@ -40,15 +40,15 @@ export function StudyFit() {
           <div>
             <p style={{
               fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px',
-              color: '#b7ff61', textTransform: 'uppercase', marginBottom: 20,
+              color: '#f59e0b', textTransform: 'uppercase', marginBottom: 20,
             }}>
               Accepted
             </p>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
               {ACCEPTED.map((item) => (
                 <li key={item} style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-                  <span style={{ color: '#b7ff61', fontFamily: 'var(--font-mono)', fontSize: 11, flexShrink: 0 }}>✓</span>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#aab8b1' }}>{item}</span>
+                  <span style={{ color: '#f59e0b', fontFamily: 'var(--font-mono)', fontSize: 11, flexShrink: 0 }}>✓</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#94a3b8' }}>{item}</span>
                 </li>
               ))}
             </ul>
@@ -58,15 +58,15 @@ export function StudyFit() {
           <div>
             <p style={{
               fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px',
-              color: '#aab8b1', textTransform: 'uppercase', marginBottom: 20,
+              color: '#94a3b8', textTransform: 'uppercase', marginBottom: 20,
             }}>
               Declined
             </p>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
               {DECLINED.map((item) => (
                 <li key={item} style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-                  <span style={{ color: '#5b8a9a', fontFamily: 'var(--font-mono)', fontSize: 11, flexShrink: 0 }}>×</span>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a' }}>{item}</span>
+                  <span style={{ color: '#475569', fontFamily: 'var(--font-mono)', fontSize: 11, flexShrink: 0 }}>×</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#475569' }}>{item}</span>
                 </li>
               ))}
             </ul>

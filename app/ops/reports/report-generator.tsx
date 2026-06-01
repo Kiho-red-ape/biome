@@ -41,7 +41,7 @@ export function ReportGenerator({ studies }: { studies: Study[] }) {
 
   return (
     <div>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#aab8b1', lineHeight: 1.7, marginBottom: 24 }}>
+      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#94a3b8', lineHeight: 1.7, marginBottom: 24 }}>
         Generate a weekly sponsor report for a study. Includes enrollment status,
         compliance metrics, sample logistics, payout summary, and risks.
         Download as Markdown and send to the sponsor manually.
@@ -49,7 +49,7 @@ export function ReportGenerator({ studies }: { studies: Study[] }) {
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 24 }}>
         <div>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#5b8a9a', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 6 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#475569', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 6 }}>
             Select study
           </p>
           <select
@@ -57,7 +57,7 @@ export function ReportGenerator({ studies }: { studies: Study[] }) {
             onChange={(e) => setSelectedStudy(e.target.value)}
             style={{
               background: '#0b1014', border: '1px solid rgba(255,255,255,0.08)',
-              color: '#f2faf4', fontFamily: 'var(--font-mono)', fontSize: 11,
+              color: '#f8fafc', fontFamily: 'var(--font-mono)', fontSize: 11,
               padding: '8px 12px', borderRadius: 2, outline: 'none', minWidth: 280, appearance: 'none',
             }}
           >
@@ -77,7 +77,7 @@ export function ReportGenerator({ studies }: { studies: Study[] }) {
             fontFamily: 'var(--font-mono)', fontSize: 11, padding: '8px 20px',
             background: selectedStudy ? 'rgba(255,179,0,0.08)' : 'transparent',
             border: `1px solid ${selectedStudy ? 'rgba(255,179,0,0.3)' : 'rgba(255,255,255,0.06)'}`,
-            color: selectedStudy ? '#ffb300' : '#5b8a9a',
+            color: selectedStudy ? '#ffb300' : '#475569',
             cursor: selectedStudy ? 'pointer' : 'default',
             borderRadius: 2, textTransform: 'uppercase', letterSpacing: '1px',
           }}
@@ -93,15 +93,15 @@ export function ReportGenerator({ studies }: { studies: Study[] }) {
       {report && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#b7ff61', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '1px' }}>
               ✓ Report generated
             </p>
             <button
               onClick={download}
               style={{
                 fontFamily: 'var(--font-mono)', fontSize: 10, padding: '5px 12px',
-                background: 'rgba(183,255,97,0.08)', border: '1px solid rgba(183,255,97,0.25)',
-                color: '#b7ff61', cursor: 'pointer', borderRadius: 2,
+                background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)',
+                color: '#f59e0b', cursor: 'pointer', borderRadius: 2,
                 textTransform: 'uppercase', letterSpacing: '1px',
               }}
             >
@@ -115,7 +115,7 @@ export function ReportGenerator({ studies }: { studies: Study[] }) {
             borderRadius: 2,
             fontFamily:   'var(--font-mono)',
             fontSize:     11,
-            color:        '#aab8b1',
+            color:        '#94a3b8',
             lineHeight:   1.7,
             overflowX:    'auto',
             whiteSpace:   'pre-wrap',

@@ -17,7 +17,7 @@ export default function EstimatePage() {
           fontFamily:    'var(--font-mono)',
           fontSize:      10,
           letterSpacing: '3px',
-          color:         '#22d3ee',
+          color:         '#38bdf8',
           textTransform: 'uppercase',
           marginBottom:  20,
         }}>
@@ -28,7 +28,7 @@ export default function EstimatePage() {
           fontWeight:    700,
           fontSize:      'clamp(26px, 4vw, 44px)',
           lineHeight:    1.1,
-          color:         '#f2faf4',
+          color:         '#f8fafc',
           marginBottom:  12,
         }}>
           Estimate your study cost.
@@ -36,7 +36,7 @@ export default function EstimatePage() {
         <p style={{
           fontFamily:    'var(--font-mono)',
           fontSize:      13,
-          color:         '#5b8a9a',
+          color:         '#475569',
           lineHeight:    1.7,
           marginBottom:  48,
         }}>

@@ -22,7 +22,7 @@ function PartnerLogo({ partner }: { partner: Partner }) {
         display:    'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        filter:     hover ? 'grayscale(0) opacity(1)' : 'grayscale(1) opacity(0.5)',
+        filter:     hover ? 'grayscale(0) opacity(1)' : 'grayscale(1) opacity(0.4)',
         transition: 'filter 200ms ease',
         flexShrink: 0,
       }}
@@ -48,10 +48,10 @@ export function PartnersStrip({ partners }: { partners: Partner[] }) {
     >
       <p style={{
         fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px',
-        color: '#b7ff61', textTransform: 'uppercase', marginBottom: 40,
+        color: '#f59e0b', textTransform: 'uppercase', marginBottom: 40,
         textAlign: 'center',
       }}>
-        // PARTNERS
+        Partners
       </p>
 
       <div style={{
@@ -71,11 +71,11 @@ export function PartnersStrip({ partners }: { partners: Partner[] }) {
           href="/partners/join"
           style={{
             fontFamily: 'var(--font-mono)', fontSize: 11,
-            color: '#5b8a9a', textDecoration: 'none',
+            color: '#475569', textDecoration: 'none',
             transition: 'color 150ms ease',
           }}
-          onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.color = '#b7ff61'; }}
-          onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.color = '#5b8a9a'; }}
+          onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.color = '#f59e0b'; }}
+          onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.color = '#475569'; }}
         >
           Interested in partnering? Learn more →
         </a>

@@ -25,8 +25,8 @@ export default function ExperimenterOnboardingPage() {
   if (!ready) return null;
   if (!authenticated || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#050709' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>// SIGN_IN_REQUIRED — use the Sign in button in the top nav</span>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#060a14' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>// SIGN_IN_REQUIRED — use the Sign in button in the top nav</span>
       </div>
     );
   }
@@ -88,7 +88,7 @@ export default function ExperimenterOnboardingPage() {
               <button
                 onClick={() => router.push(`/org/${submitted.id}`)}
                 className="mono text-xs px-5 py-2.5 rounded font-bold transition-all hover:opacity-90"
-                style={{ background: 'var(--green)', color: '#050709' }}
+                style={{ background: 'var(--green)', color: '#060a14' }}
               >
                 View my org profile →
               </button>
@@ -194,7 +194,7 @@ export default function ExperimenterOnboardingPage() {
             <button
               type="submit" disabled={!orgName.trim() || loading}
               className="w-full py-3 rounded font-semibold text-sm transition-all disabled:opacity-40 hover:opacity-90"
-              style={{ background: 'var(--green)', color: '#050709' }}
+              style={{ background: 'var(--green)', color: '#060a14' }}
             >
               {loading ? 'Submitting...' : 'Submit for review →'}
             </button>

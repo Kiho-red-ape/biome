@@ -3,7 +3,7 @@ import { IntakeForm } from './intake-form';
 
 export default function IntakePage() {
   return (
-    <main style={{ minHeight: '100vh', background: '#050709' }}>
+    <main style={{ minHeight: '100vh', background: '#060a14' }}>
       <SiteHeader />
       <div
         style={{
@@ -16,7 +16,7 @@ export default function IntakePage() {
           fontFamily:    'var(--font-mono)',
           fontSize:      10,
           letterSpacing: '3px',
-          color:         '#b7ff61',
+          color:         '#f59e0b',
           textTransform: 'uppercase',
           marginBottom:  20,
         }}>
@@ -26,7 +26,7 @@ export default function IntakePage() {
           fontFamily:   'var(--font-heading)',
           fontWeight:   700,
           fontSize:     'clamp(22px, 3.5vw, 32px)',
-          color:        '#f2faf4',
+          color:        '#f8fafc',
           lineHeight:   1.2,
           marginBottom: 12,
         }}>
@@ -35,7 +35,7 @@ export default function IntakePage() {
         <p style={{
           fontFamily:   'var(--font-mono)',
           fontSize:     12,
-          color:        '#5b8a9a',
+          color:        '#475569',
           lineHeight:   1.7,
           marginBottom: 40,
         }}>

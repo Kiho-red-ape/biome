@@ -46,39 +46,40 @@ export default async function HomePage() {
 
       <footer
         style={{
-          borderTop:     '1px solid rgba(255,255,255,0.05)',
-          paddingTop:    32,
-          paddingBottom: 32,
+          borderTop:     '1px solid rgba(248,250,252,0.06)',
+          paddingTop:    48,
+          paddingBottom: 48,
         }}
         className="px-4 sm:px-6 lg:px-10"
       >
         <div style={{
-          maxWidth:       900,
-          margin:         '0 auto',
-          display:        'flex',
-          flexDirection:  'column',
-          gap:            16,
-          alignItems:     'center',
-          textAlign:      'center',
+          maxWidth:      900,
+          margin:        '0 auto',
+          display:       'flex',
+          flexDirection: 'column',
+          gap:           20,
+          alignItems:    'center',
+          textAlign:     'center',
         }}>
           {/* Logo */}
           <span style={{
             fontFamily:    'var(--font-heading)',
             fontWeight:    700,
             fontSize:      18,
-            letterSpacing: '5px',
+            letterSpacing: '3px',
             textTransform: 'uppercase',
+            color:         '#f8fafc',
           }}>
-            <span style={{ color: '#b7ff61' }}>BIO</span><span style={{ color: '#22d3ee' }}>ME</span>
+            BIO<span style={{ color: '#f59e0b' }}>ME</span>
           </span>
 
           {/* Entity */}
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a', letterSpacing: '0.5px', margin: 0 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#334155', letterSpacing: '0.5px', margin: 0 }}>
             Biome Inc
           </p>
 
           {/* Links */}
-          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center' }}>
             {[
               ['Blog',    '/blog'],
               ['Docs',    '/docs'],
@@ -93,13 +94,12 @@ export default async function HomePage() {
 
           {/* Vision line */}
           <p style={{
-            fontFamily:    'var(--font-mono)',
-            fontSize:      10,
-            color:         '#5b8a9a',
-            letterSpacing: '0.3px',
-            lineHeight:    1.6,
-            margin:        0,
-            maxWidth:      500,
+            fontFamily:  'var(--font-body)',
+            fontSize:    13,
+            color:       '#334155',
+            lineHeight:  1.6,
+            margin:      0,
+            maxWidth:    500,
           }}>
             Building the operations layer for the next generation of human studies.
           </p>

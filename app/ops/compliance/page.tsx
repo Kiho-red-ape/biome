@@ -27,23 +27,23 @@ export default async function OpsCompliance({
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               {['App ID', 'Participant', 'Study', 'ICF Version', 'Consented At'].map((h) => (
-                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#5b8a9a', fontWeight: 400, whiteSpace: 'nowrap' }}>{h}</th>
+                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#475569', fontWeight: 400, whiteSpace: 'nowrap' }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
-              <tr><td colSpan={5} style={{ padding: 24, color: '#5b8a9a', textAlign: 'center' }}>No consent records yet.</td></tr>
+              <tr><td colSpan={5} style={{ padding: 24, color: '#475569', textAlign: 'center' }}>No consent records yet.</td></tr>
             )}
             {rows.map((r) => {
               const exp = r.experiments as { title: string } | null;
               return (
                 <tr key={r.id as string} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: '8px 12px', color: '#5b8a9a', fontSize: 10 }}>{(r.id as string).slice(0, 8)}…</td>
-                  <td style={{ padding: '8px 12px', color: '#aab8b1', fontSize: 10 }}>{(r.participant_id as string).slice(0, 20)}…</td>
-                  <td style={{ padding: '8px 12px', color: '#aab8b1' }}>{exp?.title?.slice(0, 30) ?? '—'}</td>
-                  <td style={{ padding: '8px 12px', color: '#aab8b1' }}>{(r.study_agreement_version as string | null) ?? '1'}</td>
-                  <td style={{ padding: '8px 12px', color: '#5b8a9a', whiteSpace: 'nowrap' }}>
+                  <td style={{ padding: '8px 12px', color: '#475569', fontSize: 10 }}>{(r.id as string).slice(0, 8)}…</td>
+                  <td style={{ padding: '8px 12px', color: '#94a3b8', fontSize: 10 }}>{(r.participant_id as string).slice(0, 20)}…</td>
+                  <td style={{ padding: '8px 12px', color: '#94a3b8' }}>{exp?.title?.slice(0, 30) ?? '—'}</td>
+                  <td style={{ padding: '8px 12px', color: '#94a3b8' }}>{(r.study_agreement_version as string | null) ?? '1'}</td>
+                  <td style={{ padding: '8px 12px', color: '#475569', whiteSpace: 'nowrap' }}>
                     {r.study_agreement_accepted_at ? new Date(r.study_agreement_accepted_at as string).toLocaleString() : '—'}
                   </td>
                 </tr>
@@ -69,23 +69,23 @@ export default async function OpsCompliance({
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               {['Recipient', 'Type', 'Message', 'Sent', 'Read'].map((h) => (
-                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#5b8a9a', fontWeight: 400, whiteSpace: 'nowrap' }}>{h}</th>
+                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#475569', fontWeight: 400, whiteSpace: 'nowrap' }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
-              <tr><td colSpan={5} style={{ padding: 24, color: '#5b8a9a', textAlign: 'center' }}>No communications yet.</td></tr>
+              <tr><td colSpan={5} style={{ padding: 24, color: '#475569', textAlign: 'center' }}>No communications yet.</td></tr>
             )}
             {rows.map((n) => (
               <tr key={n.id as string} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                <td style={{ padding: '8px 12px', color: '#5b8a9a', fontSize: 10 }}>{(n.user_id as string).slice(0, 20)}…</td>
-                <td style={{ padding: '8px 12px', color: '#aab8b1' }}>{n.type as string}</td>
-                <td style={{ padding: '8px 12px', color: '#aab8b1', maxWidth: 300 }}>{(n.message as string).slice(0, 80)}</td>
-                <td style={{ padding: '8px 12px', color: '#5b8a9a', whiteSpace: 'nowrap' }}>
+                <td style={{ padding: '8px 12px', color: '#475569', fontSize: 10 }}>{(n.user_id as string).slice(0, 20)}…</td>
+                <td style={{ padding: '8px 12px', color: '#94a3b8' }}>{n.type as string}</td>
+                <td style={{ padding: '8px 12px', color: '#94a3b8', maxWidth: 300 }}>{(n.message as string).slice(0, 80)}</td>
+                <td style={{ padding: '8px 12px', color: '#475569', whiteSpace: 'nowrap' }}>
                   {new Date(n.created_at as string).toLocaleDateString()}
                 </td>
-                <td style={{ padding: '8px 12px', color: n.is_read ? '#5b8a9a' : '#b7ff61' }}>
+                <td style={{ padding: '8px 12px', color: n.is_read ? '#475569' : '#f59e0b' }}>
                   {n.is_read ? '✓' : '●'}
                 </td>
               </tr>
@@ -124,7 +124,7 @@ export default async function OpsCompliance({
               fontFamily:    'var(--font-mono)',
               fontSize:      11,
               padding:       '8px 16px',
-              color:         activeTab === key ? '#ffb300' : '#5b8a9a',
+              color:         activeTab === key ? '#ffb300' : '#475569',
               textDecoration: 'none',
               borderBottom:  `2px solid ${activeTab === key ? '#ffb300' : 'transparent'}`,
               letterSpacing: '0.5px',

@@ -19,7 +19,7 @@ function slugify(s: string) {
 const inputStyle: React.CSSProperties = {
   fontFamily:   'var(--font-mono)',
   fontSize:     12,
-  color:        '#f2faf4',
+  color:        '#f8fafc',
   background:   'rgba(255,255,255,0.04)',
   border:       '1px solid rgba(255,255,255,0.1)',
   borderRadius: 2,
@@ -32,7 +32,7 @@ const inputStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   fontFamily:    'var(--font-mono)',
   fontSize:      10,
-  color:         '#5b8a9a',
+  color:         '#475569',
   letterSpacing: '1px',
   display:       'block',
   marginBottom:  6,
@@ -209,7 +209,7 @@ export function BlogEditor({ post }: Props) {
         {/* ─ GATED ARTIFACT ─ */}
         <SectionDivider label="GATED_ARTIFACT" />
         <div style={{ padding: '16px 20px', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 2, background: 'rgba(255,255,255,0.01)', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#aab8b1', lineHeight: 1.6, margin: 0 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
             Optional. If provided, readers give their email to download this file. Appears as a call-to-action at the end of the post.
           </p>
           <div>
@@ -256,7 +256,7 @@ export function BlogEditor({ post }: Props) {
                   padding:       '5px 14px',
                   border:        `1px solid ${status === s ? '#ffb300' : 'rgba(255,255,255,0.1)'}`,
                   background:    status === s ? 'rgba(255,179,0,0.08)' : 'transparent',
-                  color:         status === s ? '#ffb300' : '#5b8a9a',
+                  color:         status === s ? '#ffb300' : '#475569',
                   borderRadius:  2,
                   cursor:        'pointer',
                 }}
@@ -303,9 +303,9 @@ export function BlogEditor({ post }: Props) {
                 letterSpacing: '1.5px',
                 textTransform: 'uppercase',
                 padding:       '8px 24px',
-                background:    'rgba(183,255,97,0.08)',
-                border:        '1px solid rgba(183,255,97,0.3)',
-                color:         '#b7ff61',
+                background:    'rgba(245,158,11,0.08)',
+                border:        '1px solid rgba(245,158,11,0.3)',
+                color:         '#f59e0b',
                 borderRadius:  2,
                 cursor:        saving ? 'not-allowed' : 'pointer',
               }}
@@ -367,7 +367,7 @@ export function BlogEditor({ post }: Props) {
                       padding:       '5px 14px',
                       background:    'transparent',
                       border:        '1px solid rgba(255,255,255,0.1)',
-                      color:         '#5b8a9a',
+                      color:         '#475569',
                       borderRadius:  2,
                       cursor:        'pointer',
                     }}

@@ -208,7 +208,7 @@ function PendingQueue({
                 onClick={() => void verify(pv.id)}
                 disabled={processing === pv.id}
                 className="mono text-xs px-2.5 py-1.5 rounded transition-all hover:opacity-80 disabled:opacity-40"
-                style={{ background: 'var(--green)', color: '#050709' }}
+                style={{ background: 'var(--green)', color: '#060a14' }}
               >
                 {processing === pv.id ? '...' : 'Verify ✓'}
               </button>
@@ -236,7 +236,7 @@ function PendingQueue({
                 onClick={() => void reject(pv.id)}
                 disabled={!rejectText.trim() || processing === pv.id}
                 className="mono text-xs px-3 py-1.5 rounded transition-all hover:opacity-80 disabled:opacity-40"
-                style={{ background: 'var(--amber)', color: '#050709' }}
+                style={{ background: 'var(--amber)', color: '#060a14' }}
               >
                 Confirm
               </button>
@@ -375,7 +375,7 @@ function RowActions({
                     onClick={() => void verify(m.id)}
                     disabled={processing === m.id}
                     className="mono text-xs px-2 py-1 rounded transition-all hover:opacity-80 disabled:opacity-40"
-                    style={{ background: 'var(--green)', color: '#050709' }}
+                    style={{ background: 'var(--green)', color: '#060a14' }}
                   >
                     {processing === m.id ? '...' : '✓'}
                   </button>
@@ -403,7 +403,7 @@ function RowActions({
                     onClick={() => void reject(m.id)}
                     disabled={!rejectMap[m.id]?.trim() || processing === m.id}
                     className="mono text-xs px-2 py-1 rounded disabled:opacity-40"
-                    style={{ background: 'var(--amber)', color: '#050709' }}
+                    style={{ background: 'var(--amber)', color: '#060a14' }}
                   >
                     Reject
                   </button>
@@ -431,7 +431,7 @@ function RowActions({
               onClick={() => void flag()}
               disabled={!flagReason.trim() || processing === 'flag'}
               className="mono text-xs px-3 py-1.5 rounded disabled:opacity-40"
-              style={{ background: 'var(--amber)', color: '#050709' }}
+              style={{ background: 'var(--amber)', color: '#060a14' }}
             >
               Confirm
             </button>
@@ -456,7 +456,7 @@ function RowActions({
               onClick={() => void override()}
               disabled={!overReason.trim() || processing === 'override'}
               className="mono text-xs px-3 py-1.5 rounded disabled:opacity-40"
-              style={{ background: 'var(--green)', color: '#050709' }}
+              style={{ background: 'var(--green)', color: '#060a14' }}
             >
               Confirm
             </button>

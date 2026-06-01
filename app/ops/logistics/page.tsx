@@ -42,7 +42,7 @@ export default async function OpsLogistics({
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {rows.length === 0 && (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>No kits found.</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>No kits found.</p>
         )}
         {rows.map((kit) => {
           const overdue = isOverdue(kit);
@@ -56,11 +56,11 @@ export default async function OpsLogistics({
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
                 <div>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f2faf4', marginBottom: 2 }}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f8fafc', marginBottom: 2 }}>
                     {kit.kit_type as string} kit · {kit.participant_id as string}
                     {overdue && <span style={{ color: '#ffb300', marginLeft: 8 }}>⚠ OVERDUE</span>}
                   </p>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
                     {exp?.title ?? 'Unknown study'} · Created {new Date(kit.created_at as string).toLocaleDateString()}
                   </p>
                 </div>
@@ -79,11 +79,11 @@ export default async function OpsLogistics({
                     padding:       '3px 10px',
                     background:    'rgba(255,255,255,0.03)',
                     border:        '1px solid rgba(255,255,255,0.07)',
-                    color:         '#aab8b1',
+                    color:         '#94a3b8',
                     borderRadius:  2,
                     letterSpacing: '0.5px',
                   }}>
-                    {label}: <span style={{ color: '#f2faf4' }}>{val}</span>
+                    {label}: <span style={{ color: '#f8fafc' }}>{val}</span>
                   </span>
                 ))}
               </div>

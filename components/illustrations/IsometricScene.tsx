@@ -27,10 +27,10 @@ function poly(...points: ReturnType<typeof p>[]) {
 }
 
 // ── Shared colors ──────────────────────────────────────────────────────────────
-const G   = '#b7ff61';   // green accent
-const C   = '#22d3ee';   // cyan accent
+const G   = '#f59e0b';   // green accent
+const C   = '#38bdf8';   // cyan accent
 const A   = '#ffb300';   // amber
-const DIM = 'rgba(183,255,97,0.08)';
+const DIM = 'rgba(245,158,11,0.08)';
 const MID = 'rgba(255,255,255,0.06)';
 const STR = 'rgba(255,255,255,0.18)';
 
@@ -53,7 +53,7 @@ function Recruit() {
       const isOn = enrolled.has(key);
       const h = isOn ? 1.8 : 0.1;
       const col = isOn ? G : STR;
-      const topFill = isOn ? 'rgba(183,255,97,0.12)' : DIM;
+      const topFill = isOn ? 'rgba(245,158,11,0.12)' : DIM;
 
       // 8 vertices of the cube
       const v = (dx: number, dy: number, dz: number) => p(gx + dx, gy + dy, dz, cx, cy, s);
@@ -256,7 +256,7 @@ function Pay() {
       <circle cx={hub.x} cy={hub.y} r="40" fill="url(#rg-hub)" />
 
       {/* Hub */}
-      <circle cx={hub.x} cy={hub.y} r="20" stroke={G} strokeWidth="1.5" fill="rgba(183,255,97,0.06)"
+      <circle cx={hub.x} cy={hub.y} r="20" stroke={G} strokeWidth="1.5" fill="rgba(245,158,11,0.06)"
         style={{ animation: 'pulse 3s ease-in-out infinite' }} />
       <circle cx={hub.x} cy={hub.y} r="12" fill={G} opacity="0.2" />
       <circle cx={hub.x} cy={hub.y} r="5"  fill={G} opacity="0.9"
@@ -265,7 +265,7 @@ function Pay() {
       {/* Peripheral nodes */}
       {spokes.map((s, i) => (
         <g key={i}>
-          <circle cx={s.x} cy={s.y} r="14" stroke={C} strokeWidth="1" fill="rgba(34,211,238,0.06)" />
+          <circle cx={s.x} cy={s.y} r="14" stroke={C} strokeWidth="1" fill="rgba(56,189,248,0.06)" />
           <circle cx={s.x} cy={s.y} r="5"  fill={C} opacity="0.8"
             style={{ animation: `float ${3.5 + i * 0.3}s ease-in-out infinite`, animationDelay: `${i * 0.35}s` }} />
         </g>
@@ -325,7 +325,7 @@ function Deliver() {
       {docSlice(1.9,  G,    1.0)}
 
       {/* Checkmark badge */}
-      <circle cx={ck.x} cy={ck.y} r="16" fill="rgba(183,255,97,0.1)" stroke={G} strokeWidth="1.2"
+      <circle cx={ck.x} cy={ck.y} r="16" fill="rgba(245,158,11,0.1)" stroke={G} strokeWidth="1.2"
         style={{ animation: 'float 4s ease-in-out infinite' }} />
       <text x={ck.x} y={ck.y + 5} textAnchor="middle"
         fontFamily="system-ui" fontSize="16" fill={G} opacity="0.9"
@@ -460,10 +460,10 @@ function Approve() {
       </defs>
       <circle cx={cx} cy={cy} r="80" fill="url(#rg-approve)" />
       <circle cx={cx} cy={cy} r="64" stroke={G} strokeWidth="0.5" strokeDasharray="6 4" opacity="0.2" />
-      <circle cx={cx} cy={cy} r="46" stroke={G} strokeWidth="0.7" opacity="0.2" fill="rgba(183,255,97,0.03)" />
+      <circle cx={cx} cy={cy} r="46" stroke={G} strokeWidth="0.7" opacity="0.2" fill="rgba(245,158,11,0.03)" />
       {/* Shield */}
       <path d={`M ${cx},${cy-30} L ${cx+24},${cy-15} L ${cx+24},${cy+8} Q ${cx+24},${cy+30} ${cx},${cy+34} Q ${cx-24},${cy+30} ${cx-24},${cy+8} L ${cx-24},${cy-15} Z`}
-        fill="rgba(183,255,97,0.08)" stroke={G} strokeWidth="1.2" />
+        fill="rgba(245,158,11,0.08)" stroke={G} strokeWidth="1.2" />
       {/* Checkmark */}
       <path d={`M ${cx-11},${cy+3} L ${cx-2},${cy+13} L ${cx+14},${cy-9}`}
         stroke={G} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9" />

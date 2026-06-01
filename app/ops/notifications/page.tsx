@@ -5,13 +5,13 @@ import { useState, useEffect } from 'react';
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
 
 const inputStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f2faf4',
+  fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f8fafc',
   background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
   borderRadius: 2, padding: '10px 14px', width: '100%', outline: 'none', boxSizing: 'border-box',
 };
 
 const labelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a',
+  fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569',
   letterSpacing: '1px', textTransform: 'uppercase', display: 'block', marginBottom: 6,
 };
 
@@ -84,10 +84,10 @@ export default function OpsNotificationsPage() {
       <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 8 }}>
         // NOTIFICATIONS
       </p>
-      <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: '#f2faf4', marginBottom: 4 }}>
+      <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: '#f8fafc', marginBottom: 4 }}>
         Send Notification
       </h1>
-      <p style={{ ...MONO, fontSize: 12, color: '#5b8a9a', lineHeight: 1.7, marginBottom: 32 }}>
+      <p style={{ ...MONO, fontSize: 12, color: '#475569', lineHeight: 1.7, marginBottom: 32 }}>
         Send in-app notifications to participants. Study match notifications go to participants not yet enrolled in that study.
       </p>
 
@@ -103,7 +103,7 @@ export default function OpsNotificationsPage() {
                 padding: '5px 12px', borderRadius: 2, cursor: 'pointer',
                 border: `1px solid ${notifType === t ? '#ffb300' : 'rgba(255,255,255,0.08)'}`,
                 background: notifType === t ? 'rgba(255,179,0,0.08)' : 'transparent',
-                color: notifType === t ? '#ffb300' : '#5b8a9a',
+                color: notifType === t ? '#ffb300' : '#475569',
               }}>{t}</button>
             ))}
           </div>
@@ -132,9 +132,9 @@ export default function OpsNotificationsPage() {
               <button key={a} type="button" onClick={() => setAudience(a)} style={{
                 ...MONO, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
                 padding: '5px 12px', borderRadius: 2, cursor: 'pointer',
-                border: `1px solid ${audience === a ? '#b7ff61' : 'rgba(255,255,255,0.08)'}`,
-                background: audience === a ? 'rgba(183,255,97,0.06)' : 'transparent',
-                color: audience === a ? '#b7ff61' : '#5b8a9a',
+                border: `1px solid ${audience === a ? '#f59e0b' : 'rgba(255,255,255,0.08)'}`,
+                background: audience === a ? 'rgba(245,158,11,0.06)' : 'transparent',
+                color: audience === a ? '#f59e0b' : '#475569',
               }}>
                 {a === 'all' ? 'All Participants' : a === 'study' ? 'Study Match' : a === 'country' ? 'By Country' : 'Manual IDs'}
               </button>
@@ -151,7 +151,7 @@ export default function OpsNotificationsPage() {
                   <option key={s.id} value={s.id}>{s.title} ({s.status})</option>
                 ))}
               </select>
-              <p style={{ ...MONO, fontSize: 10, color: '#5b8a9a', marginTop: 6, lineHeight: 1.5 }}>
+              <p style={{ ...MONO, fontSize: 10, color: '#475569', marginTop: 6, lineHeight: 1.5 }}>
                 Will notify all participants who have not yet applied to this study.
               </p>
             </div>
@@ -182,10 +182,10 @@ export default function OpsNotificationsPage() {
         {result && (
           <div style={{
             padding: '12px 16px', borderRadius: 2,
-            background: result.ok ? 'rgba(183,255,97,0.05)' : 'rgba(255,100,100,0.05)',
-            border: `1px solid ${result.ok ? 'rgba(183,255,97,0.2)' : 'rgba(255,100,100,0.2)'}`,
+            background: result.ok ? 'rgba(245,158,11,0.05)' : 'rgba(255,100,100,0.05)',
+            border: `1px solid ${result.ok ? 'rgba(245,158,11,0.2)' : 'rgba(255,100,100,0.2)'}`,
           }}>
-            <p style={{ ...MONO, fontSize: 12, color: result.ok ? '#b7ff61' : '#ff6464', margin: 0 }}>
+            <p style={{ ...MONO, fontSize: 12, color: result.ok ? '#f59e0b' : '#ff6464', margin: 0 }}>
               {result.ok ? `✓ Sent to ${result.count} participant${result.count !== 1 ? 's' : ''}` : `✗ ${result.error}`}
             </p>
           </div>
@@ -197,8 +197,8 @@ export default function OpsNotificationsPage() {
             style={{
               ...MONO, fontSize: 11, letterSpacing: '1.5px', textTransform: 'uppercase',
               padding: '10px 28px', borderRadius: 2, cursor: sending ? 'not-allowed' : 'pointer',
-              background: 'rgba(183,255,97,0.08)', border: '1px solid rgba(183,255,97,0.3)',
-              color: '#b7ff61', opacity: (sending || !title.trim() || !message.trim()) ? 0.4 : 1,
+              background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)',
+              color: '#f59e0b', opacity: (sending || !title.trim() || !message.trim()) ? 0.4 : 1,
             }}>
             {sending ? 'Sending…' : 'Send notification →'}
           </button>
@@ -217,10 +217,10 @@ export default function OpsNotificationsPage() {
               <div key={i} style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 2 }}>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 4 }}>
                   <span style={{ ...MONO, fontSize: 9, letterSpacing: '1px', textTransform: 'uppercase', color: '#ffb300', border: '1px solid rgba(255,179,0,0.2)', padding: '1px 6px', borderRadius: 2 }}>{item.type}</span>
-                  <span style={{ ...MONO, fontSize: 10, color: '#5b8a9a' }}>{new Date(item.created_at).toLocaleString()}</span>
+                  <span style={{ ...MONO, fontSize: 10, color: '#475569' }}>{new Date(item.created_at).toLocaleString()}</span>
                 </div>
-                <p style={{ ...MONO, fontSize: 12, color: '#f2faf4', margin: '0 0 2px' }}>{item.payload?.title}</p>
-                <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', margin: 0 }}>{item.payload?.message?.slice(0, 120)}{(item.payload?.message?.length ?? 0) > 120 ? '…' : ''}</p>
+                <p style={{ ...MONO, fontSize: 12, color: '#f8fafc', margin: '0 0 2px' }}>{item.payload?.title}</p>
+                <p style={{ ...MONO, fontSize: 11, color: '#475569', margin: 0 }}>{item.payload?.message?.slice(0, 120)}{(item.payload?.message?.length ?? 0) > 120 ? '…' : ''}</p>
               </div>
             ))}
           </div>

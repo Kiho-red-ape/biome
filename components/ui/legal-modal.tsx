@@ -83,7 +83,7 @@ export function LegalModal({ docKey, onClose }: LegalModalProps) {
         }}>
           <pre style={{
             fontFamily: 'var(--font-mono)', fontSize: 11,
-            color: '#aab8b1', lineHeight: 1.8,
+            color: '#94a3b8', lineHeight: 1.8,
             whiteSpace: 'pre-wrap', wordBreak: 'break-word',
             margin: 0,
           }}>

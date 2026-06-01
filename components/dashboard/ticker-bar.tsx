@@ -31,8 +31,8 @@ export function TickerBar({ experiments, totalPool, activeCount, totalParticipan
       style={{
         height: 28,
         overflow: 'hidden',
-        background: 'rgba(183,255,97,0.02)',
-        borderBottom: '1px solid rgba(183,255,97,0.08)',
+        background: 'rgba(245,158,11,0.02)',
+        borderBottom: '1px solid rgba(245,158,11,0.08)',
         position: 'relative',
         zIndex: 2,
       }}
@@ -61,7 +61,7 @@ export function TickerBar({ experiments, totalPool, activeCount, totalParticipan
             }}
           >
             <TickerText text={item.text} />
-            <span style={{ marginLeft: 24, color: 'rgba(183,255,97,0.12)' }}>|</span>
+            <span style={{ marginLeft: 24, color: 'rgba(245,158,11,0.12)' }}>|</span>
           </span>
         ))}
       </div>
@@ -77,7 +77,7 @@ function TickerText({ text }: { text: string }) {
       {parts.map((part, i) => {
         const isNumber = /^(\$[\d.,]+K?|[\d.,]+K?)$/.test(part);
         return (
-          <span key={i} style={{ color: isNumber ? '#b7ff61' : undefined }}>
+          <span key={i} style={{ color: isNumber ? '#f59e0b' : undefined }}>
             {part}
           </span>
         );

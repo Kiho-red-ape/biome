@@ -136,14 +136,14 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
 
   if (!ready || !isAuthorized) {
     return (
-      <div style={{ minHeight: '100vh', background: '#050709', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>…</span>
+      <div style={{ minHeight: '100vh', background: '#060a14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>…</span>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#050709' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#060a14' }}>
       {/* Top bar */}
       <div style={{
         height:      44,
@@ -166,11 +166,11 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
           }}>
             ◆ OPERATOR MODE
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
             {userEmail}
           </span>
         </div>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
           {time}
         </span>
       </div>
@@ -216,7 +216,7 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
               padding:       '5px 16px',
               fontFamily:    'var(--font-mono)',
               fontSize:      10,
-              color:         '#5b8a9a',
+              color:         '#475569',
               textDecoration: 'none',
               letterSpacing: '0.5px',
             }}

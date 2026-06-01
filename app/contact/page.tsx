@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 const INPUT_BASE: React.CSSProperties = {
-  background: '#050709',
+  background: '#060a14',
   border: '1px solid rgba(255,255,255,0.09)',
   color: '#eef4f0',
   fontFamily: 'var(--font-mono)',
@@ -62,8 +62,8 @@ function FocusInput({
       required={required}
       style={{
         ...INPUT_BASE,
-        borderColor: focused ? 'rgba(183,255,97,0.35)' : 'rgba(255,255,255,0.09)',
-        boxShadow:   focused ? '0 0 8px rgba(183,255,97,0.08)' : 'none',
+        borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)',
+        boxShadow:   focused ? '0 0 8px rgba(245,158,11,0.08)' : 'none',
       }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
@@ -91,8 +91,8 @@ function FocusSelect({
       style={{
         ...INPUT_BASE,
         appearance: 'none',
-        borderColor: focused ? 'rgba(183,255,97,0.35)' : 'rgba(255,255,255,0.09)',
-        boxShadow:   focused ? '0 0 8px rgba(183,255,97,0.08)' : 'none',
+        borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)',
+        boxShadow:   focused ? '0 0 8px rgba(245,158,11,0.08)' : 'none',
       }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
@@ -124,8 +124,8 @@ function FocusTextarea({
       style={{
         ...INPUT_BASE,
         resize: 'vertical',
-        borderColor: focused ? 'rgba(183,255,97,0.35)' : 'rgba(255,255,255,0.09)',
-        boxShadow:   focused ? '0 0 8px rgba(183,255,97,0.08)' : 'none',
+        borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)',
+        boxShadow:   focused ? '0 0 8px rgba(245,158,11,0.08)' : 'none',
         lineHeight: 1.6,
       }}
       onFocus={() => setFocused(true)}
@@ -170,7 +170,7 @@ export default function ContactPage() {
         height: 52, display: 'flex', alignItems: 'center',
         justifyContent: 'space-between',
         background: 'rgba(5,7,9,0.95)', backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(183,255,97,0.12)',
+        borderBottom: '1px solid rgba(245,158,11,0.12)',
       }}>
         <Link href="/" className="hover-green" style={{
           fontFamily: 'var(--font-mono)', fontSize: 11,
@@ -188,7 +188,7 @@ export default function ContactPage() {
         {/* Header */}
         <p style={{
           fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '4px',
-          textTransform: 'uppercase', color: '#b7ff61', marginBottom: 8,
+          textTransform: 'uppercase', color: '#f59e0b', marginBottom: 8,
         }}>
           // GET_IN_TOUCH
         </p>
@@ -206,11 +206,11 @@ export default function ContactPage() {
           1–2 business days.
         </p>
 
-        <div style={{ height: 2, background: 'rgba(183,255,97,0.15)', marginBottom: 36 }} />
+        <div style={{ height: 2, background: 'rgba(245,158,11,0.15)', marginBottom: 36 }} />
 
         {state === 'done' ? (
           <div style={{ textAlign: 'center', padding: '48px 0' }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 32, color: '#b7ff61', marginBottom: 12 }}>✓</p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 32, color: '#f59e0b', marginBottom: 12 }}>✓</p>
             <h2 style={{
               fontFamily: 'var(--font-heading)', fontSize: 22, fontWeight: 700,
               color: '#eef4f0', marginBottom: 8,

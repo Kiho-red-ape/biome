@@ -38,9 +38,9 @@ export function KitStatusUpdater({ kitId }: { kitId: string }) {
   }
 
   const SELECT: React.CSSProperties = {
-    background:   '#050709',
+    background:   '#060a14',
     border:       '1px solid rgba(255,255,255,0.08)',
-    color:        '#aab8b1',
+    color:        '#94a3b8',
     fontFamily:   'var(--font-mono)',
     fontSize:     11,
     padding:      '5px 8px',
@@ -81,21 +81,21 @@ export function KitStatusUpdater({ kitId }: { kitId: string }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         <div>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#5b8a9a', marginBottom: 3, letterSpacing: '1px', textTransform: 'uppercase' }}>Ship</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#475569', marginBottom: 3, letterSpacing: '1px', textTransform: 'uppercase' }}>Ship</p>
           <select value={ship} onChange={(e) => setShip(e.target.value)} style={SELECT}>
             <option value="">—</option>
             {SHIP_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         <div>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#5b8a9a', marginBottom: 3, letterSpacing: '1px', textTransform: 'uppercase' }}>Collect</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#475569', marginBottom: 3, letterSpacing: '1px', textTransform: 'uppercase' }}>Collect</p>
           <select value={collect} onChange={(e) => setCollect(e.target.value)} style={SELECT}>
             <option value="">—</option>
             {COLLECT_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         <div>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#5b8a9a', marginBottom: 3, letterSpacing: '1px', textTransform: 'uppercase' }}>Return</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#475569', marginBottom: 3, letterSpacing: '1px', textTransform: 'uppercase' }}>Return</p>
           <select value={ret} onChange={(e) => setRet(e.target.value)} style={SELECT}>
             <option value="">—</option>
             {RETURN_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -105,17 +105,17 @@ export function KitStatusUpdater({ kitId }: { kitId: string }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         <div>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#5b8a9a', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '1px' }}>Tracking #</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#475569', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '1px' }}>Tracking #</p>
           <input value={tracking} onChange={(e) => setTracking(e.target.value)} placeholder="e.g. 1Z999..." style={TEXT} />
         </div>
         <div>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#5b8a9a', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '1px' }}>Lab ref #</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#475569', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '1px' }}>Lab ref #</p>
           <input value={labRef} onChange={(e) => setLabRef(e.target.value)} placeholder="Lab reference" style={TEXT} />
         </div>
       </div>
 
       <div>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#5b8a9a', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '1px' }}>Notes</p>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#475569', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '1px' }}>Notes</p>
         <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Chain-of-custody note…" style={TEXT} />
       </div>
 
@@ -127,9 +127,9 @@ export function KitStatusUpdater({ kitId }: { kitId: string }) {
             fontFamily:   'var(--font-mono)',
             fontSize:     10,
             padding:      '6px 14px',
-            background:   saved ? 'rgba(183,255,97,0.1)' : 'rgba(255,179,0,0.08)',
-            border:       `1px solid ${saved ? 'rgba(183,255,97,0.3)' : 'rgba(255,179,0,0.2)'}`,
-            color:        saved ? '#b7ff61' : '#ffb300',
+            background:   saved ? 'rgba(245,158,11,0.1)' : 'rgba(255,179,0,0.08)',
+            border:       `1px solid ${saved ? 'rgba(245,158,11,0.3)' : 'rgba(255,179,0,0.2)'}`,
+            color:        saved ? '#f59e0b' : '#ffb300',
             cursor:       'pointer',
             borderRadius: 2,
             textTransform: 'uppercase',
@@ -146,7 +146,7 @@ export function KitStatusUpdater({ kitId }: { kitId: string }) {
             padding:      '6px 10px',
             background:   'transparent',
             border:       '1px solid rgba(255,255,255,0.06)',
-            color:        '#5b8a9a',
+            color:        '#475569',
             cursor:       'pointer',
             borderRadius: 2,
           }}

@@ -31,13 +31,13 @@ export default async function ResearchersPage() {
       <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 8 }}>
         // RESEARCHER_APPROVALS
       </p>
-      <h1 style={{ fontFamily: 'var(--font-mono)', fontSize: 18, color: '#f2faf4', marginBottom: 32 }}>
+      <h1 style={{ fontFamily: 'var(--font-mono)', fontSize: 18, color: '#f8fafc', marginBottom: 32 }}>
         Experimenter profiles
       </h1>
 
       {pendingRows.length > 0 ? (
         <section style={{ marginBottom: 48 }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px', color: '#22d3ee', textTransform: 'uppercase', marginBottom: 16 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px', color: '#38bdf8', textTransform: 'uppercase', marginBottom: 16 }}>
             Pending review ({pendingRows.length})
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -48,7 +48,7 @@ export default async function ResearchersPage() {
         </section>
       ) : (
         <div style={{ padding: '24px 0', marginBottom: 32 }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a' }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#475569' }}>
             No pending applications.
           </p>
         </div>
@@ -56,7 +56,7 @@ export default async function ResearchersPage() {
 
       {activeRows.length > 0 && (
         <section style={{ marginBottom: 48 }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 16 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 16 }}>
             Active ({activeRows.length})
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -69,7 +69,7 @@ export default async function ResearchersPage() {
 
       {rejectedRows.length > 0 && (
         <section>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px', color: '#5b8a9a', textTransform: 'uppercase', marginBottom: 16 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px', color: '#475569', textTransform: 'uppercase', marginBottom: 16 }}>
             Rejected ({rejectedRows.length})
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -85,26 +85,26 @@ export default async function ResearchersPage() {
 
 function ResearcherCard({ row, compact = false }: { row: ResearcherRow; compact?: boolean }) {
   const statusColor =
-    row.review_status === 'pending_review' ? '#22d3ee' :
-    row.review_status === 'active'         ? '#b7ff61' : '#5b8a9a';
+    row.review_status === 'pending_review' ? '#38bdf8' :
+    row.review_status === 'active'         ? '#f59e0b' : '#475569';
 
   return (
     <div style={{
       background:   '#0b1014',
-      border:       `1px solid ${row.review_status === 'pending_review' ? 'rgba(34,211,238,0.15)' : 'rgba(255,255,255,0.05)'}`,
+      border:       `1px solid ${row.review_status === 'pending_review' ? 'rgba(56,189,248,0.15)' : 'rgba(255,255,255,0.05)'}`,
       borderRadius: 2,
       padding:      compact ? '12px 16px' : '20px 24px',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
         <div>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#f2faf4', marginBottom: 2 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#f8fafc', marginBottom: 2 }}>
             {row.org_name}
           </p>
           {row.role_title && !compact && (
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>{row.role_title}</p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>{row.role_title}</p>
           )}
           {row.org_website && !compact && (
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a', marginTop: 4 }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569', marginTop: 4 }}>
               {row.org_website}
             </p>
           )}
@@ -117,7 +117,7 @@ function ResearcherCard({ row, compact = false }: { row: ResearcherRow; compact?
           }}>
             {row.review_status.replace('_', ' ')}
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
             {new Date(row.created_at).toLocaleDateString()}
           </span>
         </div>
@@ -134,7 +134,7 @@ function ResearcherCard({ row, compact = false }: { row: ResearcherRow; compact?
           {row.expertise_areas.map(a => (
             <span key={a} style={{
               fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.5px',
-              color: '#5b8a9a', border: '1px solid rgba(255,255,255,0.08)',
+              color: '#475569', border: '1px solid rgba(255,255,255,0.08)',
               padding: '2px 8px', borderRadius: 2,
             }}>
               {a}
@@ -169,8 +169,8 @@ function ApprovalActions({ userId }: { userId: string }) {
         style={{
           fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '1px',
           textTransform: 'uppercase', padding: '6px 16px',
-          background: 'rgba(183,255,97,0.08)', border: '1px solid rgba(183,255,97,0.3)',
-          color: '#b7ff61', borderRadius: 2, cursor: 'pointer',
+          background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)',
+          color: '#f59e0b', borderRadius: 2, cursor: 'pointer',
         }}
       >
         ✓ Approve
@@ -181,7 +181,7 @@ function ApprovalActions({ userId }: { userId: string }) {
           fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '1px',
           textTransform: 'uppercase', padding: '6px 16px',
           background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
-          color: '#5b8a9a', borderRadius: 2, cursor: 'pointer',
+          color: '#475569', borderRadius: 2, cursor: 'pointer',
         }}
       >
         ✕ Reject

@@ -265,7 +265,7 @@ export default function ParticipantOnboardingPage() {
             <button
               onClick={() => router.replace('/dashboard')}
               className="w-full py-3 rounded font-semibold text-sm transition-all hover:opacity-90"
-              style={{ background: 'var(--green)', color: '#050709' }}
+              style={{ background: 'var(--green)', color: '#060a14' }}
             >
               Enter BIOME →
             </button>
@@ -485,7 +485,7 @@ export default function ParticipantOnboardingPage() {
               type="submit"
               disabled={!canSubmit}
               className="w-full py-3 rounded font-semibold text-sm transition-all disabled:opacity-40 hover:opacity-90"
-              style={{ background: 'var(--green)', color: '#050709' }}
+              style={{ background: 'var(--green)', color: '#060a14' }}
             >
               {loading ? '// GENERATING_IDENTITY...' : 'Confirm & generate my participant ID →'}
             </button>

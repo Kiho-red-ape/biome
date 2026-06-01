@@ -196,7 +196,7 @@ export function PublishFlowModal({
                 style={{
                   width: '100%', padding: '12px',
                   fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700,
-                  background: 'var(--green)', color: '#050709',
+                  background: 'var(--green)', color: '#060a14',
                   border: 'none', borderRadius: 3, cursor: 'pointer',
                 }}
               >
@@ -267,7 +267,7 @@ export function PublishFlowModal({
                   style={{
                     flex: 2, padding: '12px',
                     fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700,
-                    background: 'var(--green)', color: '#050709',
+                    background: 'var(--green)', color: '#060a14',
                     border: 'none', borderRadius: 3, cursor: 'pointer',
                   }}
                 >
@@ -358,7 +358,7 @@ export function PublishFlowModal({
                   style={{
                     flex: 2, padding: '12px',
                     fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700,
-                    background: 'var(--green)', color: '#050709',
+                    background: 'var(--green)', color: '#060a14',
                     border: 'none', borderRadius: 3, cursor: 'pointer',
                   }}
                 >
@@ -417,7 +417,7 @@ export function PublishFlowModal({
                   style={{
                     flex: 2, padding: '12px',
                     fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700,
-                    background: 'var(--green)', color: '#050709',
+                    background: 'var(--green)', color: '#060a14',
                     border: 'none', borderRadius: 3, cursor: publishing ? 'not-allowed' : 'pointer',
                     opacity: publishing ? 0.7 : 1,
                   }}

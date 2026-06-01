@@ -23,8 +23,8 @@ function verBadge(u: User) {
   if (!u.in_supabase) return { label: 'NOT SYNCED', color: '#ff6464' };
   if (!u.onboarded)   return { label: 'NO PROFILE', color: '#3a4a43' };
   const s = u.verification_status;
-  if (s === 'fully_verified')  return { label: 'FULL',    color: '#b7ff61' };
-  if (s === 'phone_verified')  return { label: 'PHONE',   color: '#22d3ee' };
+  if (s === 'fully_verified')  return { label: 'FULL',    color: '#f59e0b' };
+  if (s === 'phone_verified')  return { label: 'PHONE',   color: '#38bdf8' };
   if (s === 'email_verified')  return { label: 'EMAIL',   color: '#ffb300' };
   return { label: 'PENDING', color: '#5b5b3a' };
 }
@@ -63,11 +63,11 @@ export default function OpsParticipants() {
           <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 6 }}>
             // PARTICIPANTS
           </p>
-          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f2faf4', marginBottom: 4 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f8fafc', marginBottom: 4 }}>
             All Users
           </h1>
           {!loading && (
-            <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a' }}>
+            <p style={{ ...MONO, fontSize: 11, color: '#475569' }}>
               {users.length} in Privy · {users.filter(u => u.onboarded).length} onboarded
               {notSynced > 0 && <span style={{ color: '#ff6464' }}> · {notSynced} not synced to Supabase</span>}
             </p>
@@ -96,21 +96,21 @@ export default function OpsParticipants() {
             padding: '5px 14px', cursor: 'pointer',
             border: `1px solid ${filter === key ? '#ffb300' : 'rgba(255,255,255,0.08)'}`,
             background: filter === key ? 'rgba(255,179,0,0.06)' : 'transparent',
-            color: filter === key ? '#ffb300' : '#5b8a9a',
+            color: filter === key ? '#ffb300' : '#475569',
             borderRadius: 2,
           }}>{label}</button>
         ))}
       </div>
 
       {loading && (
-        <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', padding: '32px 0' }}>// Loading from Privy...</p>
+        <p style={{ ...MONO, fontSize: 11, color: '#475569', padding: '32px 0' }}>// Loading from Privy...</p>
       )}
 
       {error && (
         <div style={{ ...MONO, fontSize: 11, color: '#ff6464', background: 'rgba(255,100,100,0.06)', border: '1px solid rgba(255,100,100,0.2)', padding: '16px', borderRadius: 2, marginBottom: 24 }}>
           <p style={{ fontWeight: 700, marginBottom: 4 }}>Failed to load Privy users</p>
-          <p style={{ color: '#aab8b1' }}>{error}</p>
-          <p style={{ marginTop: 8, color: '#5b8a9a' }}>
+          <p style={{ color: '#94a3b8' }}>{error}</p>
+          <p style={{ marginTop: 8, color: '#475569' }}>
             Make sure <code>PRIVY_APP_SECRET</code> is set in your environment variables (Netlify → Site config → Environment variables).
           </p>
         </div>
@@ -122,20 +122,20 @@ export default function OpsParticipants() {
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}>
                 {['Email', 'Participant ID', 'Status', 'Role', 'Country', 'Studies', 'Joined', 'Actions'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', padding: '10px 12px', color: '#5b8a9a', fontWeight: 400, letterSpacing: '1px', whiteSpace: 'nowrap', fontSize: 10 }}>{h}</th>
+                  <th key={h} style={{ textAlign: 'left', padding: '10px 12px', color: '#475569', fontWeight: 400, letterSpacing: '1px', whiteSpace: 'nowrap', fontSize: 10 }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={8} style={{ padding: 32, color: '#5b8a9a', textAlign: 'center' }}>No users found.</td></tr>
+                <tr><td colSpan={8} style={{ padding: 32, color: '#475569', textAlign: 'center' }}>No users found.</td></tr>
               )}
               {filtered.map(u => {
                 const badge = verBadge(u);
                 return (
                   <tr key={u.privy_id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', opacity: u.in_supabase ? 1 : 0.5 }}>
-                    <td style={{ padding: '10px 12px', color: '#f2faf4' }}>{u.email ?? <span style={{ color: '#3a4a43' }}>—</span>}</td>
-                    <td style={{ padding: '10px 12px', color: '#5b8a9a', whiteSpace: 'nowrap', fontSize: 10 }}>
+                    <td style={{ padding: '10px 12px', color: '#f8fafc' }}>{u.email ?? <span style={{ color: '#3a4a43' }}>—</span>}</td>
+                    <td style={{ padding: '10px 12px', color: '#475569', whiteSpace: 'nowrap', fontSize: 10 }}>
                       {u.participant_id ?? <span style={{ color: '#3a4a43' }}>—</span>}
                     </td>
                     <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
@@ -143,18 +143,18 @@ export default function OpsParticipants() {
                         {badge.label}
                       </span>
                     </td>
-                    <td style={{ padding: '10px 12px', color: '#aab8b1' }}>{u.supabase_role ?? '—'}</td>
-                    <td style={{ padding: '10px 12px', color: '#aab8b1', whiteSpace: 'nowrap' }}>
+                    <td style={{ padding: '10px 12px', color: '#94a3b8' }}>{u.supabase_role ?? '—'}</td>
+                    <td style={{ padding: '10px 12px', color: '#94a3b8', whiteSpace: 'nowrap' }}>
                       {u.country ?? u.supabase_region ?? '—'}
                     </td>
-                    <td style={{ padding: '10px 12px', color: '#aab8b1' }}>{u.previous_study_count ?? '—'}</td>
-                    <td style={{ padding: '10px 12px', color: '#5b8a9a', whiteSpace: 'nowrap', fontSize: 10 }}>
+                    <td style={{ padding: '10px 12px', color: '#94a3b8' }}>{u.previous_study_count ?? '—'}</td>
+                    <td style={{ padding: '10px 12px', color: '#475569', whiteSpace: 'nowrap', fontSize: 10 }}>
                       {new Date(u.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' })}
                     </td>
                     <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
                       {u.participant_id && (
                         <Link href={`/ops/notifications?to=${encodeURIComponent(u.participant_id)}`}
-                          style={{ ...MONO, fontSize: 10, color: '#5b8a9a', textDecoration: 'none' }}>
+                          style={{ ...MONO, fontSize: 10, color: '#475569', textDecoration: 'none' }}>
                           Notify
                         </Link>
                       )}

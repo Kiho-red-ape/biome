@@ -48,7 +48,7 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
   if (submitted) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <p style={{ ...MONO, fontSize: 12, color: '#b7ff61' }}>
+        <p style={{ ...MONO, fontSize: 12, color: '#f59e0b' }}>
           ✓ Email noted. Your download is ready:
         </p>
         <a
@@ -59,7 +59,7 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
             ...MONO, fontSize: 12, fontWeight: 700,
             display:    'inline-flex',
             padding:    '12px 28px',
-            background: '#b7ff61',
+            background: '#f59e0b',
             color:      '#050709',
             borderRadius: 2,
             textDecoration: 'none',
@@ -68,7 +68,7 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
         >
           {artifactLabel} ↓
         </a>
-        <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', lineHeight: 1.6 }}>
+        <p style={{ ...MONO, fontSize: 11, color: '#475569', lineHeight: 1.6 }}>
           We may follow up with related resources. Unsubscribe anytime.
         </p>
       </div>
@@ -89,7 +89,7 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
             padding:    '10px 14px',
             background: 'rgba(255,255,255,0.03)',
             border:     `1px solid ${error ? 'rgba(255,100,100,0.4)' : 'rgba(255,255,255,0.1)'}`,
-            borderRadius: 2, color: '#f2faf4', outline: 'none',
+            borderRadius: 2, color: '#f8fafc', outline: 'none',
           }}
         />
         <button
@@ -98,7 +98,7 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
           style={{
             ...MONO, fontSize: 12, fontWeight: 700,
             padding:  '10px 24px',
-            background: '#b7ff61', color: '#050709',
+            background: '#f59e0b', color: '#060a14',
             border: 'none', borderRadius: 2, cursor: loading ? 'not-allowed' : 'pointer',
           }}
         >
@@ -106,7 +106,7 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
         </button>
       </div>
       {error && <p style={{ ...MONO, fontSize: 11, color: '#ff6464' }}>{error}</p>}
-      <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a' }}>
+      <p style={{ ...MONO, fontSize: 11, color: '#475569' }}>
         No spam. Just the file and occasional related updates.
       </p>
     </form>

@@ -44,26 +44,26 @@ export default async function PartnerJoinPage() {
   }
 
   return (
-    <main style={{ minHeight: '100vh', background: '#050709' }}>
+    <main style={{ minHeight: '100vh', background: '#060a14' }}>
       <SiteHeader />
 
       {/* ── Hero ── */}
       <section style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(48px, 8vw, 96px) 24px 64px' }}>
         <p style={{
           fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px',
-          color: '#b7ff61', textTransform: 'uppercase', marginBottom: 20,
+          color: '#f59e0b', textTransform: 'uppercase', marginBottom: 20,
         }}>
           // PARTNER_NETWORK
         </p>
         <h1 style={{
           fontFamily: 'var(--font-heading)', fontWeight: 700,
           fontSize: 'clamp(26px, 4vw, 40px)', lineHeight: 1.15,
-          color: '#f2faf4', marginBottom: 16,
+          color: '#f8fafc', marginBottom: 16,
         }}>
           Build with Biome.
         </h1>
         <p style={{
-          fontFamily: 'var(--font-mono)', fontSize: 13, color: '#aab8b1',
+          fontFamily: 'var(--font-mono)', fontSize: 13, color: '#94a3b8',
           lineHeight: 1.9, marginBottom: 36, maxWidth: 520,
         }}>
           We work with testing laboratories, IRBs, recruitment agencies, and
@@ -78,7 +78,7 @@ export default async function PartnerJoinPage() {
         <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px' }}>
           <p style={{
             fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px',
-            color: '#b7ff61', textTransform: 'uppercase', marginBottom: 40,
+            color: '#f59e0b', textTransform: 'uppercase', marginBottom: 40,
           }}>
             // WHY_PARTNER
           </p>
@@ -87,11 +87,11 @@ export default async function PartnerJoinPage() {
               <div key={b.num}>
                 <p style={{
                   fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px',
-                  color: '#b7ff61', textTransform: 'uppercase', marginBottom: 12,
+                  color: '#f59e0b', textTransform: 'uppercase', marginBottom: 12,
                 }}>
                   {b.num} {b.label}
                 </p>
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a', lineHeight: 1.7 }}>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#475569', lineHeight: 1.7 }}>
                   {b.desc}
                 </p>
               </div>
@@ -106,7 +106,7 @@ export default async function PartnerJoinPage() {
           <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px' }}>
             <p style={{
               fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px',
-              color: '#5b8a9a', textTransform: 'uppercase', marginBottom: 40,
+              color: '#475569', textTransform: 'uppercase', marginBottom: 40,
             }}>
               // PARTNERS
             </p>

@@ -36,7 +36,7 @@ export function EstimateLeadRow({ lead }: Props) {
   return (
     <div style={{
       background: '#0b1014',
-      border:     `1px solid ${contacted ? 'rgba(255,255,255,0.04)' : 'rgba(34,211,238,0.12)'}`,
+      border:     `1px solid ${contacted ? 'rgba(255,255,255,0.04)' : 'rgba(56,189,248,0.12)'}`,
       borderRadius: 2,
       overflow:   'hidden',
     }}>
@@ -54,18 +54,18 @@ export function EstimateLeadRow({ lead }: Props) {
         onClick={() => setOpen(o => !o)}
       >
         <div>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f2faf4' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f8fafc' }}>
             {(lead.email as string)}
           </span>
           {!!lead.organization && (
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a', marginLeft: 10 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569', marginLeft: 10 }}>
               {lead.organization as string}
             </span>
           )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {!!lead.estimated_total && (
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#b7ff61' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f59e0b' }}>
               ${(lead.estimated_total as number).toLocaleString()}
             </span>
           )}
@@ -74,17 +74,17 @@ export function EstimateLeadRow({ lead }: Props) {
             fontSize:     9,
             letterSpacing: '1px',
             textTransform: 'uppercase',
-            color:        contacted ? '#5b8a9a' : '#22d3ee',
-            border:       `1px solid ${contacted ? 'rgba(255,255,255,0.08)' : 'rgba(34,211,238,0.3)'}`,
+            color:        contacted ? '#475569' : '#38bdf8',
+            border:       `1px solid ${contacted ? 'rgba(255,255,255,0.08)' : 'rgba(56,189,248,0.3)'}`,
             padding:      '2px 8px',
             borderRadius: 2,
           }}>
             {contacted ? 'contacted' : 'new'}
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
             {new Date(lead.created_at as string).toLocaleDateString()}
           </span>
-          <span style={{ color: '#5b8a9a', fontSize: 10 }}>{open ? '▲' : '▼'}</span>
+          <span style={{ color: '#475569', fontSize: 10 }}>{open ? '▲' : '▼'}</span>
         </div>
       </div>
 
@@ -104,7 +104,7 @@ export function EstimateLeadRow({ lead }: Props) {
               ['Samples',      (lead.samples as string[] | null)?.join(', ')],
               ['IRB',          lead.irb_status],
             ].filter(([, v]) => v).map(([k, v]) => (
-              <span key={k as string} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
+              <span key={k as string} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
                 <span style={{ color: '#7f8e87' }}>{k as string}:</span> {String(v)}
               </span>
             ))}
@@ -115,12 +115,12 @@ export function EstimateLeadRow({ lead }: Props) {
             <div style={{
               display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 16,
               padding: '12px 16px',
-              background: 'rgba(183,255,97,0.03)',
-              border: '1px solid rgba(183,255,97,0.08)',
+              background: 'rgba(245,158,11,0.03)',
+              border: '1px solid rgba(245,158,11,0.08)',
               borderRadius: 2,
             }}>
               {Object.entries(bd).map(([k, v]) => (
-                <span key={k} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#aab8b1' }}>
+                <span key={k} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#94a3b8' }}>
                   <span style={{ color: '#7f8e87' }}>{k}:</span> ${v.toLocaleString()}
                 </span>
               ))}
@@ -137,7 +137,7 @@ export function EstimateLeadRow({ lead }: Props) {
               width:       '100%',
               fontFamily:  'var(--font-mono)',
               fontSize:    12,
-              color:       '#aab8b1',
+              color:       '#94a3b8',
               background:  'rgba(255,255,255,0.03)',
               border:      '1px solid rgba(255,255,255,0.08)',
               borderRadius: 2,
@@ -161,9 +161,9 @@ export function EstimateLeadRow({ lead }: Props) {
                   letterSpacing: '1px',
                   textTransform: 'uppercase',
                   padding:       '6px 16px',
-                  background:    'rgba(34,211,238,0.08)',
-                  border:        '1px solid rgba(34,211,238,0.3)',
-                  color:         '#22d3ee',
+                  background:    'rgba(56,189,248,0.08)',
+                  border:        '1px solid rgba(56,189,248,0.3)',
+                  color:         '#38bdf8',
                   borderRadius:  2,
                   cursor:        'pointer',
                 }}
@@ -182,7 +182,7 @@ export function EstimateLeadRow({ lead }: Props) {
                 padding:       '6px 16px',
                 background:    'transparent',
                 border:        '1px solid rgba(255,255,255,0.1)',
-                color:         '#5b8a9a',
+                color:         '#475569',
                 borderRadius:  2,
                 cursor:        'pointer',
               }}

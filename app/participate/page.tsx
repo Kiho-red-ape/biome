@@ -63,18 +63,18 @@ const DATA_POINTS = [
 
 export default function ParticipatePage() {
   return (
-    <main style={{ minHeight: '100vh', background: '#050709' }}>
+    <main style={{ minHeight: '100vh', background: '#060a14' }}>
       <SiteHeader />
 
       {/* ── Hero ── */}
       <section style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(48px, 8vw, 96px) 24px 48px' }}>
-        <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 20 }}>
+        <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 20 }}>
           // JOIN_THE_NETWORK
         </p>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(28px, 4vw, 44px)', lineHeight: 1.1, color: '#f2faf4', marginBottom: 12 }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(28px, 4vw, 44px)', lineHeight: 1.1, color: '#f8fafc', marginBottom: 12 }}>
           Join the new clinical economy.
         </h1>
-        <p style={{ ...MONO, fontSize: 13, color: '#aab8b1', lineHeight: 1.9, marginBottom: 36, maxWidth: 560 }}>
+        <p style={{ ...MONO, fontSize: 13, color: '#94a3b8', lineHeight: 1.9, marginBottom: 36, maxWidth: 560 }}>
           Biome runs decentralised studies in microbiome, nutrition, sleep, wearables, and longevity.
           Research partners complete milestones from home and receive compensation on completion.
         </p>
@@ -82,9 +82,9 @@ export default function ParticipatePage() {
           <Link href="/onboarding?role=participant" className="btn-primary" style={{ display: 'inline-flex' }}>
             Create your profile →
           </Link>
-          <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', margin: 0 }}>
+          <p style={{ ...MONO, fontSize: 11, color: '#475569', margin: 0 }}>
             Already a member?{' '}
-            <Link href="/dashboard" style={{ color: '#b7ff61', textDecoration: 'none' }}>Sign in →</Link>
+            <Link href="/dashboard" style={{ color: '#f59e0b', textDecoration: 'none' }}>Sign in →</Link>
           </p>
         </div>
       </section>
@@ -96,17 +96,17 @@ export default function ParticipatePage() {
 
         {/* ── Your data ── */}
         <section style={{ marginBottom: 80, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 64 }}>
-          <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 24 }}>
+          <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 24 }}>
             // YOUR_DATA
           </p>
-          <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(18px, 2.5vw, 24px)', color: '#f2faf4', marginBottom: 24, lineHeight: 1.2 }}>
+          <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(18px, 2.5vw, 24px)', color: '#f8fafc', marginBottom: 24, lineHeight: 1.2 }}>
             Your data. Your choice.
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {DATA_POINTS.map((item) => (
               <div key={item} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                <span style={{ ...MONO, fontSize: 11, color: 'rgba(183,255,97,0.4)', flexShrink: 0, marginTop: 2 }}>—</span>
-                <p style={{ ...MONO, fontSize: 12, color: '#aab8b1', lineHeight: 1.7, margin: 0 }}>{item}</p>
+                <span style={{ ...MONO, fontSize: 11, color: 'rgba(245,158,11,0.4)', flexShrink: 0, marginTop: 2 }}>—</span>
+                <p style={{ ...MONO, fontSize: 12, color: '#94a3b8', lineHeight: 1.7, margin: 0 }}>{item}</p>
               </div>
             ))}
           </div>
@@ -119,9 +119,9 @@ export default function ParticipatePage() {
               Join the network →
             </Link>
           </div>
-          <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', lineHeight: 1.7 }}>
+          <p style={{ ...MONO, fontSize: 11, color: '#475569', lineHeight: 1.7 }}>
             Questions?{' '}
-            <a href="mailto:contact@biome.to" style={{ color: '#aab8b1', textDecoration: 'none' }}>contact@biome.to</a>
+            <a href="mailto:contact@biome.to" style={{ color: '#94a3b8', textDecoration: 'none' }}>contact@biome.to</a>
           </p>
         </section>
 

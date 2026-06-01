@@ -6,7 +6,7 @@ const INPUT: React.CSSProperties = {
   width:        '100%',
   background:   '#0b1014',
   border:       '1px solid rgba(255,255,255,0.09)',
-  color:        '#f2faf4',
+  color:        '#f8fafc',
   fontFamily:   'var(--font-mono)',
   fontSize:     13,
   padding:      '10px 14px',
@@ -22,7 +22,7 @@ const LABEL: React.CSSProperties = {
   fontSize:      10,
   textTransform: 'uppercase',
   letterSpacing: '2px',
-  color:         '#5b8a9a',
+  color:         '#475569',
   marginBottom:  6,
 };
 
@@ -30,7 +30,7 @@ function Field({ label, required, children }: { label: string; required?: boolea
   return (
     <div style={{ marginBottom: 20 }}>
       <label style={LABEL}>
-        {label}{required && <span style={{ color: '#b7ff61', marginLeft: 4 }}>*</span>}
+        {label}{required && <span style={{ color: '#f59e0b', marginLeft: 4 }}>*</span>}
       </label>
       {children}
     </div>
@@ -52,7 +52,7 @@ function FocusInput({
       type={type}
       placeholder={placeholder}
       required={required}
-      style={{ ...INPUT, borderColor: focused ? 'rgba(183,255,97,0.35)' : 'rgba(255,255,255,0.09)' }}
+      style={{ ...INPUT, borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)' }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
     />
@@ -73,7 +73,7 @@ function FocusSelect({
       ref={selectRef}
       required={required}
       defaultValue=""
-      style={{ ...INPUT, appearance: 'none', borderColor: focused ? 'rgba(183,255,97,0.35)' : 'rgba(255,255,255,0.09)' }}
+      style={{ ...INPUT, appearance: 'none', borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)' }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
     >
@@ -98,7 +98,7 @@ function FocusTextarea({ textareaRef, placeholder, required }: {
       maxLength={300}
       style={{
         ...INPUT, resize: 'vertical', lineHeight: 1.6,
-        borderColor: focused ? 'rgba(183,255,97,0.35)' : 'rgba(255,255,255,0.09)',
+        borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)',
       }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
@@ -153,18 +153,18 @@ export function PartnerJoinForm() {
   if (done) {
     return (
       <div style={{
-        background: 'rgba(183,255,97,0.04)', border: '1px solid rgba(183,255,97,0.15)',
+        background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.15)',
         padding: 40, borderRadius: 2,
       }}>
-        <p style={{ fontFamily: 'var(--font-heading)', fontSize: 28, color: '#b7ff61', marginBottom: 12 }}>✓</p>
-        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f2faf4', marginBottom: 12 }}>
+        <p style={{ fontFamily: 'var(--font-heading)', fontSize: 28, color: '#f59e0b', marginBottom: 12 }}>✓</p>
+        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f8fafc', marginBottom: 12 }}>
           Application received.
         </p>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#aab8b1', lineHeight: 1.8, marginBottom: 8 }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#94a3b8', lineHeight: 1.8, marginBottom: 8 }}>
           We&apos;ll review within 48 hours and send a follow-up email with a link to complete your partner profile — including logo upload and service details.
         </p>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a', lineHeight: 1.6 }}>
-          Questions? <a href="mailto:contact@biome.to" style={{ color: '#aab8b1', textDecoration: 'none' }}>contact@biome.to</a>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569', lineHeight: 1.6 }}>
+          Questions? <a href="mailto:contact@biome.to" style={{ color: '#94a3b8', textDecoration: 'none' }}>contact@biome.to</a>
         </p>
       </div>
     );
@@ -227,15 +227,15 @@ export function PartnerJoinForm() {
             onClick={() => setAgreed((a) => !a)}
             style={{
               width: 16, height: 16, flexShrink: 0, marginTop: 1,
-              background: agreed ? '#b7ff61' : 'transparent',
-              border: `1px solid ${agreed ? '#b7ff61' : 'rgba(183,255,97,0.3)'}`,
+              background: agreed ? '#f59e0b' : 'transparent',
+              border: `1px solid ${agreed ? '#f59e0b' : 'rgba(245,158,11,0.3)'}`,
               borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer',
             }}
           >
-            {agreed && <span style={{ color: '#050709', fontSize: 10, fontWeight: 900 }}>✓</span>}
+            {agreed && <span style={{ color: '#060a14', fontSize: 10, fontWeight: 900 }}>✓</span>}
           </div>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#aab8b1', lineHeight: 1.6 }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#94a3b8', lineHeight: 1.6 }}>
             I agree to Biome&apos;s Partner Terms.
           </span>
         </label>

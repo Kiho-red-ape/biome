@@ -23,7 +23,7 @@ export default function ParticipantAgreementViewPage() {
 
         <p style={{
           fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
-          textTransform: 'uppercase', color: '#b7ff61', marginBottom: 8,
+          textTransform: 'uppercase', color: '#f59e0b', marginBottom: 8,
         }}>
           // LEGAL_DOCUMENT
         </p>

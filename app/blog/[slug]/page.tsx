@@ -37,7 +37,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         {/* Back */}
         <Link
           href="/blog"
-          style={{ fontFamily: MONO, fontSize: 11, color: '#5b8a9a', textDecoration: 'none', letterSpacing: '0.5px', display: 'inline-block', marginBottom: 40 }}
+          style={{ fontFamily: MONO, fontSize: 11, color: '#475569', textDecoration: 'none', letterSpacing: '0.5px', display: 'inline-block', marginBottom: 40 }}
         >
           ← Blog
         </Link>
@@ -48,7 +48,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             {post.tags.map(tag => (
               <span key={tag} style={{
                 fontFamily: MONO, fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase',
-                color: '#22d3ee', border: '1px solid rgba(34,211,238,0.2)', padding: '2px 8px', borderRadius: 2,
+                color: '#38bdf8', border: '1px solid rgba(56,189,248,0.2)', padding: '2px 8px', borderRadius: 2,
               }}>
                 {tag}
               </span>
@@ -57,14 +57,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         )}
 
         {/* Title */}
-        <h1 style={{ fontFamily: HEAD, fontWeight: 700, fontSize: 'clamp(26px, 4vw, 44px)', color: '#f2faf4', lineHeight: 1.1, marginBottom: 16 }}>
+        <h1 style={{ fontFamily: HEAD, fontWeight: 700, fontSize: 'clamp(26px, 4vw, 44px)', color: '#f8fafc', lineHeight: 1.1, marginBottom: 16 }}>
           {post.title}
         </h1>
 
         {/* Meta */}
         <div style={{ display: 'flex', gap: 16, marginBottom: 40, flexWrap: 'wrap' }}>
-          <span style={{ fontFamily: MONO, fontSize: 12, color: '#5b8a9a' }}>{post.author}</span>
-          <span style={{ fontFamily: MONO, fontSize: 12, color: '#5b8a9a' }}>
+          <span style={{ fontFamily: MONO, fontSize: 12, color: '#475569' }}>{post.author}</span>
+          <span style={{ fontFamily: MONO, fontSize: 12, color: '#475569' }}>
             {new Date(post.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           </span>
         </div>
@@ -78,7 +78,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <p style={{
               fontFamily: HEAD, fontWeight: 700,
               fontSize:   'clamp(18px, 2.5vw, 24px)',
-              color:      '#f2faf4',
+              color:      '#f8fafc',
               lineHeight: 1.4,
             }}>
               {post.hook}
@@ -88,7 +88,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         {/* ── SUBSTANCE — main body ── */}
         <div style={{
-          fontFamily: MONO, fontSize: 14, color: '#aab8b1',
+          fontFamily: MONO, fontSize: 14, color: '#94a3b8',
           lineHeight: 1.9, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
           marginBottom: post.artifact_url ? 64 : 0,
         }}>
@@ -100,13 +100,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <div style={{
             marginTop: 64, paddingTop: 48, borderTop: '1px solid rgba(255,255,255,0.06)',
           }}>
-            <p style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '3px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 16 }}>
+            <p style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 16 }}>
               // FREE_RESOURCE
             </p>
-            <h2 style={{ fontFamily: HEAD, fontWeight: 700, fontSize: 'clamp(18px, 2.5vw, 24px)', color: '#f2faf4', marginBottom: 8 }}>
+            <h2 style={{ fontFamily: HEAD, fontWeight: 700, fontSize: 'clamp(18px, 2.5vw, 24px)', color: '#f8fafc', marginBottom: 8 }}>
               {post.artifact_label ?? 'Download the worksheet'}
             </h2>
-            <p style={{ fontFamily: MONO, fontSize: 12, color: '#5b8a9a', lineHeight: 1.7, marginBottom: 24 }}>
+            <p style={{ fontFamily: MONO, fontSize: 12, color: '#475569', lineHeight: 1.7, marginBottom: 24 }}>
               Enter your email and we'll send you the template directly.
             </p>
             <ArtifactGate
@@ -121,7 +121,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <div style={{ marginTop: 64, paddingTop: 32, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <Link
             href="/blog"
-            style={{ fontFamily: MONO, fontSize: 11, color: '#5b8a9a', textDecoration: 'none', letterSpacing: '0.5px' }}
+            style={{ fontFamily: MONO, fontSize: 11, color: '#475569', textDecoration: 'none', letterSpacing: '0.5px' }}
           >
             ← Back to blog
           </Link>

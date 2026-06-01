@@ -20,7 +20,7 @@ function rampKey(cat: string): string {
 }
 
 const CAT_COLORS: Record<string, string> = {
-  microbiome:         '#b7ff61',
+  microbiome:         '#f59e0b',
   nutrition:          '#8ee7ff',
   sleep:              '#ffd166',
   wearables:          '#ff8f8f',
@@ -28,7 +28,7 @@ const CAT_COLORS: Record<string, string> = {
   'quantified-self':  '#88bbff',
 };
 function catColor(cat: string): string {
-  return CAT_COLORS[rampKey(cat)] ?? '#b7ff61';
+  return CAT_COLORS[rampKey(cat)] ?? '#f59e0b';
 }
 
 // ─── Status badge config ───────────────────────────────────────────────────────
@@ -37,10 +37,10 @@ type StatusCfg = { label: string; color: string; bg: string; border: string; sha
 const STATUS_CFG: Record<ExperimentStatus, StatusCfg> = {
   recruiting: {
     label: 'RECRUITING',
-    color:  '#b7ff61',
-    bg:     'rgba(183,255,97,0.08)',
-    border: '1px solid rgba(183,255,97,0.35)',
-    shadow: '0 0 8px rgba(183,255,97,0.15)',
+    color:  '#f59e0b',
+    bg:     'rgba(245,158,11,0.08)',
+    border: '1px solid rgba(245,158,11,0.35)',
+    shadow: '0 0 8px rgba(245,158,11,0.15)',
     pulse:  true,
   },
   active: {
@@ -257,7 +257,7 @@ function ExperimentCard({ exp, orgName, expNumber }: {
         <div>
           <p className="exp-card-bounty" style={{
             fontFamily: 'var(--font-heading)', fontSize: 24, fontWeight: 700,
-            color: '#b7ff61', lineHeight: 1, margin: 0,
+            color: '#f59e0b', lineHeight: 1, margin: 0,
           }}>
             ${exp.bounty_per_participant.toFixed(0)}
           </p>
@@ -277,7 +277,7 @@ function ExperimentCard({ exp, orgName, expNumber }: {
               fontFamily: 'var(--font-mono)', fontSize: 9,
               textTransform: 'uppercase', letterSpacing: '1.5px',
               fontWeight: 700, color: '#070c07',
-              background: '#b7ff61',
+              background: '#f59e0b',
               padding: '5px 10px',
               textDecoration: 'none',
               borderRadius: 2,
@@ -289,7 +289,7 @@ function ExperimentCard({ exp, orgName, expNumber }: {
         )}
 
         <div style={{ textAlign: 'right' }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#aab8b1', margin: 0, lineHeight: 1 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#94a3b8', margin: 0, lineHeight: 1 }}>
             {exp.slots_filled}/{exp.slots_total}
           </p>
           <div style={{ width: 48, height: 3, background: 'rgba(255,255,255,0.06)', marginTop: 4 }}>
@@ -315,21 +315,21 @@ function BrowseAllCard({ total }: { total: number }) {
       style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         height: 80,
-        border: '1px dashed rgba(183,255,97,0.2)',
+        border: '1px dashed rgba(245,158,11,0.2)',
         background: 'transparent', borderRadius: 2,
         textDecoration: 'none',
         fontFamily: 'var(--font-mono)', fontSize: 12,
-        textTransform: 'uppercase', letterSpacing: '2px', color: '#b7ff61',
+        textTransform: 'uppercase', letterSpacing: '2px', color: '#f59e0b',
         transition: 'border-color 200ms ease, background 200ms ease',
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLElement;
-        el.style.borderColor = 'rgba(183,255,97,0.4)';
-        el.style.background  = 'rgba(183,255,97,0.03)';
+        el.style.borderColor = 'rgba(245,158,11,0.4)';
+        el.style.background  = 'rgba(245,158,11,0.03)';
       }}
       onMouseLeave={(e) => {
         const el = e.currentTarget as HTMLElement;
-        el.style.borderColor = 'rgba(183,255,97,0.2)';
+        el.style.borderColor = 'rgba(245,158,11,0.2)';
         el.style.background  = 'transparent';
       }}
     >
@@ -364,7 +364,7 @@ export function ExperimentGrid({ experiments, orgMap }: Props) {
       {rowRecruiting.length > 0 && (
         <>
           <div style={{ marginTop: 8 }} />
-          <SectionHeader label="RECRUITING STUDIES" color="#b7ff61" />
+          <SectionHeader label="RECRUITING STUDIES" color="#f59e0b" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {rowRecruiting.map((exp) => (
               <ExperimentCard key={exp.id} exp={exp} orgName={getOrgName(exp)} expNumber={getExpNum(exp)} />

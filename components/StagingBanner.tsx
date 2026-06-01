@@ -24,7 +24,7 @@ export default function StagingBanner() {
       >
         <span
           style={{
-            fontFamily: "'DM Mono', 'JetBrains Mono', monospace",
+            fontFamily: "'IBM Plex Mono', 'JetBrains Mono', monospace",
             fontSize: '11px',
             color: '#8ee7ff',
             lineHeight: '1.4',
@@ -35,9 +35,9 @@ export default function StagingBanner() {
         <a
           href="https://biome.to"
           style={{
-            fontFamily: "'DM Mono', 'JetBrains Mono', monospace",
+            fontFamily: "'IBM Plex Mono', 'JetBrains Mono', monospace",
             fontSize: '11px',
-            color: '#b7ff61',
+            color: '#f59e0b',
             textDecoration: 'none',
             whiteSpace: 'nowrap',
           }}

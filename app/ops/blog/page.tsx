@@ -15,9 +15,9 @@ export default async function OpsBlogPage() {
 
   const posts = (data ?? []) as Post[];
   const STATUS_COLOR: Record<string, string> = {
-    published: '#b7ff61',
+    published: '#f59e0b',
     draft:     '#ffb300',
-    archived:  '#5b8a9a',
+    archived:  '#475569',
   };
 
   return (
@@ -46,7 +46,7 @@ export default async function OpsBlogPage() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {posts.length === 0 && (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>No posts yet.</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>No posts yet.</p>
         )}
         {posts.map(post => (
           <div key={post.id} style={{
@@ -61,10 +61,10 @@ export default async function OpsBlogPage() {
             gap:            8,
           }}>
             <div>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f2faf4', marginBottom: 2 }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f8fafc', marginBottom: 2 }}>
                 {post.title}
               </p>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
                 /{post.slug} · {post.author} · {new Date(post.created_at).toLocaleDateString()}
                 {post.tags.length > 0 && ` · ${post.tags.join(', ')}`}
               </p>
@@ -75,8 +75,8 @@ export default async function OpsBlogPage() {
                 fontSize:      9,
                 letterSpacing: '1px',
                 textTransform: 'uppercase',
-                color:         STATUS_COLOR[post.status] ?? '#5b8a9a',
-                border:        `1px solid ${STATUS_COLOR[post.status] ?? '#5b8a9a'}`,
+                color:         STATUS_COLOR[post.status] ?? '#475569',
+                border:        `1px solid ${STATUS_COLOR[post.status] ?? '#475569'}`,
                 padding:       '2px 8px',
                 borderRadius:  2,
                 opacity:       0.8,

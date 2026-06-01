@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import Link from 'next/link';
 
 const INPUT_STYLE: React.CSSProperties = {
-  background: '#050709',
+  background: '#060a14',
   border: '1px solid rgba(255,255,255,0.09)',
   color: '#eef4f0',
   fontFamily: 'var(--font-mono)',
@@ -49,8 +49,8 @@ function FocusInput({
   const [focused, setFocused] = useState(false);
   const style = {
     ...INPUT_STYLE,
-    borderColor: focused ? 'rgba(183,255,97,0.35)' : 'rgba(255,255,255,0.09)',
-    boxShadow:   focused ? '0 0 8px rgba(183,255,97,0.08)' : 'none',
+    borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)',
+    boxShadow:   focused ? '0 0 8px rgba(245,158,11,0.08)' : 'none',
   };
 
   if (options) {
@@ -112,14 +112,14 @@ function NotifyPanel() {
         <p style={{
           fontFamily: 'var(--font-mono)', fontSize: 10,
           textTransform: 'uppercase', letterSpacing: '3px',
-          color: '#b7ff61', marginBottom: 12,
+          color: '#f59e0b', marginBottom: 12,
         }}>
           // NOTIFY_ME
         </p>
         <div style={{
           padding: '32px 0', textAlign: 'center',
         }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 28, color: '#b7ff61', marginBottom: 8 }}>✓</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 28, color: '#f59e0b', marginBottom: 8 }}>✓</p>
           <p style={{
             fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 700,
             color: '#eef4f0', marginBottom: 8,
@@ -139,7 +139,7 @@ function NotifyPanel() {
       <p style={{
         fontFamily: 'var(--font-mono)', fontSize: 10,
         textTransform: 'uppercase', letterSpacing: '3px',
-        color: '#b7ff61', marginBottom: 12,
+        color: '#f59e0b', marginBottom: 12,
       }}>
         // NOTIFY_ME
       </p>
@@ -223,7 +223,7 @@ export function CtaBlock() {
           <p style={{
             fontFamily: 'var(--font-mono)', fontSize: 10,
             textTransform: 'uppercase', letterSpacing: '3px',
-            color: '#b7ff61', marginBottom: 12,
+            color: '#f59e0b', marginBottom: 12,
           }}>
             // FOR_RESEARCHERS
           </p>

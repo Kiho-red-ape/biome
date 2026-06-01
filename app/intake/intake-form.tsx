@@ -6,7 +6,7 @@ const INPUT: React.CSSProperties = {
   width:       '100%',
   background:  '#0b1014',
   border:      '1px solid rgba(255,255,255,0.09)',
-  color:       '#f2faf4',
+  color:       '#f8fafc',
   fontFamily:  'var(--font-mono)',
   fontSize:    13,
   padding:     '10px 14px',
@@ -22,7 +22,7 @@ const LABEL: React.CSSProperties = {
   fontSize:      10,
   textTransform: 'uppercase',
   letterSpacing: '2px',
-  color:         '#5b8a9a',
+  color:         '#475569',
   marginBottom:  6,
 };
 
@@ -32,7 +32,7 @@ function Field({
   return (
     <div style={{ marginBottom: 20 }}>
       <label style={LABEL}>
-        {label}{required && <span style={{ color: '#b7ff61', marginLeft: 4 }}>*</span>}
+        {label}{required && <span style={{ color: '#f59e0b', marginLeft: 4 }}>*</span>}
       </label>
       {children}
     </div>
@@ -54,7 +54,7 @@ function FocusInput({
       type={type}
       placeholder={placeholder}
       required={required}
-      style={{ ...INPUT, borderColor: focused ? 'rgba(183,255,97,0.35)' : 'rgba(255,255,255,0.09)' }}
+      style={{ ...INPUT, borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)' }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
     />
@@ -75,7 +75,7 @@ function FocusSelect({
       ref={selectRef}
       required={required}
       defaultValue=""
-      style={{ ...INPUT, appearance: 'none', borderColor: focused ? 'rgba(183,255,97,0.35)' : 'rgba(255,255,255,0.09)' }}
+      style={{ ...INPUT, appearance: 'none', borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)' }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
     >
@@ -105,7 +105,7 @@ function FocusTextarea({
         ...INPUT,
         resize: 'vertical',
         lineHeight: 1.6,
-        borderColor: focused ? 'rgba(183,255,97,0.35)' : 'rgba(255,255,255,0.09)',
+        borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)',
       }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
@@ -179,14 +179,14 @@ export function IntakeForm() {
   if (done) {
     return (
       <div style={{
-        background: 'rgba(183,255,97,0.04)', border: '1px solid rgba(183,255,97,0.15)',
+        background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.15)',
         padding: 40, borderRadius: 2, textAlign: 'center',
       }}>
-        <p style={{ fontFamily: 'var(--font-heading)', fontSize: 28, color: '#b7ff61', marginBottom: 12 }}>✓</p>
-        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f2faf4', marginBottom: 8 }}>
+        <p style={{ fontFamily: 'var(--font-heading)', fontSize: 28, color: '#f59e0b', marginBottom: 12 }}>✓</p>
+        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f8fafc', marginBottom: 8 }}>
           Received.
         </p>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#5b8a9a', lineHeight: 1.7 }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#475569', lineHeight: 1.7 }}>
           We&apos;ll review your submission and get back to you within 48 hours.
         </p>
       </div>
@@ -247,9 +247,9 @@ export function IntakeForm() {
                 fontFamily:    'var(--font-mono)',
                 fontSize:      11,
                 padding:       '6px 12px',
-                background:    geography.includes(opt) ? 'rgba(183,255,97,0.1)' : 'transparent',
-                border:        `1px solid ${geography.includes(opt) ? 'rgba(183,255,97,0.4)' : 'rgba(255,255,255,0.1)'}`,
-                color:         geography.includes(opt) ? '#b7ff61' : '#5b8a9a',
+                background:    geography.includes(opt) ? 'rgba(245,158,11,0.1)' : 'transparent',
+                border:        `1px solid ${geography.includes(opt) ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                color:         geography.includes(opt) ? '#f59e0b' : '#475569',
                 cursor:        'pointer',
                 borderRadius:  2,
                 transition:    'all 150ms ease',
@@ -274,9 +274,9 @@ export function IntakeForm() {
                 fontFamily:   'var(--font-mono)',
                 fontSize:     11,
                 padding:      '6px 12px',
-                background:   sampleTypes.includes(opt) ? 'rgba(183,255,97,0.1)' : 'transparent',
-                border:       `1px solid ${sampleTypes.includes(opt) ? 'rgba(183,255,97,0.4)' : 'rgba(255,255,255,0.1)'}`,
-                color:        sampleTypes.includes(opt) ? '#b7ff61' : '#5b8a9a',
+                background:   sampleTypes.includes(opt) ? 'rgba(245,158,11,0.1)' : 'transparent',
+                border:       `1px solid ${sampleTypes.includes(opt) ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                color:        sampleTypes.includes(opt) ? '#f59e0b' : '#475569',
                 cursor:       'pointer',
                 borderRadius: 2,
                 transition:   'all 150ms ease',

@@ -30,7 +30,7 @@ const STATUS_COLORS: Record<string, string> = {
   applied:   '#4a7055',
   approved:  '#8ee7ff',
   active:    '#8ee7ff',
-  completed: '#b7ff61',
+  completed: '#f59e0b',
   withdrawn: '#4a7055',
   rejected:  '#ffd166',
 };
@@ -83,7 +83,7 @@ export default async function PublicProfilePage({
         height: 52, display: 'flex', alignItems: 'center',
         justifyContent: 'space-between',
         background: 'rgba(5,7,9,0.95)', backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(183,255,97,0.12)',
+        borderBottom: '1px solid rgba(245,158,11,0.12)',
       }}>
         <Link href="/" style={{
           fontFamily: 'var(--font-mono)', fontSize: 11,
@@ -139,7 +139,7 @@ export default async function PublicProfilePage({
         {/* ── Stats 4-col grid ── */}
         <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: 0, marginBottom: 0 }}>
           {[
-            { label: 'TOTAL EARNED',    value: `$${totalEarned.toFixed(2)}`,                                              color: '#b7ff61'  },
+            { label: 'TOTAL EARNED',    value: `$${totalEarned.toFixed(2)}`,                                              color: '#f59e0b'  },
             { label: 'COMPLETED',       value: String(completed.length),                                                    color: '#eef4f0'  },
             { label: 'COMPLETION RATE', value: profile.completion_rate != null ? `${profile.completion_rate.toFixed(0)}%` : '—', color: '#eef4f0' },
             { label: 'REPUTATION',      value: badge.label,                                                                  color: badge.color },
@@ -170,7 +170,7 @@ export default async function PublicProfilePage({
             }}>
               // EXPERIMENT_HISTORY
             </span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#b7ff61' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f59e0b' }}>
               [{applications.length}]
             </span>
           </div>
@@ -182,7 +182,7 @@ export default async function PublicProfilePage({
             }}>
               <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a7055' }}>
                 No experiments yet.{' '}
-                <Link href="/" style={{ color: '#b7ff61', textDecoration: 'none' }}>Browse open studies →</Link>
+                <Link href="/" style={{ color: '#f59e0b', textDecoration: 'none' }}>Browse open studies →</Link>
               </p>
             </div>
           ) : (
@@ -246,7 +246,7 @@ export default async function PublicProfilePage({
                     </span>
                     <span style={{
                       fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 500,
-                      color: app.status === 'completed' ? '#b7ff61' : '#4a7055',
+                      color: app.status === 'completed' ? '#f59e0b' : '#4a7055',
                     }}>
                       {app.status === 'completed' ? `$${(exp?.bounty_per_participant ?? 0).toFixed(2)}` : '—'}
                     </span>

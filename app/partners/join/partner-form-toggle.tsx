@@ -19,7 +19,7 @@ export function PartnerFormToggle() {
           letterSpacing: '1px',
           textTransform: 'uppercase',
           color:         '#050709',
-          background:    '#b7ff61',
+          background:    '#f59e0b',
           border:        'none',
           padding:       '10px 20px',
           borderRadius:  2,

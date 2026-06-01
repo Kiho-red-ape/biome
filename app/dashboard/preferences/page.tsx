@@ -349,7 +349,7 @@ export default function PreferencesPage() {
               onClick={() => void save()}
               disabled={saving || !dirty}
               className="mono text-xs px-6 py-2.5 rounded font-bold transition-all hover:opacity-90 disabled:opacity-40"
-              style={{ background: 'var(--green)', color: '#050709' }}
+              style={{ background: 'var(--green)', color: '#060a14' }}
             >
               {saving ? 'Saving...' : dirty ? 'Save preferences →' : 'No changes'}
             </button>

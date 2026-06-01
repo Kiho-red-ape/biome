@@ -92,17 +92,17 @@ function OnboardingInner() {
   // ── Not authenticated — show sign-in prompt ────────────────────────────────
   if (!authenticated) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: '#050709' }}>
+      <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: '#060a14' }}>
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
-          <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 20 }}>
+          <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 20 }}>
             // SIGN_IN_REQUIRED
           </p>
-          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 24, color: '#f2faf4', marginBottom: 12 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 24, color: '#f8fafc', marginBottom: 12 }}>
             {preselectedRole === 'participant' ? 'Join as a research partner' :
              preselectedRole === 'experimenter' ? 'Register as a researcher' :
              'Sign in to continue'}
           </h1>
-          <p style={{ ...MONO, fontSize: 12, color: '#5b8a9a', lineHeight: 1.7, marginBottom: 32 }}>
+          <p style={{ ...MONO, fontSize: 12, color: '#475569', lineHeight: 1.7, marginBottom: 32 }}>
             {preselectedRole === 'participant'
               ? 'Create your account to join research studies and earn compensation.'
               : preselectedRole === 'experimenter'
@@ -114,8 +114,8 @@ function OnboardingInner() {
             style={{
               fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '2px',
               textTransform: 'uppercase', padding: '12px 32px',
-              background: 'rgba(183,255,97,0.08)', border: '1px solid rgba(183,255,97,0.3)',
-              color: '#b7ff61', borderRadius: 2, cursor: 'pointer', width: '100%',
+              background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)',
+              color: '#f59e0b', borderRadius: 2, cursor: 'pointer', width: '100%',
             }}
           >
             Sign in / Create account →
@@ -166,7 +166,7 @@ function OnboardingInner() {
               onClick={() => void handleSubmit(preselectedRole)}
               disabled={loading}
               className="w-full py-3 rounded font-semibold text-sm transition-all disabled:opacity-40 hover:opacity-90"
-              style={{ background: 'var(--green)', color: '#050709' }}
+              style={{ background: 'var(--green)', color: '#060a14' }}
             >
               {loading ? 'Setting up...' : 'Continue →'}
             </button>

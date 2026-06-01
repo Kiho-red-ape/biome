@@ -51,7 +51,7 @@ export function DocH3({ children }: { children: React.ReactNode }) {
 export function DocP({ children }: { children: React.ReactNode }) {
   return (
     <p style={{
-      fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1',
+      fontFamily: 'var(--font-heading)', fontSize: 14, color: '#94a3b8',
       lineHeight: 1.8, marginBottom: 14,
     }}>
       {children}
@@ -90,7 +90,7 @@ export function DocUL({ items }: { items: string[] }) {
       {items.map((item, i) => (
         <li key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <span style={{ color: 'var(--green-dim)', marginTop: 3, flexShrink: 0, fontFamily: 'var(--font-mono)', fontSize: 10 }}>—</span>
-          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1', lineHeight: 1.7 }}>{item}</span>
+          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#94a3b8', lineHeight: 1.7 }}>{item}</span>
         </li>
       ))}
     </ul>
@@ -108,7 +108,7 @@ export function DocOL({ items }: { items: React.ReactNode[] }) {
           }}>
             {i + 1}.
           </span>
-          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1', lineHeight: 1.7 }}>{item}</span>
+          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#94a3b8', lineHeight: 1.7 }}>{item}</span>
         </li>
       ))}
     </ol>
@@ -141,7 +141,7 @@ export function DocTable({ headers, rows }: { headers: string[]; rows: string[][
                 <td key={ci} style={{
                   fontFamily: ci === 0 ? 'var(--font-mono)' : 'var(--font-heading)',
                   fontSize: ci === 0 ? 11 : 13,
-                  color: ci === 0 ? 'var(--text-bright)' : '#aab8b1',
+                  color: ci === 0 ? 'var(--text-bright)' : '#94a3b8',
                   padding: '10px 16px', verticalAlign: 'top', lineHeight: 1.6,
                 }}>
                   {cell}
@@ -179,7 +179,7 @@ export function Term({ term, def }: { term: string; def: string }) {
   return (
     <div style={{ marginBottom: 12 }}>
       <Code>{term}</Code>
-      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1', marginLeft: 8 }}>
+      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#94a3b8', marginLeft: 8 }}>
         — {def}
       </span>
     </div>

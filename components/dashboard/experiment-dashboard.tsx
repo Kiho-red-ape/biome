@@ -415,7 +415,7 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
                               <button
                                 onClick={(e) => { e.stopPropagation(); router.push(`/experiments/${exp.id}`); }}
                                 className="mono text-xs px-5 py-2.5 rounded font-bold transition-all hover:opacity-90 whitespace-nowrap"
-                                style={{ background: 'var(--green)', color: '#050709' }}
+                                style={{ background: 'var(--green)', color: '#060a14' }}
                               >
                                 READ MORE →
                               </button>

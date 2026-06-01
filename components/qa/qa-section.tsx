@@ -202,7 +202,7 @@ export function QASection({ experimentId, experimenterUserId, orgName, initialQu
                         onClick={() => submitReply(q.id)}
                         disabled={!replyTexts[q.id]?.trim() || replyLoading === q.id}
                         className="mono text-xs px-4 py-1.5 rounded font-bold disabled:opacity-40 hover:opacity-90"
-                        style={{ background: 'var(--cyan)', color: '#050709' }}
+                        style={{ background: 'var(--cyan)', color: '#060a14' }}
                       >
                         {replyLoading === q.id ? 'Posting...' : 'Post reply →'}
                       </button>
@@ -307,7 +307,7 @@ export function QASection({ experimentId, experimenterUserId, orgName, initialQu
               onClick={submitQuestion}
               disabled={!questionText.trim() || submitting}
               className="mono text-xs px-4 py-2 rounded font-bold mt-2 transition-all disabled:opacity-40 hover:opacity-90"
-              style={{ background: 'var(--green)', color: '#050709' }}
+              style={{ background: 'var(--green)', color: '#060a14' }}
             >
               {submitting ? 'Posting...' : 'Post question →'}
             </button>

@@ -48,16 +48,16 @@ export default async function ExperimentsPage() {
 
         {experiments.length === 0 ? (
           <div className="px-4 md:px-8 py-16 text-center">
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 16 }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 16 }}>
               // ACTIVE_STUDIES
             </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#aab8b1', lineHeight: 1.8, marginBottom: 24 }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#94a3b8', lineHeight: 1.8, marginBottom: 24 }}>
               No studies currently active.<br />
               Biome is onboarding its first sponsor studies.
             </p>
             <a
               href="/run-a-study"
-              style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#b7ff61', textDecoration: 'none', letterSpacing: '1px' }}
+              style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f59e0b', textDecoration: 'none', letterSpacing: '1px' }}
             >
               Run a study with Biome →
             </a>

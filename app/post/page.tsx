@@ -424,7 +424,7 @@ export default function PostStudyPage() {
           <p className="mono text-xs mb-4" style={{ color: 'var(--text-dim)' }}>// AUTH_REQUIRED</p>
           <p className="text-sm mb-6" style={{ color: 'var(--text-dim)' }}>Sign in to post a study.</p>
           <button onClick={() => login()} className="mono text-xs px-5 py-2.5 rounded font-bold"
-            style={{ background: 'var(--green)', color: '#050709' }}>
+            style={{ background: 'var(--green)', color: '#060a14' }}>
             Sign in →
           </button>
         </div>
@@ -442,7 +442,7 @@ export default function PostStudyPage() {
           </p>
           <button onClick={() => router.push('/onboarding/experimenter')}
             className="mono text-xs px-5 py-2.5 rounded font-bold hover:opacity-90"
-            style={{ background: 'var(--green)', color: '#050709' }}>
+            style={{ background: 'var(--green)', color: '#060a14' }}>
             Set up org profile →
           </button>
         </div>
@@ -846,7 +846,7 @@ export default function PostStudyPage() {
               type="submit"
               disabled={!agreed || !title || !category || !description || !reward || !slots || loading}
               className="w-full py-3 rounded font-semibold text-sm transition-all disabled:opacity-40 hover:opacity-90"
-              style={{ background: 'var(--green)', color: '#050709' }}
+              style={{ background: 'var(--green)', color: '#060a14' }}
             >
               {loading ? '// SAVING...' : 'Submit study →'}
             </button>

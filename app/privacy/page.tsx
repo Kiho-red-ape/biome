@@ -18,7 +18,7 @@ export default function PrivacyPolicyPage() {
         {/* Title */}
         <p style={{
           fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
-          textTransform: 'uppercase', color: '#b7ff61', marginBottom: 8,
+          textTransform: 'uppercase', color: '#f59e0b', marginBottom: 8,
         }}>
           // PRIVACY_POLICY
         </p>
@@ -141,7 +141,7 @@ export default function PrivacyPolicyPage() {
             <p>
               For any privacy-related questions or requests, contact BIOME at:
             </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#b7ff61' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f59e0b' }}>
               privacy@biome.to
             </p>
           </Section>
@@ -163,7 +163,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
         // {title}
       </p>
       <div style={{
-        fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1',
+        fontFamily: 'var(--font-heading)', fontSize: 15, color: '#94a3b8',
         lineHeight: 1.75,
         display: 'flex', flexDirection: 'column', gap: 12,
       }}>

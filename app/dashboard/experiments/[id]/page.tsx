@@ -306,7 +306,7 @@ export default function ExperimentManagePage() {
                   onClick={publish}
                   disabled={publishing}
                   className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-50"
-                  style={{ background: 'var(--green)', color: '#050709' }}>
+                  style={{ background: 'var(--green)', color: '#060a14' }}>
                   {publishing ? '...' : 'Publish →'}
                 </button>
               )}
@@ -319,7 +319,7 @@ export default function ExperimentManagePage() {
                       onClick={commence}
                       disabled={commencing}
                       className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-50"
-                      style={{ background: 'var(--cyan)', color: '#050709' }}>
+                      style={{ background: 'var(--cyan)', color: '#060a14' }}>
                       {commencing ? '...' : `COMMENCE STUDY → (${enrolledCount} enrolled)`}
                     </button>
                   ) : null;
@@ -475,7 +475,7 @@ export default function ExperimentManagePage() {
                 onClick={saveEdit}
                 disabled={saving}
                 className="mono text-xs px-5 py-2.5 rounded font-bold transition-all hover:opacity-90 disabled:opacity-50"
-                style={{ background: 'var(--green)', color: '#050709' }}>
+                style={{ background: 'var(--green)', color: '#060a14' }}>
                 {saving ? 'Saving...' : 'Save changes'}
               </button>
               <button
@@ -580,7 +580,7 @@ export default function ExperimentManagePage() {
                       <button
                         onClick={() => confirmEnrolled(a.id)}
                         className="mono text-xs px-3 py-1.5 rounded transition-all hover:opacity-80"
-                        style={{ background: 'var(--green)', color: '#050709' }}>
+                        style={{ background: 'var(--green)', color: '#060a14' }}>
                         Confirm enrolled ✓
                       </button>
                     </div>

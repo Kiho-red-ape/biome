@@ -40,9 +40,9 @@ function Row({ account }: { account: typeof DEMO_ACCOUNTS[0] }) {
     }}>
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-start' }}>
         <div style={{ flex: 1, minWidth: 200 }}>
-          <p style={{ fontFamily: MONO, fontSize: 12, color: '#f2faf4', marginBottom: 2 }}>{account.email}</p>
+          <p style={{ fontFamily: MONO, fontSize: 12, color: '#f8fafc', marginBottom: 2 }}>{account.email}</p>
           <p style={{ fontFamily: MONO, fontSize: 10, color: '#ffb300', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 4 }}>{account.role}</p>
-          <p style={{ fontFamily: MONO, fontSize: 11, color: '#5b8a9a' }}>{account.note}</p>
+          <p style={{ fontFamily: MONO, fontSize: 11, color: '#475569' }}>{account.note}</p>
         </div>
         <div style={{ fontFamily: MONO, fontSize: 10, color: '#3a4a43', border: '1px solid rgba(255,255,255,0.05)', padding: '3px 10px', borderRadius: 2 }}>
           placeholder id: {account.demoId}
@@ -59,7 +59,7 @@ function Row({ account }: { account: typeof DEMO_ACCOUNTS[0] }) {
             fontFamily: MONO, fontSize: 11, flex: 1, minWidth: 280,
             padding: '8px 12px', background: 'rgba(255,255,255,0.03)',
             border: '1px solid rgba(255,255,255,0.1)', borderRadius: 2,
-            color: '#f2faf4', outline: 'none',
+            color: '#f8fafc', outline: 'none',
           }}
         />
         <button
@@ -77,7 +77,7 @@ function Row({ account }: { account: typeof DEMO_ACCOUNTS[0] }) {
       </div>
 
       {status && (
-        <p style={{ fontFamily: MONO, fontSize: 11, color: status.startsWith('✓') ? '#b7ff61' : '#ff6464', lineHeight: 1.5 }}>
+        <p style={{ fontFamily: MONO, fontSize: 11, color: status.startsWith('✓') ? '#f59e0b' : '#ff6464', lineHeight: 1.5 }}>
           {status}
         </p>
       )}
@@ -92,10 +92,10 @@ export default function DemoSeedPage() {
       <p style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 8 }}>
         // DEMO_SEED
       </p>
-      <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: '#f2faf4', marginBottom: 8 }}>
+      <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: '#f8fafc', marginBottom: 8 }}>
         Demo account setup
       </h1>
-      <p style={{ fontFamily: MONO, fontSize: 12, color: '#5b8a9a', lineHeight: 1.8, marginBottom: 32, maxWidth: 600 }}>
+      <p style={{ fontFamily: MONO, fontSize: 12, color: '#475569', lineHeight: 1.8, marginBottom: 32, maxWidth: 600 }}>
         Seed data is pre-inserted with placeholder IDs (demo:researcher, demo:participant, demo:partner).
         After each email account first logs in via Privy, get their real DID from the Privy dashboard
         and use the relink tool below to attach the real DID to the pre-seeded profile.
@@ -107,7 +107,7 @@ export default function DemoSeedPage() {
 
       <div style={{ marginTop: 40, padding: '16px 20px', border: '1px solid rgba(255,179,0,0.1)', borderRadius: 2, background: 'rgba(255,179,0,0.02)' }}>
         <p style={{ fontFamily: MONO, fontSize: 11, color: '#ffb300', marginBottom: 8 }}>HOW TO FIND A PRIVY DID</p>
-        <p style={{ fontFamily: MONO, fontSize: 11, color: '#5b8a9a', lineHeight: 1.8 }}>
+        <p style={{ fontFamily: MONO, fontSize: 11, color: '#475569', lineHeight: 1.8 }}>
           1. Open the Privy dashboard → Users{'\n'}
           2. Search for the email address{'\n'}
           3. Click the user row — the DID is the ID column (format: did:privy:xxxxxxxx){'\n'}

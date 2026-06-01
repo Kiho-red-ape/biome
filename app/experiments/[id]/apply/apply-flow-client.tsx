@@ -215,7 +215,7 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
         height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         background: 'rgba(5,7,9,0.95)',
         backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(183,255,97,0.12)',
+        borderBottom: '1px solid rgba(245,158,11,0.12)',
       }}>
         <Link href={`/experiments/${exp.id}`} className="hover-green"
           style={{ fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px' }}>
@@ -273,7 +273,7 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
             <SectionLabel text="SIGN IN REQUIRED" />
             <div className="rounded p-6"
               style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.12)' }}>
-              <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1', lineHeight: 1.7, marginBottom: 20 }}>
+              <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#94a3b8', lineHeight: 1.7, marginBottom: 20 }}>
                 You need to sign in to apply to this study. Your participant profile is used
                 for eligibility screening and to match you with the right studies.
               </p>
@@ -298,7 +298,7 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
               <p className="mono text-xs mb-3" style={{ color: 'var(--amber)' }}>
                 ⚠ Profile incomplete
               </p>
-              <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#aab8b1', lineHeight: 1.7, marginBottom: 20 }}>
+              <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#94a3b8', lineHeight: 1.7, marginBottom: 20 }}>
                 Your participant profile is needed for eligibility screening.
                 Experimenters review your profile to ensure you meet study requirements before approving your application.
               </p>
@@ -432,7 +432,7 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
               <p className="mono text-xs mb-1.5" style={{ color: 'var(--text-dim)', letterSpacing: '1.5px', textTransform: 'uppercase', fontSize: 9 }}>
                 Compliance requirement
               </p>
-              <p className="text-xs" style={{ color: '#aab8b1', fontFamily: 'var(--font-heading)' }}>
+              <p className="text-xs" style={{ color: '#94a3b8', fontFamily: 'var(--font-heading)' }}>
                 You must complete at least <strong style={{ color: 'var(--text-white)' }}>{exp.compliance_threshold}%</strong> of
                 required milestones to be eligible for the{' '}
                 <strong style={{ color: 'var(--green)' }}>${exp.bounty_per_participant.toFixed(0)} reward</strong>.
@@ -452,7 +452,7 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
                     border: `1px solid ${agreed ? 'var(--green)' : 'rgba(77,255,128,0.3)'}`,
                   }}
                 >
-                  {agreed && <span style={{ color: '#050709', fontSize: 10, fontWeight: 900 }}>✓</span>}
+                  {agreed && <span style={{ color: '#060a14', fontSize: 10, fontWeight: 900 }}>✓</span>}
                 </div>
                 <span className="mono text-xs leading-relaxed" style={{ color: 'var(--text-bright)' }}>
                   I understand the study requirements, compliance expectations, and payout conditions.
@@ -489,8 +489,8 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
               className="mono text-xs py-3 rounded font-bold transition-all disabled:opacity-30"
               style={{
                 width: '100%',
-                background: agreed ? '#b7ff61' : 'transparent',
-                border: '1px solid rgba(183,255,97,0.4)',
+                background: agreed ? '#f59e0b' : 'transparent',
+                border: '1px solid rgba(245,158,11,0.4)',
                 color: agreed ? '#050709' : 'var(--text-dim)',
               }}
             >
@@ -507,7 +507,7 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
             <p style={{ fontFamily: 'var(--font-heading)', fontSize: 20, fontWeight: 700, color: '#eef4f0', marginBottom: 12 }}>
               Application received.
             </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1', lineHeight: 1.75, marginBottom: 24 }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#94a3b8', lineHeight: 1.75, marginBottom: 24 }}>
               You&apos;ll be notified when the experimenter reviews your application.
               You can track your application status in your dashboard.
             </p>

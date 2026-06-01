@@ -83,7 +83,7 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
             <p style={{ ...LABEL_STYLE, color: 'var(--amber)', marginBottom: 6 }}>
               Application under review
             </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#aab8b1' }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#94a3b8' }}>
               Your application has been submitted. Track your status in your dashboard.
             </p>
           </div>
@@ -103,7 +103,7 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
             <p style={{ ...LABEL_STYLE, color: 'var(--cyan)', marginBottom: 6 }}>
               {status === 'approved' ? 'Accepted into this study' : 'Enrolled — study in progress'}
             </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#aab8b1' }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#94a3b8' }}>
               Track milestones and progress in your dashboard.
             </p>
           </div>
@@ -120,7 +120,7 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
           background: 'rgba(160,92,16,0.04)',
         }}>
           <p style={{ ...LABEL_STYLE, color: '#a05c10', marginBottom: 4 }}>You&apos;re on the waitlist</p>
-          <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#aab8b1' }}>
+          <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#94a3b8' }}>
             We&apos;ll notify you if a spot opens.
           </p>
         </div>
@@ -138,7 +138,7 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
             <p style={{ ...LABEL_STYLE, color: '#7a3535', marginBottom: 4 }}>
               Application not selected
             </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#aab8b1' }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#94a3b8' }}>
               Your application was not selected for this study.
             </p>
           </div>
@@ -159,7 +159,7 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
           <p style={{ ...LABEL_STYLE, color: 'var(--green)', marginBottom: 4 }}>
             ✓ You completed this study
           </p>
-          <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#aab8b1' }}>
+          <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#94a3b8' }}>
             Check your earnings and compliance score in your{' '}
             <Link href="/dashboard" style={{ color: 'var(--green)' }}>dashboard</Link>.
           </p>
@@ -244,7 +244,7 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
         style={{
           width: '100%', height: 48, cursor: 'pointer',
           ...LABEL_STYLE, fontWeight: 700,
-          background: '#b7ff61', color: '#050709',
+          background: '#f59e0b', color: '#060a14',
           border: 'none', borderRadius: 2,
         }}
       >
@@ -261,7 +261,7 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         width: '100%', height: 48, textDecoration: 'none',
         ...LABEL_STYLE, fontWeight: 700,
-        background: '#b7ff61', color: '#050709', borderRadius: 2,
+        background: '#f59e0b', color: '#060a14', borderRadius: 2,
       }}
     >
       Apply to this study → ({slotsLeft} slot{slotsLeft !== 1 ? 's' : ''} remaining)

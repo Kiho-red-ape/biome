@@ -64,7 +64,7 @@ export function DraftBanner({
         <button
           onClick={() => setShowModal(true)}
           className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90"
-          style={{ background: 'var(--green)', color: '#050709' }}
+          style={{ background: 'var(--green)', color: '#060a14' }}
         >
           Publish study →
         </button>

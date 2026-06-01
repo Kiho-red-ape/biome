@@ -29,7 +29,7 @@ export default async function OpsPartners({
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {rows.length === 0 && (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>No {filterStatus} partner applications.</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>No {filterStatus} partner applications.</p>
         )}
         {rows.map((p) => (
           <div key={p.id as string} style={{
@@ -47,14 +47,14 @@ export default async function OpsPartners({
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
                 <div>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f2faf4', marginBottom: 2 }}>{p.name as string}</p>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#5b8a9a' }}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f8fafc', marginBottom: 2 }}>{p.name as string}</p>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
                     {p.category as string} · {(p.region as string | null) ?? 'Region not specified'} · {p.email as string}
                   </p>
                 </div>
                 <span style={{
                   fontFamily: 'var(--font-mono)', fontSize: 10,
-                  color: p.status === 'approved' ? '#b7ff61' : p.status === 'rejected' ? '#5b8a9a' : '#ffb300',
+                  color: p.status === 'approved' ? '#f59e0b' : p.status === 'rejected' ? '#475569' : '#ffb300',
                   padding: '3px 10px', background: 'rgba(255,255,255,0.03)',
                   border: '1px solid rgba(255,255,255,0.07)', borderRadius: 2, letterSpacing: '1px',
                   textTransform: 'uppercase', alignSelf: 'flex-start',
@@ -64,7 +64,7 @@ export default async function OpsPartners({
               </div>
 
               {(p.description as string | null) && (
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#aab8b1', lineHeight: 1.6, marginBottom: 12 }}>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#94a3b8', lineHeight: 1.6, marginBottom: 12 }}>
                   {p.description as string}
                 </p>
               )}

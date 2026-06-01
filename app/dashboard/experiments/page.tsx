@@ -114,7 +114,7 @@ export default function MyExperimentsPage() {
           <Link
             href="/post"
             className="mono text-xs px-4 py-2.5 rounded font-bold no-underline transition-all hover:opacity-90"
-            style={{ background: 'var(--green)', color: '#050709' }}
+            style={{ background: 'var(--green)', color: '#060a14' }}
           >
             + Post new study
           </Link>

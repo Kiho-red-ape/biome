@@ -82,7 +82,7 @@ const IRB_OPTIONS = [
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#b7ff61', textTransform: 'uppercase', marginBottom: 16 }}>
+    <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 16 }}>
       // {children}
     </p>
   );
@@ -90,7 +90,7 @@ function SectionLabel({ children }: { children: ReactNode }) {
 
 function FieldLabel({ children }: { children: ReactNode }) {
   return (
-    <p style={{ ...MONO, fontSize: 11, letterSpacing: '2px', color: '#5b8a9a', textTransform: 'uppercase', marginBottom: 10 }}>
+    <p style={{ ...MONO, fontSize: 11, letterSpacing: '2px', color: '#475569', textTransform: 'uppercase', marginBottom: 10 }}>
       {children}
     </p>
   );
@@ -105,9 +105,9 @@ function PillButton({
       onClick={onClick}
       style={{
         ...MONO, fontSize: 11, padding: '7px 14px',
-        border: `1px solid ${active ? '#b7ff61' : 'rgba(255,255,255,0.1)'}`,
-        background: active ? 'rgba(183,255,97,0.08)' : 'transparent',
-        color: active ? '#b7ff61' : '#7f9a8a',
+        border: `1px solid ${active ? '#f59e0b' : 'rgba(255,255,255,0.1)'}`,
+        background: active ? 'rgba(245,158,11,0.08)' : 'transparent',
+        color: active ? '#f59e0b' : '#7f9a8a',
         borderRadius: 2, cursor: 'pointer', transition: 'all 150ms ease',
         whiteSpace: 'nowrap' as const,
       }}
@@ -132,10 +132,10 @@ function EstimateDisplay({
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <SectionLabel>ESTIMATE_COMPLETE</SectionLabel>
-        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(28px, 4vw, 36px)', color: '#f2faf4', lineHeight: 1, marginBottom: 8 }}>
+        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 'clamp(28px, 4vw, 36px)', color: '#f8fafc', lineHeight: 1, marginBottom: 8 }}>
           {fmt(result.total)}
         </p>
-        <p style={{ ...MONO, fontSize: 12, color: '#5b8a9a' }}>
+        <p style={{ ...MONO, fontSize: 12, color: '#475569' }}>
           Estimated total · {result.participants} participants · {result.duration.replace('_', '–').replace('plus', '+')} weeks
         </p>
       </div>
@@ -147,9 +147,9 @@ function EstimateDisplay({
           <div key={i} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'transparent' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
               <span style={{ ...MONO, fontSize: 12, color: '#d0e0d5' }}>{item.label}</span>
-              <span style={{ ...MONO, fontSize: 12, color: '#f2faf4', flexShrink: 0 }}>{fmt(item.amount)}</span>
+              <span style={{ ...MONO, fontSize: 12, color: '#f8fafc', flexShrink: 0 }}>{fmt(item.amount)}</span>
             </div>
-            <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', margin: '3px 0 0' }}>{item.description}</p>
+            <p style={{ ...MONO, fontSize: 11, color: '#475569', margin: '3px 0 0' }}>{item.description}</p>
           </div>
         ))}
 
@@ -159,29 +159,29 @@ function EstimateDisplay({
         <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
             <span style={{ ...MONO, fontSize: 12, color: '#d0e0d5' }}>Pass-through subtotal</span>
-            <span style={{ ...MONO, fontSize: 12, color: '#f2faf4', flexShrink: 0 }}>{fmt(result.subtotalPassThrough)}</span>
+            <span style={{ ...MONO, fontSize: 12, color: '#f8fafc', flexShrink: 0 }}>{fmt(result.subtotalPassThrough)}</span>
           </div>
-          <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', margin: '3px 0 0' }}>Includes 50% coordination margin</p>
+          <p style={{ ...MONO, fontSize: 11, color: '#475569', margin: '3px 0 0' }}>Includes 50% coordination margin</p>
         </div>
 
         {/* Ops fee — highlighted */}
-        <div style={{ padding: '12px 16px', background: 'rgba(183,255,97,0.04)', borderBottom: '1px solid rgba(183,255,97,0.08)' }}>
+        <div style={{ padding: '12px 16px', background: 'rgba(245,158,11,0.04)', borderBottom: '1px solid rgba(245,158,11,0.08)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-            <span style={{ ...MONO, fontSize: 12, color: '#b7ff61' }}>Biome operations fee</span>
-            <span style={{ ...MONO, fontSize: 12, color: '#b7ff61', flexShrink: 0 }}>{fmt(result.opsFee)}</span>
+            <span style={{ ...MONO, fontSize: 12, color: '#f59e0b' }}>Biome operations fee</span>
+            <span style={{ ...MONO, fontSize: 12, color: '#f59e0b', flexShrink: 0 }}>{fmt(result.opsFee)}</span>
           </div>
-          <p style={{ ...MONO, fontSize: 11, color: 'rgba(183,255,97,0.5)', margin: '3px 0 0' }}>
+          <p style={{ ...MONO, fontSize: 11, color: 'rgba(245,158,11,0.5)', margin: '3px 0 0' }}>
             Platform, compliance, reporting, project management, data delivery
           </p>
         </div>
 
         {/* Total */}
-        <div style={{ padding: '14px 16px', background: 'rgba(183,255,97,0.02)' }}>
+        <div style={{ padding: '14px 16px', background: 'rgba(245,158,11,0.02)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-            <span style={{ ...MONO, fontSize: 13, letterSpacing: '2px', textTransform: 'uppercase' as const, color: '#f2faf4' }}>TOTAL</span>
-            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: '#f2faf4' }}>{fmt(result.total)}</span>
+            <span style={{ ...MONO, fontSize: 13, letterSpacing: '2px', textTransform: 'uppercase' as const, color: '#f8fafc' }}>TOTAL</span>
+            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: '#f8fafc' }}>{fmt(result.total)}</span>
           </div>
-          <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', margin: '4px 0 0', textAlign: 'right' as const }}>
+          <p style={{ ...MONO, fontSize: 11, color: '#475569', margin: '4px 0 0', textAlign: 'right' as const }}>
             {fmt(result.perParticipant)} per participant
           </p>
         </div>
@@ -204,7 +204,7 @@ function EstimateDisplay({
       )}
 
       {/* Disclaimer */}
-      <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', lineHeight: 1.7, marginBottom: 24 }}>
+      <p style={{ ...MONO, fontSize: 11, color: '#475569', lineHeight: 1.7, marginBottom: 24 }}>
         This is an automated indicative estimate. Not a quote or binding offer.
         Final scope confirmed in conversation. Pass-through costs subject to
         partner rates at engagement.
@@ -216,7 +216,7 @@ function EstimateDisplay({
           href="/intake"
           style={{
             ...MONO, fontSize: 12, padding: '12px 24px',
-            background: '#b7ff61', color: '#050709',
+            background: '#f59e0b', color: '#060a14',
             borderRadius: 2, textDecoration: 'none', fontWeight: 700,
             transition: 'opacity 150ms ease',
           }}
@@ -256,12 +256,12 @@ function EmailGate({ onSubmit }: { onSubmit: (email: string) => void }) {
   }
 
   return (
-    <div style={{ padding: '32px', border: '1px solid rgba(183,255,97,0.12)', borderRadius: 4, background: 'rgba(183,255,97,0.02)' }}>
+    <div style={{ padding: '32px', border: '1px solid rgba(245,158,11,0.12)', borderRadius: 4, background: 'rgba(245,158,11,0.02)' }}>
       <SectionLabel>ALMOST_THERE</SectionLabel>
-      <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: '#f2faf4', marginBottom: 8 }}>
+      <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: '#f8fafc', marginBottom: 8 }}>
         Enter your email to view the estimate.
       </p>
-      <p style={{ ...MONO, fontSize: 12, color: '#5b8a9a', lineHeight: 1.7, marginBottom: 24 }}>
+      <p style={{ ...MONO, fontSize: 12, color: '#475569', lineHeight: 1.7, marginBottom: 24 }}>
         We'll send you a copy and someone from the team will follow up to discuss.
       </p>
       <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
@@ -276,14 +276,14 @@ function EmailGate({ onSubmit }: { onSubmit: (email: string) => void }) {
             padding: '10px 16px', borderRadius: 2,
             background: 'rgba(255,255,255,0.03)',
             border: `1px solid ${err ? 'rgba(255,100,100,0.4)' : 'rgba(255,255,255,0.1)'}`,
-            color: '#f2faf4', outline: 'none',
+            color: '#f8fafc', outline: 'none',
           }}
         />
         <button
           type="submit"
           style={{
             ...MONO, fontSize: 12, fontWeight: 700,
-            padding: '10px 24px', background: '#b7ff61', color: '#050709',
+            padding: '10px 24px', background: '#f59e0b', color: '#060a14',
             border: 'none', borderRadius: 2, cursor: 'pointer',
           }}
         >
@@ -402,9 +402,9 @@ export function EstimateWizard() {
             min={10} max={500} step={5}
             value={form.participants}
             onChange={(e) => setForm((f: FormState) => ({ ...f, participants: Number(e.target.value) }))}
-            style={{ flex: 1, accentColor: '#b7ff61' }}
+            style={{ flex: 1, accentColor: '#f59e0b' }}
           />
-          <span style={{ ...MONO, fontSize: 16, color: '#f2faf4', minWidth: 40, textAlign: 'right' }}>
+          <span style={{ ...MONO, fontSize: 16, color: '#f8fafc', minWidth: 40, textAlign: 'right' }}>
             {form.participants}
           </span>
         </div>
@@ -483,7 +483,7 @@ export function EstimateWizard() {
             </PillButton>
           ))}
         </div>
-        <p style={{ ...MONO, fontSize: 11, color: '#5b8a9a', marginTop: 8, lineHeight: 1.6 }}>
+        <p style={{ ...MONO, fontSize: 11, color: '#475569', marginTop: 8, lineHeight: 1.6 }}>
           IRB is the researcher's responsibility. Biome does not provide IRB services.
         </p>
       </div>
@@ -503,7 +503,7 @@ export function EstimateWizard() {
         onClick={handleCalculate}
         style={{
           ...MONO, fontSize: 13, fontWeight: 700, letterSpacing: '1px',
-          padding: '14px 32px', background: '#b7ff61', color: '#050709',
+          padding: '14px 32px', background: '#f59e0b', color: '#060a14',
           border: 'none', borderRadius: 2, cursor: 'pointer',
           alignSelf: 'flex-start', transition: 'opacity 150ms ease',
         }}

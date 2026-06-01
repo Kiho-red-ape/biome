@@ -2,11 +2,11 @@ import { createServiceClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 
 const STATUS_COLOR: Record<string, string> = {
-  draft:      '#5b8a9a',
-  recruiting: '#22d3ee',
-  active:     '#b7ff61',
-  completed:  '#5b8a9a',
-  cancelled:  '#5b8a9a',
+  draft:      '#475569',
+  recruiting: '#38bdf8',
+  active:     '#f59e0b',
+  completed:  '#475569',
+  cancelled:  '#475569',
 };
 
 export default async function OpsStudies() {
@@ -30,31 +30,31 @@ export default async function OpsStudies() {
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
               {['Code', 'Title', 'Status', 'Category', 'Slots', 'Bounty', 'Pool', 'Verified', 'Created'].map((h) => (
-                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#5b8a9a', fontWeight: 400, letterSpacing: '1px', whiteSpace: 'nowrap' }}>{h}</th>
+                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#475569', fontWeight: 400, letterSpacing: '1px', whiteSpace: 'nowrap' }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 && (
-              <tr><td colSpan={9} style={{ padding: 24, color: '#5b8a9a', textAlign: 'center' }}>No studies yet.</td></tr>
+              <tr><td colSpan={9} style={{ padding: 24, color: '#475569', textAlign: 'center' }}>No studies yet.</td></tr>
             )}
             {rows.map((s) => (
               <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                <td style={{ padding: '10px 12px', color: '#5b8a9a' }}>{(s.experiment_code as string | null) ?? '—'}</td>
+                <td style={{ padding: '10px 12px', color: '#475569' }}>{(s.experiment_code as string | null) ?? '—'}</td>
                 <td style={{ padding: '10px 12px', maxWidth: 240 }}>
-                  <Link href={`/experiments/${s.id}`} target="_blank" style={{ color: '#f2faf4', textDecoration: 'none' }}>
+                  <Link href={`/experiments/${s.id}`} target="_blank" style={{ color: '#f8fafc', textDecoration: 'none' }}>
                     {(s.title as string).slice(0, 50)}{(s.title as string).length > 50 ? '…' : ''}
                   </Link>
                 </td>
                 <td style={{ padding: '10px 12px' }}>
-                  <span style={{ color: STATUS_COLOR[s.status as string] ?? '#5b8a9a' }}>{s.status as string}</span>
+                  <span style={{ color: STATUS_COLOR[s.status as string] ?? '#475569' }}>{s.status as string}</span>
                 </td>
-                <td style={{ padding: '10px 12px', color: '#aab8b1' }}>{s.category as string}</td>
-                <td style={{ padding: '10px 12px', color: '#aab8b1' }}>{s.slots_filled as number}/{s.slots_total as number}</td>
-                <td style={{ padding: '10px 12px', color: '#b7ff61' }}>${s.bounty_per_participant as number}</td>
-                <td style={{ padding: '10px 12px', color: '#aab8b1' }}>${(s.total_bounty_pool as number).toLocaleString()}</td>
-                <td style={{ padding: '10px 12px', color: s.is_verified ? '#b7ff61' : '#5b8a9a' }}>{s.is_verified ? '✓' : '—'}</td>
-                <td style={{ padding: '10px 12px', color: '#5b8a9a', whiteSpace: 'nowrap' }}>
+                <td style={{ padding: '10px 12px', color: '#94a3b8' }}>{s.category as string}</td>
+                <td style={{ padding: '10px 12px', color: '#94a3b8' }}>{s.slots_filled as number}/{s.slots_total as number}</td>
+                <td style={{ padding: '10px 12px', color: '#f59e0b' }}>${s.bounty_per_participant as number}</td>
+                <td style={{ padding: '10px 12px', color: '#94a3b8' }}>${(s.total_bounty_pool as number).toLocaleString()}</td>
+                <td style={{ padding: '10px 12px', color: s.is_verified ? '#f59e0b' : '#475569' }}>{s.is_verified ? '✓' : '—'}</td>
+                <td style={{ padding: '10px 12px', color: '#475569', whiteSpace: 'nowrap' }}>
                   {new Date(s.created_at as string).toLocaleDateString()}
                 </td>
               </tr>

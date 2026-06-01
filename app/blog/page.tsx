@@ -28,7 +28,7 @@ export default async function BlogPage() {
           fontFamily:    'var(--font-mono)',
           fontSize:      10,
           letterSpacing: '3px',
-          color:         '#b7ff61',
+          color:         '#f59e0b',
           textTransform: 'uppercase',
           marginBottom:  20,
         }}>
@@ -38,7 +38,7 @@ export default async function BlogPage() {
           fontFamily:   'var(--font-heading)',
           fontWeight:   700,
           fontSize:     'clamp(26px, 4vw, 40px)',
-          color:        '#f2faf4',
+          color:        '#f8fafc',
           marginBottom: 48,
           lineHeight:   1.1,
         }}>
@@ -46,7 +46,7 @@ export default async function BlogPage() {
         </h1>
 
         {posts.length === 0 && (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#5b8a9a' }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#475569' }}>
             No posts yet. Check back soon.
           </p>
         )}
@@ -72,8 +72,8 @@ export default async function BlogPage() {
                       fontSize:      9,
                       letterSpacing: '1.5px',
                       textTransform: 'uppercase',
-                      color:         '#22d3ee',
-                      border:        '1px solid rgba(34,211,238,0.2)',
+                      color:         '#38bdf8',
+                      border:        '1px solid rgba(56,189,248,0.2)',
                       padding:       '2px 8px',
                       borderRadius:  2,
                     }}>
@@ -86,7 +86,7 @@ export default async function BlogPage() {
                 fontFamily:   'var(--font-heading)',
                 fontWeight:   700,
                 fontSize:     'clamp(18px, 2.5vw, 26px)',
-                color:        '#f2faf4',
+                color:        '#f8fafc',
                 marginBottom: 10,
                 lineHeight:   1.2,
               }}>
@@ -96,7 +96,7 @@ export default async function BlogPage() {
                 <p style={{
                   fontFamily:   'var(--font-mono)',
                   fontSize:     13,
-                  color:        '#aab8b1',
+                  color:        '#94a3b8',
                   lineHeight:   1.7,
                   marginBottom: 12,
                 }}>
@@ -104,13 +104,13 @@ export default async function BlogPage() {
                 </p>
               )}
               <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>
                   {post.author}
                 </span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#5b8a9a' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>
                   {new Date(post.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                 </span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#b7ff61' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f59e0b' }}>
                   Read →
                 </span>
               </div>

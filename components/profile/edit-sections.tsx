@@ -96,7 +96,7 @@ function SaveButton({ loading, disabled }: { loading: boolean; disabled?: boolea
   return (
     <button type="submit" disabled={loading || disabled}
       className="mono text-xs px-5 py-2 rounded font-bold transition-all disabled:opacity-40 hover:opacity-90"
-      style={{ background: 'var(--green)', color: '#050709' }}
+      style={{ background: 'var(--green)', color: '#060a14' }}
     >
       {loading ? '/ SAVING...' : 'Save & continue →'}
     </button>
