@@ -110,7 +110,7 @@ function PillGroup({
 }: {
   options: string[];
   value: string | string[] | null;
-  onChange: (v: string | string[]) => void;
+  onChange: (v: string | string[] | null) => void;
   multi?: boolean;
 }) {
   function isActive(opt: string) {
