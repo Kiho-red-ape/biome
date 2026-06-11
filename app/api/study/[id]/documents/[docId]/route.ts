@@ -124,7 +124,7 @@ export async function DELETE(req: NextRequest, { params }: Ctx) {
 
   const { data: doc } = await supabase
     .from('study_documents')
-    .select('id, status, uploaded_by')
+    .select('id, status, uploaded_by, file_path')
     .eq('id', docId)
     .single();
 

@@ -18,7 +18,7 @@ const YOU_KEEP = [
 
 export function ScopeSection() {
   return (
-    <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+    <section className="texture-grid" style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
       <div className="section-inner">
         <h2 style={{
           fontFamily:   'var(--font-display)',

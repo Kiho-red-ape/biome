@@ -90,23 +90,28 @@ export function SiteHeader() {
         position:       'sticky',
         top:            0,
         zIndex:         200,
-        height:         60,
+        height:         62,
         display:        'flex',
         alignItems:     'center',
         justifyContent: 'space-between',
         background:     'var(--navy)',
+        borderTop:      '3px solid var(--amber)',
         borderBottom:   '3px solid var(--black)',
         flexShrink:     0,
         paddingLeft:    'clamp(16px, 3vw, 40px)',
         paddingRight:   'clamp(16px, 3vw, 40px)',
       }}>
         {/* Logo */}
-        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span aria-hidden="true" style={{
+            width: 12, height: 12, background: 'var(--amber)',
+            border: '2px solid var(--black)', display: 'inline-block', flexShrink: 0,
+          }} />
           <span style={{
             fontFamily:    'var(--font-display)',
             fontWeight:    700,
             fontSize:      20,
-            letterSpacing: '2px',
+            letterSpacing: '3px',
             textTransform: 'uppercase',
             color:         'var(--white)',
           }}>
@@ -269,15 +274,13 @@ export function SiteHeader() {
 function NavItem({ href, children }: { href: string; children: React.ReactNode }) {
   const [hover, setHover] = useState(false);
   return (
-    <Link href={href} style={{
+    <Link href={href} className="link-slide" style={{
       fontFamily:    'var(--font-display)',
       fontSize:      14,
       fontWeight:    600,
       color:         hover ? 'var(--amber)' : 'rgba(255,255,255,0.7)',
       textDecoration: 'none',
-      paddingBottom:  3,
-      borderBottom:  hover ? '2px solid var(--amber)' : '2px solid transparent',
-      transition:    'color 150ms, border-color 150ms',
+      transition:    'color 150ms',
     }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}

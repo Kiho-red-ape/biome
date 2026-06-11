@@ -24,7 +24,7 @@ export default function ParticipatePage() {
       <SiteHeader />
 
       {/* ── Hero (navy, two-column) ── */}
-      <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+      <section className="texture-grid" style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
         <div
           style={{
             maxWidth:            1200,

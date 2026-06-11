@@ -32,7 +32,7 @@ export function StatsBar() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4, marginBottom: 8 }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 48, lineHeight: 1, color: 'var(--black)' }}>
+              <span className="stat-number" style={{ color: 'var(--black)' }}>
                 {s.number}
               </span>
               {s.unit && (

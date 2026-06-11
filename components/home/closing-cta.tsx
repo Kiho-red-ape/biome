@@ -26,7 +26,7 @@ export function ClosingCta() {
   }
 
   return (
-    <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+    <section className="texture-grid" style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
       <div className="section-inner" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
         <h2 style={{
           fontFamily:   'var(--font-display)',

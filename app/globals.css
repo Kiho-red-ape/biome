@@ -1,22 +1,41 @@
 @import "tailwindcss";
 
-/* ─── BRUTALIST DESIGN SYSTEM ──────────────────────────────── */
+/* ════════════════════════════════════════════════════════════════
+   BIOME — NEO-BRUTALIST DESIGN SYSTEM v2
+   Navy / White / Amber. Hard shadows. No rounded corners.
+   ════════════════════════════════════════════════════════════════ */
 
 :root {
   /* Core palette */
   --navy:          #0f1a2e;
   --navy-deep:     #060d1a;
+  --navy-light:    #1a2d4a;
   --amber:         #f59e0b;
   --amber-bright:  #fbbf24;
   --white:         #ffffff;
   --off-white:     #f1f5f9;
   --black:         #000000;
   --gray:          #64748b;
+  --gray-dark:     #475569;
+  --success:       #22c55e;
+  --error:         #ef4444;
 
   /* Structural */
   --border:        #000000;
   --shadow:        #000000;
   --shadow-amber:  #b45309;
+
+  /* Hard-shadow scale */
+  --shadow-sm:   3px 3px 0 var(--black);
+  --shadow-md:   5px 5px 0 var(--black);
+  --shadow-lg:   8px 8px 0 var(--black);
+  --shadow-amber-md: 5px 5px 0 var(--amber);
+
+  /* Fluid type scale */
+  --text-hero:    clamp(36px, 5.5vw, 64px);
+  --text-h2:      clamp(26px, 3.2vw, 42px);
+  --text-h3:      clamp(19px, 2vw, 24px);
+  --text-lead:    clamp(16px, 1.4vw, 19px);
 
   /* Section backgrounds */
   --bg-navy:    #0f1a2e;
@@ -65,6 +84,9 @@ body {
   min-height:     100vh;
   background:     var(--navy);
   overflow-x:     hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 main, header, footer, #app-root {
@@ -72,18 +94,59 @@ main, header, footer, #app-root {
   z-index:  2;
 }
 
+/* ─── SELECTION + SCROLLBAR ─────────────────────────────────── */
+::selection {
+  background: var(--amber);
+  color:      var(--black);
+}
+
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--navy-deep); }
+::-webkit-scrollbar-thumb {
+  background: var(--amber);
+  border: 3px solid var(--navy-deep);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--amber-bright); }
+
 /* ─── TYPOGRAPHY ────────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
-  font-family:  var(--font-display);
-  font-weight:  700;
-  line-height:  1.1;
-  color:        inherit;
+  font-family:    var(--font-display);
+  font-weight:    700;
+  line-height:    1.08;
+  letter-spacing: -0.02em;
+  color:          inherit;
+  text-wrap:      balance;
 }
 
 p {
   font-family: var(--font-body);
   font-size:   16px;
-  line-height: 1.6;
+  line-height: 1.65;
+}
+
+/* ─── TEXTURES ──────────────────────────────────────────────── */
+/* Blueprint grid for navy sections */
+.texture-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* Dot grid for light sections */
+.texture-dots {
+  background-image: radial-gradient(rgba(0,0,0,0.08) 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+}
+
+/* Amber crosshatch accent strip */
+.texture-hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--black) 0, var(--black) 2px,
+    transparent 2px, transparent 10px
+  );
+  opacity: 0.08;
 }
 
 /* ─── SECTION BACKGROUNDS ───────────────────────────────────── */
@@ -97,38 +160,56 @@ p {
 .section-inner {
   max-width:  1200px;
   margin:     0 auto;
-  padding:    80px 24px;
+  padding:    88px 24px;
 }
 
 @media (max-width: 768px) {
-  .section-inner { padding: 48px 20px; }
+  .section-inner { padding: 56px 20px; }
 }
 
 /* ─── SECTION LABEL ─────────────────────────────────────────── */
 .section-label {
   font-family:    var(--font-display);
-  font-size:      13px;
-  font-weight:    600;
-  letter-spacing: 3px;
+  font-size:      12px;
+  font-weight:    700;
+  letter-spacing: 4px;
   text-transform: uppercase;
   color:          var(--amber);
   margin-bottom:  16px;
-  display:        block;
+  display:        inline-flex;
+  align-items:    center;
+  gap:            12px;
 }
 
-.section-label-dark {
-  color: var(--black);
+/* Amber tick before every section label */
+.section-label::before {
+  content:    '';
+  display:    inline-block;
+  width:      24px;
+  height:     4px;
+  background: var(--amber);
+  flex-shrink: 0;
 }
+
+.section-label-dark { color: var(--black); }
+.section-label-dark::before { background: var(--black); }
 
 /* ─── BRUTALIST CARD ────────────────────────────────────────── */
 .brutalist-card {
   background:    var(--white);
   border:        3px solid var(--black);
-  box-shadow:    5px 5px 0 var(--black);
+  box-shadow:    var(--shadow-md);
   border-radius: 0;
   padding:       32px;
   position:      relative;
   overflow:      hidden;
+  transition:    transform 140ms cubic-bezier(0.2, 0, 0, 1),
+                 box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.brutalist-card:hover {
+  transform:  translate(-3px, -3px);
+  box-shadow: 8px 8px 0 var(--black);
 }
 
 .brutalist-card-navy {
@@ -139,7 +220,31 @@ p {
   padding:       32px;
   position:      relative;
   overflow:      hidden;
+  transition:    transform 140ms cubic-bezier(0.2, 0, 0, 1),
+                 box-shadow 140ms cubic-bezier(0.2, 0, 0, 1);
 }
+
+.brutalist-card-navy:hover {
+  transform:    translate(-3px, -3px);
+  box-shadow:   8px 8px 0 rgba(245,158,11,0.35);
+  border-color: var(--amber);
+}
+
+/* Amber top-edge reveal on hover */
+.brutalist-card::after {
+  content:    '';
+  position:   absolute;
+  top:        0;
+  left:       0;
+  right:      0;
+  height:     5px;
+  background: var(--amber);
+  transform:  scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.brutalist-card:hover::after { transform: scaleX(1); }
 
 /* ─── BUTTONS ───────────────────────────────────────────────── */
 .btn-primary {
@@ -160,13 +265,21 @@ p {
   padding:          14px 28px;
   text-decoration:  none;
   cursor:           pointer;
-  transition:       transform 100ms ease, box-shadow 100ms ease;
+  transition:       transform 110ms cubic-bezier(0.2, 0, 0, 1),
+                    box-shadow 110ms cubic-bezier(0.2, 0, 0, 1),
+                    background 110ms ease;
   white-space:      nowrap;
 }
 
 .btn-primary:hover {
   transform:  translate(-2px, -2px);
   box-shadow: 6px 6px 0 var(--black);
+  background: var(--amber-bright);
+}
+
+.btn-primary:active {
+  transform:  translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--black);
 }
 
 .btn-secondary {
@@ -187,13 +300,21 @@ p {
   padding:          14px 28px;
   text-decoration:  none;
   cursor:           pointer;
-  transition:       border-color 150ms ease, color 150ms ease;
+  transition:       border-color 150ms ease, color 150ms ease,
+                    box-shadow 150ms ease, transform 110ms ease;
   white-space:      nowrap;
 }
 
 .btn-secondary:hover {
   border-color: var(--amber);
   color:        var(--amber);
+  box-shadow:   4px 4px 0 rgba(245,158,11,0.25);
+  transform:    translate(-2px, -2px);
+}
+
+.btn-secondary:active {
+  transform:  translate(1px, 1px);
+  box-shadow: none;
 }
 
 .btn-black {
@@ -214,7 +335,8 @@ p {
   padding:          14px 28px;
   text-decoration:  none;
   cursor:           pointer;
-  transition:       transform 100ms ease, box-shadow 100ms ease;
+  transition:       transform 110ms cubic-bezier(0.2, 0, 0, 1),
+                    box-shadow 110ms cubic-bezier(0.2, 0, 0, 1);
   white-space:      nowrap;
 }
 
@@ -223,11 +345,27 @@ p {
   box-shadow: 6px 6px 0 rgba(0,0,0,0.3);
 }
 
+.btn-black:active {
+  transform:  translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+}
+
+/* Accessible focus rings on all interactive elements */
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-black:focus-visible,
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--amber);
+  outline-offset: 3px;
+}
+
 /* ─── FORM INPUTS ───────────────────────────────────────────── */
 input[type="text"],
 input[type="email"],
 input[type="tel"],
 input[type="number"],
+input[type="date"],
 select,
 textarea {
   font-family:   var(--font-body);
@@ -239,13 +377,14 @@ textarea {
   padding:       14px 16px;
   width:         100%;
   outline:       none;
-  transition:    box-shadow 100ms ease;
+  transition:    box-shadow 120ms ease;
 }
 
 input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="tel"]:focus,
 input[type="number"]:focus,
+input[type="date"]:focus,
 select:focus,
 textarea:focus {
   box-shadow: 4px 4px 0 var(--amber);
@@ -257,20 +396,86 @@ textarea::placeholder {
 }
 
 /* ─── THICK DIVIDERS ────────────────────────────────────────── */
-.divider {
-  height:     4px;
-  background: var(--black);
-  width:      100%;
-}
-
-.divider-amber {
-  height:     4px;
-  background: var(--amber);
-  width:      100%;
-}
+.divider       { height: 4px; background: var(--black); width: 100%; }
+.divider-amber { height: 4px; background: var(--amber); width: 100%; }
 
 /* ─── LINKS ─────────────────────────────────────────────────── */
 a { color: inherit; text-decoration: none; }
+
+/* Sliding underline link — use on nav + inline links */
+.link-slide {
+  position: relative;
+  display:  inline-block;
+}
+.link-slide::after {
+  content:    '';
+  position:   absolute;
+  left:       0;
+  bottom:     -3px;
+  width:      100%;
+  height:     2px;
+  background: var(--amber);
+  transform:  scaleX(0);
+  transform-origin: right;
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+.link-slide:hover::after {
+  transform:  scaleX(1);
+  transform-origin: left;
+}
+
+/* ─── CHIPS / BADGES ────────────────────────────────────────── */
+.chip {
+  display:        inline-flex;
+  align-items:    center;
+  gap:            6px;
+  font-family:    var(--font-display);
+  font-size:      10px;
+  font-weight:    700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding:        3px 10px;
+  border:         2px solid var(--black);
+  white-space:    nowrap;
+}
+.chip-amber { background: var(--amber); color: var(--black); }
+.chip-navy  { background: var(--navy);  color: var(--white); }
+.chip-black { background: var(--black); color: var(--amber); }
+.chip-ghost { background: var(--off-white); color: var(--gray); }
+
+/* ─── STAT NUMBERS ──────────────────────────────────────────── */
+.stat-number {
+  font-family:    var(--font-display);
+  font-weight:    700;
+  font-size:      clamp(36px, 4vw, 52px);
+  line-height:    1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── ENTRANCE ANIMATIONS ───────────────────────────────────── */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.rise   { animation: rise-in 600ms cubic-bezier(0.2, 0, 0, 1) both; }
+.rise-1 { animation: rise-in 600ms cubic-bezier(0.2, 0, 0, 1) 60ms  both; }
+.rise-2 { animation: rise-in 600ms cubic-bezier(0.2, 0, 0, 1) 160ms both; }
+.rise-3 { animation: rise-in 600ms cubic-bezier(0.2, 0, 0, 1) 260ms both; }
+.rise-4 { animation: rise-in 600ms cubic-bezier(0.2, 0, 0, 1) 380ms both; }
+
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+.float-soft { animation: float-soft 5s ease-in-out infinite; }
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+.pulse-dot { animation: pulse-dot 1.6s ease-in-out infinite; }
 
 /* ─── LEGACY UTILITY CLASSES ────────────────────────────────── */
 .mono {
@@ -280,7 +485,6 @@ a { color: inherit; text-decoration: none; }
   text-transform: uppercase;
 }
 
-/* keep old btn-ghost pointing to btn-secondary behavior */
 .btn-ghost { composes: btn-secondary; }
 
 .footer-link {
@@ -296,14 +500,12 @@ a { color: inherit; text-decoration: none; }
   background: var(--navy);
   border:     1px solid rgba(255,255,255,0.1);
 }
-.biome-card:hover {
-  border-color: rgba(245,158,11,0.3);
-}
+.biome-card:hover { border-color: rgba(245,158,11,0.3); }
 
-/* ─── ANIMATIONS (only essential) ──────────────────────────── */
+/* ─── ANIMATIONS (essential) ───────────────────────────────── */
 @keyframes blink {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+  50%      { opacity: 0; }
 }
 .blink { animation: blink 1.2s step-end infinite; }
 
@@ -312,29 +514,88 @@ a { color: inherit; text-decoration: none; }
   to   { transform: translateX(-50%); }
 }
 .ticker-track {
-  display:    inline-flex;
+  display:     inline-flex;
   white-space: nowrap;
-  animation:  ticker-scroll 40s linear infinite;
+  animation:   ticker-scroll 40s linear infinite;
 }
+.ticker-track:hover { animation-play-state: paused; }
 
 /* ─── CARD NUMBER WATERMARK ─────────────────────────────────── */
 .card-number-bg {
-  position:      absolute;
-  top:           -8px;
-  right:         16px;
-  font-family:   var(--font-display);
-  font-weight:   700;
-  font-size:     80px;
-  line-height:   1;
-  color:         var(--amber);
-  opacity:       0.15;
+  position:       absolute;
+  top:            -8px;
+  right:          16px;
+  font-family:    var(--font-display);
+  font-weight:    700;
+  font-size:      80px;
+  line-height:    1;
+  color:          var(--amber);
+  opacity:        0.15;
   pointer-events: none;
-  user-select:   none;
+  user-select:    none;
+  transition:     opacity 200ms ease, transform 200ms ease;
+}
+
+.brutalist-card:hover .card-number-bg {
+  opacity:   0.3;
+  transform: translateY(-2px);
 }
 
 /* ─── AMBER SECTION SEPARATOR ───────────────────────────────── */
 .amber-bar {
-  background:  var(--amber);
-  border-top:  3px solid var(--black);
+  background:    var(--amber);
+  border-top:    3px solid var(--black);
   border-bottom: 3px solid var(--black);
+}
+
+/* ─── GIANT OUTLINE WATERMARK ───────────────────────────────── */
+.outline-watermark {
+  font-family:    var(--font-display);
+  font-weight:    700;
+  letter-spacing: -0.02em;
+  color:          transparent;
+  -webkit-text-stroke: 1.5px rgba(255,255,255,0.07);
+  user-select:    none;
+  pointer-events: none;
+  line-height:    0.8;
+}
+
+/* ─── TABLES (brutalist) ────────────────────────────────────── */
+.brutalist-table {
+  width:          100%;
+  border-collapse: collapse;
+  border:         3px solid var(--black);
+  background:     var(--white);
+}
+.brutalist-table th {
+  font-family:    var(--font-display);
+  font-size:      10px;
+  font-weight:    700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color:          var(--gray);
+  text-align:     left;
+  padding:        12px 16px;
+  background:     var(--off-white);
+  border-bottom:  3px solid var(--black);
+}
+.brutalist-table td {
+  font-family:   var(--font-body);
+  font-size:     14px;
+  color:         var(--black);
+  padding:       14px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+.brutalist-table tr:last-child td { border-bottom: none; }
+.brutalist-table tbody tr { transition: background 120ms ease; }
+.brutalist-table tbody tr:hover { background: rgba(245,158,11,0.05); }
+
+/* ─── REDUCED MOTION ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
 }

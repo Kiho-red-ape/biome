@@ -24,7 +24,7 @@ export default function RunAStudyPage() {
       <SiteHeader />
 
       {/* ── Hero (navy, two-column) ── */}
-      <section style={{
+      <section className="texture-grid" style={{
         background:   'var(--navy)',
         borderBottom: '3px solid var(--black)',
       }}>
