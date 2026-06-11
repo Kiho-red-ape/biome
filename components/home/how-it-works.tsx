@@ -10,14 +10,14 @@ const CARDS = [
 
 export function HowItWorks() {
   return (
-    <section style={{ background: 'var(--white)', borderBottom: '3px solid var(--black)' }}>
+    <section style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border-soft)' }}>
       <div className="section-inner">
         <span className="section-label section-label-dark">How it works</span>
         <h2 style={{
           fontFamily:   'var(--font-display)',
-          fontSize:     'clamp(28px, 3vw, 40px)',
-          color:        'var(--black)',
-          marginBottom: 48,
+          fontSize:     'var(--text-h2)',
+          color:        'var(--ink)',
+          marginBottom: 44,
         }}>
           Five steps. One platform.
         </h2>

@@ -10,129 +10,115 @@ function StudyCardSVG() {
       aria-hidden="true"
     >
       <defs>
-        <pattern id="card-micro-grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(15,26,46,0.045)" strokeWidth="0.5" />
-        </pattern>
+        <filter id="card-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="6" stdDeviation="12" floodColor="#0f172a" floodOpacity="0.08" />
+        </filter>
+        <filter id="chip-shadow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="3" stdDeviation="6" floodColor="#0f172a" floodOpacity="0.1" />
+        </filter>
       </defs>
 
       {/* ── MAIN CARD ── */}
-      <rect x={23} y={23} width={390} height={292} fill="#000000" />
-      <rect x={15} y={15} width={390} height={292} fill="#ffffff" stroke="#000000" strokeWidth={3} />
-      <rect x={15} y={15} width={390} height={292} fill="url(#card-micro-grid)" />
-      <rect x={15} y={15} width={390} height={7}   fill="#f59e0b" />
-      <rect x={15} y={22} width={4}   height={285} fill="rgba(245,158,11,0.28)" />
+      <rect x={15} y={15} width={390} height={296} rx={16} fill="#ffffff" stroke="#e2e8f0" strokeWidth={1.5} filter="url(#card-shadow)" />
 
       {/* ── BADGE ROW ── */}
-      <rect x={30} y={36} width={124} height={23} fill="#f59e0b" stroke="#000000" strokeWidth={2} />
-      <path d="M42,49 L46,53.5 L57,44" stroke="#000" strokeWidth={2.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      <text x={96} y={52} textAnchor="middle" fill="#000000" fontSize={8} fontWeight={700} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={1.5}>BIOME VERIFIED</text>
+      <rect x={32} y={36} width={118} height={24} rx={12} fill="#e0f2f7" stroke="rgba(14,116,144,0.25)" strokeWidth={1} />
+      <path d="M44,48 L48,52.5 L58,43.5" stroke="#0e7490" strokeWidth={2.2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <text x={98} y={52} textAnchor="middle" fill="#155e75" fontSize={8.5} fontWeight={600} fontFamily="Inter, system-ui, sans-serif" letterSpacing={0.8}>BIOME VERIFIED</text>
 
-      <rect x={274} y={36} width={113} height={23} fill="#0f1a2e" stroke="#000000" strokeWidth={2} />
-      <circle cx={289} cy={47.5} r={3.5} fill="#f59e0b" className="pulse-dot" />
-      <text x={337} y={52} textAnchor="middle" fill="#f59e0b" fontSize={8} fontWeight={700} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={1.5}>RECRUITING</text>
+      <rect x={278} y={36} width={110} height={24} rx={12} fill="#ecfdf3" stroke="rgba(21,128,61,0.25)" strokeWidth={1} />
+      <circle cx={293} cy={48} r={3.5} fill="#15803d" className="pulse-dot" />
+      <text x={343} y={52} textAnchor="middle" fill="#15803d" fontSize={8.5} fontWeight={600} fontFamily="Inter, system-ui, sans-serif" letterSpacing={0.8}>RECRUITING</text>
 
       {/* ── STUDY TITLE ── */}
-      <text x={30} y={82} fill="#0f1a2e" fontSize={15.5} fontWeight={800} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={-0.3}>Gut-Brain Microbiome</text>
-      <text x={30} y={101} fill="#0f1a2e" fontSize={15.5} fontWeight={800} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={-0.3}>Intervention Study</text>
+      <text x={32} y={86} fill="#0f172a" fontSize={16} fontWeight={700} fontFamily="Inter, system-ui, sans-serif" letterSpacing={-0.3}>Gut-Brain Microbiome</text>
+      <text x={32} y={106} fill="#0f172a" fontSize={16} fontWeight={700} fontFamily="Inter, system-ui, sans-serif" letterSpacing={-0.3}>Intervention Study</text>
 
       {/* ── PI ROW ── */}
-      <circle cx={43} cy={119} r={9} fill="#dde4f0" stroke="#0f1a2e" strokeWidth={1.5} />
-      <text x={43} y={123} textAnchor="middle" fill="#0f1a2e" fontSize={7} fontWeight={800} fontFamily="Space Grotesk, system-ui, sans-serif">SC</text>
-      <text x={58} y={123} fill="#64748b" fontSize={8.5} fontFamily="Space Grotesk, system-ui, sans-serif">Dr. S. Chen  ·  Stanford Medicine  ·  Phase II</text>
+      <circle cx={43} cy={126} r={9} fill="#e0f2f7" stroke="#0e7490" strokeWidth={1.2} />
+      <text x={43} y={129.5} textAnchor="middle" fill="#155e75" fontSize={7} fontWeight={700} fontFamily="Inter, system-ui, sans-serif">SC</text>
+      <text x={58} y={129.5} fill="#64748b" fontSize={9} fontFamily="Inter, system-ui, sans-serif">Dr. S. Chen  ·  Stanford Medicine  ·  Phase II</text>
 
-      {/* ── DIVIDER ── */}
-      <line x1={30} y1={137} x2={389} y2={137} stroke="#0f1a2e" strokeWidth={1} opacity={0.1} />
+      <line x1={32} y1={144} x2={388} y2={144} stroke="#e2e8f0" strokeWidth={1} />
 
       {/* ── CATEGORY TAGS ── */}
-      <rect x={30}  y={147} width={88} height={19} fill="none" stroke="#0f1a2e" strokeWidth={1.5} />
-      <text x={74}  y={160.5} textAnchor="middle" fill="#0f1a2e" fontSize={7.5} fontWeight={700} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={1}>MICROBIOME</text>
-      <rect x={128} y={147} width={78} height={19} fill="none" stroke="#0f1a2e" strokeWidth={1.5} />
-      <text x={167} y={160.5} textAnchor="middle" fill="#0f1a2e" fontSize={7.5} fontWeight={700} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={1}>COGNITIVE</text>
-      <rect x={216} y={147} width={58} height={19} fill="none" stroke="#0f1a2e" strokeWidth={1.5} />
-      <text x={245} y={160.5} textAnchor="middle" fill="#0f1a2e" fontSize={7.5} fontWeight={700} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={1}>REMOTE</text>
+      <rect x={32}  y={154} width={90} height={20} rx={10} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1} />
+      <text x={77}  y={167.5} textAnchor="middle" fill="#475569" fontSize={8} fontWeight={600} fontFamily="Inter, system-ui, sans-serif" letterSpacing={0.6}>MICROBIOME</text>
+      <rect x={130} y={154} width={80} height={20} rx={10} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1} />
+      <text x={170} y={167.5} textAnchor="middle" fill="#475569" fontSize={8} fontWeight={600} fontFamily="Inter, system-ui, sans-serif" letterSpacing={0.6}>COGNITIVE</text>
+      <rect x={218} y={154} width={62} height={20} rx={10} fill="#f8fafc" stroke="#e2e8f0" strokeWidth={1} />
+      <text x={249} y={167.5} textAnchor="middle" fill="#475569" fontSize={8} fontWeight={600} fontFamily="Inter, system-ui, sans-serif" letterSpacing={0.6}>REMOTE</text>
 
-      {/* ── DIVIDER ── */}
-      <line x1={30} y1={177} x2={389} y2={177} stroke="#0f1a2e" strokeWidth={1} opacity={0.1} />
+      <line x1={32} y1={186} x2={388} y2={186} stroke="#e2e8f0" strokeWidth={1} />
 
       {/* ── STATS (3 cols) ── */}
-      <text x={30}  y={194} fill="#94a3b8" fontSize={8} fontWeight={600} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={2}>BOUNTY</text>
-      <text x={30}  y={216} fill="#0f1a2e" fontSize={22} fontWeight={800} fontFamily="Space Grotesk, system-ui, sans-serif">$240</text>
-      <text x={30}  y={229} fill="#94a3b8" fontSize={7.5} fontFamily="Space Grotesk, system-ui, sans-serif">per participant</text>
-      <line x1={165} y1={184} x2={165} y2={235} stroke="#0f1a2e" strokeWidth={1} opacity={0.08} />
+      <text x={32}  y={203} fill="#94a3b8" fontSize={8} fontWeight={600} fontFamily="Inter, system-ui, sans-serif" letterSpacing={1.2}>COMPENSATION</text>
+      <text x={32}  y={225} fill="#0f172a" fontSize={21} fontWeight={700} fontFamily="Inter, system-ui, sans-serif">$240</text>
+      <text x={32}  y={238} fill="#94a3b8" fontSize={7.5} fontFamily="Inter, system-ui, sans-serif">per research partner</text>
+      <line x1={168} y1={196} x2={168} y2={242} stroke="#e2e8f0" strokeWidth={1} />
 
-      <text x={176} y={194} fill="#94a3b8" fontSize={8} fontWeight={600} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={2}>DURATION</text>
-      <text x={176} y={216} fill="#0f1a2e" fontSize={22} fontWeight={800} fontFamily="Space Grotesk, system-ui, sans-serif">8 wks</text>
-      <text x={176} y={229} fill="#94a3b8" fontSize={7.5} fontFamily="Space Grotesk, system-ui, sans-serif">12 sessions</text>
-      <line x1={302} y1={184} x2={302} y2={235} stroke="#0f1a2e" strokeWidth={1} opacity={0.08} />
+      <text x={182} y={203} fill="#94a3b8" fontSize={8} fontWeight={600} fontFamily="Inter, system-ui, sans-serif" letterSpacing={1.2}>DURATION</text>
+      <text x={182} y={225} fill="#0f172a" fontSize={21} fontWeight={700} fontFamily="Inter, system-ui, sans-serif">8 wks</text>
+      <text x={182} y={238} fill="#94a3b8" fontSize={7.5} fontFamily="Inter, system-ui, sans-serif">12 sessions</text>
+      <line x1={296} y1={196} x2={296} y2={242} stroke="#e2e8f0" strokeWidth={1} />
 
-      <text x={314} y={194} fill="#94a3b8" fontSize={8} fontWeight={600} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={2}>ENROLLED</text>
-      <text x={314} y={215} fill="#0f1a2e" fontSize={22} fontWeight={800} fontFamily="Space Grotesk, system-ui, sans-serif">42<tspan fill="#94a3b8" fontSize={13} fontWeight={600}>/50</tspan></text>
-      <text x={314} y={229} fill="#f59e0b" fontSize={7.5} fontWeight={600} fontFamily="Space Grotesk, system-ui, sans-serif">84% filled</text>
+      <text x={310} y={203} fill="#94a3b8" fontSize={8} fontWeight={600} fontFamily="Inter, system-ui, sans-serif" letterSpacing={1.2}>ENROLLED</text>
+      <text x={310} y={224} fill="#0f172a" fontSize={21} fontWeight={700} fontFamily="Inter, system-ui, sans-serif">42<tspan fill="#94a3b8" fontSize={13} fontWeight={500}>/50</tspan></text>
+      <text x={310} y={238} fill="#0e7490" fontSize={7.5} fontWeight={600} fontFamily="Inter, system-ui, sans-serif">84% filled</text>
 
-      {/* ── DIVIDER ── */}
-      <line x1={30} y1={247} x2={389} y2={247} stroke="#0f1a2e" strokeWidth={1} opacity={0.1} />
+      <line x1={32} y1={252} x2={388} y2={252} stroke="#e2e8f0" strokeWidth={1} />
 
       {/* ── ENROLLMENT FUNNEL ── */}
-      <text x={30} y={262} fill="#94a3b8" fontSize={7.5} fontWeight={600} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={2}>ENROLLMENT FUNNEL</text>
+      <text x={32} y={267} fill="#94a3b8" fontSize={7.5} fontWeight={600} fontFamily="Inter, system-ui, sans-serif" letterSpacing={1.2}>ENROLLMENT FUNNEL</text>
 
-      {/* Applied: 127 */}
-      <text x={30}  y={278} fill="#64748b" fontSize={7.5} fontFamily="Space Grotesk, system-ui, sans-serif">APPLIED</text>
-      <rect x={90} y={270} width={258} height={8} fill="rgba(15,26,46,0.07)" />
-      <rect x={90} y={270} width={258} height={8} fill="rgba(15,26,46,0.28)">
-        <animate attributeName="width" from="0" to="258" dur="1.1s" begin="0.3s" fill="freeze" calcMode="spline" keySplines="0.2 0 0 1" />
+      <text x={32}  y={282} fill="#64748b" fontSize={7.5} fontFamily="Inter, system-ui, sans-serif">Applied</text>
+      <rect x={92} y={275} width={256} height={7} rx={3.5} fill="#f1f5f9" />
+      <rect x={92} y={275} width={256} height={7} rx={3.5} fill="#cbd5e1">
+        <animate attributeName="width" from="0" to="256" dur="1.1s" begin="0.3s" fill="freeze" calcMode="spline" keySplines="0.2 0 0 1" />
       </rect>
-      <text x={354} y={278} fill="#0f1a2e" fontSize={7.5} fontWeight={700} fontFamily="Space Grotesk, system-ui, sans-serif">127</text>
+      <text x={356} y={282} fill="#475569" fontSize={7.5} fontWeight={600} fontFamily="Inter, system-ui, sans-serif">127</text>
 
-      {/* Screened: 68 → 258*68/127 ≈ 138 */}
-      <text x={30}  y={292} fill="#64748b" fontSize={7.5} fontFamily="Space Grotesk, system-ui, sans-serif">SCREENED</text>
-      <rect x={90} y={284} width={258} height={8} fill="rgba(15,26,46,0.07)" />
-      <rect x={90} y={284} width={138} height={8} fill="rgba(15,26,46,0.2)">
-        <animate attributeName="width" from="0" to="138" dur="1.1s" begin="0.5s" fill="freeze" calcMode="spline" keySplines="0.2 0 0 1" />
+      <text x={32}  y={296} fill="#64748b" fontSize={7.5} fontFamily="Inter, system-ui, sans-serif">Screened</text>
+      <rect x={92} y={289} width={256} height={7} rx={3.5} fill="#f1f5f9" />
+      <rect x={92} y={289} width={137} height={7} rx={3.5} fill="#7dd3e8">
+        <animate attributeName="width" from="0" to="137" dur="1.1s" begin="0.5s" fill="freeze" calcMode="spline" keySplines="0.2 0 0 1" />
       </rect>
-      <text x={354} y={292} fill="#0f1a2e" fontSize={7.5} fontWeight={700} fontFamily="Space Grotesk, system-ui, sans-serif">68</text>
+      <text x={356} y={296} fill="#475569" fontSize={7.5} fontWeight={600} fontFamily="Inter, system-ui, sans-serif">68</text>
 
-      {/* Enrolled: 42 → 258*42/127 ≈ 85 — amber */}
-      <text x={30}  y={306} fill="#f59e0b" fontSize={7.5} fontWeight={600} fontFamily="Space Grotesk, system-ui, sans-serif">ENROLLED</text>
-      <rect x={90} y={298} width={258} height={8} fill="rgba(15,26,46,0.07)" />
-      <rect x={90} y={298} width={85}  height={8} fill="#f59e0b">
+      <text x={32}  y={310} fill="#0e7490" fontSize={7.5} fontWeight={600} fontFamily="Inter, system-ui, sans-serif">Enrolled</text>
+      <rect x={92} y={303} width={256} height={7} rx={3.5} fill="#f1f5f9" />
+      <rect x={92} y={303} width={85}  height={7} rx={3.5} fill="#0e7490">
         <animate attributeName="width" from="0" to="85" dur="1.1s" begin="0.7s" fill="freeze" calcMode="spline" keySplines="0.2 0 0 1" />
       </rect>
-      <text x={354} y={306} fill="#f59e0b" fontSize={7.5} fontWeight={700} fontFamily="Space Grotesk, system-ui, sans-serif">42</text>
+      <text x={356} y={310} fill="#0e7490" fontSize={7.5} fontWeight={700} fontFamily="Inter, system-ui, sans-serif">42</text>
 
-      {/* ── FLOATING NOTIFICATION CHIP (right edge) ── */}
+      {/* ── FLOATING NOTIFICATION CHIP ── */}
       <g className="float-soft">
-        <rect x={411} y={53} width={82} height={22} fill="#000000" />
-        <rect x={405} y={47} width={82} height={22} fill="#f59e0b" stroke="#000000" strokeWidth={2} />
-        <path d="M416,58 L421,63 L429,55" stroke="#000" strokeWidth={2.2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-        <text x={456} y={62.5} textAnchor="middle" fill="#000000" fontSize={7.5} fontWeight={700} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={1}>3 NEW APPS</text>
+        <rect x={398} y={50} width={92} height={26} rx={13} fill="#ffffff" stroke="#e2e8f0" strokeWidth={1} filter="url(#chip-shadow)" />
+        <circle cx={413} cy={63} r={4} fill="#0e7490" />
+        <path d="M411,63 L412.5,64.5 L415.5,61.5" stroke="#fff" strokeWidth={1.2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <text x={450} y={66.5} textAnchor="middle" fill="#475569" fontSize={8} fontWeight={600} fontFamily="Inter, system-ui, sans-serif">3 new applicants</text>
       </g>
 
-      {/* ── FLOATING CARD 2 (ACTIVE study, navy, bottom-right) ── */}
+      {/* ── FLOATING CARD 2 (active study) ── */}
       <g className="float-soft" style={{ animationDelay: '1.5s' }}>
-        <rect x={265} y={336} width={222} height={104} fill="#000000" />
-        <rect x={257} y={328} width={222} height={104} fill="#0f1a2e" stroke="#f59e0b" strokeWidth={2} />
-        <rect x={257} y={328} width={222} height={5}   fill="#f59e0b" />
-        <rect x={271} y={345} width={64}  height={18}  fill="rgba(245,158,11,0.15)" stroke="#f59e0b" strokeWidth={1.5} />
-        <circle cx={283} cy={354} r={3} fill="#f59e0b" className="pulse-dot" />
-        <text x={308} y={358} textAnchor="middle" fill="#f59e0b" fontSize={7.5} fontWeight={700} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={1.5}>ACTIVE</text>
-        <rect x={271} y={374} width={140} height={8} fill="rgba(255,255,255,0.14)" />
-        <rect x={271} y={388} width={100} height={8} fill="rgba(255,255,255,0.08)" />
-        <text x={467} y={406} textAnchor="end" fill="#f59e0b" fontSize={18} fontWeight={800} fontFamily="Space Grotesk, system-ui, sans-serif">$180</text>
-        <text x={467} y={420} textAnchor="end" fill="rgba(255,255,255,0.4)" fontSize={7.5} fontFamily="Space Grotesk, system-ui, sans-serif">per participant</text>
+        <rect x={257} y={332} width={228} height={104} rx={14} fill="#ffffff" stroke="#e2e8f0" strokeWidth={1.5} filter="url(#card-shadow)" />
+        <rect x={273} y={348} width={66} height={20} rx={10} fill="#e0f2f7" stroke="rgba(14,116,144,0.25)" strokeWidth={1} />
+        <circle cx={286} cy={358} r={3} fill="#0e7490" className="pulse-dot" />
+        <text x={311} y={361.5} textAnchor="middle" fill="#155e75" fontSize={8} fontWeight={600} fontFamily="Inter, system-ui, sans-serif" letterSpacing={0.8}>ACTIVE</text>
+        <rect x={273} y={380} width={140} height={7} rx={3.5} fill="#e8edf3" />
+        <rect x={273} y={393} width={100} height={7} rx={3.5} fill="#f1f5f9" />
+        <text x={469} y={414} textAnchor="end" fill="#0f172a" fontSize={17} fontWeight={700} fontFamily="Inter, system-ui, sans-serif">$180</text>
+        <text x={469} y={427} textAnchor="end" fill="#94a3b8" fontSize={7.5} fontFamily="Inter, system-ui, sans-serif">per research partner</text>
       </g>
 
-      {/* ── IRB APPROVED chip (floating, bottom-left) ── */}
+      {/* ── COMPLIANCE CHIP ── */}
       <g className="float-soft" style={{ animationDelay: '0.8s', animationDuration: '7s' }}>
-        <rect x={20} y={333} width={132} height={24} fill="#000000" />
-        <rect x={14} y={327} width={132} height={24} fill="#0f1a2e" stroke="rgba(255,255,255,0.2)" strokeWidth={1.5} />
-        <circle cx={26} cy={339} r={5} fill="none" stroke="#4ade80" strokeWidth={1.5} />
-        <path d="M23.5,339.5 L25.5,341.5 L29,337.5" stroke="#4ade80" strokeWidth={1.5} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-        <text x={38} y={343.5} fill="rgba(255,255,255,0.55)" fontSize={7.5} fontWeight={600} fontFamily="Space Grotesk, system-ui, sans-serif" letterSpacing={1}>IRB APPROVED</text>
+        <rect x={14} y={336} width={158} height={28} rx={14} fill="#ffffff" stroke="#e2e8f0" strokeWidth={1} filter="url(#chip-shadow)" />
+        <circle cx={30} cy={350} r={6} fill="none" stroke="#15803d" strokeWidth={1.4} />
+        <path d="M27.5,350.5 L29.5,352.5 L33,348.5" stroke="#15803d" strokeWidth={1.4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <text x={42} y={354} fill="#475569" fontSize={8.5} fontWeight={600} fontFamily="Inter, system-ui, sans-serif">Ethics approval on file</text>
       </g>
-
-      {/* ── CORNER BRACKETS ── */}
-      <path d="M455,6 L479,6 L479,30"   stroke="#f59e0b" strokeWidth={3} fill="none" opacity={0.45} />
-      <path d="M15,424 L15,448 L39,448" stroke="rgba(255,255,255,0.15)" strokeWidth={3} fill="none" />
     </svg>
   );
 }
@@ -140,41 +126,25 @@ function StudyCardSVG() {
 export function HomeHero() {
   return (
     <section
-      className="texture-grid"
       style={{
-        background:   'var(--navy)',
-        minHeight:    '88vh',
+        background:   'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+        minHeight:    '82vh',
         display:      'flex',
         alignItems:   'center',
-        borderBottom: '3px solid var(--black)',
+        borderBottom: '1px solid var(--border-soft)',
         position:     'relative',
         overflow:     'hidden',
       }}
     >
-      {/* Giant outline watermark */}
-      <span
-        className="outline-watermark"
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          bottom:   -28,
-          right:    -16,
-          fontSize: 'clamp(120px, 18vw, 260px)',
-          zIndex:   0,
-        }}
-      >
-        BIOME
-      </span>
-
       <div
         style={{
-          maxWidth:            1200,
+          maxWidth:            1140,
           margin:              '0 auto',
-          padding:             'clamp(60px, 10vh, 100px) 24px',
+          padding:             'clamp(56px, 9vh, 96px) 24px',
           width:               '100%',
           display:             'grid',
           gridTemplateColumns: 'minmax(0, 54%) minmax(0, 46%)',
-          gap:                 64,
+          gap:                 56,
           alignItems:          'center',
           position:            'relative',
           zIndex:              1,
@@ -183,19 +153,7 @@ export function HomeHero() {
       >
         {/* LEFT */}
         <div>
-          <span className="rise-1" style={{
-            fontFamily:    'var(--font-display)',
-            fontSize:      13,
-            fontWeight:    700,
-            letterSpacing: '4px',
-            textTransform: 'uppercase',
-            color:         'var(--amber)',
-            display:       'inline-flex',
-            alignItems:    'center',
-            gap:           12,
-            marginBottom:  24,
-          }}>
-            <span style={{ width: 28, height: 4, background: 'var(--amber)', display: 'inline-block' }} />
+          <span className="rise-1 section-label">
             Clinical Operations Platform
           </span>
 
@@ -203,35 +161,33 @@ export function HomeHero() {
             fontFamily:   'var(--font-display)',
             fontWeight:   700,
             fontSize:     'var(--text-hero)',
-            lineHeight:   1.05,
-            color:        'var(--white)',
-            marginBottom: 28,
+            lineHeight:   1.08,
+            color:        'var(--ink)',
+            marginBottom: 24,
+            letterSpacing: '-0.025em',
           }}>
             The operations layer<br />
-            <span style={{
-              color:      'var(--amber)',
-              boxShadow:  'inset 0 -0.18em 0 rgba(245,158,11,0.25)',
-            }}>for human studies.</span>
+            <span style={{ color: 'var(--teal)' }}>for human studies.</span>
           </h1>
 
           <p className="rise-3" style={{
             fontFamily:   'var(--font-body)',
             fontSize:     'var(--text-lead)',
-            color:        'rgba(255,255,255,0.75)',
-            lineHeight:   1.65,
-            maxWidth:     440,
-            marginBottom: 40,
+            color:        'var(--slate)',
+            lineHeight:   1.7,
+            maxWidth:     460,
+            marginBottom: 36,
           }}>
             From protocol to clean data — recruitment, compliance, logistics,
-            and payouts. You own the science. We run the operations.
+            and compensation. You own the science. We run the operations.
           </p>
 
-          <div className="rise-4" style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 44 }}>
+          <div className="rise-4" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 44 }}>
             <Link href="/run-a-study" className="btn-primary">
               Run a study →
             </Link>
             <Link href="/onboarding?role=participant" className="btn-secondary">
-              Join as participant
+              Join a study
             </Link>
           </div>
 
@@ -240,7 +196,7 @@ export function HomeHero() {
             display:    'flex',
             gap:        0,
             flexWrap:   'wrap',
-            borderTop:  '2px solid rgba(255,255,255,0.12)',
+            borderTop:  '1px solid var(--border-soft)',
             paddingTop: 20,
           }}>
             {[
@@ -254,22 +210,21 @@ export function HomeHero() {
                 gap:          8,
                 paddingRight: 24,
                 marginRight:  24,
-                borderRight:  i < 2 ? '2px solid rgba(255,255,255,0.12)' : 'none',
+                borderRight:  i < 2 ? '1px solid var(--border-soft)' : 'none',
               }}>
                 <span style={{
                   fontFamily: 'var(--font-display)',
                   fontWeight: 700,
-                  fontSize:   18,
-                  color:      'var(--amber)',
+                  fontSize:   17,
+                  color:      'var(--teal-dark)',
                   fontVariantNumeric: 'tabular-nums',
                 }}>
                   {num}
                 </span>
                 <span style={{
                   fontFamily: 'var(--font-body)',
-                  fontSize:   12,
-                  color:      'rgba(255,255,255,0.45)',
-                  letterSpacing: '0.3px',
+                  fontSize:   12.5,
+                  color:      'var(--muted)',
                 }}>
                   {label}
                 </span>

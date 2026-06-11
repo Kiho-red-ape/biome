@@ -90,37 +90,38 @@ export function SiteHeader() {
         position:       'sticky',
         top:            0,
         zIndex:         200,
-        height:         62,
+        height:         64,
         display:        'flex',
         alignItems:     'center',
         justifyContent: 'space-between',
-        background:     'var(--navy)',
-        borderTop:      '3px solid var(--amber)',
-        borderBottom:   '3px solid var(--black)',
+        background:     'rgba(255,255,255,0.92)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        borderBottom:   '1px solid var(--border-soft)',
         flexShrink:     0,
         paddingLeft:    'clamp(16px, 3vw, 40px)',
         paddingRight:   'clamp(16px, 3vw, 40px)',
       }}>
         {/* Logo */}
-        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 9 }}>
           <span aria-hidden="true" style={{
-            width: 12, height: 12, background: 'var(--amber)',
-            border: '2px solid var(--black)', display: 'inline-block', flexShrink: 0,
+            width: 10, height: 10, background: 'var(--teal)',
+            borderRadius: '50%', display: 'inline-block', flexShrink: 0,
           }} />
           <span style={{
-            fontFamily:    'var(--font-display)',
+            fontFamily:    'var(--font-logo)',
             fontWeight:    700,
-            fontSize:      20,
-            letterSpacing: '3px',
+            fontSize:      19,
+            letterSpacing: '2px',
             textTransform: 'uppercase',
-            color:         'var(--white)',
+            color:         'var(--ink)',
           }}>
-            BIO<span style={{ color: 'var(--amber)' }}>ME</span>
+            BIO<span style={{ color: 'var(--teal)' }}>ME</span>
           </span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden sm:flex" style={{ alignItems: 'center', gap: 32 }}>
+        <nav className="hidden sm:flex" style={{ alignItems: 'center', gap: 28 }}>
           {NAV_LINKS.map(({ href, label }) => (
             <NavItem key={href} href={href}>{label}</NavItem>
           ))}
@@ -138,16 +139,16 @@ export function SiteHeader() {
               style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 5, padding: 8, minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' }}
             >
               {[0,1,2].map(i => (
-                <span key={i} style={{ display: 'block', width: 22, height: 3, background: 'var(--white)' }} />
+                <span key={i} style={{ display: 'block', width: 20, height: 2, background: 'var(--ink)', borderRadius: 2 }} />
               ))}
             </button>
           </div>
 
           {/* Desktop auth */}
           <div className="hidden sm:flex items-center" style={{ gap: 12 }}>
-            {!ready && <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>…</span>}
+            {!ready && <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>…</span>}
             {ready && !authenticated && (
-              <button onClick={login} className="btn-primary" style={{ minHeight: 40, padding: '10px 20px', fontSize: 13 }}>
+              <button onClick={login} className="btn-primary" style={{ minHeight: 38, padding: '8px 18px', fontSize: 14 }}>
                 Sign in
               </button>
             )}
@@ -158,26 +159,28 @@ export function SiteHeader() {
                   style={{
                     display: 'flex', alignItems: 'center', gap: 8,
                     fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 600,
-                    color: 'var(--white)',
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '2px solid rgba(255,255,255,0.15)',
+                    color: 'var(--ink)',
+                    background: 'var(--bg-page)',
+                    border: '1px solid var(--border-soft)',
+                    borderRadius: 999,
                     padding: '8px 14px', cursor: 'pointer',
                     transition: 'border-color 150ms',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--amber)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--teal)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-soft)'; }}
                 >
-                  <span style={{ width: 7, height: 7, background: 'var(--amber)', display: 'inline-block' }} />
-                  {truncated ?? 'ACCOUNT'}
-                  <span style={{ opacity: 0.5, fontSize: 10 }}>▾</span>
+                  <span style={{ width: 7, height: 7, background: 'var(--teal)', borderRadius: '50%', display: 'inline-block' }} />
+                  {truncated ?? 'Account'}
+                  <span style={{ opacity: 0.45, fontSize: 10 }}>▾</span>
                 </button>
 
                 {dropOpen && (
                   <div style={{
-                    position: 'absolute', right: 0, top: 'calc(100% + 4px)',
-                    background: 'var(--navy-deep)', border: '3px solid var(--black)',
-                    boxShadow: '4px 4px 0 var(--black)',
-                    minWidth: 200, zIndex: 300,
+                    position: 'absolute', right: 0, top: 'calc(100% + 6px)',
+                    background: 'var(--surface)', border: '1px solid var(--border-soft)',
+                    borderRadius: 10,
+                    boxShadow: 'var(--shadow-lg)',
+                    minWidth: 200, zIndex: 300, overflow: 'hidden',
                   }}>
                     {profileHref && <DropItem href={profileHref} onClick={() => setDropOpen(false)}>My Profile</DropItem>}
                     {navProfile?.kind === 'participant' && (
@@ -190,17 +193,17 @@ export function SiteHeader() {
                       <DropItem href="/dashboard/experiments" onClick={() => setDropOpen(false)}>My Studies</DropItem>
                     )}
                     {!navProfile && <DropItem href="/onboarding" onClick={() => setDropOpen(false)}>Complete Setup</DropItem>}
-                    <div style={{ borderTop: '2px solid rgba(255,255,255,0.08)' }}>
+                    <div style={{ borderTop: '1px solid var(--border-soft)' }}>
                       <button
                         onClick={() => { setDropOpen(false); logout(); }}
                         style={{
                           width: '100%', textAlign: 'left', padding: '12px 16px',
                           fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 500,
-                          color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none',
+                          color: 'var(--muted)', background: 'none', border: 'none',
                           cursor: 'pointer', transition: 'color 150ms', minHeight: 44,
                         }}
-                        onMouseEnter={e => { e.currentTarget.style.color = 'var(--white)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}
+                        onMouseEnter={e => { e.currentTarget.style.color = 'var(--error)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; }}
                       >
                         Sign out
                       </button>
@@ -215,27 +218,26 @@ export function SiteHeader() {
 
       {/* Mobile overlay */}
       {menuOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'var(--navy-deep)', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'var(--surface)', display: 'flex', flexDirection: 'column' }}>
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            height: 60, padding: '0 20px',
-            borderBottom: '3px solid var(--black)', flexShrink: 0,
+            height: 64, padding: '0 20px',
+            borderBottom: '1px solid var(--border-soft)', flexShrink: 0,
           }}>
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--white)' }}>
-              BIO<span style={{ color: 'var(--amber)' }}>ME</span>
+            <span style={{ fontFamily: 'var(--font-logo)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--ink)' }}>
+              BIO<span style={{ color: 'var(--teal)' }}>ME</span>
             </span>
-            <button onClick={() => setMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--white)', fontSize: 22, minHeight: 44, minWidth: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <button onClick={() => setMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)', fontSize: 22, minHeight: 44, minWidth: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               ✕
             </button>
           </div>
           <div style={{ flex: 1, overflowY: 'auto' }}>
             {NAV_LINKS.map(({ href, label }) => (
               <Link key={href} href={href} onClick={() => setMenuOpen(false)}
-                style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, color: 'var(--white)', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
                 {label}
               </Link>
             ))}
-            <div style={{ height: 2, background: 'var(--amber)', margin: '8px 0' }} />
             {ready && !authenticated && (
               <div style={{ padding: '20px 24px' }}>
                 <button onClick={() => { setMenuOpen(false); login(); }} className="btn-primary" style={{ width: '100%' }}>
@@ -247,13 +249,13 @@ export function SiteHeader() {
               <>
                 {profileHref && (
                   <Link href={profileHref} onClick={() => setMenuOpen(false)}
-                    style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--white)', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                    style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
                     My Profile
                   </Link>
                 )}
                 {navProfile?.kind === 'participant' && (
                   <Link href="/dashboard" onClick={() => setMenuOpen(false)}
-                    style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--white)', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                    style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
                     Dashboard
                   </Link>
                 )}
@@ -277,8 +279,8 @@ function NavItem({ href, children }: { href: string; children: React.ReactNode }
     <Link href={href} className="link-slide" style={{
       fontFamily:    'var(--font-display)',
       fontSize:      14,
-      fontWeight:    600,
-      color:         hover ? 'var(--amber)' : 'rgba(255,255,255,0.7)',
+      fontWeight:    500,
+      color:         hover ? 'var(--teal-dark)' : 'var(--slate)',
       textDecoration: 'none',
       transition:    'color 150ms',
     }}
@@ -296,8 +298,8 @@ function DropItem({ href, onClick, children }: { href: string; onClick: () => vo
     <Link href={href} onClick={onClick} style={{
       display: 'flex', alignItems: 'center', padding: '12px 16px', minHeight: 44,
       fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 500,
-      color: hover ? 'var(--amber)' : 'rgba(255,255,255,0.7)',
-      background: hover ? 'rgba(245,158,11,0.06)' : 'transparent',
+      color: hover ? 'var(--teal-dark)' : 'var(--slate)',
+      background: hover ? 'var(--teal-faint)' : 'transparent',
       textDecoration: 'none', transition: 'color 150ms, background 150ms',
     }}
       onMouseEnter={() => setHover(true)}

@@ -43,9 +43,9 @@ export default async function HomePage() {
       <ClosingCta />
 
       {/* Footer */}
-      <footer style={{ background: 'var(--black)', borderTop: '3px solid rgba(255,255,255,0.1)' }}>
+      <footer style={{ background: 'var(--bg-page)', borderTop: '1px solid var(--border-soft)' }}>
         <div style={{
-          maxWidth:       1200,
+          maxWidth:       1140,
           margin:         '0 auto',
           padding:        '40px 24px',
           display:        'flex',
@@ -54,10 +54,10 @@ export default async function HomePage() {
           flexWrap:       'wrap',
           gap:            20,
         }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--white)' }}>
-            BIO<span style={{ color: 'var(--amber)' }}>ME</span>
+          <span style={{ fontFamily: 'var(--font-logo)', fontWeight: 700, fontSize: 17, letterSpacing: '2px', color: 'var(--ink)' }}>
+            BIO<span style={{ color: 'var(--teal)' }}>ME</span>
           </span>
-          <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--gray)' }}>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--muted)' }}>
             Biome Inc
           </span>
           <nav style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>

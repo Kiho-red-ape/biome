@@ -26,31 +26,32 @@ export function ClosingCta() {
   }
 
   return (
-    <section className="texture-grid" style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+    <section style={{ background: 'var(--surface)', borderTop: '1px solid var(--border-soft)' }}>
       <div className="section-inner" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
         <h2 style={{
           fontFamily:   'var(--font-display)',
-          fontSize:     'clamp(26px, 3vw, 40px)',
-          color:        'var(--white)',
-          marginBottom: 40,
-          lineHeight:   1.1,
+          fontSize:     'var(--text-h2)',
+          color:        'var(--ink)',
+          marginBottom: 36,
+          lineHeight:   1.15,
         }}>
           Running a study?<br />
-          <span style={{ color: 'var(--amber)' }}>Let&apos;s talk.</span>
+          <span style={{ color: 'var(--teal)' }}>Let&apos;s talk.</span>
         </h2>
 
         {formState === 'success' ? (
           <div style={{
-            border:      '3px solid var(--amber)',
-            background:  'rgba(245,158,11,0.08)',
-            padding:     '32px 40px',
-            maxWidth:    480,
-            textAlign:   'center',
+            border:       '1px solid rgba(14,116,144,0.25)',
+            background:   'var(--teal-faint)',
+            borderRadius: 'var(--radius)',
+            padding:      '32px 40px',
+            maxWidth:     480,
+            textAlign:    'center',
           }}>
-            <p style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600, color: 'var(--amber)', marginBottom: 8 }}>
+            <p style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600, color: 'var(--teal-dark)', marginBottom: 8 }}>
               Request received.
             </p>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'rgba(255,255,255,0.7)' }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--slate)' }}>
               We&apos;ll be in touch at {email}.
             </p>
           </div>
@@ -86,7 +87,7 @@ export function ClosingCta() {
               {formState === 'submitting' ? 'Sending...' : 'Request callback →'}
             </button>
             {formState === 'error' && (
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: '#f87171', textAlign: 'center' }}>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--error)', textAlign: 'center' }}>
                 Something went wrong. Email contact@biome.to directly.
               </p>
             )}
