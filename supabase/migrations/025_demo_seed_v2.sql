@@ -227,31 +227,33 @@ INSERT INTO study_documents (
 
 INSERT INTO document_signatures (
   id, document_id, signer_user_id, signer_name, signer_role,
-  ip_address, user_agent, document_hash, signed_at
+  ip_address, user_agent, document_hash, document_version, signed_at
 ) VALUES (
   '00000000-0001-0000-0000-s00000000001',
   '00000000-0001-0000-0000-d00000000003',
   'demo:participant',
   'Alex Thornton',
-  'Participant',
+  'participant',
   '82.45.188.214',
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15',
   'sha256:demo_hash_consent_form_v1_not_real',
+  1,
   now() - interval '11 days'
 ) ON CONFLICT (document_id, signer_user_id) DO NOTHING;
 
 INSERT INTO document_signatures (
   id, document_id, signer_user_id, signer_name, signer_role,
-  ip_address, user_agent, document_hash, signed_at
+  ip_address, user_agent, document_hash, document_version, signed_at
 ) VALUES (
   '00000000-0001-0000-0000-s00000000002',
   '00000000-0001-0000-0000-d00000000004',
   'demo:researcher',
   'Dr. S. Chen',
-  'Principal Investigator',
+  'researcher',
   '185.93.2.17',
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0',
   'sha256:demo_hash_service_contract_v1_not_real',
+  1,
   now() - interval '25 days'
 ) ON CONFLICT (document_id, signer_user_id) DO NOTHING;
 
@@ -410,41 +412,41 @@ BEGIN
       recipient_type, recipient_study_participant_id,
       message_text, message_type, read_at, created_at
     ) VALUES
-    -- Coordinator → Participant: welcome
+    -- Researcher → Participant: welcome
     ( '00000000-0001-0000-0000-m00000000001', demo_exp,
-      'coordinator', NULL, 'participant', 'GBM-P001',
+      'researcher', NULL, 'participant', 'GBM-P001',
       E'Welcome to the Gut-Brain Microbiome Study, P001-Teal-Falcon.\n\nYour baseline sample kit has been dispatched and should arrive within 2 working days (tracking: FX794831200GB).\n\nPlease review the consent form sent to your registered email before starting. Reply here if you have any questions.',
-      'standard', now() - interval '12 days', now() - interval '13 days' ),
+      'text', now() - interval '12 days', now() - interval '13 days' ),
 
-    -- Participant → Coordinator: question
+    -- Participant → Researcher: question
     ( '00000000-0001-0000-0000-m00000000002', demo_exp,
-      'participant', 'GBM-P001', 'coordinator', NULL,
+      'participant', 'GBM-P001', 'researcher', NULL,
       'Hi, I received the kit today. Quick question — the instructions say to collect in the morning. Is there a specific time window I should aim for?',
-      'standard', now() - interval '10 days', now() - interval '11 days' ),
+      'text', now() - interval '10 days', now() - interval '11 days' ),
 
-    -- Coordinator → Participant: answer
+    -- Researcher → Participant: answer
     ( '00000000-0001-0000-0000-m00000000003', demo_exp,
-      'coordinator', NULL, 'recipient', 'GBM-P001',
+      'researcher', NULL, 'participant', 'GBM-P001',
       E'Great question! Aim to collect within the first 4 hours of waking for the most consistent results. Avoid collecting if you''ve had antibiotics, probiotics, or alcohol in the 48h prior.\n\nYou can store the sealed tube in your fridge (not freezer) for up to 24h before posting.',
-      'standard', now() - interval '9 days', now() - interval '10 days' ),
+      'text', now() - interval '9 days', now() - interval '10 days' ),
 
-    -- Participant → Coordinator: confirmation
+    -- Participant → Researcher: confirmation
     ( '00000000-0001-0000-0000-m00000000004', demo_exp,
-      'participant', 'GBM-P001', 'coordinator', NULL,
+      'participant', 'GBM-P001', 'researcher', NULL,
       'Perfect, thank you. Sample collected this morning and posted via the return label. Also completed the Week 2 food journal — should that be uploaded anywhere or does the system capture it automatically?',
-      'standard', now() - interval '8 days', now() - interval '8 days' ),
+      'text', now() - interval '8 days', now() - interval '8 days' ),
 
-    -- Coordinator → Participant: instructions
+    -- Researcher → Participant: instructions
     ( '00000000-0001-0000-0000-m00000000005', demo_exp,
-      'coordinator', NULL, 'recipient', 'GBM-P001',
+      'researcher', NULL, 'participant', 'GBM-P001',
       E'Excellent work — your sample is showing as received at the lab.\n\nFor the food journal: log your meals in the Milestone section of the study portal. Click "Week 2 – Food Journal" and use the text field. Don''t worry about exact portions — estimates are fine.\n\nYour first compensation payment of $60 will be processed once the lab confirms your Week 2 sample. Typically 5–7 working days.',
-      'standard', now() - interval '7 days', now() - interval '7 days' ),
+      'text', now() - interval '7 days', now() - interval '7 days' ),
 
-    -- Coordinator broadcast: Week 4 reminder
+    -- Researcher broadcast: Week 4 reminder
     ( '00000000-0001-0000-0000-m00000000006', demo_exp,
-      'coordinator', NULL, 'all_participants', NULL,
-      E'[STUDY UPDATE — Week 4]\n\nYour Week 4 sample kits have been dispatched today. All participants should expect delivery within 2 working days.\n\nPlease remember:\n• Collect on a weekday morning if possible\n• Post within 24h of collection\n• Complete the mid-study food journal before Week 5\n\nYou''re doing brilliantly — halfway there!',
-      'broadcast', now() - interval '5 days', now() - interval '5 days' )
+      'researcher', NULL, 'all_participants', NULL,
+      E'[STUDY UPDATE — Week 4]\n\nYour Week 4 sample kits have been dispatched today. All research partners should expect delivery within 2 working days.\n\nPlease remember:\n• Collect on a weekday morning if possible\n• Post within 24h of collection\n• Complete the mid-study food journal before Week 5\n\nYou''re doing brilliantly — halfway there!',
+      'system_notice', now() - interval '5 days', now() - interval '5 days' )
 
     ON CONFLICT (id) DO NOTHING;
 

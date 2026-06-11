@@ -26,11 +26,11 @@ function relDate(d: string) {
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  pending:        { bg: 'var(--off-white)', color: 'var(--gray)',  label: 'Eligible'       },
-  method_missing: { bg: 'var(--amber)',     color: 'var(--black)', label: 'Setup Required' },
-  processing:     { bg: 'var(--navy)',      color: 'var(--white)', label: 'Processing'     },
-  paid:           { bg: 'var(--black)',     color: 'var(--amber)', label: 'Paid ✓'         },
-  failed:         { bg: '#dc2626',          color: 'var(--white)', label: 'Failed ⚠'       },
+  pending:        { bg: 'var(--bg-page)',   color: 'var(--slate)',     label: 'Eligible'       },
+  method_missing: { bg: 'var(--teal-soft)', color: 'var(--teal-dark)', label: 'Setup Required' },
+  processing:     { bg: 'var(--teal)',      color: '#ffffff',          label: 'Processing'     },
+  paid:           { bg: 'var(--ink)',       color: '#ffffff',          label: 'Paid ✓'         },
+  failed:         { bg: '#dc2626',          color: '#ffffff',          label: 'Failed ⚠'       },
 };
 
 export function PayoutCard({
@@ -43,7 +43,7 @@ export function PayoutCard({
 
   const fee = grossAmount * 0.005;
   const net = payoutNetAmount ?? parseFloat((grossAmount - fee).toFixed(2));
-  const sc  = STATUS_CONFIG[payoutStatus] ?? { bg: 'var(--off-white)', color: 'var(--gray)', label: payoutStatus };
+  const sc  = STATUS_CONFIG[payoutStatus] ?? { bg: 'var(--bg-page)', color: 'var(--slate)', label: payoutStatus };
 
   async function handleSetupPayout() {
     setLoading(true);
@@ -68,40 +68,41 @@ export function PayoutCard({
   }
 
   return (
-    <div style={{ border: '2px solid var(--black)', background: 'var(--white)' }}>
+    <div style={{ border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', background: 'var(--surface)', boxShadow: 'var(--shadow-sm)' }}>
       {/* Header */}
       <div style={{
         padding:        '12px 20px',
-        borderBottom:   '2px solid var(--black)',
+        borderBottom:   '1px solid var(--border-soft)',
         display:        'flex',
         alignItems:     'center',
         justifyContent: 'space-between',
         gap:            12,
-        background:     'var(--off-white)',
+        background:     'var(--bg-page)',
+        borderRadius:   'var(--radius) var(--radius) 0 0',
       }}>
         <Link href={`/experiments/${experimentId}`} style={{
-          fontFamily:     'var(--font-body)',
-          fontSize:       14,
-          fontWeight:     500,
-          color:          'var(--black)',
+          fontFamily:   'var(--font-body)',
+          fontSize:     14,
+          fontWeight:   500,
+          color:        'var(--ink)',
           textDecoration: 'none',
-          flex:           1,
-          minWidth:       0,
-          overflow:       'hidden',
-          textOverflow:   'ellipsis',
-          whiteSpace:     'nowrap',
+          flex:         1,
+          minWidth:     0,
+          overflow:     'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace:   'nowrap',
         }}>
           {studyTitle}
         </Link>
         <span style={{
-          fontFamily:    'var(--font-display)',
+          fontFamily:    'var(--font-mono)',
           fontSize:      9,
           fontWeight:    700,
           letterSpacing: '1.5px',
           textTransform: 'uppercase' as const,
           background:    sc.bg,
           color:         sc.color,
-          border:        '1.5px solid var(--black)',
+          borderRadius:  '4px',
           padding:       '3px 8px',
           flexShrink:    0,
         }}>
@@ -113,10 +114,10 @@ export function PayoutCard({
       <div style={{ padding: '16px 20px' }}>
         {/* Amount */}
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 12 }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 22, color: payoutStatus === 'paid' ? 'var(--black)' : 'var(--black)' }}>
+          <span style={{ fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 22, color: 'var(--ink)' }}>
             {fmt(net)}
           </span>
-          <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--gray)' }}>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)' }}>
             net ({fmt(grossAmount)} − {fmt(fee)} processing)
           </span>
         </div>
@@ -124,9 +125,9 @@ export function PayoutCard({
         {/* Status-specific body */}
         {payoutStatus === 'pending' && !payoutMethodConfigured && (
           <div>
-            <div style={{ padding: '10px 14px', marginBottom: 12, border: '2px solid var(--amber)', background: 'rgba(245,158,11,0.06)' }}>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--black)', margin: 0 }}>
-                Set up your payout method to receive payment.
+            <div style={{ padding: '10px 14px', marginBottom: 12, border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)', background: 'var(--teal-faint)' }}>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--teal-dark)', margin: 0 }}>
+                Set up your payout method to receive compensation.
               </p>
             </div>
             {error && <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: '#dc2626', marginBottom: 8 }}>{error}</p>}
@@ -138,18 +139,18 @@ export function PayoutCard({
         )}
 
         {payoutStatus === 'pending' && payoutMethodConfigured && (
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--gray)' }}>
-            Payout method: <strong style={{ color: 'var(--black)' }}>{payoutMethodType ?? 'configured'} ✓</strong> · Payout being prepared.
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)' }}>
+            Payout method: <strong style={{ color: 'var(--ink)' }}>{payoutMethodType ?? 'configured'} ✓</strong> · Payout being prepared.
           </p>
         )}
 
         {payoutStatus === 'processing' && (
           <div>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--navy)', marginBottom: 4 }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--teal-dark)', marginBottom: 4 }}>
               Transfer in progress — 2–5 business days.
             </p>
             {payoutInitiatedAt && (
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--gray)' }}>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)' }}>
                 Initiated {relDate(payoutInitiatedAt)}
               </p>
             )}
@@ -157,8 +158,8 @@ export function PayoutCard({
         )}
 
         {payoutStatus === 'paid' && (
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--gray)' }}>
-            Paid {payoutCompletedAt ? relDate(payoutCompletedAt) : ''}
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>
+            Compensation received {payoutCompletedAt ? relDate(payoutCompletedAt) : ''}
           </p>
         )}
 

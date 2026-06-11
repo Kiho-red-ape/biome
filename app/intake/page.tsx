@@ -3,7 +3,7 @@ import { IntakeForm } from './intake-form';
 
 export default function IntakePage() {
   return (
-    <main style={{ minHeight: '100vh', background: '#060a14' }}>
+    <main style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
       <SiteHeader />
       <div
         style={{
@@ -14,28 +14,28 @@ export default function IntakePage() {
       >
         <p style={{
           fontFamily:    'var(--font-mono)',
-          fontSize:      10,
-          letterSpacing: '3px',
-          color:         '#f59e0b',
+          fontSize:      11,
+          letterSpacing: '2px',
+          color:         'var(--teal)',
           textTransform: 'uppercase',
           marginBottom:  20,
         }}>
-          // INTAKE
+          Intake
         </p>
         <h1 style={{
-          fontFamily:   'var(--font-heading)',
+          fontFamily:   'var(--font-display)',
           fontWeight:   700,
           fontSize:     'clamp(22px, 3.5vw, 32px)',
-          color:        '#f8fafc',
+          color:        'var(--ink)',
           lineHeight:   1.2,
           marginBottom: 12,
         }}>
           Tell us about your study.
         </h1>
         <p style={{
-          fontFamily:   'var(--font-mono)',
-          fontSize:     12,
-          color:        '#475569',
+          fontFamily:   'var(--font-body)',
+          fontSize:     15,
+          color:        'var(--slate)',
           lineHeight:   1.7,
           marginBottom: 40,
         }}>

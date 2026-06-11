@@ -4,25 +4,26 @@ import { useState, useRef } from 'react';
 
 const INPUT: React.CSSProperties = {
   width:       '100%',
-  background:  '#0b1014',
-  border:      '1px solid rgba(255,255,255,0.09)',
-  color:       '#f8fafc',
-  fontFamily:  'var(--font-mono)',
-  fontSize:    13,
+  background:  'var(--surface)',
+  border:      '1px solid var(--border-mid)',
+  color:       'var(--ink)',
+  fontFamily:  'var(--font-body)',
+  fontSize:    14,
   padding:     '10px 14px',
   outline:     'none',
-  borderRadius: 2,
+  borderRadius: 'var(--radius-sm)',
   boxSizing:   'border-box',
   transition:  'border-color 150ms ease',
 };
 
 const LABEL: React.CSSProperties = {
   display:       'block',
-  fontFamily:    'var(--font-mono)',
-  fontSize:      10,
+  fontFamily:    'var(--font-body)',
+  fontSize:      13,
+  fontWeight:    600,
   textTransform: 'uppercase',
-  letterSpacing: '2px',
-  color:         '#475569',
+  letterSpacing: '0.5px',
+  color:         'var(--slate)',
   marginBottom:  6,
 };
 
@@ -32,7 +33,7 @@ function Field({
   return (
     <div style={{ marginBottom: 20 }}>
       <label style={LABEL}>
-        {label}{required && <span style={{ color: '#f59e0b', marginLeft: 4 }}>*</span>}
+        {label}{required && <span style={{ color: 'var(--teal)', marginLeft: 4 }}>*</span>}
       </label>
       {children}
     </div>
@@ -54,7 +55,7 @@ function FocusInput({
       type={type}
       placeholder={placeholder}
       required={required}
-      style={{ ...INPUT, borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)' }}
+      style={{ ...INPUT, borderColor: focused ? 'var(--teal)' : 'var(--border-mid)' }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
     />
@@ -75,7 +76,7 @@ function FocusSelect({
       ref={selectRef}
       required={required}
       defaultValue=""
-      style={{ ...INPUT, appearance: 'none', borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)' }}
+      style={{ ...INPUT, appearance: 'none', borderColor: focused ? 'var(--teal)' : 'var(--border-mid)' }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
     >
@@ -105,7 +106,7 @@ function FocusTextarea({
         ...INPUT,
         resize: 'vertical',
         lineHeight: 1.6,
-        borderColor: focused ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.09)',
+        borderColor: focused ? 'var(--teal)' : 'var(--border-mid)',
       }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
@@ -179,14 +180,15 @@ export function IntakeForm() {
   if (done) {
     return (
       <div style={{
-        background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.15)',
-        padding: 40, borderRadius: 2, textAlign: 'center',
+        background: 'var(--teal-faint)', border: '1px solid var(--teal)',
+        padding: 40, borderRadius: 'var(--radius)', textAlign: 'center',
+        boxShadow: 'var(--shadow-sm)',
       }}>
-        <p style={{ fontFamily: 'var(--font-heading)', fontSize: 28, color: '#f59e0b', marginBottom: 12 }}>✓</p>
-        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f8fafc', marginBottom: 8 }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 28, color: 'var(--success)', marginBottom: 12 }}>✓</p>
+        <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 20, color: 'var(--ink)', marginBottom: 8 }}>
           Received.
         </p>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#475569', lineHeight: 1.7 }}>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--slate)', lineHeight: 1.7 }}>
           We&apos;ll review your submission and get back to you within 48 hours.
         </p>
       </div>
@@ -223,7 +225,7 @@ export function IntakeForm() {
       <Field label="What are you trying to learn? (max 300 chars)" required>
         <FocusTextarea textareaRef={descRef} placeholder="Brief description of the research question and expected outcomes." maxLength={300} required />
       </Field>
-      <Field label="Target number of participants" required>
+      <Field label="Target number of research partners" required>
         <FocusInput inputRef={participantsRef} type="number" placeholder="e.g. 100" required />
       </Field>
       <Field label="Study duration">
@@ -247,11 +249,11 @@ export function IntakeForm() {
                 fontFamily:    'var(--font-mono)',
                 fontSize:      11,
                 padding:       '6px 12px',
-                background:    geography.includes(opt) ? 'rgba(245,158,11,0.1)' : 'transparent',
-                border:        `1px solid ${geography.includes(opt) ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.1)'}`,
-                color:         geography.includes(opt) ? '#f59e0b' : '#475569',
+                background:    geography.includes(opt) ? 'var(--teal-soft)' : 'var(--surface)',
+                border:        `1px solid ${geography.includes(opt) ? 'var(--teal)' : 'var(--border-mid)'}`,
+                color:         geography.includes(opt) ? 'var(--teal-dark)' : 'var(--slate)',
                 cursor:        'pointer',
-                borderRadius:  2,
+                borderRadius:  'var(--radius-sm)',
                 transition:    'all 150ms ease',
               }}
             >
@@ -274,11 +276,11 @@ export function IntakeForm() {
                 fontFamily:   'var(--font-mono)',
                 fontSize:     11,
                 padding:      '6px 12px',
-                background:   sampleTypes.includes(opt) ? 'rgba(245,158,11,0.1)' : 'transparent',
-                border:       `1px solid ${sampleTypes.includes(opt) ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.1)'}`,
-                color:        sampleTypes.includes(opt) ? '#f59e0b' : '#475569',
+                background:   sampleTypes.includes(opt) ? 'var(--teal-soft)' : 'var(--surface)',
+                border:       `1px solid ${sampleTypes.includes(opt) ? 'var(--teal)' : 'var(--border-mid)'}`,
+                color:        sampleTypes.includes(opt) ? 'var(--teal-dark)' : 'var(--slate)',
                 cursor:       'pointer',
-                borderRadius: 2,
+                borderRadius: 'var(--radius-sm)',
                 transition:   'all 150ms ease',
               }}
             >
@@ -311,9 +313,9 @@ export function IntakeForm() {
 
       {error && (
         <p style={{
-          fontFamily:   'var(--font-mono)', fontSize: 11, color: '#ffb300',
-          background:   'rgba(255,179,0,0.06)', border: '1px solid rgba(255,179,0,0.2)',
-          padding:      '10px 14px', marginBottom: 16, borderRadius: 2,
+          fontFamily:   'var(--font-body)', fontSize: 13, color: 'var(--error)',
+          background:   'rgba(220,38,38,0.04)', border: '1px solid var(--error)',
+          padding:      '10px 14px', marginBottom: 16, borderRadius: 'var(--radius-sm)',
         }}>
           {error}
         </p>

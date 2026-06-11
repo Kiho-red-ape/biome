@@ -9,18 +9,18 @@ interface Props {
 
 // Seeded "recent completions" — stable demo activity
 const RECENT = [
-  { id: 'EXP-006', participants: 50,  pool: 2750  },
-  { id: 'EXP-003', participants: 30,  pool: 1800  },
-  { id: 'EXP-012', participants: 80,  pool: 6400  },
+  { id: 'EXP-006', partners: 50,  pool: 2750  },
+  { id: 'EXP-003', partners: 30,  pool: 1800  },
+  { id: 'EXP-012', partners: 80,  pool: 6400  },
 ];
 
 export function TickerBar({ experiments, totalPool, activeCount, totalParticipants }: Props) {
   const verifiedCount = experiments.filter((e) => e.is_verified).length;
 
   const items: Array<{ text: string }> = [
-    { text: `${activeCount} studies live · $${(totalPool / 1000).toFixed(0)}K pool · ${totalParticipants} participants · ${verifiedCount} verified` },
+    { text: `${activeCount} studies live · $${(totalPool / 1000).toFixed(0)}K pool · ${totalParticipants} research partners · ${verifiedCount} verified` },
     ...RECENT.map((r) => ({
-      text: `${r.id} COMPLETED · ${r.participants} participants · $${r.pool.toLocaleString()} distributed`,
+      text: `${r.id} COMPLETED · ${r.partners} research partners · $${r.pool.toLocaleString()} distributed`,
     })),
   ];
 
@@ -29,18 +29,18 @@ export function TickerBar({ experiments, totalPool, activeCount, totalParticipan
   return (
     <div
       style={{
-        height: 28,
-        overflow: 'hidden',
-        background: 'rgba(245,158,11,0.02)',
-        borderBottom: '1px solid rgba(245,158,11,0.08)',
-        position: 'relative',
-        zIndex: 2,
+        height:      28,
+        overflow:    'hidden',
+        background:  'var(--teal-faint)',
+        borderBottom: '1px solid var(--border-soft)',
+        position:    'relative',
+        zIndex:      2,
       }}
     >
       <div
         className="ticker-track"
         style={{
-          height: '100%',
+          height:     '100%',
           alignItems: 'center',
         }}
       >
@@ -48,20 +48,20 @@ export function TickerBar({ experiments, totalPool, activeCount, totalParticipan
           <span
             key={i}
             style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 10,
+              fontFamily:    'var(--font-mono)',
+              fontSize:      10,
               textTransform: 'uppercase',
               letterSpacing: '1.5px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              height: '100%',
-              paddingLeft: 24,
-              paddingRight: 24,
-              color: '#4a7055',
+              display:       'inline-flex',
+              alignItems:    'center',
+              height:        '100%',
+              paddingLeft:   24,
+              paddingRight:  24,
+              color:         'var(--slate)',
             }}
           >
             <TickerText text={item.text} />
-            <span style={{ marginLeft: 24, color: 'rgba(245,158,11,0.12)' }}>|</span>
+            <span style={{ marginLeft: 24, color: 'var(--border-mid)' }}>|</span>
           </span>
         ))}
       </div>
@@ -69,7 +69,7 @@ export function TickerBar({ experiments, totalPool, activeCount, totalParticipan
   );
 }
 
-// Renders a ticker item with numbers highlighted in green
+// Renders a ticker item with numbers highlighted in teal
 function TickerText({ text }: { text: string }) {
   const parts = text.split(/(\$[\d.,]+K?|\b[\d.,]+K?\b)/g);
   return (
@@ -77,7 +77,7 @@ function TickerText({ text }: { text: string }) {
       {parts.map((part, i) => {
         const isNumber = /^(\$[\d.,]+K?|[\d.,]+K?)$/.test(part);
         return (
-          <span key={i} style={{ color: isNumber ? '#f59e0b' : undefined }}>
+          <span key={i} style={{ color: isNumber ? 'var(--teal)' : undefined }}>
             {part}
           </span>
         );

@@ -8,10 +8,10 @@ export default function EstimatePage() {
     <main style={{ minHeight: '100vh' }}>
       <SiteHeader />
 
-      {/* ── Hero (navy, two-column) ── */}
+      {/* ── Hero (clinical, two-column) ── */}
       <section style={{
-        background:   'var(--navy)',
-        borderBottom: '3px solid var(--black)',
+        background:   'var(--teal-dark)',
+        borderBottom: '1px solid var(--border-mid)',
       }}>
         <div
           style={{
@@ -28,12 +28,12 @@ export default function EstimatePage() {
           {/* Left */}
           <div>
             <span style={{
-              fontFamily:    'var(--font-display)',
-              fontSize:      13,
+              fontFamily:    'var(--font-mono)',
+              fontSize:      12,
               fontWeight:    600,
-              letterSpacing: '3px',
+              letterSpacing: '2px',
               textTransform: 'uppercase',
-              color:         'var(--amber)',
+              color:         'var(--teal-soft)',
               display:       'block',
               marginBottom:  20,
             }}>
@@ -44,16 +44,16 @@ export default function EstimatePage() {
               fontWeight:   700,
               fontSize:     'clamp(28px, 4vw, 48px)',
               lineHeight:   1.08,
-              color:        'var(--white)',
+              color:        'var(--surface)',
               marginBottom: 20,
             }}>
               Know your cost<br />
-              <span style={{ color: 'var(--amber)' }}>before you commit.</span>
+              <span style={{ color: 'var(--teal-soft)' }}>before you commit.</span>
             </h1>
             <p style={{
               fontFamily:   'var(--font-body)',
               fontSize:     17,
-              color:        'rgba(255,255,255,0.75)',
+              color:        'rgba(255,255,255,0.8)',
               lineHeight:   1.5,
               marginBottom: 12,
             }}>
@@ -62,7 +62,7 @@ export default function EstimatePage() {
             <p style={{
               fontFamily:   'var(--font-body)',
               fontSize:     14,
-              color:        'rgba(255,255,255,0.45)',
+              color:        'rgba(255,255,255,0.55)',
               lineHeight:   1.5,
             }}>
               Itemized breakdown of recruitment, logistics, compliance, and ops fees.
@@ -76,18 +76,18 @@ export default function EstimatePage() {
         </div>
       </section>
 
-      {/* ── Wizard (off-white) ── */}
-      <section style={{ background: 'var(--off-white)', borderBottom: '3px solid var(--black)' }}>
+      {/* ── Wizard (bg-page) ── */}
+      <section style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}>
         <div style={{ maxWidth: 800, margin: '0 auto', padding: 'clamp(48px, 6vw, 80px) 24px' }}>
           <EstimateWizard />
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{ background: 'var(--black)', borderTop: '3px solid rgba(255,255,255,0.1)' }}>
+      <footer style={{ background: 'var(--surface)', borderTop: '1px solid var(--border-soft)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
-          <Link href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--white)', textDecoration: 'none' }}>
-            BIO<span style={{ color: 'var(--amber)' }}>ME</span>
+          <Link href="/" style={{ fontFamily: 'var(--font-logo)', fontWeight: 700, fontSize: 18, letterSpacing: '1px', color: 'var(--ink)', textDecoration: 'none' }}>
+            BIO<span style={{ color: 'var(--teal)' }}>ME</span>
           </Link>
           <nav style={{ display: 'flex', gap: 24 }}>
             {[['Blog', '/blog'], ['Docs', '/docs'], ['Terms', '/legal/tos'], ['Privacy', '/privacy']].map(([l, h]) => (

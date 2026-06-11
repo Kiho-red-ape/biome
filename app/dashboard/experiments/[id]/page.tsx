@@ -61,11 +61,11 @@ type EditableField = typeof EDITABLE_FIELDS[number];
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<string, string> = {
-  draft:      'var(--text-dim)',
-  recruiting: 'var(--green)',
-  active:     'var(--cyan)',
-  completed:  'var(--text-dim)',
-  cancelled:  'var(--amber)',
+  draft:      'var(--muted)',
+  recruiting: 'var(--teal)',
+  active:     'var(--teal-dark)',
+  completed:  'var(--muted)',
+  cancelled:  '#dc2626',
 };
 
 function daysToLaunch(launch_date: string | null): number | null {
@@ -213,7 +213,7 @@ export default function ExperimentManagePage() {
       const data = await res.json() as { experiment?: FullExperiment; error?: string };
       if (!res.ok) { setSaveMsg(`Error: ${data.error ?? 'Commence failed'}`); return; }
       if (data.experiment) setExp(data.experiment);
-      setSaveMsg('✓ Study commenced — milestones generated for all enrolled participants');
+      setSaveMsg('✓ Study commenced — milestones generated for all enrolled research partners');
     } finally {
       setCommencing(false);
     }
@@ -231,21 +231,21 @@ export default function ExperimentManagePage() {
 
   if (!ready || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// LOADING...</span>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-page)' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--muted)' }}>Loading...</span>
       </div>
     );
   }
 
   if (error || !exp) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="mono text-xs" style={{ color: 'var(--amber)' }}>// ERROR: {error ?? 'Not found'}</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-page)' }}>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: '#dc2626' }}>Error: {error ?? 'Not found'}</p>
       </div>
     );
   }
 
-  const sc      = STATUS_COLORS[exp.status] ?? 'var(--text-dim)';
+  const sc      = STATUS_COLORS[exp.status] ?? 'var(--muted)';
   const dtl     = daysToLaunch(exp.launch_date);
   const editLocked = dtl !== null && dtl >= 0 && dtl <= 7;
 
@@ -262,38 +262,38 @@ export default function ExperimentManagePage() {
   };
 
   return (
-    <main className="min-h-screen px-4 py-8">
+    <main className="min-h-screen px-4 py-8" style={{ background: 'var(--bg-page)' }}>
       <div className="max-w-5xl mx-auto">
 
         {/* ── Nav ── */}
         <div className="flex items-center justify-between mb-8">
-          <Link href="/dashboard/experiments" className="mono text-xs no-underline" style={{ color: 'var(--text-dim)' }}>
-            ← MY STUDIES
+          <Link href="/dashboard/experiments" className="no-underline"
+            style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)' }}>
+            ← My Studies
           </Link>
           <Link href={`/experiments/${exp.id}`} target="_blank"
-            className="mono text-xs no-underline transition-opacity hover:opacity-80"
-            style={{ color: 'var(--cyan)' }}>
+            className="no-underline transition-opacity hover:opacity-80"
+            style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--teal)' }}>
             View public page ↗
           </Link>
         </div>
 
         {/* ── Header ── */}
         <div className="rounded p-6 mb-6"
-          style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}>
+          style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}>
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2">
-                <span className="mono text-xs font-bold uppercase" style={{ color: sc }}>● {exp.status}</span>
-                <span className="mono text-xs px-1.5 py-0.5 rounded"
-                  style={{ color: 'var(--text-dim)', border: '1px solid rgba(77,255,128,0.1)' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600, color: sc }}>● {exp.status}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 8px', borderRadius: '4px', color: 'var(--slate)', background: 'var(--teal-faint)', border: '1px solid var(--border-soft)' }}>
                   {exp.category.toUpperCase()}
                 </span>
               </div>
-              <h1 className="text-2xl font-black mb-1"
-                style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}>
+              <h1 className="text-2xl font-bold mb-1"
+                style={{ color: 'var(--ink)', fontFamily: 'var(--font-display)' }}>
                 {exp.title}
               </h1>
-              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)' }}>
                 Posted {relDate(exp.created_at)}
                 {exp.launch_date && ` · Launch: ${exp.launch_date}`}
                 {dtl !== null && dtl >= 0 && ` (${dtl}d away)`}
@@ -306,12 +306,12 @@ export default function ExperimentManagePage() {
                 <button
                   onClick={publish}
                   disabled={publishing}
-                  className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-50"
-                  style={{ background: 'var(--green)', color: '#060a14' }}>
+                  className="transition-all hover:opacity-90 disabled:opacity-50"
+                  style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff', border: 'none', cursor: 'pointer' }}>
                   {publishing ? '...' : 'Publish →'}
                 </button>
               )}
-              {/* Commence button — shown when study not yet commenced and has enrolled participants */}
+              {/* Commence button — shown when study not yet commenced and has enrolled research partners */}
               {!exp.commenced && ['recruiting', 'active'].includes(exp.status) && (
                 (() => {
                   const enrolledCount = applicants.filter((a) => a.status === 'enrolled').length;
@@ -319,16 +319,15 @@ export default function ExperimentManagePage() {
                     <button
                       onClick={commence}
                       disabled={commencing}
-                      className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-50"
-                      style={{ background: 'var(--cyan)', color: '#060a14' }}>
-                      {commencing ? '...' : `COMMENCE STUDY → (${enrolledCount} enrolled)`}
+                      className="transition-all hover:opacity-90 disabled:opacity-50"
+                      style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 'var(--radius-sm)', background: 'var(--teal-dark)', color: '#ffffff', border: 'none', cursor: 'pointer' }}>
+                      {commencing ? '...' : `Commence Study → (${enrolledCount} enrolled)`}
                     </button>
                   ) : null;
                 })()
               )}
               {exp.commenced && exp.commenced_at && (
-                <span className="mono text-xs px-3 py-2 rounded"
-                  style={{ color: 'var(--cyan)', border: '1px solid rgba(0,229,255,0.2)' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, padding: '6px 12px', borderRadius: 'var(--radius-sm)', color: 'var(--teal-dark)', border: '1px solid var(--border-soft)', background: 'var(--teal-faint)' }}>
                   ✓ Commenced {new Date(exp.commenced_at).toLocaleDateString()}
                 </span>
               )}
@@ -337,8 +336,8 @@ export default function ExperimentManagePage() {
                   onClick={startEdit}
                   disabled={editLocked}
                   title={editLocked ? `Edit locked — launches in ${dtl} days` : 'Edit study'}
-                  className="mono text-xs px-4 py-2 rounded transition-all hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ border: '1px solid rgba(0,229,255,0.3)', color: 'var(--cyan)' }}>
+                  className="transition-all hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ fontFamily: 'var(--font-body)', fontSize: 13, padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--slate)', background: 'var(--surface)', cursor: 'pointer' }}>
                   {editLocked ? `🔒 Locked (${dtl}d)` : 'Edit study'}
                 </button>
               )}
@@ -346,8 +345,7 @@ export default function ExperimentManagePage() {
           </div>
 
           {saveMsg && (
-            <p className="mono text-xs mt-3"
-              style={{ color: saveMsg.startsWith('Error') ? 'var(--amber)' : 'var(--green)' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, marginTop: 12, color: saveMsg.startsWith('Error') ? '#dc2626' : 'var(--teal-dark)' }}>
               {saveMsg}
             </p>
           )}
@@ -356,26 +354,26 @@ export default function ExperimentManagePage() {
         {/* ── Edit form ── */}
         {editing && (
           <div className="rounded p-6 mb-6"
-            style={{ background: 'var(--bg2)', border: '1px solid rgba(0,229,255,0.12)' }}>
-            <p className="mono text-xs mb-5" style={{ color: 'var(--text-dim)' }}>// EDIT STUDY</p>
+            style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', marginBottom: 20, letterSpacing: '1px', textTransform: 'uppercase' }}>Edit Study</p>
 
             <div className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
-                <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>TITLE</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Title</span>
                 <input
-                  className="mono text-sm px-3 py-2 rounded outline-none focus:ring-1 ring-green-400/30"
-                  style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                  className="outline-none"
+                  style={{ fontFamily: 'var(--font-body)', fontSize: 14, padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
                   value={form.title as string ?? ''}
                   onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                 />
               </label>
 
               <label className="flex flex-col gap-1.5">
-                <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>DESCRIPTION</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Description</span>
                 <textarea
                   rows={5}
-                  className="mono text-sm px-3 py-2 rounded outline-none focus:ring-1 ring-green-400/30 resize-y"
-                  style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                  className="outline-none resize-y"
+                  style={{ fontFamily: 'var(--font-body)', fontSize: 14, padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
                   value={form.description as string ?? ''}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 />
@@ -383,31 +381,31 @@ export default function ExperimentManagePage() {
 
               <div className="grid md:grid-cols-3 gap-4">
                 <label className="flex flex-col gap-1.5">
-                  <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>BOUNTY / PARTICIPANT ($)</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Compensation / Research Partner ($)</span>
                   <input
                     type="number" min="0"
-                    className="mono text-sm px-3 py-2 rounded outline-none focus:ring-1 ring-green-400/30"
-                    style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                    className="outline-none"
+                    style={{ fontFamily: 'var(--font-body)', fontSize: 14, padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
                     value={form.bounty_per_participant as string ?? ''}
                     onChange={(e) => setForm((f) => ({ ...f, bounty_per_participant: e.target.value }))}
                   />
                 </label>
                 <label className="flex flex-col gap-1.5">
-                  <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>TOTAL SLOTS</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Slots</span>
                   <input
                     type="number" min="1"
-                    className="mono text-sm px-3 py-2 rounded outline-none focus:ring-1 ring-green-400/30"
-                    style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                    className="outline-none"
+                    style={{ fontFamily: 'var(--font-body)', fontSize: 14, padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
                     value={form.slots_total as string ?? ''}
                     onChange={(e) => setForm((f) => ({ ...f, slots_total: e.target.value }))}
                   />
                 </label>
                 <label className="flex flex-col gap-1.5">
-                  <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>DURATION (weeks)</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Duration (weeks)</span>
                   <input
                     type="number" min="1"
-                    className="mono text-sm px-3 py-2 rounded outline-none focus:ring-1 ring-green-400/30"
-                    style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                    className="outline-none"
+                    style={{ fontFamily: 'var(--font-body)', fontSize: 14, padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
                     value={form.duration_weeks as string ?? ''}
                     onChange={(e) => setForm((f) => ({ ...f, duration_weeks: e.target.value }))}
                   />
@@ -416,20 +414,20 @@ export default function ExperimentManagePage() {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <label className="flex flex-col gap-1.5">
-                  <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>REGION</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Region</span>
                   <input
-                    className="mono text-sm px-3 py-2 rounded outline-none focus:ring-1 ring-green-400/30"
-                    style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                    className="outline-none"
+                    style={{ fontFamily: 'var(--font-body)', fontSize: 14, padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
                     value={form.region as string ?? ''}
                     onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))}
                   />
                 </label>
                 <label className="flex flex-col gap-1.5">
-                  <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>LAUNCH DATE</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Launch Date</span>
                   <input
                     type="date"
-                    className="mono text-sm px-3 py-2 rounded outline-none focus:ring-1 ring-green-400/30"
-                    style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                    className="outline-none"
+                    style={{ fontFamily: 'var(--font-body)', fontSize: 14, padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
                     value={form.launch_date as string ?? ''}
                     onChange={(e) => setForm((f) => ({ ...f, launch_date: e.target.value }))}
                   />
@@ -443,28 +441,28 @@ export default function ExperimentManagePage() {
                   onChange={(e) => setForm((f) => ({ ...f, is_remote: e.target.checked }))}
                   className="rounded"
                 />
-                <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>REMOTE (participants can join from anywhere)</span>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)' }}>Remote (research partners can join from anywhere)</span>
               </label>
 
               <label className="flex flex-col gap-1.5">
-                <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>INCLUSION CRITERIA</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Inclusion Criteria</span>
                 <textarea
                   rows={3}
                   placeholder="One criterion per line. Age: 18–45"
-                  className="mono text-sm px-3 py-2 rounded outline-none focus:ring-1 ring-green-400/30 resize-y"
-                  style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                  className="outline-none resize-y"
+                  style={{ fontFamily: 'var(--font-body)', fontSize: 14, padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
                   value={form.inclusion_criteria as string ?? ''}
                   onChange={(e) => setForm((f) => ({ ...f, inclusion_criteria: e.target.value }))}
                 />
               </label>
 
               <label className="flex flex-col gap-1.5">
-                <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>EXCLUSION CRITERIA</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Exclusion Criteria</span>
                 <textarea
                   rows={3}
                   placeholder="One criterion per line."
-                  className="mono text-sm px-3 py-2 rounded outline-none focus:ring-1 ring-green-400/30 resize-y"
-                  style={{ background: 'var(--bg)', border: '1px solid rgba(77,255,128,0.12)', color: 'var(--text-bright)' }}
+                  className="outline-none resize-y"
+                  style={{ fontFamily: 'var(--font-body)', fontSize: 14, padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
                   value={form.exclusion_criteria as string ?? ''}
                   onChange={(e) => setForm((f) => ({ ...f, exclusion_criteria: e.target.value }))}
                 />
@@ -475,14 +473,14 @@ export default function ExperimentManagePage() {
               <button
                 onClick={saveEdit}
                 disabled={saving}
-                className="mono text-xs px-5 py-2.5 rounded font-bold transition-all hover:opacity-90 disabled:opacity-50"
-                style={{ background: 'var(--green)', color: '#060a14' }}>
+                className="transition-all hover:opacity-90 disabled:opacity-50"
+                style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '8px 20px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff', border: 'none', cursor: 'pointer' }}>
                 {saving ? 'Saving...' : 'Save changes'}
               </button>
               <button
                 onClick={() => { setEditing(false); setSaveMsg(null); }}
-                className="mono text-xs px-5 py-2.5 rounded transition-all hover:opacity-80"
-                style={{ border: '1px solid rgba(77,255,128,0.2)', color: 'var(--text-dim)' }}>
+                className="transition-all hover:opacity-80"
+                style={{ fontFamily: 'var(--font-body)', fontSize: 13, padding: '8px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--slate)', background: 'var(--surface)', cursor: 'pointer' }}>
                 Cancel
               </button>
             </div>
@@ -492,15 +490,15 @@ export default function ExperimentManagePage() {
         {/* ── Study stats ── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
-            { label: 'BOUNTY / P',    value: `$${exp.bounty_per_participant.toFixed(0)}`, color: 'var(--green)' },
-            { label: 'TOTAL POOL',    value: `$${exp.total_bounty_pool.toLocaleString()}` },
-            { label: 'SLOTS',         value: `${exp.slots_filled} / ${exp.slots_total}` },
-            { label: 'APPLICANTS',    value: String(applicants.length) },
+            { label: 'Reward / Partner', value: `$${exp.bounty_per_participant.toFixed(0)}`, color: 'var(--teal)' },
+            { label: 'Total Pool',       value: `$${exp.total_bounty_pool.toLocaleString()}` },
+            { label: 'Slots',            value: `${exp.slots_filled} / ${exp.slots_total}` },
+            { label: 'Applicants',       value: String(applicants.length) },
           ].map((s) => (
             <div key={s.label} className="rounded p-4"
-              style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}>
-              <p className="mono text-xs mb-1.5" style={{ color: 'var(--text-dim)' }}>{s.label}</p>
-              <p className="mono text-xl font-bold" style={{ color: s.color ?? 'var(--text-white)' }}>{s.value}</p>
+              style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '1px' }}>{s.label}</p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 20, fontWeight: 700, color: s.color ?? 'var(--ink)' }}>{s.value}</p>
             </div>
           ))}
         </div>
@@ -508,26 +506,25 @@ export default function ExperimentManagePage() {
         {/* ── Amendment log ── */}
         {exp.amendment_log && exp.amendment_log.length > 0 && (
           <div className="rounded overflow-hidden mb-8"
-            style={{ border: '1px solid rgba(77,255,128,0.06)' }}>
-            <div className="px-4 py-3" style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.06)' }}>
-              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                // AMENDMENT LOG <span style={{ color: 'var(--green)' }}>[{exp.amendment_log.length}]</span>
+            style={{ border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)' }}>
+            <div className="px-4 py-3" style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Amendment Log <span style={{ color: 'var(--teal)' }}>[{exp.amendment_log.length}]</span>
               </p>
             </div>
-            <div className="divide-y" style={{ background: 'var(--bg)', borderColor: 'rgba(77,255,128,0.04)' }}>
+            <div className="divide-y" style={{ background: 'var(--surface)', borderColor: 'var(--border-soft)' }}>
               {[...exp.amendment_log].reverse().map((a, i) => (
                 <div key={i} className="px-4 py-3 flex flex-wrap items-center gap-2">
-                  <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)' }}>
                     {new Date(a.ts).toLocaleDateString()}
                   </span>
-                  <span className="mono text-xs px-1.5 py-0.5 rounded"
-                    style={{ background: 'rgba(77,255,128,0.06)', border: '1px solid rgba(77,255,128,0.1)', color: 'var(--green)' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 8px', borderRadius: '4px', background: 'var(--teal-faint)', border: '1px solid var(--border-soft)', color: 'var(--teal-dark)' }}>
                     {a.field}
                   </span>
-                  <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                    <span style={{ color: 'var(--amber)' }}>{a.old_value || '—'}</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--slate)' }}>
+                    <span style={{ color: '#dc2626' }}>{a.old_value || '—'}</span>
                     {' → '}
-                    <span style={{ color: 'var(--text-bright)' }}>{a.new_value || '—'}</span>
+                    <span style={{ color: 'var(--ink)' }}>{a.new_value || '—'}</span>
                   </span>
                 </div>
               ))}
@@ -535,7 +532,7 @@ export default function ExperimentManagePage() {
           </div>
         )}
 
-        {/* ── Enrolled participants (shown when experiment has enrollment_url) ── */}
+        {/* ── Enrolled research partners (shown when experiment has enrollment_url) ── */}
         {(() => {
           const enrolled  = applicants.filter((a) => a.status === 'enrolled');
           const approved  = applicants.filter((a) => a.status === 'approved');
@@ -544,44 +541,43 @@ export default function ExperimentManagePage() {
           return (
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-4">
-                <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// ENROLLED_PARTICIPANTS</p>
-                <span className="mono text-xs" style={{ color: 'var(--green)' }}>[{enrolled.length}]</span>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Enrolled Research Partners</p>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--teal)' }}>[{enrolled.length}]</span>
               </div>
 
               {/* Enrollment URL callout */}
               {hasEnrollUrl && (
-                <div className="rounded px-4 py-3 mb-3 mono text-xs"
-                  style={{ border: '1px solid rgba(0,229,255,0.2)', color: 'var(--cyan)', background: 'rgba(0,229,255,0.04)' }}>
-                  Enrollment URL set: participants visit{' '}
+                <div className="rounded px-4 py-3 mb-3"
+                  style={{ border: '1px solid var(--border-soft)', color: 'var(--teal-dark)', background: 'var(--teal-faint)', fontFamily: 'var(--font-body)', fontSize: 13, borderRadius: 'var(--radius-sm)' }}>
+                  Enrollment URL set: research partners visit{' '}
                   <a href={exp.enrollment_url!} target="_blank" rel="noopener noreferrer"
                     className="underline">{exp.enrollment_url}</a>
-                  {' '}after approval. Click "Confirm enrolled" once they complete it.
+                  {' '}after approval. Click &ldquo;Confirm enrolled&rdquo; once they complete it.
                 </div>
               )}
 
               {enrolled.length === 0 && approved.length === 0 ? (
-                <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                  No enrolled participants yet. Approve applicants below.
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>
+                  No enrolled research partners yet. Approve applicants below.
                 </p>
               ) : (
-                <div className="rounded overflow-hidden" style={{ border: '1px solid rgba(77,255,128,0.1)' }}>
+                <div className="rounded overflow-hidden" style={{ border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)' }}>
                   {/* Approved but awaiting enrollment confirmation */}
                   {hasEnrollUrl && approved.map((a) => (
                     <div key={a.id} className="flex items-center justify-between px-4 py-3 gap-4"
-                      style={{ borderBottom: '1px solid rgba(77,255,128,0.06)', background: 'var(--bg)' }}>
+                      style={{ borderBottom: '1px solid var(--border-soft)', background: 'var(--surface)' }}>
                       <div className="flex items-center gap-3">
-                        <span className="mono text-xs" style={{ color: 'var(--text-bright)' }}>
+                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--ink)' }}>
                           {a.participantProfile?.pseudonym ?? a.participant_id}
                         </span>
-                        <span className="mono text-xs px-1.5 py-0.5 rounded"
-                          style={{ color: 'var(--amber)', border: '1px solid rgba(255,179,0,0.2)' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 8px', borderRadius: '4px', color: 'var(--slate)', background: 'var(--teal-soft)', border: '1px solid var(--border-soft)' }}>
                           Awaiting enrollment
                         </span>
                       </div>
                       <button
                         onClick={() => confirmEnrolled(a.id)}
-                        className="mono text-xs px-3 py-1.5 rounded transition-all hover:opacity-80"
-                        style={{ background: 'var(--green)', color: '#060a14' }}>
+                        className="transition-all hover:opacity-80"
+                        style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff', border: 'none', cursor: 'pointer' }}>
                         Confirm enrolled ✓
                       </button>
                     </div>
@@ -589,11 +585,11 @@ export default function ExperimentManagePage() {
                   {/* Already enrolled */}
                   {enrolled.map((a) => (
                     <div key={a.id} className="flex items-center justify-between px-4 py-3 gap-4"
-                      style={{ borderBottom: '1px solid rgba(77,255,128,0.04)', background: 'var(--bg)' }}>
-                      <span className="mono text-xs" style={{ color: 'var(--text-bright)' }}>
+                      style={{ borderBottom: '1px solid var(--border-soft)', background: 'var(--surface)' }}>
+                      <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--ink)' }}>
                         {a.participantProfile?.pseudonym ?? a.participant_id}
                       </span>
-                      <span className="mono text-xs" style={{ color: 'var(--green)' }}>● enrolled</span>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--teal)' }}>● enrolled</span>
                     </div>
                   ))}
                 </div>
@@ -602,7 +598,7 @@ export default function ExperimentManagePage() {
           );
         })()}
 
-        {/* ── Message composer ── (shown when there are approved/enrolled participants) */}
+        {/* ── Message composer ── (shown when there are approved/enrolled research partners) */}
         {user && (() => {
           const msgRecipients = applicants.filter((a) => a.status === 'approved' || a.status === 'enrolled').length;
           if (msgRecipients === 0 && exp.status !== 'active') return null;
@@ -617,7 +613,7 @@ export default function ExperimentManagePage() {
           );
         })()}
 
-        {/* ── Escrow deposit panel ── shown when study has approved participants */}
+        {/* ── Escrow deposit panel ── shown when study has approved research partners */}
         {(() => {
           const approved = applicants.filter((a) => ['approved', 'enrolled'].includes(a.status)).length;
           const needsEscrow = approved > 0 && ['recruiting', 'active'].includes(exp.status);
@@ -656,9 +652,9 @@ export default function ExperimentManagePage() {
         {exp.commenced && user && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
-              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// COMPLIANCE</p>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Compliance</p>
               {exp.commenced_at && (
-                <span className="mono text-xs" style={{ color: 'var(--cyan)' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--teal)' }}>
                   commenced {new Date(exp.commenced_at).toLocaleDateString()}
                 </span>
               )}
@@ -670,8 +666,8 @@ export default function ExperimentManagePage() {
         {/* ── Document Vault ── */}
         {user && (
           <div className="mb-8" style={{
-            border: '3px solid var(--black)', boxShadow: '4px 4px 0 var(--black)',
-            background: 'var(--white)', padding: 24,
+            border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)',
+            boxShadow: 'var(--shadow-sm)', background: 'var(--surface)', padding: 24,
           }}>
             <DocumentVault
               experimentId={exp.id}
@@ -687,7 +683,7 @@ export default function ExperimentManagePage() {
         {user && (
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// APPLICANT SCREENING</p>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Applicant Screening</p>
             </div>
             <ScreeningDashboard
               experimentId={exp.id}
