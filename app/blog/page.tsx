@@ -19,13 +19,13 @@ export default async function BlogPage() {
   const posts = (data ?? []) as Post[];
 
   return (
-    <main style={{ minHeight: '100vh' }}>
+    <main style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
       <SiteHeader />
 
-      {/* ── Hero (navy, two-column) ── */}
+      {/* ── Hero (teal-soft, two-column) ── */}
       <section style={{
-        background:   'var(--navy)',
-        borderBottom: '3px solid var(--black)',
+        background:   'var(--teal-soft)',
+        borderBottom: '1px solid var(--border-mid)',
       }}>
         <div
           style={{
@@ -42,12 +42,12 @@ export default async function BlogPage() {
           {/* Left */}
           <div>
             <span style={{
-              fontFamily:    'var(--font-display)',
+              fontFamily:    'var(--font-mono)',
               fontSize:      13,
               fontWeight:    600,
               letterSpacing: '3px',
               textTransform: 'uppercase',
-              color:         'var(--amber)',
+              color:         'var(--teal-dark)',
               display:       'block',
               marginBottom:  20,
             }}>
@@ -58,7 +58,7 @@ export default async function BlogPage() {
               fontWeight:   700,
               fontSize:     'clamp(28px, 4vw, 52px)',
               lineHeight:   1.08,
-              color:        'var(--white)',
+              color:        'var(--ink)',
               marginBottom: 20,
             }}>
               From the team.
@@ -66,7 +66,7 @@ export default async function BlogPage() {
             <p style={{
               fontFamily: 'var(--font-body)',
               fontSize:   17,
-              color:      'rgba(255,255,255,0.65)',
+              color:      'var(--slate)',
               lineHeight: 1.6,
               maxWidth:   440,
             }}>
@@ -81,23 +81,24 @@ export default async function BlogPage() {
         </div>
       </section>
 
-      {/* ── Posts (off-white) ── */}
-      <section style={{ background: 'var(--off-white)', borderBottom: '3px solid var(--black)' }}>
+      {/* ── Posts ── */}
+      <section style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}>
         <div className="section-inner">
 
           {posts.length === 0 ? (
             <div style={{
-              border:     '3px solid var(--black)',
-              background: 'var(--white)',
-              boxShadow:  '5px 5px 0 var(--black)',
-              padding:    '48px 40px',
-              maxWidth:   480,
+              border:        '1px solid var(--border-soft)',
+              background:    'var(--surface)',
+              boxShadow:     'var(--shadow-sm)',
+              borderRadius:  'var(--radius)',
+              padding:       '48px 40px',
+              maxWidth:      480,
             }}>
               <p style={{
-                fontFamily: 'var(--font-display)',
+                fontFamily: 'var(--font-body)',
                 fontSize:   18,
                 fontWeight: 600,
-                color:      'var(--black)',
+                color:      'var(--ink)',
                 margin:     0,
               }}>
                 No posts yet. Check back soon.
@@ -122,14 +123,15 @@ export default async function BlogPage() {
                   <article
                     className="blog-card"
                     style={{
-                      background:  'var(--white)',
-                      border:      '3px solid var(--black)',
-                      boxShadow:   '4px 4px 0 var(--black)',
-                      padding:     '28px 24px',
-                      height:      '100%',
-                      display:     'flex',
+                      background:    'var(--surface)',
+                      border:        '1px solid var(--border-soft)',
+                      borderRadius:  'var(--radius)',
+                      boxShadow:     'var(--shadow-sm)',
+                      padding:       '28px 24px',
+                      height:        '100%',
+                      display:       'flex',
                       flexDirection: 'column',
-                      transition:  'box-shadow 150ms, transform 150ms',
+                      transition:    'box-shadow 150ms, transform 150ms',
                     }}
                   >
                     {/* Tags */}
@@ -137,15 +139,16 @@ export default async function BlogPage() {
                       <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
                         {post.tags.map(tag => (
                           <span key={tag} style={{
-                            fontFamily:    'var(--font-display)',
+                            fontFamily:    'var(--font-mono)',
                             fontSize:      10,
                             fontWeight:    600,
                             letterSpacing: '1.5px',
                             textTransform: 'uppercase',
-                            background:    'var(--amber)',
-                            color:         'var(--black)',
+                            background:    'var(--teal-faint)',
+                            color:         'var(--teal-dark)',
                             padding:       '3px 8px',
-                            border:        '2px solid var(--black)',
+                            borderRadius:  'var(--radius-sm)',
+                            border:        '1px solid var(--teal-soft)',
                           }}>
                             {tag}
                           </span>
@@ -158,7 +161,7 @@ export default async function BlogPage() {
                       fontFamily:   'var(--font-display)',
                       fontWeight:   600,
                       fontSize:     20,
-                      color:        'var(--black)',
+                      color:        'var(--ink)',
                       lineHeight:   1.3,
                       marginBottom: 12,
                       flex:         1,
@@ -171,7 +174,7 @@ export default async function BlogPage() {
                       <p style={{
                         fontFamily:   'var(--font-body)',
                         fontSize:     14,
-                        color:        'var(--gray)',
+                        color:        'var(--slate)',
                         lineHeight:   1.6,
                         marginBottom: 20,
                       }}>
@@ -184,7 +187,7 @@ export default async function BlogPage() {
                       display:        'flex',
                       justifyContent: 'space-between',
                       alignItems:     'center',
-                      borderTop:      '2px solid var(--black)',
+                      borderTop:      '1px solid var(--border-soft)',
                       paddingTop:     14,
                       marginTop:      'auto',
                     }}>
@@ -193,7 +196,7 @@ export default async function BlogPage() {
                           fontFamily: 'var(--font-body)',
                           fontSize:   12,
                           fontWeight: 500,
-                          color:      'var(--black)',
+                          color:      'var(--ink)',
                           display:    'block',
                         }}>
                           {post.author}
@@ -201,7 +204,7 @@ export default async function BlogPage() {
                         <span style={{
                           fontFamily: 'var(--font-body)',
                           fontSize:   12,
-                          color:      'var(--gray)',
+                          color:      'var(--muted)',
                         }}>
                           {new Date(post.published_at).toLocaleDateString('en-US', {
                             year: 'numeric', month: 'short', day: 'numeric',
@@ -209,10 +212,10 @@ export default async function BlogPage() {
                         </span>
                       </div>
                       <span style={{
-                        fontFamily: 'var(--font-display)',
+                        fontFamily: 'var(--font-body)',
                         fontSize:   13,
-                        fontWeight: 700,
-                        color:      'var(--black)',
+                        fontWeight: 600,
+                        color:      'var(--teal-dark)',
                       }}>
                         Read →
                       </span>
@@ -226,10 +229,10 @@ export default async function BlogPage() {
       </section>
 
       {/* Footer */}
-      <footer style={{ background: 'var(--black)', borderTop: '3px solid rgba(255,255,255,0.1)' }}>
+      <footer style={{ background: 'var(--surface)', borderTop: '1px solid var(--border-soft)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
-          <Link href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--white)', textDecoration: 'none' }}>
-            BIO<span style={{ color: 'var(--amber)' }}>ME</span>
+          <Link href="/" style={{ fontFamily: 'var(--font-logo)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--ink)', textDecoration: 'none' }}>
+            Bio<span style={{ color: 'var(--teal)' }}>me</span>
           </Link>
           <nav style={{ display: 'flex', gap: 24 }}>
             {[['Blog', '/blog'], ['Docs', '/docs'], ['Terms', '/legal/tos'], ['Privacy', '/privacy']].map(([l, h]) => (
@@ -240,7 +243,7 @@ export default async function BlogPage() {
       </footer>
 
       <style>{`
-        .blog-card:hover { box-shadow: 6px 6px 0 var(--amber) !important; transform: translate(-2px, -2px); }
+        .blog-card:hover { box-shadow: var(--shadow-md) !important; transform: translateY(-2px); }
         @media (max-width: 768px) {
           .blog-hero-grid  { grid-template-columns: 1fr !important; gap: 0 !important; }
           .blog-hero-art   { display: none !important; }

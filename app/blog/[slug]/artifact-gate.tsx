@@ -46,10 +46,10 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <p style={{
-          fontFamily: 'var(--font-display)',
+          fontFamily: 'var(--font-body)',
           fontSize:   14,
           fontWeight: 600,
-          color:      'var(--black)',
+          color:      'var(--ink)',
         }}>
           Email noted. Your download is ready:
         </p>
@@ -65,7 +65,7 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
         <p style={{
           fontFamily: 'var(--font-body)',
           fontSize:   12,
-          color:      'var(--gray)',
+          color:      'var(--muted)',
           lineHeight: 1.6,
         }}>
           We may follow up with related resources. Unsubscribe anytime.
@@ -84,17 +84,25 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
           placeholder="your@email.com"
           required
           style={{
-            flex:        1,
-            minWidth:    200,
-            borderRight: 'none',
-            borderColor: error ? '#dc2626' : 'var(--black)',
+            flex:          1,
+            minWidth:      200,
+            borderRight:   'none',
+            borderColor:   error ? '#dc2626' : 'var(--border-soft)',
+            borderRadius:  'var(--radius-sm) 0 0 var(--radius-sm)',
+            background:    'var(--surface)',
+            color:         'var(--ink)',
+            fontFamily:    'var(--font-body)',
+            fontSize:      13,
+            padding:       '10px 14px',
+            outline:       'none',
+            border:        `1px solid ${error ? '#dc2626' : 'var(--border-soft)'}`,
           }}
         />
         <button
           type="submit"
           disabled={loading}
           className="btn-primary"
-          style={{ borderRadius: 0, cursor: loading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}
+          style={{ borderRadius: '0 var(--radius-sm) var(--radius-sm) 0', cursor: loading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}
         >
           {loading ? '…' : 'Get it →'}
         </button>
@@ -104,7 +112,7 @@ export function ArtifactGate({ artifactUrl, artifactLabel, postSlug }: Props) {
           {error}
         </p>
       )}
-      <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--gray)', margin: 0 }}>
+      <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)', margin: 0 }}>
         No spam. Just the file and occasional related updates.
       </p>
     </form>

@@ -25,19 +25,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const post = data as Post;
 
   return (
-    <main style={{ minHeight: '100vh', background: 'var(--off-white)' }}>
+    <main style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
       <SiteHeader />
 
-      {/* ── Post header (navy) ── */}
-      <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+      {/* ── Post header (teal-soft) ── */}
+      <section style={{ background: 'var(--teal-soft)', borderBottom: '1px solid var(--border-mid)' }}>
         <div style={{ maxWidth: 800, margin: '0 auto', padding: 'clamp(40px, 6vw, 72px) 24px' }}>
 
           {/* Back link */}
           <Link href="/blog" style={{
-            fontFamily:     'var(--font-display)',
+            fontFamily:     'var(--font-body)',
             fontSize:       13,
             fontWeight:     600,
-            color:          'rgba(255,255,255,0.5)',
+            color:          'var(--teal-dark)',
             textDecoration: 'none',
             display:        'inline-block',
             marginBottom:   32,
@@ -51,15 +51,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
               {post.tags.map(tag => (
                 <span key={tag} style={{
-                  fontFamily:    'var(--font-display)',
+                  fontFamily:    'var(--font-mono)',
                   fontSize:      10,
                   fontWeight:    600,
                   letterSpacing: '1.5px',
                   textTransform: 'uppercase',
-                  background:    'var(--amber)',
-                  color:         'var(--black)',
+                  background:    'var(--teal-faint)',
+                  color:         'var(--teal-dark)',
                   padding:       '3px 8px',
-                  border:        '2px solid var(--black)',
+                  borderRadius:  'var(--radius-sm)',
+                  border:        '1px solid var(--teal-soft)',
                 }}>
                   {tag}
                 </span>
@@ -72,7 +73,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             fontFamily:   'var(--font-display)',
             fontWeight:   700,
             fontSize:     'clamp(26px, 4vw, 44px)',
-            color:        'var(--white)',
+            color:        'var(--ink)',
             lineHeight:   1.1,
             marginBottom: 24,
           }}>
@@ -85,15 +86,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               fontFamily: 'var(--font-body)',
               fontSize:   13,
               fontWeight: 500,
-              color:      'rgba(255,255,255,0.7)',
+              color:      'var(--slate)',
             }}>
               {post.author}
             </span>
-            <span style={{ width: 4, height: 4, background: 'var(--amber)', display: 'inline-block' }} />
+            <span style={{ width: 4, height: 4, background: 'var(--teal)', borderRadius: '50%', display: 'inline-block' }} />
             <span style={{
               fontFamily: 'var(--font-body)',
               fontSize:   13,
-              color:      'rgba(255,255,255,0.45)',
+              color:      'var(--muted)',
             }}>
               {new Date(post.published_at).toLocaleDateString('en-US', {
                 year: 'numeric', month: 'long', day: 'numeric',
@@ -103,14 +104,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
       </section>
 
-      {/* ── Post body (off-white) ── */}
-      <section style={{ background: 'var(--off-white)', borderBottom: '3px solid var(--black)' }}>
+      {/* ── Post body ── */}
+      <section style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}>
         <div style={{ maxWidth: 800, margin: '0 auto', padding: 'clamp(40px, 6vw, 72px) 24px' }}>
 
           {/* Hook — prominent pull quote */}
           {post.hook && (
             <div style={{
-              borderLeft:   '5px solid var(--amber)',
+              borderLeft:   '4px solid var(--teal)',
               paddingLeft:  28,
               marginBottom: 48,
             }}>
@@ -118,7 +119,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 fontFamily: 'var(--font-display)',
                 fontWeight: 700,
                 fontSize:   'clamp(18px, 2.5vw, 24px)',
-                color:      'var(--black)',
+                color:      'var(--ink)',
                 lineHeight: 1.4,
                 margin:     0,
               }}>
@@ -131,7 +132,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <div style={{
             fontFamily: 'var(--font-body)',
             fontSize:   16,
-            color:      'var(--black)',
+            color:      'var(--slate)',
             lineHeight: 1.8,
             whiteSpace: 'pre-wrap',
             wordBreak:  'break-word',
@@ -142,19 +143,20 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           {/* ── Gated artifact ── */}
           {post.artifact_url && (
             <div style={{
-              marginTop:  64,
-              border:     '3px solid var(--black)',
-              boxShadow:  '5px 5px 0 var(--black)',
-              background: 'var(--white)',
-              padding:    '36px 32px',
+              marginTop:    64,
+              border:       '1px solid var(--border-soft)',
+              boxShadow:    'var(--shadow-md)',
+              background:   'var(--surface)',
+              borderRadius: 'var(--radius)',
+              padding:      '36px 32px',
             }}>
               <span style={{
-                fontFamily:    'var(--font-display)',
+                fontFamily:    'var(--font-mono)',
                 fontSize:      11,
                 fontWeight:    600,
                 letterSpacing: '3px',
                 textTransform: 'uppercase',
-                color:         'var(--amber)',
+                color:         'var(--teal-dark)',
                 display:       'block',
                 marginBottom:  12,
               }}>
@@ -164,7 +166,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 fontFamily:   'var(--font-display)',
                 fontWeight:   700,
                 fontSize:     'clamp(18px, 2.5vw, 24px)',
-                color:        'var(--black)',
+                color:        'var(--ink)',
                 marginBottom: 8,
               }}>
                 {post.artifact_label ?? 'Download the worksheet'}
@@ -172,7 +174,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               <p style={{
                 fontFamily:   'var(--font-body)',
                 fontSize:     14,
-                color:        'var(--gray)',
+                color:        'var(--slate)',
                 lineHeight:   1.6,
                 marginBottom: 24,
               }}>
@@ -187,12 +189,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           )}
 
           {/* Back link */}
-          <div style={{ marginTop: 64, paddingTop: 32, borderTop: '3px solid var(--black)' }}>
+          <div style={{ marginTop: 64, paddingTop: 32, borderTop: '1px solid var(--border-soft)' }}>
             <Link href="/blog" style={{
-              fontFamily:     'var(--font-display)',
+              fontFamily:     'var(--font-body)',
               fontSize:       13,
               fontWeight:     600,
-              color:          'var(--gray)',
+              color:          'var(--teal-dark)',
               textDecoration: 'none',
               letterSpacing:  '0.5px',
             }}>
@@ -203,10 +205,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       </section>
 
       {/* Footer */}
-      <footer style={{ background: 'var(--black)', borderTop: '3px solid rgba(255,255,255,0.1)' }}>
+      <footer style={{ background: 'var(--surface)', borderTop: '1px solid var(--border-soft)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
-          <Link href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--white)', textDecoration: 'none' }}>
-            BIO<span style={{ color: 'var(--amber)' }}>ME</span>
+          <Link href="/" style={{ fontFamily: 'var(--font-logo)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--ink)', textDecoration: 'none' }}>
+            Bio<span style={{ color: 'var(--teal)' }}>me</span>
           </Link>
           <nav style={{ display: 'flex', gap: 24 }}>
             {[['Blog', '/blog'], ['Docs', '/docs'], ['Terms', '/legal/tos'], ['Privacy', '/privacy']].map(([l, h]) => (

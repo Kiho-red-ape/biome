@@ -1,4 +1,4 @@
-// Read-only view of the Participant Study Agreement.
+// Read-only view of the Research Partner Study Agreement.
 // Linked from the footer — no checkbox / acceptance UI.
 // Acceptance UI is shown only during onboarding and consent flows.
 
@@ -9,13 +9,13 @@ export default function ParticipantAgreementViewPage() {
   const doc = LEGAL_DOCS.participant_agreement;
 
   return (
-    <main style={{ minHeight: '100vh', background: 'var(--bg)', padding: '40px 20px 80px' }}>
+    <main style={{ minHeight: '100vh', background: 'var(--bg-page)', padding: '40px 20px 80px' }}>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
 
         <Link href="/" style={{
           fontFamily: 'var(--font-mono)', fontSize: 11,
           textTransform: 'uppercase', letterSpacing: '2px',
-          color: '#4a7055', textDecoration: 'none',
+          color: 'var(--teal-dark)', textDecoration: 'none',
           display: 'inline-block', marginBottom: 32,
         }}>
           ← Back
@@ -23,27 +23,28 @@ export default function ParticipantAgreementViewPage() {
 
         <p style={{
           fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
-          textTransform: 'uppercase', color: '#f59e0b', marginBottom: 8,
+          textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8,
         }}>
-          // LEGAL_DOCUMENT
+          Legal Document
         </p>
         <h1 style={{
-          fontFamily: 'var(--font-heading)', fontSize: 28, fontWeight: 700,
-          color: '#eef4f0', marginBottom: 8,
+          fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700,
+          color: 'var(--ink)', marginBottom: 8,
         }}>
           {doc.title}
         </h1>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', marginBottom: 32 }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', marginBottom: 32 }}>
           Read-only view — for reference only.
         </p>
 
         <div style={{
-          background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.1)',
-          borderRadius: 4, padding: '24px 28px',
+          background: 'var(--surface)', border: '1px solid var(--border-soft)',
+          borderRadius: 'var(--radius)', padding: '24px 28px',
+          boxShadow: 'var(--shadow-sm)',
         }}>
           <pre style={{
             fontFamily: 'var(--font-mono)', fontSize: 12,
-            color: 'var(--text-bright)', lineHeight: 1.75,
+            color: 'var(--ink)', lineHeight: 1.75,
             whiteSpace: 'pre-wrap', margin: 0,
           }}>
             {doc.content}
