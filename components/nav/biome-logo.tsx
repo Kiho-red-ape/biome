@@ -6,11 +6,11 @@ export function BiomeLogo({ width = 120, className }: { width?: number; classNam
     <span
       className={className}
       style={{
-        fontFamily: 'var(--font-heading), sans-serif',
+        fontFamily: 'var(--font-logo), sans-serif',
         fontWeight: 700,
         fontSize: '24px',
-        letterSpacing: '5px',
-        color: '#f59e0b',
+        letterSpacing: '3px',
+        color: 'var(--teal-dark)',
         textTransform: 'uppercase',
         lineHeight: 1,
       }}

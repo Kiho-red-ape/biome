@@ -28,20 +28,20 @@ type AppRow = {
   experiments: { id: string; title: string; category: string; bounty_per_participant: number } | null;
 };
 
-const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
-  applied:   { bg: 'var(--amber)',     color: 'var(--black)' },
-  approved:  { bg: 'var(--navy)',      color: 'var(--white)' },
-  active:    { bg: 'var(--navy)',      color: 'var(--white)' },
-  completed: { bg: 'var(--black)',     color: 'var(--amber)' },
-  withdrawn: { bg: 'var(--off-white)', color: 'var(--gray)'  },
-  rejected:  { bg: '#dc2626',          color: 'var(--white)' },
+const STATUS_STYLE: Record<string, { bg: string; color: string; border: string }> = {
+  applied:   { bg: 'var(--warning-soft)', color: 'var(--warning)',   border: 'rgba(180,83,9,0.2)'    },
+  approved:  { bg: 'var(--teal-soft)',    color: 'var(--teal-dark)', border: 'rgba(14,116,144,0.2)'  },
+  active:    { bg: 'var(--teal-soft)',    color: 'var(--teal-dark)', border: 'rgba(14,116,144,0.2)'  },
+  completed: { bg: 'var(--success-soft)', color: 'var(--success)',   border: 'rgba(21,128,61,0.2)'   },
+  withdrawn: { bg: 'var(--bg-page)',      color: 'var(--muted)',     border: 'var(--border-soft)'    },
+  rejected:  { bg: 'var(--error-soft)',   color: 'var(--error)',     border: 'rgba(185,28,28,0.2)'   },
 };
 
 function reputationStyle(rate: number | null | undefined) {
-  if (rate == null) return { label: 'New',         bg: 'var(--off-white)', color: 'var(--gray)'  };
-  if (rate >= 95)   return { label: 'Excellent',   bg: 'var(--black)',    color: 'var(--amber)' };
-  if (rate >= 80)   return { label: 'Strong',      bg: 'var(--navy)',     color: 'var(--white)' };
-  return               { label: 'Needs Review', bg: 'var(--amber)',   color: 'var(--black)' };
+  if (rate == null) return { label: 'New',          bg: 'var(--bg-page)',      color: 'var(--muted)',     border: 'var(--border-soft)'   };
+  if (rate >= 95)   return { label: 'Excellent',    bg: 'var(--success-soft)', color: 'var(--success)',   border: 'rgba(21,128,61,0.2)'  };
+  if (rate >= 80)   return { label: 'Strong',       bg: 'var(--teal-soft)',    color: 'var(--teal-dark)', border: 'rgba(14,116,144,0.2)' };
+  return               { label: 'Needs Review', bg: 'var(--warning-soft)', color: 'var(--warning)',   border: 'rgba(180,83,9,0.2)'   };
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -82,30 +82,36 @@ export default async function PublicProfilePage({
   const rep          = reputationStyle(profile.completion_rate);
 
   return (
-    <main style={{ minHeight: '100vh', background: 'var(--off-white)' }}>
+    <main style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
       <SiteHeader />
 
-      {/* ── Identity strip (navy) ── */}
-      <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+      {/* ── Identity strip ── */}
+      <section style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border-soft)' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(40px, 6vw, 64px) 24px' }}>
 
           {/* Back */}
           <Link href="/" style={{
             fontFamily:     'var(--font-display)',
-            fontSize:       12,
-            fontWeight:     600,
-            color:          'rgba(255,255,255,0.4)',
+            fontSize:       13,
+            fontWeight:     500,
+            color:          'var(--muted)',
             textDecoration: 'none',
             display:        'inline-block',
             marginBottom:   28,
-            letterSpacing:  '0.5px',
           }}>
             ← Biome
           </Link>
 
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
             {/* Identicon */}
-            <div style={{ border: '3px solid var(--amber)', flexShrink: 0 }}>
+            <div style={{
+              border:       '1px solid var(--border-soft)',
+              borderRadius: 'var(--radius)',
+              boxShadow:    'var(--shadow-sm)',
+              overflow:     'hidden',
+              flexShrink:   0,
+              lineHeight:   0,
+            }}>
               <Identicon participantId={profile.participant_id} size={72} />
             </div>
 
@@ -113,39 +119,29 @@ export default async function PublicProfilePage({
             <div style={{ flex: 1, minWidth: 200 }}>
               <h1 style={{
                 fontFamily:   'var(--font-display)',
-                fontWeight:   700,
+                fontWeight:   600,
                 fontSize:     'clamp(22px, 3vw, 32px)',
-                color:        'var(--white)',
-                lineHeight:   1.1,
+                color:        'var(--ink)',
+                lineHeight:   1.15,
                 marginBottom: 8,
               }}>
                 {profile.pseudonym}
               </h1>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', marginBottom: 16 }}>
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.5px' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)', letterSpacing: '0.5px' }}>
                   {profile.participant_id}
                 </span>
                 {profile.country && (
-                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)' }}>
                     {countryFlag(profile.country)} {profile.country}
                   </span>
                 )}
                 {profile.year_of_birth && (
-                  <span style={{
-                    fontFamily:    'var(--font-display)',
-                    fontSize:      9,
-                    fontWeight:    600,
-                    letterSpacing: '1.5px',
-                    textTransform: 'uppercase',
-                    background:    'rgba(255,255,255,0.08)',
-                    color:         'rgba(255,255,255,0.5)',
-                    padding:       '2px 8px',
-                    border:        '1px solid rgba(255,255,255,0.12)',
-                  }}>
+                  <span className="chip chip-ghost">
                     {ageRange(profile.year_of_birth)} yrs
                   </span>
                 )}
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)' }}>
                   Since {memberSince(profile.created_at)}
                 </span>
               </div>
@@ -158,38 +154,51 @@ export default async function PublicProfilePage({
       <ProfileGated>
 
       {/* ── Stats row ── */}
-      <section style={{ background: 'var(--white)', borderBottom: '3px solid var(--black)' }}>
-        <div style={{
-          maxWidth:            900,
-          margin:              '0 auto',
-          display:             'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          borderLeft:          '3px solid var(--black)',
-          boxShadow:           '4px 4px 0 var(--black)',
-        }}
+      <section>
+        <div
+          style={{
+            maxWidth:            900,
+            margin:              '32px auto 0',
+            padding:             '0 24px',
+            display:             'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap:                 16,
+          }}
           className="profile-stats-grid"
         >
           {[
-            { label: 'Total Earned',    value: `$${totalEarned.toFixed(2)}`, isRep: false },
+            { label: 'Compensation',    value: `$${totalEarned.toFixed(2)}`, isRep: false },
             { label: 'Completed',       value: String(completed.length),     isRep: false },
             { label: 'Completion Rate', value: profile.completion_rate != null ? `${profile.completion_rate.toFixed(0)}%` : '—', isRep: false },
-            { label: 'Reputation',      value: rep.label, repBg: rep.bg, repColor: rep.color, isRep: true },
-          ].map((s, i) => (
+            { label: 'Reputation',      value: rep.label, repBg: rep.bg, repColor: rep.color, repBorder: rep.border, isRep: true },
+          ].map((s) => (
             <div key={s.label} style={{
+              background:   'var(--surface)',
+              border:       '1px solid var(--border-soft)',
+              borderRadius: 'var(--radius)',
+              boxShadow:    'var(--shadow-sm)',
               padding:      '24px 20px',
-              borderRight:  '2px solid var(--black)',
               textAlign:    'center',
-              borderBottom: '3px solid var(--black)',
             }}>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' as const, color: 'var(--gray)', marginBottom: 10 }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' as const, color: 'var(--muted)', marginBottom: 10 }}>
                 {s.label}
               </div>
               {s.isRep ? (
-                <span style={{ background: s.repBg, color: s.repColor, border: '2px solid var(--black)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, padding: '4px 10px', display: 'inline-block' }}>
+                <span style={{
+                  background:   s.repBg,
+                  color:        s.repColor,
+                  border:       `1px solid ${s.repBorder}`,
+                  borderRadius: 999,
+                  fontFamily:   'var(--font-display)',
+                  fontWeight:   600,
+                  fontSize:     12,
+                  padding:      '4px 12px',
+                  display:      'inline-block',
+                }}>
                   {s.value}
                 </span>
               ) : (
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 24, color: 'var(--black)', lineHeight: 1 }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 24, color: 'var(--ink)', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                   {s.value}
                 </div>
               )}
@@ -198,41 +207,43 @@ export default async function PublicProfilePage({
         </div>
       </section>
 
-      {/* ── Experiment history ── */}
-      <section style={{ background: 'var(--off-white)', borderBottom: '3px solid var(--black)' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px' }}>
+      {/* ── Study history ── */}
+      <section>
+        <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px 8px' }}>
           <div style={{
-            border:     '3px solid var(--black)',
-            boxShadow:  '4px 4px 0 var(--black)',
-            background: 'var(--white)',
+            background:   'var(--surface)',
+            border:       '1px solid var(--border-soft)',
+            borderRadius: 'var(--radius)',
+            boxShadow:    'var(--shadow-sm)',
+            overflow:     'hidden',
           }}>
             {/* Header */}
             <div style={{
-              padding:      '14px 24px',
-              borderBottom: '3px solid var(--black)',
+              padding:      '16px 24px',
+              borderBottom: '1px solid var(--border-soft)',
               fontFamily:   'var(--font-display)',
-              fontSize:     11,
+              fontSize:     12,
               fontWeight:   600,
-              letterSpacing:'3px',
+              letterSpacing:'1px',
               textTransform:'uppercase' as const,
-              color:        'var(--black)',
-              background:   'var(--off-white)',
+              color:        'var(--teal)',
+              background:   'var(--bg-page)',
               display:      'flex',
               alignItems:   'center',
               gap:          10,
             }}>
               Study History
-              <span style={{ background: 'var(--amber)', color: 'var(--black)', border: '1.5px solid var(--black)', padding: '0 6px', fontSize: 10 }}>
+              <span className="chip chip-amber">
                 {applications.length}
               </span>
             </div>
 
             {applications.length === 0 ? (
               <div style={{ padding: '48px 24px', textAlign: 'center' }}>
-                <p style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, color: 'var(--black)', marginBottom: 12 }}>
-                  No experiments yet.
+                <p style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, color: 'var(--ink)', marginBottom: 16 }}>
+                  No studies yet.
                 </p>
-                <Link href="/" style={{ fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700, color: 'var(--black)', background: 'var(--amber)', border: '2px solid var(--black)', padding: '8px 20px', textDecoration: 'none' }}>
+                <Link href="/" className="btn-primary">
                   Browse open studies →
                 </Link>
               </div>
@@ -243,12 +254,12 @@ export default async function PublicProfilePage({
                   display:             'grid',
                   gridTemplateColumns: '1fr 120px 100px 80px',
                   padding:             '10px 24px',
-                  borderBottom:        '2px solid rgba(0,0,0,0.08)',
-                  background:          'var(--off-white)',
+                  borderBottom:        '1px solid var(--border-soft)',
+                  background:          'var(--bg-page)',
                   minWidth:            480,
                 }}>
                   {['Study', 'Category', 'Status', 'Reward'].map(h => (
-                    <span key={h} style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' as const, color: 'var(--gray)' }}>
+                    <span key={h} style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' as const, color: 'var(--muted)' }}>
                       {h}
                     </span>
                   ))}
@@ -256,13 +267,13 @@ export default async function PublicProfilePage({
                 <div style={{ overflowX: 'auto' }}>
                   {applications.map((app, i) => {
                     const exp = app.experiments;
-                    const ss  = STATUS_STYLE[app.status] ?? { bg: 'var(--off-white)', color: 'var(--gray)' };
+                    const ss  = STATUS_STYLE[app.status] ?? { bg: 'var(--bg-page)', color: 'var(--muted)', border: 'var(--border-soft)' };
                     return (
                       <div key={app.id} style={{
                         display:             'grid',
                         gridTemplateColumns: '1fr 120px 100px 80px',
                         padding:             '14px 24px',
-                        borderBottom:        i < applications.length - 1 ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                        borderBottom:        i < applications.length - 1 ? '1px solid var(--border-soft)' : 'none',
                         alignItems:          'center',
                         minWidth:            480,
                       }}>
@@ -271,7 +282,7 @@ export default async function PublicProfilePage({
                             <Link href={`/experiments/${exp.id}`} style={{
                               fontFamily:   'var(--font-body)',
                               fontSize:     14,
-                              color:        'var(--black)',
+                              color:        'var(--ink)',
                               textDecoration: 'none',
                               display:      'block',
                               overflow:     'hidden',
@@ -280,18 +291,19 @@ export default async function PublicProfilePage({
                             }}>
                               {exp.title}
                             </Link>
-                          ) : <span style={{ color: 'var(--gray)' }}>—</span>}
+                          ) : <span style={{ color: 'var(--muted)' }}>—</span>}
                         </div>
                         <span style={{
                           fontFamily:    'var(--font-display)',
-                          fontSize:      9,
+                          fontSize:      10,
                           fontWeight:    600,
-                          letterSpacing: '1px',
+                          letterSpacing: '0.5px',
                           textTransform: 'uppercase' as const,
-                          background:    'var(--off-white)',
-                          color:         'var(--gray)',
-                          border:        '1.5px solid var(--black)',
-                          padding:       '2px 6px',
+                          background:    'var(--bg-page)',
+                          color:         'var(--slate)',
+                          border:        '1px solid var(--border-soft)',
+                          borderRadius:  999,
+                          padding:       '2px 10px',
                           display:       'inline-block',
                           overflow:      'hidden',
                           textOverflow:  'ellipsis',
@@ -302,23 +314,25 @@ export default async function PublicProfilePage({
                         </span>
                         <span style={{
                           fontFamily:    'var(--font-display)',
-                          fontSize:      9,
-                          fontWeight:    700,
-                          letterSpacing: '1px',
+                          fontSize:      10,
+                          fontWeight:    600,
+                          letterSpacing: '0.5px',
                           textTransform: 'uppercase' as const,
                           background:    ss.bg,
                           color:         ss.color,
-                          border:        '1.5px solid var(--black)',
-                          padding:       '2px 6px',
+                          border:        `1px solid ${ss.border}`,
+                          borderRadius:  999,
+                          padding:       '2px 10px',
                           display:       'inline-block',
                         }}>
                           {app.status}
                         </span>
                         <span style={{
-                          fontFamily: 'var(--font-display)',
-                          fontWeight: 700,
-                          fontSize:   14,
-                          color:      app.status === 'completed' ? 'var(--black)' : 'var(--gray)',
+                          fontFamily:         'var(--font-display)',
+                          fontWeight:         600,
+                          fontSize:           14,
+                          fontVariantNumeric: 'tabular-nums',
+                          color:              app.status === 'completed' ? 'var(--ink)' : 'var(--muted)',
                         }}>
                           {app.status === 'completed' ? `$${(exp?.bounty_per_participant ?? 0).toFixed(2)}` : '—'}
                         </span>
@@ -335,7 +349,7 @@ export default async function PublicProfilePage({
       </ProfileGated>
 
       {/* ── Edit sections ── */}
-      <section style={{ background: 'var(--off-white)' }}>
+      <section>
         <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 24px 80px' }}>
           <ProfileEditSections participantId={pid} />
         </div>

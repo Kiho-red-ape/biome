@@ -22,8 +22,8 @@ interface Props {
 }
 
 const LABEL_STYLE = {
-  fontFamily: 'var(--font-mono)', fontSize: 11,
-  textTransform: 'uppercase' as const, letterSpacing: '2px',
+  fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 600,
+  textTransform: 'uppercase' as const, letterSpacing: '1px',
 };
 
 export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadlineClosed }: Props) {
@@ -50,10 +50,10 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
     return (
       <div style={{
         width: '100%', height: 48,
-        border: '1px solid rgba(77,255,128,0.06)', borderRadius: 2,
+        border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <span style={{ ...LABEL_STYLE, color: '#4a7055' }}>—</span>
+        <span style={{ ...LABEL_STYLE, color: 'var(--muted)' }}>—</span>
       </div>
     );
   }
@@ -66,7 +66,7 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
     const dashboardLink = (
       <Link
         href="/dashboard"
-        style={{ color: 'var(--green)', textDecoration: 'none', ...LABEL_STYLE, fontSize: 12 }}
+        style={{ color: 'var(--teal)', textDecoration: 'none', ...LABEL_STYLE, fontSize: 12 }}
       >
         Go to dashboard →
       </Link>
@@ -77,13 +77,13 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{
             width: '100%', padding: '14px 20px',
-            border: '1px solid rgba(255,179,0,0.2)', borderRadius: 2,
-            background: 'rgba(255,179,0,0.04)',
+            border: '1px solid rgba(180,83,9,0.2)', borderRadius: 'var(--radius-sm)',
+            background: 'var(--warning-soft)',
           }}>
-            <p style={{ ...LABEL_STYLE, color: 'var(--amber)', marginBottom: 6 }}>
+            <p style={{ ...LABEL_STYLE, color: 'var(--warning)', marginBottom: 6 }}>
               Application under review
             </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#94a3b8' }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)' }}>
               Your application has been submitted. Track your status in your dashboard.
             </p>
           </div>
@@ -97,13 +97,13 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{
             width: '100%', padding: '14px 20px',
-            border: '1px solid rgba(0,229,255,0.2)', borderRadius: 2,
-            background: 'rgba(0,229,255,0.04)',
+            border: '1px solid rgba(21,128,61,0.2)', borderRadius: 'var(--radius-sm)',
+            background: 'var(--success-soft)',
           }}>
-            <p style={{ ...LABEL_STYLE, color: 'var(--cyan)', marginBottom: 6 }}>
+            <p style={{ ...LABEL_STYLE, color: 'var(--success)', marginBottom: 6 }}>
               {status === 'approved' ? 'Accepted into this study' : 'Enrolled — study in progress'}
             </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#94a3b8' }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)' }}>
               Track milestones and progress in your dashboard.
             </p>
           </div>
@@ -116,11 +116,11 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
       return (
         <div style={{
           width: '100%', padding: '14px 20px',
-          border: '1px solid rgba(160,92,16,0.25)', borderRadius: 2,
-          background: 'rgba(160,92,16,0.04)',
+          border: '1px solid rgba(180,83,9,0.2)', borderRadius: 'var(--radius-sm)',
+          background: 'var(--warning-soft)',
         }}>
-          <p style={{ ...LABEL_STYLE, color: '#a05c10', marginBottom: 4 }}>You&apos;re on the waitlist</p>
-          <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#94a3b8' }}>
+          <p style={{ ...LABEL_STYLE, color: 'var(--warning)', marginBottom: 4 }}>You&apos;re on the waitlist</p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)' }}>
             We&apos;ll notify you if a spot opens.
           </p>
         </div>
@@ -132,17 +132,17 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{
             width: '100%', padding: '14px 20px',
-            border: '1px solid rgba(180,60,60,0.2)', borderRadius: 2,
-            background: 'rgba(180,60,60,0.04)',
+            border: '1px solid rgba(185,28,28,0.2)', borderRadius: 'var(--radius-sm)',
+            background: 'var(--error-soft)',
           }}>
-            <p style={{ ...LABEL_STYLE, color: '#7a3535', marginBottom: 4 }}>
+            <p style={{ ...LABEL_STYLE, color: 'var(--error)', marginBottom: 4 }}>
               Application not selected
             </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#94a3b8' }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)' }}>
               Your application was not selected for this study.
             </p>
           </div>
-          <Link href="/experiments" style={{ color: '#4a7055', textDecoration: 'none', ...LABEL_STYLE, fontSize: 11 }}>
+          <Link href="/experiments" style={{ color: 'var(--muted)', textDecoration: 'none', ...LABEL_STYLE, fontSize: 11 }}>
             Browse other studies →
           </Link>
         </div>
@@ -153,15 +153,15 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
       return (
         <div style={{
           width: '100%', padding: '14px 20px',
-          border: '1px solid rgba(77,255,128,0.15)', borderRadius: 2,
-          background: 'rgba(77,255,128,0.04)',
+          border: '1px solid rgba(21,128,61,0.2)', borderRadius: 'var(--radius-sm)',
+          background: 'var(--success-soft)',
         }}>
-          <p style={{ ...LABEL_STYLE, color: 'var(--green)', marginBottom: 4 }}>
+          <p style={{ ...LABEL_STYLE, color: 'var(--success)', marginBottom: 4 }}>
             ✓ You completed this study
           </p>
-          <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#94a3b8' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)' }}>
             Check your earnings and compliance score in your{' '}
-            <Link href="/dashboard" style={{ color: 'var(--green)' }}>dashboard</Link>.
+            <Link href="/dashboard" style={{ color: 'var(--teal)' }}>dashboard</Link>.
           </p>
         </div>
       );
@@ -177,12 +177,12 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
         <div style={{
           width: '100%', height: 48,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          ...LABEL_STYLE, color: '#4a7055',
-          border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2,
+          ...LABEL_STYLE, color: 'var(--muted)',
+          border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)',
         }}>
           This study has been completed
         </div>
-        <Link href="/experiments" style={{ ...LABEL_STYLE, fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>
+        <Link href="/experiments" style={{ ...LABEL_STYLE, fontSize: 11, color: 'var(--muted)', textDecoration: 'none' }}>
           Browse other studies →
         </Link>
       </div>
@@ -196,12 +196,12 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
         <div style={{
           width: '100%', height: 48,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          ...LABEL_STYLE, color: '#4a7055',
-          border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2,
+          ...LABEL_STYLE, color: 'var(--muted)',
+          border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)',
         }}>
           Fully enrolled
         </div>
-        <Link href="/experiments" style={{ ...LABEL_STYLE, fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>
+        <Link href="/experiments" style={{ ...LABEL_STYLE, fontSize: 11, color: 'var(--muted)', textDecoration: 'none' }}>
           Browse other studies →
         </Link>
       </div>
@@ -214,8 +214,8 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
       <div style={{
         width: '100%', height: 48,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        ...LABEL_STYLE, color: '#4a7055',
-        border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2,
+        ...LABEL_STYLE, color: 'var(--muted)',
+        border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)',
       }}>
         Applications closed
       </div>
@@ -228,8 +228,8 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
       <div style={{
         width: '100%', height: 48,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        ...LABEL_STYLE, color: '#8ee7ff', background: 'rgba(142,231,255,0.06)',
-        border: '1px solid rgba(142,231,255,0.20)', borderRadius: 2,
+        ...LABEL_STYLE, color: 'var(--success)', background: 'var(--success-soft)',
+        border: '1px solid rgba(21,128,61,0.2)', borderRadius: 'var(--radius-sm)',
       }}>
         Study in progress — applications closed
       </div>
@@ -244,8 +244,9 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
         style={{
           width: '100%', height: 48, cursor: 'pointer',
           ...LABEL_STYLE, fontWeight: 700,
-          background: '#f59e0b', color: '#060a14',
-          border: 'none', borderRadius: 2,
+          background: 'var(--teal)', color: '#ffffff',
+          border: '1px solid var(--teal)', borderRadius: 'var(--radius-sm)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         Apply to this study →
@@ -261,7 +262,8 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         width: '100%', height: 48, textDecoration: 'none',
         ...LABEL_STYLE, fontWeight: 700,
-        background: '#f59e0b', color: '#060a14', borderRadius: 2,
+        background: 'var(--teal)', color: '#ffffff', borderRadius: 'var(--radius-sm)',
+        boxShadow: 'var(--shadow-sm)',
       }}
     >
       Apply to this study → ({slotsLeft} slot{slotsLeft !== 1 ? 's' : ''} remaining)

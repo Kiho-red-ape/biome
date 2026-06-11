@@ -130,7 +130,7 @@ function MilestoneTimeline({ milestones, catColor: cc }: { milestones: StudyMile
         letterSpacing: '3px', textTransform: 'uppercase',
         color: cc, marginBottom: 20,
       }}>
-        // PROTOCOL
+        Protocol
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         {weeks.map((week, wi) => (
@@ -460,7 +460,7 @@ export default async function ExperimentPage({ params }: Props) {
             fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
             textTransform: 'uppercase', color: cc, marginBottom: 16,
           }}>
-            // DESCRIPTION
+            Description
           </p>
           <p style={{
             fontFamily: 'var(--font-heading)', fontSize: 15, color: 'var(--slate)',
@@ -501,7 +501,7 @@ export default async function ExperimentPage({ params }: Props) {
                 fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
                 textTransform: 'uppercase', color: cc, marginBottom: 20,
               }}>
-                // ELIGIBILITY
+                Eligibility
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 32 }}>
                 {/* LEFT: WHO IS ELIGIBLE */}
@@ -527,14 +527,14 @@ export default async function ExperimentPage({ params }: Props) {
                 <div>
                   <p style={{
                     fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px',
-                    textTransform: 'uppercase', color: '#ff8f8f', marginBottom: 12,
+                    textTransform: 'uppercase', color: 'var(--error)', marginBottom: 12,
                   }}>
                     WHO IS NOT ELIGIBLE
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {exclusion ? exclusion.map((line, i) => (
                       <div key={i} style={{ display: 'flex', gap: 8 }}>
-                        <span style={{ color: '#ff8f8f', flexShrink: 0 }}>✕</span>
+                        <span style={{ color: 'var(--error)', flexShrink: 0 }}>✕</span>
                         <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: 'var(--slate)' }}>{line}</span>
                       </div>
                     )) : (
@@ -575,15 +575,16 @@ export default async function ExperimentPage({ params }: Props) {
                   fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
                   textTransform: 'uppercase', color: cc, margin: 0,
                 }}>
-                  // WHAT IS COLLECTED
+                  What is collected
                 </p>
                 {daysLeft !== null && daysLeft > 0 && (
                   <span style={{
-                    fontFamily: 'var(--font-mono)', fontSize: 10,
-                    color: daysLeft <= 14 ? '#ffb300' : 'var(--muted)',
-                    border: `1px solid ${daysLeft <= 14 ? 'rgba(255,179,0,0.25)' : 'rgba(255,255,255,0.07)'}`,
-                    background: daysLeft <= 14 ? 'rgba(255,179,0,0.05)' : 'transparent',
+                    fontFamily: 'var(--font-body)', fontSize: 11,
+                    color: daysLeft <= 14 ? 'var(--warning)' : 'var(--muted)',
+                    border: `1px solid ${daysLeft <= 14 ? 'rgba(180,83,9,0.25)' : 'var(--border-soft)'}`,
+                    background: daysLeft <= 14 ? 'var(--warning-soft)' : 'transparent',
                     padding: '2px 8px',
+                    borderRadius: 999,
                   }}>
                     Applications close in {daysLeft}d
                     {' · '}
@@ -592,8 +593,9 @@ export default async function ExperimentPage({ params }: Props) {
                 )}
                 {daysLeft !== null && daysLeft <= 0 && (
                   <span style={{
-                    fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)',
-                    border: '1px solid rgba(255,255,255,0.07)', padding: '2px 8px',
+                    fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--muted)',
+                    border: '1px solid var(--border-soft)', padding: '2px 8px',
+                    borderRadius: 999,
                   }}>
                     Applications closed
                   </span>
@@ -623,7 +625,7 @@ export default async function ExperimentPage({ params }: Props) {
             fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '3px',
             textTransform: 'uppercase', color: cc, marginBottom: 20,
           }}>
-            // QUESTIONS
+            Questions
           </p>
           <QASection
             experimentId={exp.id}
@@ -672,7 +674,7 @@ export default async function ExperimentPage({ params }: Props) {
               textTransform: 'uppercase', color: 'var(--muted)',
               marginTop: 20, marginBottom: 12,
             }}>
-              // AMENDMENTS
+              Amendments
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[...exp.amendment_log].reverse().map((a, i) => (
@@ -682,16 +684,17 @@ export default async function ExperimentPage({ params }: Props) {
                   </span>
                   <span style={{
                     fontFamily: 'var(--font-mono)', fontSize: 10,
-                    background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.1)',
-                    color: '#f59e0b', padding: '2px 6px',
+                    background: 'var(--teal-soft)', border: '1px solid rgba(14,116,144,0.2)',
+                    color: 'var(--teal-dark)', padding: '2px 6px',
+                    borderRadius: 999,
                   }}>
                     {a.field}
                   </span>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)' }}>
                     changed from{' '}
-                    <span style={{ color: '#ffd166' }}>{a.old_value || '—'}</span>
+                    <span style={{ color: 'var(--warning)' }}>{a.old_value || '—'}</span>
                     {' to '}
-                    <span style={{ color: 'var(--slate)' }}>{a.new_value || '—'}</span>
+                    <span style={{ color: 'var(--ink)' }}>{a.new_value || '—'}</span>
                   </span>
                 </div>
               ))}

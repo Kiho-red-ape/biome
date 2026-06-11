@@ -2,8 +2,8 @@
 // Server-compatible — no hooks, pure computation → SVG.
 // Same participant_id always produces the same visual.
 
-const ACCENTS = ['#f59e0b', '#ffffff', '#fbbf24', '#0f1a2e'] as const;
-const BG = '#0f1a2e'; // navy
+const ACCENTS = ['#0e7490', '#155e75', '#0284c7', '#475569'] as const;
+const BG = '#e0f2f7'; // teal-soft
 
 function hash(s: string): number[] {
   let h = 5381;

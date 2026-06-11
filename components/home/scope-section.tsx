@@ -18,23 +18,23 @@ const YOU_KEEP = [
 
 export function ScopeSection() {
   return (
-    <section className="texture-grid" style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+    <section style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}>
       <div className="section-inner">
         <h2 style={{
           fontFamily:   'var(--font-display)',
           fontSize:     'clamp(26px, 3vw, 40px)',
-          color:        'var(--white)',
+          color:        'var(--ink)',
           marginBottom: 48,
           lineHeight:   1.1,
         }}>
           What we handle.<br />
-          <span style={{ color: 'var(--amber)' }}>What you keep.</span>
+          <span style={{ color: 'var(--teal)' }}>What you keep.</span>
         </h2>
 
         <div
           style={{
             display:             'grid',
-            gridTemplateColumns: '1fr 4px 1fr',
+            gridTemplateColumns: '1fr 1px 1fr',
             gap:                 40,
             alignItems:          'start',
           }}
@@ -44,11 +44,11 @@ export function ScopeSection() {
           <div>
             <p style={{
               fontFamily:    'var(--font-display)',
-              fontSize:      13,
+              fontSize:      12,
               fontWeight:    600,
-              letterSpacing: '2px',
+              letterSpacing: '0.05em',
               textTransform: 'uppercase',
-              color:         'var(--amber)',
+              color:         'var(--teal)',
               marginBottom:  24,
             }}>
               Biome handles
@@ -56,8 +56,8 @@ export function ScopeSection() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {BIOME_HANDLES.map(item => (
                 <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ color: 'var(--amber)', fontWeight: 700, fontSize: 18, flexShrink: 0 }}>✓</span>
-                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 17, fontWeight: 500, color: 'var(--white)' }}>
+                  <span style={{ color: 'var(--teal)', fontWeight: 700, fontSize: 18, flexShrink: 0 }}>✓</span>
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 17, fontWeight: 500, color: 'var(--ink)' }}>
                     {item}
                   </span>
                 </div>
@@ -65,25 +65,25 @@ export function ScopeSection() {
             </div>
           </div>
 
-          {/* Amber divider */}
-          <div style={{ background: 'var(--amber)', width: 4, alignSelf: 'stretch', minHeight: 200 }} className="scope-divider" />
+          {/* Soft divider */}
+          <div style={{ background: 'var(--border-mid)', width: 1, alignSelf: 'stretch', minHeight: 200 }} className="scope-divider" />
 
           {/* Right — You keep */}
           <div>
             <p style={{
               fontFamily:    'var(--font-display)',
-              fontSize:      13,
+              fontSize:      12,
               fontWeight:    600,
-              letterSpacing: '2px',
+              letterSpacing: '0.05em',
               textTransform: 'uppercase',
-              color:         'rgba(255,255,255,0.5)',
+              color:         'var(--muted)',
               marginBottom:  24,
             }}>
               You keep
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {YOU_KEEP.map(item => (
-                <span key={item} style={{ fontFamily: 'var(--font-body)', fontSize: 17, color: 'rgba(255,255,255,0.55)' }}>
+                <span key={item} style={{ fontFamily: 'var(--font-body)', fontSize: 17, color: 'var(--slate)' }}>
                   {item}
                 </span>
               ))}
@@ -100,8 +100,8 @@ export function ScopeSection() {
           }
           .scope-divider {
             width: 100% !important;
-            min-height: 4px !important;
-            height: 4px !important;
+            min-height: 1px !important;
+            height: 1px !important;
           }
         }
       `}</style>
