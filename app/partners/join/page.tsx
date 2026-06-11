@@ -48,13 +48,13 @@ export default async function PartnerJoinPage() {
     <main style={{ minHeight: '100vh' }}>
       <SiteHeader />
 
-      {/* ── Hero (navy, two-column) ── */}
+      {/* ── Hero (light, two-column) ── */}
       <section style={{
-        background:   'var(--navy)',
+        background:   'linear-gradient(180deg, #ffffff, #f8fafc)',
         minHeight:    '70vh',
         display:      'flex',
         alignItems:   'center',
-        borderBottom: '3px solid var(--black)',
+        borderBottom: '1px solid var(--border-soft)',
       }}>
         <div
           style={{
@@ -77,7 +77,7 @@ export default async function PartnerJoinPage() {
               fontWeight:    600,
               letterSpacing: '3px',
               textTransform: 'uppercase',
-              color:         'var(--amber)',
+              color:         'var(--teal)',
               display:       'block',
               marginBottom:  20,
             }}>
@@ -88,16 +88,16 @@ export default async function PartnerJoinPage() {
               fontWeight:   700,
               fontSize:     'clamp(28px, 4vw, 52px)',
               lineHeight:   1.08,
-              color:        'var(--white)',
+              color:        'var(--ink)',
               marginBottom: 20,
             }}>
               Labs. IRBs. Consultants.<br />
-              <span style={{ color: 'var(--amber)' }}>Activated per study.</span>
+              <span style={{ color: 'var(--teal)' }}>Activated per study.</span>
             </h1>
             <p style={{
               fontFamily:   'var(--font-body)',
               fontSize:     17,
-              color:        'rgba(255,255,255,0.75)',
+              color:        'var(--slate)',
               lineHeight:   1.6,
               maxWidth:     460,
               marginBottom: 40,
@@ -115,8 +115,8 @@ export default async function PartnerJoinPage() {
         </div>
       </section>
 
-      {/* ── Benefits (white, 3 brutalist cards) ── */}
-      <section style={{ background: 'var(--white)', borderBottom: '3px solid var(--black)' }}>
+      {/* ── Benefits (white, 3 clinical cards) ── */}
+      <section style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border-soft)' }}>
         <div className="section-inner">
           <span className="section-label section-label-dark">Why partner with Biome</span>
           <div
@@ -130,13 +130,13 @@ export default async function PartnerJoinPage() {
                   fontFamily:   'var(--font-display)',
                   fontSize:     22,
                   fontWeight:   600,
-                  color:        'var(--black)',
+                  color:        'var(--ink)',
                   marginBottom: 12,
                   paddingTop:   8,
                 }}>
                   {b.title}
                 </h3>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--gray)', margin: 0, lineHeight: 1.6 }}>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--slate)', margin: 0, lineHeight: 1.6 }}>
                   {b.desc}
                 </p>
               </div>
@@ -145,9 +145,9 @@ export default async function PartnerJoinPage() {
         </div>
       </section>
 
-      {/* ── Partner logos (navy) ── */}
+      {/* ── Partner logos ── */}
       {partners.length > 0 && (
-        <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+        <section style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}>
           <div className="section-inner" style={{ textAlign: 'center' }}>
             <span className="section-label" style={{ marginBottom: 40, display: 'block' }}>Current Partners</span>
             <div
@@ -162,8 +162,9 @@ export default async function PartnerJoinPage() {
                     display:     'flex',
                     alignItems:  'center',
                     justifyContent: 'center',
-                    border:      '2px solid rgba(255,255,255,0.1)',
-                    background:  'rgba(255,255,255,0.03)',
+                    border:      '1px solid var(--border-soft)',
+                    background:  'var(--surface)',
+                    borderRadius: 'var(--radius-sm)',
                   }}
                   className="partner-logo-cell"
                 >
@@ -187,10 +188,10 @@ export default async function PartnerJoinPage() {
       )}
 
       {/* Footer */}
-      <footer style={{ background: 'var(--black)', borderTop: '3px solid rgba(255,255,255,0.1)' }}>
+      <footer style={{ background: 'var(--surface)', borderTop: '1px solid var(--border-soft)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
-          <a href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--white)', textDecoration: 'none' }}>
-            BIO<span style={{ color: 'var(--amber)' }}>ME</span>
+          <a href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--ink)', textDecoration: 'none' }}>
+            BIO<span style={{ color: 'var(--teal)' }}>ME</span>
           </a>
           <nav style={{ display: 'flex', gap: 24 }}>
             {[['Blog', '/blog'], ['Docs', '/docs'], ['Terms', '/legal/tos'], ['Privacy', '/privacy']].map(([l, h]) => (

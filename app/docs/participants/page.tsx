@@ -6,47 +6,46 @@ import {
 export default function ParticipantsPage() {
   return (
     <article>
-      <DocLabel text="FOR PARTICIPANTS" />
-      <DocH1>Getting started as a participant</DocH1>
+      <DocLabel text="For research partners" />
+      <DocH1>For research partners</DocH1>
       <DocLead>
-        Anyone can join BIOME as a participant. Create a profile, browse open studies, and apply to
-        the ones that match your availability and interest.
+        As a research partner, you take part in real research studies and receive compensation for
+        verified participation. Create a profile, browse open studies, and apply to the ones that
+        match your availability and interest.
       </DocLead>
 
       <DocH2>Creating your profile</DocH2>
       <DocP>
-        To participate in studies on BIOME, you first need to create a profile. Registration is done
-        through Privy, which supports email login and cryptocurrency wallet connection.
+        To apply to studies on Biome, you first need to create a profile. Registration uses your
+        email address.
       </DocP>
       <DocP>During registration, you will:</DocP>
       <DocOL items={[
-        'Sign in with your email or wallet',
+        'Sign in with your email',
         'Choose a display name and region',
-        'Select your role (participant, researcher, or both)',
-        'Accept the BIOME Platform Terms of Service',
+        'Accept the Biome Platform Terms of Service',
       ]} />
-      <DocP>On completion, BIOME assigns you two permanent identifiers:</DocP>
+      <DocP>On completion, Biome assigns you two permanent identifiers:</DocP>
       <DocUL items={[
         'A Participant ID in the format P-XXXX-XXXX (e.g., P-8X4M-29Q7)',
         'A Pseudonym generated from a word pair plus a number (e.g., SilentOrbit221)',
       ]} />
       <DocP>
         These identifiers cannot be changed. They are used across the platform in place of your real
-        name. Your identity remains anonymous to other participants and to researchers unless you choose
-        to share additional information.
+        name. Your identity remains pseudonymous to research teams and to other research partners —
+        all messaging and screening happens under your pseudonym.
       </DocP>
-
 
       <DocH2>Completing your profile</DocH2>
       <DocP>
-        Your profile is filled in progressively across four sections. Only the first section is required
-        at registration. The remaining sections can be completed at any time, but Section 2 (demographics)
-        must be completed before you can apply to any study.
+        Your profile is filled in progressively across four sections. Only the first section is
+        required at registration. The remaining sections can be completed at any time, but Section 2
+        (demographics) must be completed before you can apply to any study.
       </DocP>
 
       <DocH3>Section 1 — Account verification (at registration)</DocH3>
       <DocUL items={[
-        'Email (verified through Privy)',
+        'Email (verified)',
         'Phone number and verification',
         'Country',
       ]} />
@@ -62,8 +61,8 @@ export default function ParticipantsPage() {
         'Urbanicity (urban, suburban, rural)',
       ]} />
       <DocP>
-        These fields are permanent. Once submitted, year of birth, sex assigned at birth, ethnicity, and
-        nationality cannot be changed. You will see a warning before confirming.
+        These fields are permanent. Once submitted, year of birth, sex assigned at birth, ethnicity,
+        and nationality cannot be changed. You will see a warning before confirming.
       </DocP>
 
       <DocH3>Section 3 — Participation capability (optional)</DocH3>
@@ -71,7 +70,7 @@ export default function ParticipantsPage() {
         'Smartphone OS',
         'Wearable devices (Oura, Whoop, Apple Watch, Fitbit, Garmin, or none)',
         'Internet reliability',
-        'Ability to receive mail kits',
+        'Ability to receive sample kits by mail',
         'Sample comfort (stool, saliva, blood prick, urine, hair)',
         'Language fluency',
         'Weekly availability in hours',
@@ -84,10 +83,9 @@ export default function ParticipantsPage() {
         'Washout sensitivity',
       ]} />
       <DocP>
-        Completing more sections improves your match quality for studies and increases your visibility
-        to researchers during screening.
+        Completing more sections improves your match quality for studies and increases your
+        visibility to research teams during screening.
       </DocP>
-
 
       <DocH2>Your public profile</DocH2>
       <DocP>When other users see your profile, they see only:</DocP>
@@ -97,12 +95,12 @@ export default function ParticipantsPage() {
         'Your Participant ID',
         'Country and region',
         'Age range (displayed as a bracket like 25–30, not your exact year of birth)',
-        'Participation stats: studies completed, completion rate, total earned, reputation badge',
+        'Participation stats: studies completed, completion rate, total compensation received, reputation badge',
       ]} />
       <DocP>
-        Your real name, email, phone number, and detailed demographic data are never visible publicly.
-        Researchers see additional screening data only for participants who have applied to their
-        specific study.
+        Your real name, email, phone number, and detailed demographic data are never visible
+        publicly. Research teams see additional screening data only for people who have applied to
+        their specific study.
       </DocP>
 
       <DocNav

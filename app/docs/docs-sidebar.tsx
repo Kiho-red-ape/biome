@@ -5,48 +5,48 @@ import { usePathname } from 'next/navigation';
 
 const NAV = [
   {
-    label: '// OVERVIEW',
+    label: 'Overview',
     href: '/docs/overview',
     children: [],
   },
   {
-    label: '// FOR PARTICIPANTS',
+    label: 'For research partners',
     href: '/docs/participants',
     children: [
-      { label: 'Applying to a study',     href: '/docs/participants/applying'    },
-      { label: 'Your dashboard',          href: '/docs/participants/dashboard'   },
-      { label: 'Milestones & compliance', href: '/docs/participants/milestones'  },
-      { label: 'Payouts',                 href: '/docs/participants/payouts'     },
+      { label: 'Applying to a study',      href: '/docs/participants/applying'   },
+      { label: 'Your dashboard',           href: '/docs/participants/dashboard'  },
+      { label: 'Milestones & sample kits', href: '/docs/participants/milestones' },
+      { label: 'Compensation',             href: '/docs/participants/payouts'    },
     ],
   },
   {
-    label: '// FOR RESEARCHERS',
+    label: 'For researchers',
     href: '/docs/researchers',
     children: [
-      { label: 'Creating a study',        href: '/docs/researchers/creating-study' },
-      { label: 'Publishing & recruitment',href: '/docs/researchers/publishing'     },
-      { label: 'Screening applicants',    href: '/docs/researchers/screening'      },
-      { label: 'Launching a study',       href: '/docs/researchers/launching'      },
-      { label: 'Compliance & verification',href: '/docs/researchers/compliance'    },
+      { label: 'Setting up your study',    href: '/docs/researchers/creating-study' },
+      { label: 'Launch & recruitment',     href: '/docs/researchers/publishing'     },
+      { label: 'Screening applicants',     href: '/docs/researchers/screening'      },
+      { label: 'Live operations',          href: '/docs/researchers/launching'      },
+      { label: 'Compliance & reporting',   href: '/docs/researchers/compliance'     },
     ],
   },
   {
-    label: '// SCREENING',
+    label: 'Screening',
     href: '/docs/screening',
     children: [],
   },
   {
-    label: '// STUDY LIFECYCLE',
+    label: 'Study lifecycle',
     href: '/docs/execution',
     children: [],
   },
   {
-    label: '// PAYOUTS & FEES',
+    label: 'Pricing & payouts',
     href: '/docs/payouts',
     children: [],
   },
   {
-    label: '// AGREEMENTS',
+    label: 'Agreements',
     href: '/docs/agreements',
     children: [],
   },
@@ -60,21 +60,20 @@ export function DocsSidebar() {
   }
 
   return (
-    <nav className="w-full sm:w-52" style={{ flexShrink: 0 }}>
+    <nav className="w-full sm:w-56" style={{ flexShrink: 0 }}>
       {/* Back to site */}
       <Link href="/" style={{
         display: 'block', marginBottom: 28,
-        fontFamily: 'var(--font-mono)', fontSize: 10,
-        textTransform: 'uppercase', letterSpacing: '2px',
-        color: '#4a7055', textDecoration: 'none',
+        fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600,
+        color: 'var(--slate)', textDecoration: 'none',
       }}>
-        ← BIOME
+        ← Biome
       </Link>
 
       <p style={{
-        fontFamily: 'var(--font-mono)', fontSize: 9,
-        letterSpacing: '3px', textTransform: 'uppercase',
-        color: '#4a7055', marginBottom: 16,
+        fontFamily: 'var(--font-body)', fontSize: 11, fontWeight: 600,
+        letterSpacing: '1.5px', textTransform: 'uppercase',
+        color: 'var(--muted)', marginBottom: 14,
       }}>
         Documentation
       </p>
@@ -88,20 +87,22 @@ export function DocsSidebar() {
                 href={section.href}
                 style={{
                   display: 'block',
-                  padding: '6px 10px',
-                  fontFamily: 'var(--font-mono)', fontSize: 10,
-                  letterSpacing: '1.5px', textTransform: 'uppercase',
+                  padding: '7px 12px',
+                  fontFamily: 'var(--font-body)', fontSize: 13.5,
+                  fontWeight: sectionActive ? 600 : 500,
                   textDecoration: 'none',
-                  color: sectionActive ? 'var(--green)' : '#4a7055',
-                  background: sectionActive ? 'rgba(77,255,128,0.06)' : 'transparent',
-                  borderRadius: 2,
-                  borderLeft: sectionActive ? '2px solid var(--green)' : '2px solid transparent',
+                  color: sectionActive ? 'var(--teal-dark)' : 'var(--slate)',
+                  background: sectionActive ? 'var(--teal-soft)' : 'transparent',
+                  borderRadius: 'var(--radius-sm)',
                 }}
               >
                 {section.label}
               </Link>
               {section.children.length > 0 && sectionActive && (
-                <div style={{ paddingLeft: 12, paddingTop: 2, paddingBottom: 4 }}>
+                <div style={{
+                  marginLeft: 12, paddingLeft: 12, paddingTop: 4, paddingBottom: 6,
+                  borderLeft: '1px solid var(--border-soft)',
+                }}>
                   {section.children.map((child) => {
                     const childActive = path === child.href;
                     return (
@@ -111,10 +112,12 @@ export function DocsSidebar() {
                         style={{
                           display: 'block',
                           padding: '5px 10px',
-                          fontFamily: 'var(--font-heading)', fontSize: 12,
+                          fontFamily: 'var(--font-body)', fontSize: 13,
+                          fontWeight: childActive ? 600 : 400,
                           textDecoration: 'none',
-                          color: childActive ? 'var(--text-bright)' : 'var(--text-dim)',
-                          borderLeft: `1px solid ${childActive ? 'rgba(77,255,128,0.4)' : 'rgba(77,255,128,0.1)'}`,
+                          borderRadius: 'var(--radius-xs, 6px)',
+                          color: childActive ? 'var(--teal-dark)' : 'var(--slate)',
+                          background: childActive ? 'var(--teal-faint)' : 'transparent',
                         }}
                       >
                         {child.label}

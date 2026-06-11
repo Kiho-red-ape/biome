@@ -8,8 +8,8 @@ export function EstimateCta() {
 
   return (
     <section style={{
-      background:   'var(--amber)',
-      borderBottom: '3px solid var(--black)',
+      background:   'var(--teal-faint)',
+      borderBottom: '1px solid var(--border-soft)',
     }}>
       <div
         className="section-inner"
@@ -19,7 +19,7 @@ export function EstimateCta() {
           fontFamily:   'var(--font-display)',
           fontSize:     'clamp(28px, 4vw, 44px)',
           fontWeight:   700,
-          color:        'var(--black)',
+          color:        'var(--ink)',
           marginBottom: 16,
         }}>
           Know your cost before you commit.
@@ -28,19 +28,19 @@ export function EstimateCta() {
           fontFamily:   'var(--font-body)',
           fontSize:     18,
           fontWeight:   500,
-          color:        'rgba(0,0,0,0.7)',
+          color:        'var(--slate)',
           marginBottom: 40,
         }}>
           7 questions. Instant estimate.
         </p>
         <Link
           href="/estimate"
-          className="btn-black"
+          className="btn-primary"
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
           style={{
-            transform:  hover ? 'translate(-2px,-2px)' : 'none',
-            boxShadow:  hover ? '6px 6px 0 rgba(0,0,0,0.3)' : '4px 4px 0 rgba(0,0,0,0.3)',
+            transform:  hover ? 'translateY(-1px)' : 'none',
+            boxShadow:  hover ? 'var(--shadow-md)' : 'var(--shadow-sm)',
             display:    'inline-flex',
           }}
         >

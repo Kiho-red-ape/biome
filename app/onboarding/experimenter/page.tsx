@@ -9,6 +9,27 @@ const EXPERTISE_OPTIONS = [
   'Longevity', 'Quantified Self', 'Mental Health', 'Metabolomics',
 ];
 
+const cardStyle: React.CSSProperties = {
+  background:   'var(--surface)',
+  border:       '1px solid var(--border-soft)',
+  borderRadius: 'var(--radius)',
+  boxShadow:    'var(--shadow-sm)',
+  padding:      36,
+};
+
+function FieldLabel({ children, hint }: { children: React.ReactNode; hint?: string }) {
+  return (
+    <label className="text-sm font-medium block mb-2" style={{ color: 'var(--ink)' }}>
+      {children}
+      {hint && (
+        <span className="ml-2 text-xs font-normal" style={{ color: 'var(--muted)' }}>
+          {hint}
+        </span>
+      )}
+    </label>
+  );
+}
+
 export default function ExperimenterOnboardingPage() {
   const router = useRouter();
   const { user, ready, authenticated } = usePrivy();
@@ -25,8 +46,10 @@ export default function ExperimenterOnboardingPage() {
   if (!ready) return null;
   if (!authenticated || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#060a14' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>// SIGN_IN_REQUIRED — use the Sign in button in the top nav</span>
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--bg-page)' }}>
+        <span className="text-sm text-center" style={{ color: 'var(--slate)' }}>
+          Sign in required — use the Sign in button in the top nav.
+        </span>
       </div>
     );
   }
@@ -67,39 +90,32 @@ export default function ExperimenterOnboardingPage() {
 
   if (submitted) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4 py-16">
-        <div className="w-full max-w-lg">
-          <div className="rounded p-8 flex flex-col gap-5" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.12)' }}>
-            <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// PROFILE_SUBMITTED</p>
-            <div className="flex items-center gap-3">
-              <span style={{ color: 'var(--amber)', fontSize: '1.5rem' }}>⏳</span>
-              <h1 className="text-xl font-black" style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}>
-                {submitted.org_name} — under review
-              </h1>
-            </div>
-            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-dim)' }}>
-              Your organization profile has been submitted. Our team will review it within 48 hours.
-              Once approved, you&apos;ll be able to post experiments and recruit participants.
-            </p>
-            <div className="p-3 rounded mono text-xs" style={{ background: 'rgba(255,179,0,0.06)', border: '1px solid rgba(255,179,0,0.2)', color: 'var(--amber)' }}>
-              Status: PENDING REVIEW — check back in 48 hours
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => router.push(`/org/${submitted.id}`)}
-                className="mono text-xs px-5 py-2.5 rounded font-bold transition-all hover:opacity-90"
-                style={{ background: 'var(--green)', color: '#060a14' }}
-              >
-                View my org profile →
-              </button>
-              <button
-                onClick={() => router.push('/')}
-                className="mono text-xs px-5 py-2.5 rounded transition-all hover:opacity-80"
-                style={{ border: '1px solid rgba(77,255,128,0.2)', color: 'var(--text-dim)' }}
-              >
-                Go to dashboard
-              </button>
-            </div>
+      <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: 'var(--bg-page)' }}>
+        <div className="w-full max-w-lg flex flex-col gap-5" style={cardStyle}>
+          <span className="section-label">Profile submitted</span>
+          <h1 style={{ fontSize: 22 }}>{submitted.org_name} — under review</h1>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--slate)' }}>
+            Your organization profile has been submitted. Our team will review it within 48 hours.
+            Once approved, you&apos;ll be able to post studies and recruit research partners.
+          </p>
+          <div
+            className="p-4 text-sm"
+            style={{
+              background:   'var(--warning-soft)',
+              border:       '1px solid rgba(180,83,9,0.2)',
+              borderRadius: 'var(--radius-sm)',
+              color:        'var(--warning)',
+            }}
+          >
+            Status: Pending review — check back in 48 hours.
+          </div>
+          <div className="flex gap-3 flex-wrap">
+            <button onClick={() => router.push(`/org/${submitted.id}`)} className="btn-primary">
+              View my org profile →
+            </button>
+            <button onClick={() => router.push('/')} className="btn-secondary">
+              Go to dashboard
+            </button>
           </div>
         </div>
       </main>
@@ -107,100 +123,104 @@ export default function ExperimenterOnboardingPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-16">
-      <div className="w-full max-w-xl">
-        <div className="rounded p-8 flex flex-col gap-6" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.1)' }}>
+    <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: 'var(--bg-page)' }}>
+      <div className="w-full max-w-xl flex flex-col gap-6" style={cardStyle}>
 
+        <div>
+          <span className="section-label">Researcher onboarding</span>
+          <h1 style={{ fontSize: 26, marginBottom: 4 }}>Set up your organization</h1>
+          <p className="text-sm" style={{ color: 'var(--slate)' }}>
+            Tell us about your org. We&apos;ll review and approve your profile within 48 hours.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+
+          {/* Org name */}
           <div>
-            <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)' }}>// EXPERIMENTER_ONBOARDING</p>
-            <h1 className="text-2xl font-black mb-1" style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}>
-              Set up your organization
-            </h1>
-            <p className="text-sm" style={{ color: 'var(--text-dim)' }}>
-              Tell us about your org. We&apos;ll review and approve your profile within 48 hours.
-            </p>
+            <FieldLabel>Organization name <span style={{ color: 'var(--teal)' }}>*</span></FieldLabel>
+            <input
+              type="text" value={orgName} onChange={(e) => setOrgName(e.target.value)}
+              placeholder="e.g. VitaDAO, Novos Labs, Stanford Sleep Lab"
+              required maxLength={120}
+            />
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          {/* Website */}
+          <div>
+            <FieldLabel hint="(optional)">Website</FieldLabel>
+            <input
+              type="url" value={orgWebsite} onChange={(e) => setOrgWebsite(e.target.value)}
+              placeholder="https://..."
+              className="w-full"
+              style={{
+                fontFamily:   'var(--font-body)',
+                fontSize:     16,
+                color:        'var(--ink)',
+                background:   'var(--surface)',
+                border:       '1px solid var(--border-mid)',
+                borderRadius: 'var(--radius-sm)',
+                padding:      '12px 14px',
+                outline:      'none',
+              }}
+            />
+          </div>
 
-            {/* Org name */}
-            <div>
-              <label className="mono text-xs block mb-1.5" style={{ color: 'var(--text-dim)' }}>ORGANIZATION NAME *</label>
-              <input
-                type="text" value={orgName} onChange={(e) => setOrgName(e.target.value)}
-                placeholder="e.g. VitaDAO, Novos Labs, Stanford Sleep Lab"
-                required maxLength={120}
-                className="w-full px-3 py-2 rounded mono text-sm outline-none"
-                style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.15)', color: 'var(--text-bright)' }}
-              />
-            </div>
+          {/* Description */}
+          <div>
+            <FieldLabel hint="(optional)">Organization description</FieldLabel>
+            <textarea
+              value={orgDesc} onChange={(e) => setOrgDesc(e.target.value)}
+              placeholder="What does your organization do? What kind of research do you run?"
+              rows={3} maxLength={1000}
+              className="resize-none"
+            />
+          </div>
 
-            {/* Website */}
-            <div>
-              <label className="mono text-xs block mb-1.5" style={{ color: 'var(--text-dim)' }}>WEBSITE (optional)</label>
-              <input
-                type="url" value={orgWebsite} onChange={(e) => setOrgWebsite(e.target.value)}
-                placeholder="https://..."
-                className="w-full px-3 py-2 rounded mono text-sm outline-none"
-                style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.15)', color: 'var(--text-bright)' }}
-              />
-            </div>
+          {/* Role title */}
+          <div>
+            <FieldLabel hint="(optional)">Your role</FieldLabel>
+            <input
+              type="text" value={roleTitle} onChange={(e) => setRoleTitle(e.target.value)}
+              placeholder="e.g. Lead Scientist, Research Director, Founder"
+              maxLength={100}
+            />
+          </div>
 
-            {/* Description */}
-            <div>
-              <label className="mono text-xs block mb-1.5" style={{ color: 'var(--text-dim)' }}>ORGANIZATION DESCRIPTION</label>
-              <textarea
-                value={orgDesc} onChange={(e) => setOrgDesc(e.target.value)}
-                placeholder="What does your organization do? What kind of research do you run?"
-                rows={3} maxLength={1000}
-                className="w-full px-3 py-2 rounded mono text-sm outline-none resize-none"
-                style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.15)', color: 'var(--text-bright)' }}
-              />
-            </div>
-
-            {/* Role title */}
-            <div>
-              <label className="mono text-xs block mb-1.5" style={{ color: 'var(--text-dim)' }}>YOUR ROLE (optional)</label>
-              <input
-                type="text" value={roleTitle} onChange={(e) => setRoleTitle(e.target.value)}
-                placeholder="e.g. Lead Scientist, Research Director, Founder"
-                maxLength={100}
-                className="w-full px-3 py-2 rounded mono text-sm outline-none"
-                style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.15)', color: 'var(--text-bright)' }}
-              />
-            </div>
-
-            {/* Expertise areas */}
-            <div>
-              <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>EXPERTISE AREAS</label>
-              <div className="flex flex-wrap gap-2">
-                {EXPERTISE_OPTIONS.map((opt) => (
+          {/* Expertise areas */}
+          <div>
+            <FieldLabel hint="(select all that apply)">Expertise areas</FieldLabel>
+            <div className="flex flex-wrap gap-2">
+              {EXPERTISE_OPTIONS.map((opt) => {
+                const active = expertise.includes(opt);
+                return (
                   <button key={opt} type="button" onClick={() => toggleExpertise(opt)}
-                    className="mono text-xs px-2.5 py-1 rounded transition-all"
+                    className="text-sm font-medium px-3.5 py-1.5 transition-colors"
                     style={{
-                      background: expertise.includes(opt) ? 'rgba(77,255,128,0.12)' : 'var(--bg3)',
-                      border: `1px solid ${expertise.includes(opt) ? 'var(--green-dim)' : 'rgba(77,255,128,0.12)'}`,
-                      color: expertise.includes(opt) ? 'var(--green)' : 'var(--text-dim)',
+                      background:   active ? 'var(--teal-faint)' : 'var(--surface)',
+                      border:       `1px solid ${active ? 'var(--teal)' : 'var(--border-mid)'}`,
+                      color:        active ? 'var(--teal-dark)' : 'var(--slate)',
+                      borderRadius: 999,
+                      cursor:       'pointer',
                     }}
                   >
                     {opt}
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
+          </div>
 
-            {error && <p className="mono text-xs" style={{ color: 'var(--amber)' }}>// ERROR: {error}</p>}
+          {error && <p className="text-sm" style={{ color: 'var(--error)' }}>{error}</p>}
 
-            <button
-              type="submit" disabled={!orgName.trim() || loading}
-              className="w-full py-3 rounded font-semibold text-sm transition-all disabled:opacity-40 hover:opacity-90"
-              style={{ background: 'var(--green)', color: '#060a14' }}
-            >
-              {loading ? 'Submitting...' : 'Submit for review →'}
-            </button>
+          <button
+            type="submit" disabled={!orgName.trim() || loading}
+            className="btn-primary w-full disabled:opacity-40"
+          >
+            {loading ? 'Submitting…' : 'Submit for review →'}
+          </button>
 
-          </form>
-        </div>
+        </form>
       </div>
     </main>
   );

@@ -1,79 +1,82 @@
 import {
-  DocLabel, DocH1, DocH2, DocH3, DocP, DocLead,
-  DocUL, DocOL, DocTable, Term, DocNav,
+  DocLabel, DocH1, DocH2, DocP, DocLead,
+  DocUL, DocOL, Term, DocNav, Callout,
 } from '../docs-components';
 
 export default function OverviewPage() {
   return (
     <article>
-      <DocLabel text="OVERVIEW" />
+      <DocLabel text="Overview" />
       <DocH1>Platform overview</DocH1>
       <DocLead>
-        BIOME is a recruitment and screening platform for human research studies. It connects researchers
-        who need participants with people who want to participate in paid studies — from microbiome and
-        nutrition research to sleep trials and wearable-tracked protocols.
+        Biome is a self-serve clinical operations platform for research teams. You bring a ready
+        study — Biome runs the operational layer: recruitment, screening, sample-kit logistics,
+        milestone and compliance tracking, a document vault, and compensation payouts. Everything
+        you need to run your study independently, on your terms.
       </DocLead>
       <DocP>
-        The platform handles the operational layer between researchers and participants: study listing,
-        participant screening, eligibility matching, milestone tracking, compliance scoring, and payout
-        coordination.
+        Research teams get a single place to manage the full operational lifecycle of a human
+        research study, with a complete audit trail from first applicant to final report.
       </DocP>
 
-      <DocH2>What BIOME is</DocH2>
+      <DocH2>What Biome is</DocH2>
       <DocP>
-        BIOME is infrastructure. It provides the workflow that moves a study from &quot;I need 50
-        participants&quot; to &quot;50 screened, enrolled, compliant participants have completed the
-        protocol.&quot;
+        Biome is operations infrastructure. It moves a study from &quot;we need a screened
+        cohort&quot; to &quot;our cohort has completed the protocol, every sample is accounted for,
+        and every payout is documented.&quot;
       </DocP>
-      <DocP>Specifically, BIOME provides:</DocP>
+      <DocP>Specifically, Biome provides:</DocP>
       <DocUL items={[
-        'A marketplace where researchers publish studies and participants discover them',
-        'A profile and screening system that helps researchers find participants who actually match their requirements',
-        'A milestone-based compliance tracking system so both sides know whether the protocol is being followed',
-        'A payout coordination layer that ties participant compensation to verified completion',
+        'Recruitment and screening: applicant sourcing, eligibility screening, and cohort selection tools',
+        'A document vault: IRB/ethics approval, study protocol, agreements, and consent forms stored with clearance-based access, with contracts e-signed in place',
+        'Sample-kit logistics: kit dispatch, returns, and chain-of-custody tracking for every sample',
+        'Milestone and compliance tracking: a per-person checklist of protocol checkpoints with verification and dropout-risk alerts',
+        'Compensation infrastructure: budgets deposited upfront and held, payouts released against verified completion, with a full audit trail',
+        'Compliance export: a complete record bundle and final report at study close',
       ]} />
 
-      <DocH2>What BIOME is not</DocH2>
+      <DocH2>What Biome is not</DocH2>
       <DocP>
-        BIOME is not a sponsor, a clinical research organization, a medical provider, or an ethics board.
-        Researchers remain fully responsible for the design, conduct, safety, and regulatory compliance of
-        the studies they run through the platform. BIOME provides coordination infrastructure — not clinical
-        oversight.
+        Biome is not a sponsor, a medical provider, or an ethics board. Researchers remain fully
+        responsible for the design, conduct, safety, and regulatory compliance of their studies.
+        Biome provides operational infrastructure — not clinical oversight.
       </DocP>
+      <Callout>
+        Biome does not provide or obtain IRB or ethics approval. You bring your own approval from
+        your institution or an independent board. Biome stores it in your study&apos;s document
+        vault and verifies it is on file before your study can launch.
+      </Callout>
       <DocP>
-        BIOME does not design studies, provide medical advice, guarantee study outcomes, or verify the safety
-        of any intervention, supplement, or protocol — including studies that carry the BIOME Verified badge.
-        The Verified badge indicates that BIOME&apos;s science team has reviewed the study methodology. It
-        does not constitute a safety endorsement.
+        Biome also does not design studies, provide medical advice, or guarantee study outcomes.
       </DocP>
 
-      <DocH2>How the platform works</DocH2>
-      <DocP>The BIOME lifecycle follows a straightforward sequence:</DocP>
+      <DocH2>How a study runs on Biome</DocH2>
+      <DocP>The researcher flow follows a defined sequence:</DocP>
       <DocOL items={[
-        'A researcher creates a study in draft mode, defining the protocol, eligibility criteria, milestones, and bounty',
-        'The researcher publishes the study to the marketplace with a recruitment deadline',
-        'Participants browse open studies, review requirements, and apply',
-        'The researcher screens applicants using eligibility data, quiz responses, and reliability scores',
-        'Approved participants are enrolled and the study is launched',
-        'Participants complete milestones over the study duration while compliance is tracked',
-        'On study completion, participants who meet the compliance threshold become eligible for payout',
-        'Payouts are coordinated through BIOME\'s payout flow',
+        'Request an estimate — submit an intake describing your study scope (cohort size, sample types, duration, geographies)',
+        'Scoping call and operations plan — review a transparent, line-item quote and agree the ops plan before committing',
+        'Document vault setup — upload your IRB/ethics approval, study protocol, and agreements; e-sign the service contract; consent forms are managed with clearance-based access',
+        'Study setup — define milestones, screening criteria, and the compensation schedule',
+        'Recruitment and screening — applicants apply, are screened against your criteria, and you select your cohort',
+        'Live operations — kit logistics with chain-of-custody, milestone tracking, pseudonymised messaging with research partners, and dropout-risk alerts',
+        'Compensation payouts — released against verified completion, with a full audit trail',
+        'Compliance export and final report — a complete record bundle at study close',
       ]} />
-
 
       <DocH2>Key concepts</DocH2>
-      <Term term="Study" def="A research protocol published on BIOME with defined requirements, milestones, duration, and participant compensation." />
-      <Term term="Participant" def="A user who creates a profile, applies to studies, completes milestones, and earns rewards for verified participation." />
-      <Term term="Researcher / Experimenter" def="A user who creates and manages studies, screens applicants, verifies milestones, and coordinates payouts." />
+      <Term term="Study" def="A research protocol run on Biome with defined milestones, screening criteria, duration, and a compensation schedule." />
+      <Term term="Research partner" def="A person who applies to studies, completes milestones, and receives compensation for verified participation." />
+      <Term term="Researcher" def="A member of a research team who sets up and manages studies, screens applicants, verifies milestones, and oversees payouts." />
+      <Term term="Document vault" def="The secure store for each study's IRB/ethics approval, protocol, agreements, and consent forms, with clearance-based access and in-place e-signing." />
       <Term term="Milestone" def="A required task or checkpoint within a study protocol. Milestones are organized by week and form the basis of compliance scoring." />
-      <Term term="Compliance score" def="The percentage of verified milestones completed out of total milestones required. This determines payout eligibility." />
-      <Term term="Reliability score" def="A participant's track record across all studies on BIOME, reflecting completion history and consistency." />
-      <Term term="BIOME Verified" def="An optional badge indicating that BIOME's science team has reviewed the study methodology. It does not guarantee safety or outcomes." />
-      <Term term="Participant ID" def="A permanent, anonymized identifier in the format P-XXXX-XXXX assigned to every participant at registration." />
+      <Term term="Compliance score" def="The share of verified milestones completed out of total milestones required. This determines compensation eligibility." />
+      <Term term="Chain of custody" def="The tracked record of every sample kit from dispatch, through collection and transit, to lab receipt." />
+      <Term term="Operations fee" def="Biome's fee for running your study, quoted per study as part of a transparent line-item estimate." />
+      <Term term="Participant ID" def="A permanent, anonymized identifier in the format P-XXXX-XXXX assigned to every research partner at registration." />
       <Term term="Pseudonym" def="A permanent, randomly generated display name (e.g., SilentOrbit221) used in place of real names across the platform." />
 
       <DocNav
-        next={{ label: 'Getting started as a participant', href: '/docs/participants' }}
+        next={{ label: 'For research partners', href: '/docs/participants' }}
       />
     </article>
   );

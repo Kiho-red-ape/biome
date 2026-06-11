@@ -9,7 +9,7 @@ const STEPS = [
   { num: '02', icon: 'match'      as const, title: 'Match',      desc: 'Studies surface based on your profile.'       },
   { num: '03', icon: 'approve'    as const, title: 'Apply',      desc: 'Review protocol. One-click application.'      },
   { num: '04', icon: 'contribute' as const, title: 'Contribute', desc: 'Complete milestones from home.'                },
-  { num: '05', icon: 'earn'       as const, title: 'Earn',       desc: 'Compensation on verified completion.'          },
+  { num: '05', icon: 'earn'       as const, title: 'Receive compensation', desc: 'Compensation on verified completion.'          },
 ];
 
 const DATA_COMMITMENTS = [
@@ -23,8 +23,8 @@ export default function ParticipatePage() {
     <main style={{ minHeight: '100vh' }}>
       <SiteHeader />
 
-      {/* ── Hero (navy, two-column) ── */}
-      <section className="texture-grid" style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+      {/* ── Hero (light, two-column) ── */}
+      <section style={{ background: 'linear-gradient(180deg, #ffffff, #f8fafc)', borderBottom: '1px solid var(--border-soft)' }}>
         <div
           style={{
             maxWidth:            1200,
@@ -45,7 +45,7 @@ export default function ParticipatePage() {
               fontWeight:    600,
               letterSpacing: '3px',
               textTransform: 'uppercase',
-              color:         'var(--amber)',
+              color:         'var(--teal)',
               display:       'block',
               marginBottom:  20,
             }}>
@@ -56,16 +56,16 @@ export default function ParticipatePage() {
               fontWeight:   700,
               fontSize:     'clamp(28px, 4vw, 52px)',
               lineHeight:   1.08,
-              color:        'var(--white)',
+              color:        'var(--ink)',
               marginBottom: 24,
             }}>
               Contribute to<br />
-              <span style={{ color: 'var(--amber)' }}>studies that matter.</span>
+              <span style={{ color: 'var(--teal)' }}>studies that matter.</span>
             </h1>
             <p style={{
               fontFamily:   'var(--font-body)',
               fontSize:     17,
-              color:        'rgba(255,255,255,0.75)',
+              color:        'var(--slate)',
               lineHeight:   1.6,
               maxWidth:     440,
               marginBottom: 24,
@@ -78,11 +78,11 @@ export default function ParticipatePage() {
               {[
                 'Identity pseudonymized by default',
                 'Data never sold to third parties',
-                'Payout on verified completion',
+                'Compensation on verified completion',
               ].map(item => (
                 <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ color: 'var(--amber)', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>✓</span>
-                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'rgba(255,255,255,0.7)' }}>
+                  <span style={{ color: 'var(--teal)', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>✓</span>
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--slate)' }}>
                     {item}
                   </span>
                 </div>
@@ -96,18 +96,22 @@ export default function ParticipatePage() {
           {/* Right — compensation panel */}
           <div className="participate-hero-right">
             <div style={{
-              border:     '3px solid rgba(255,255,255,0.2)',
-              background: 'rgba(255,255,255,0.04)',
+              border:        '1px solid var(--border-soft)',
+              background:    'var(--surface)',
+              borderRadius:  'var(--radius)',
+              boxShadow:     'var(--shadow-sm)',
+              overflow:      'hidden',
             }}>
               <div style={{
                 padding:      '14px 20px',
-                borderBottom: '2px solid rgba(255,255,255,0.1)',
+                borderBottom: '1px solid var(--border-soft)',
+                background:   'var(--teal-faint)',
                 fontFamily:   'var(--font-display)',
                 fontSize:     11,
                 fontWeight:   600,
                 letterSpacing:'3px',
                 textTransform:'uppercase' as const,
-                color:        'var(--amber)',
+                color:        'var(--teal)',
               }}>
                 Typical compensation
               </div>
@@ -119,17 +123,17 @@ export default function ParticipatePage() {
               ].map((s, i, arr) => (
                 <div key={s.type} style={{
                   padding:      '16px 20px',
-                  borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none',
+                  borderBottom: i < arr.length - 1 ? '1px solid var(--border-soft)' : 'none',
                   display:      'flex',
                   alignItems:   'center',
                   justifyContent: 'space-between',
                   gap:          12,
                 }}>
                   <div>
-                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 13, color: 'var(--white)', marginBottom: 2 }}>
+                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 13, color: 'var(--ink)', marginBottom: 2 }}>
                       {s.type}
                     </div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--muted)' }}>
                       {s.duration}
                     </div>
                   </div>
@@ -137,7 +141,7 @@ export default function ParticipatePage() {
                     fontFamily:  'var(--font-display)',
                     fontWeight:  700,
                     fontSize:    16,
-                    color:       'var(--amber)',
+                    color:       'var(--teal)',
                     flexShrink:  0,
                   }}>
                     {s.range}
@@ -146,14 +150,14 @@ export default function ParticipatePage() {
               ))}
               <div style={{
                 padding:      '12px 20px',
-                background:   'rgba(245,158,11,0.08)',
-                borderTop:    '2px solid rgba(245,158,11,0.2)',
+                background:   'var(--teal-faint)',
+                borderTop:    '1px solid var(--border-soft)',
                 fontFamily:   'var(--font-body)',
                 fontSize:     11,
-                color:        'rgba(255,255,255,0.4)',
+                color:        'var(--muted)',
                 lineHeight:   1.5,
               }}>
-                Amounts vary by protocol. All paid on verified study completion.
+                Amounts vary by protocol. All compensation is issued on verified study completion.
               </div>
             </div>
           </div>
@@ -161,10 +165,10 @@ export default function ParticipatePage() {
       </section>
 
       {/* ── How it works (white, 5 cards) ── */}
-      <section style={{ background: 'var(--white)', borderBottom: '3px solid var(--black)' }}>
+      <section style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border-soft)' }}>
         <div className="section-inner">
           <span className="section-label section-label-dark">How it works</span>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--black)', marginBottom: 48 }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--ink)', marginBottom: 48 }}>
             Five steps to your first study.
           </h2>
 
@@ -173,15 +177,15 @@ export default function ParticipatePage() {
             className="steps-grid"
           >
             {STEPS.map(step => (
-              <div key={step.num} className="brutalist-card" style={{ background: 'var(--off-white)' }}>
+              <div key={step.num} className="brutalist-card">
                 <span className="card-number-bg">{step.num}</span>
                 <div style={{ marginBottom: 16 }}>
-                  <BrutalistIcon name={step.icon} size={48} color="var(--black)" strokeWidth={2.5} />
+                  <BrutalistIcon name={step.icon} size={48} color="var(--teal)" strokeWidth={2} />
                 </div>
-                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color: 'var(--black)', marginBottom: 8 }}>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color: 'var(--ink)', marginBottom: 8 }}>
                   {step.title}
                 </h3>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--gray)', margin: 0, lineHeight: 1.5 }}>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--slate)', margin: 0, lineHeight: 1.5 }}>
                   {step.desc}
                 </p>
               </div>
@@ -190,8 +194,8 @@ export default function ParticipatePage() {
         </div>
       </section>
 
-      {/* ── Data commitments (navy) ── */}
-      <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+      {/* ── Data commitments (teal tint) ── */}
+      <section style={{ background: 'var(--teal-faint)', borderBottom: '1px solid var(--border-soft)' }}>
         <div className="section-inner" style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto', padding: '80px 24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {DATA_COMMITMENTS.map(line => (
@@ -199,7 +203,7 @@ export default function ParticipatePage() {
                 fontFamily: 'var(--font-body)',
                 fontSize:   20,
                 fontWeight: 500,
-                color:      'var(--white)',
+                color:      'var(--ink)',
                 margin:     0,
                 lineHeight: 1.4,
               }}>
@@ -210,23 +214,23 @@ export default function ParticipatePage() {
         </div>
       </section>
 
-      {/* ── CTA (amber) ── */}
-      <section style={{ background: 'var(--amber)', borderTop: '3px solid var(--black)', borderBottom: '3px solid var(--black)' }}>
+      {/* ── CTA ── */}
+      <section style={{ background: 'var(--surface)', borderTop: '1px solid var(--border-soft)', borderBottom: '1px solid var(--border-soft)' }}>
         <div className="section-inner" style={{ textAlign: 'center' }}>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--black)', marginBottom: 32 }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--ink)', marginBottom: 32 }}>
             Ready to contribute?
           </h2>
-          <Link href="/onboarding?role=participant" className="btn-black">
+          <Link href="/onboarding?role=participant" className="btn-primary">
             Create your profile →
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{ background: 'var(--black)', borderTop: '3px solid rgba(255,255,255,0.1)' }}>
+      <footer style={{ background: 'var(--surface)', borderTop: '1px solid var(--border-soft)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
-          <Link href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--white)', textDecoration: 'none' }}>
-            BIO<span style={{ color: 'var(--amber)' }}>ME</span>
+          <Link href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--ink)', textDecoration: 'none' }}>
+            BIO<span style={{ color: 'var(--teal)' }}>ME</span>
           </Link>
           <nav style={{ display: 'flex', gap: 24 }}>
             {[['Blog', '/blog'], ['Docs', '/docs'], ['Terms', '/legal/tos'], ['Privacy', '/privacy']].map(([l, h]) => (

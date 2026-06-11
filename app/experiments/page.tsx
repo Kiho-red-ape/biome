@@ -36,11 +36,11 @@ export default async function ExperimentsPage() {
       <SiteHeader />
       <div className="flex-1 max-w-screen-xl mx-auto w-full">
         <div className="px-4 md:px-8 pt-8 pb-2">
-          <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>
-            // ALL_STUDIES
+          <p className="section-label" style={{ marginBottom: 4 }}>
+            All studies
           </p>
           <h1
-            style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 700, color: 'var(--text-white)' }}
+            style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 700, color: 'var(--ink)' }}
           >
             Study Database
           </h1>
@@ -48,16 +48,16 @@ export default async function ExperimentsPage() {
 
         {experiments.length === 0 ? (
           <div className="px-4 md:px-8 py-16 text-center">
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 16 }}>
-              // ACTIVE_STUDIES
+            <p style={{ fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 600, letterSpacing: '1.5px', color: 'var(--teal)', textTransform: 'uppercase', marginBottom: 16 }}>
+              Active studies
             </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#94a3b8', lineHeight: 1.8, marginBottom: 24 }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--slate)', lineHeight: 1.8, marginBottom: 24 }}>
               No studies currently active.<br />
               Biome is onboarding its first sponsor studies.
             </p>
             <a
               href="/run-a-study"
-              style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f59e0b', textDecoration: 'none', letterSpacing: '1px' }}
+              style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 600, color: 'var(--teal)', textDecoration: 'none' }}
             >
               Run a study with Biome →
             </a>
@@ -69,9 +69,9 @@ export default async function ExperimentsPage() {
 
       <footer
         className="text-center py-4"
-        style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', borderTop: '1px solid rgba(255,255,255,0.05)' }}
+        style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)', borderTop: '1px solid var(--border-soft)' }}
       >
-        // BIOME — operations layer for human studies
+        BIOME — operations layer for human studies
       </footer>
     </main>
   );

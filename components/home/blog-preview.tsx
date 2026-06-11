@@ -29,7 +29,7 @@ export async function BlogPreview() {
   if (posts.length === 0) return null;
 
   return (
-    <section style={{ background: 'var(--off-white)', borderBottom: '3px solid var(--black)' }}>
+    <section style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}>
       <div className="section-inner">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
           <span className="section-label section-label-dark" style={{ marginBottom: 0 }}>Latest</span>
@@ -39,8 +39,8 @@ export async function BlogPreview() {
               fontFamily:  'var(--font-display)',
               fontSize:    14,
               fontWeight:  600,
-              color:       'var(--black)',
-              borderBottom: '2px solid var(--black)',
+              color:       'var(--teal)',
+              borderBottom: '2px solid var(--teal)',
             }}
           >
             All posts →
@@ -65,12 +65,12 @@ export async function BlogPreview() {
                   transition: 'box-shadow 150ms ease, transform 150ms ease',
                 }}
                 onMouseEnter={e => {
-                  (e.currentTarget as HTMLDivElement).style.transform = 'translate(-2px,-2px)';
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = '7px 7px 0 var(--amber)';
+                  (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow-md)';
                 }}
                 onMouseLeave={e => {
                   (e.currentTarget as HTMLDivElement).style.transform = 'none';
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = '5px 5px 0 var(--black)';
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow-sm)';
                 }}
               >
                 <div style={{ flex: 1 }}>
@@ -83,9 +83,10 @@ export async function BlogPreview() {
                           fontWeight:    600,
                           letterSpacing: '1px',
                           textTransform: 'uppercase',
-                          color:         'var(--black)',
-                          background:    'var(--amber)',
+                          color:         'var(--teal-dark)',
+                          background:    'var(--teal-soft)',
                           padding:       '3px 10px',
+                          borderRadius:  999,
                         }}>
                           {tag}
                         </span>
@@ -96,14 +97,14 @@ export async function BlogPreview() {
                     fontFamily: 'var(--font-display)',
                     fontWeight: 600,
                     fontSize:   20,
-                    color:      'var(--black)',
+                    color:      'var(--ink)',
                     lineHeight: 1.25,
                     margin:     0,
                   }}>
                     {post.title}
                   </h3>
                   {post.excerpt && (
-                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--gray)', marginTop: 8 }}>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--slate)', marginTop: 8 }}>
                       {post.excerpt}
                     </p>
                   )}
@@ -111,7 +112,7 @@ export async function BlogPreview() {
                 <p style={{
                   fontFamily:  'var(--font-body)',
                   fontSize:    13,
-                  color:       'var(--gray)',
+                  color:       'var(--muted)',
                   flexShrink:  0,
                   marginTop:   4,
                 }}>

@@ -23,10 +23,10 @@ export default function RunAStudyPage() {
     <main style={{ minHeight: '100vh' }}>
       <SiteHeader />
 
-      {/* ── Hero (navy, two-column) ── */}
-      <section className="texture-grid" style={{
-        background:   'var(--navy)',
-        borderBottom: '3px solid var(--black)',
+      {/* ── Hero (light, two-column) ── */}
+      <section style={{
+        background:   'linear-gradient(180deg, #ffffff, #f8fafc)',
+        borderBottom: '1px solid var(--border-soft)',
       }}>
         <div
           style={{
@@ -48,7 +48,7 @@ export default function RunAStudyPage() {
               fontWeight:    600,
               letterSpacing: '3px',
               textTransform: 'uppercase',
-              color:         'var(--amber)',
+              color:         'var(--teal)',
               display:       'block',
               marginBottom:  20,
             }}>
@@ -59,16 +59,16 @@ export default function RunAStudyPage() {
               fontWeight:   700,
               fontSize:     'clamp(28px, 4vw, 52px)',
               lineHeight:   1.08,
-              color:        'var(--white)',
+              color:        'var(--ink)',
               marginBottom: 24,
             }}>
               Your protocol.<br />
-              <span style={{ color: 'var(--amber)' }}>Our operations.</span>
+              <span style={{ color: 'var(--teal)' }}>Our operations.</span>
             </h1>
             <p style={{
               fontFamily:   'var(--font-body)',
               fontSize:     17,
-              color:        'rgba(255,255,255,0.75)',
+              color:        'var(--slate)',
               lineHeight:   1.6,
               maxWidth:     460,
               marginBottom: 40,
@@ -92,18 +92,22 @@ export default function RunAStudyPage() {
           {/* Right — what's included checklist */}
           <div className="ras-hero-right" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             <div style={{
-              border:     '3px solid rgba(255,255,255,0.2)',
-              background: 'rgba(255,255,255,0.04)',
+              border:        '1px solid var(--border-soft)',
+              background:    'var(--surface)',
+              borderRadius:  'var(--radius)',
+              boxShadow:     'var(--shadow-sm)',
+              overflow:      'hidden',
             }}>
               <div style={{
                 padding:      '14px 20px',
-                borderBottom: '2px solid rgba(255,255,255,0.1)',
+                borderBottom: '1px solid var(--border-soft)',
+                background:   'var(--teal-faint)',
                 fontFamily:   'var(--font-display)',
                 fontSize:     11,
                 fontWeight:   600,
                 letterSpacing:'3px',
                 textTransform:'uppercase' as const,
-                color:        'var(--amber)',
+                color:        'var(--teal)',
               }}>
                 What&apos;s included
               </div>
@@ -116,17 +120,17 @@ export default function RunAStudyPage() {
               ].map(([title, desc], i, arr) => (
                 <div key={title} style={{
                   padding:      '14px 20px',
-                  borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none',
+                  borderBottom: i < arr.length - 1 ? '1px solid var(--border-soft)' : 'none',
                   display:      'flex',
                   alignItems:   'flex-start',
                   gap:          12,
                 }}>
-                  <span style={{ color: 'var(--amber)', fontWeight: 700, fontSize: 14, flexShrink: 0, marginTop: 1 }}>✓</span>
+                  <span style={{ color: 'var(--teal)', fontWeight: 700, fontSize: 14, flexShrink: 0, marginTop: 1 }}>✓</span>
                   <div>
-                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 13, color: 'var(--white)', marginBottom: 2 }}>
+                    <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 13, color: 'var(--ink)', marginBottom: 2 }}>
                       {title}
                     </div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.4 }}>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)', lineHeight: 1.4 }}>
                       {desc}
                     </div>
                   </div>
@@ -138,13 +142,13 @@ export default function RunAStudyPage() {
       </section>
 
       {/* ── Journey (white, 6 cards) ── */}
-      <section style={{ background: 'var(--white)', borderBottom: '3px solid var(--black)' }}>
+      <section style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border-soft)' }}>
         <div className="section-inner">
           <span className="section-label section-label-dark">Your study journey</span>
           <h2 style={{
             fontFamily:   'var(--font-display)',
             fontSize:     'clamp(24px, 3vw, 36px)',
-            color:        'var(--black)',
+            color:        'var(--ink)',
             marginBottom: 48,
           }}>
             Six phases. Handled end to end.
@@ -155,15 +159,15 @@ export default function RunAStudyPage() {
             className="journey-grid"
           >
             {JOURNEY_CARDS.map(card => (
-              <div key={card.num} className="brutalist-card" style={{ background: 'var(--off-white)' }}>
+              <div key={card.num} className="brutalist-card">
                 <span className="card-number-bg">{card.num}</span>
                 <div style={{ marginBottom: 16 }}>
-                  <BrutalistIcon name={card.icon} size={48} color="var(--black)" strokeWidth={2.5} />
+                  <BrutalistIcon name={card.icon} size={48} color="var(--teal)" strokeWidth={2} />
                 </div>
-                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color: 'var(--black)', marginBottom: 8 }}>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, color: 'var(--ink)', marginBottom: 8 }}>
                   {card.title}
                 </h3>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--gray)', margin: 0, lineHeight: 1.5 }}>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--slate)', margin: 0, lineHeight: 1.5 }}>
                   {card.desc}
                 </p>
               </div>
@@ -176,10 +180,10 @@ export default function RunAStudyPage() {
       <ScopeSection />
 
       {/* ── Estimator (off-white) ── */}
-      <section ref={estimateRef} style={{ background: 'var(--off-white)', borderBottom: '3px solid var(--black)' }}>
+      <section ref={estimateRef} style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}>
         <div className="section-inner">
           <span className="section-label section-label-dark">Cost estimator</span>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--black)', marginBottom: 40 }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: 'var(--ink)', marginBottom: 40 }}>
             Know your cost before you commit.
           </h2>
           <EstimateWizard />
@@ -187,10 +191,10 @@ export default function RunAStudyPage() {
       </section>
 
       {/* Footer */}
-      <footer style={{ background: 'var(--black)', borderTop: '3px solid rgba(255,255,255,0.1)' }}>
+      <footer style={{ background: 'var(--surface)', borderTop: '1px solid var(--border-soft)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
-          <Link href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--white)', textDecoration: 'none' }}>
-            BIO<span style={{ color: 'var(--amber)' }}>ME</span>
+          <Link href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--ink)', textDecoration: 'none' }}>
+            BIO<span style={{ color: 'var(--teal)' }}>ME</span>
           </Link>
           <nav style={{ display: 'flex', gap: 24 }}>
             {[['Blog', '/blog'], ['Docs', '/docs'], ['Terms', '/legal/tos'], ['Privacy', '/privacy']].map(([label, href]) => (

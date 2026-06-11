@@ -65,19 +65,19 @@ function rampKey(cat: string): string {
 }
 
 const CAT_COLORS: Record<string, string> = {
-  microbiome: '#f59e0b', nutrition: '#8ee7ff', sleep: '#ffd166',
-  wearables: '#ff8f8f', longevity: '#d8c4ff', 'quantified-self': '#88bbff',
+  microbiome: '#0e7490', nutrition: '#15803d', sleep: '#6d28d9',
+  wearables: '#be185d', longevity: '#7c3aed', 'quantified-self': '#1d4ed8',
 };
-function catColor(cat: string): string { return CAT_COLORS[rampKey(cat)] ?? '#f59e0b'; }
+function catColor(cat: string): string { return CAT_COLORS[rampKey(cat)] ?? '#0e7490'; }
 
 // ─── Status config ─────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<ExperimentStatus, { label: string; color: string; bg: string; border: string }> = {
-  recruiting: { label: 'RECRUITING', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)' },
-  active:     { label: 'ACTIVE',     color: '#8ee7ff', bg: 'rgba(142,231,255,0.08)', border: '1px solid rgba(142,231,255,0.25)' },
-  draft:      { label: 'DRAFT',      color: '#7f8e87', bg: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' },
-  completed:  { label: 'COMPLETED',  color: '#7f8e87', bg: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' },
-  cancelled:  { label: 'CANCELLED',  color: '#ffd166', bg: 'rgba(255,209,102,0.06)', border: '1px solid rgba(255,209,102,0.2)' },
+  recruiting: { label: 'RECRUITING', color: 'var(--teal-dark)', bg: 'var(--teal-soft)',    border: '1px solid rgba(14,116,144,0.25)' },
+  active:     { label: 'ACTIVE',     color: 'var(--success)',   bg: 'var(--success-soft)', border: '1px solid rgba(21,128,61,0.2)' },
+  draft:      { label: 'DRAFT',      color: 'var(--muted)',     bg: 'var(--bg-page)',      border: '1px solid var(--border-soft)' },
+  completed:  { label: 'COMPLETED',  color: 'var(--muted)',     bg: 'var(--bg-page)',      border: '1px solid var(--border-soft)' },
+  cancelled:  { label: 'CANCELLED',  color: 'var(--error)',     bg: 'var(--error-soft)',   border: '1px solid rgba(185,28,28,0.2)' },
 };
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -108,7 +108,7 @@ function ThickDivider({ color }: { color: string }) {
   );
 }
 function ThinDivider() {
-  return <div style={{ height: 1, background: 'rgba(255,255,255,0.07)' }} />;
+  return <div style={{ height: 1, background: 'var(--border-soft)' }} />;
 }
 
 // ─── Milestone timeline ───────────────────────────────────────────────────────
@@ -153,13 +153,13 @@ function MilestoneTimeline({ milestones, catColor: cc }: { milestones: StudyMile
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {byWeek[week].sort((a, b) => a.sort_order - b.sort_order).map((m) => (
                   <div key={m.id} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#4a7055', flexShrink: 0, marginTop: 1 }}>○</span>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)', flexShrink: 0, marginTop: 1 }}>○</span>
                     <div>
-                      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#94a3b8' }}>{m.title}</span>
+                      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: 'var(--slate)' }}>{m.title}</span>
                       {m.description && (
-                        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', marginTop: 2 }}>{m.description}</p>
+                        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>{m.description}</p>
                       )}
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', opacity: 0.7 }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', opacity: 0.7 }}>
                         {' '}({m.milestone_type === 'self_report' ? 'participant reports' : 'experimenter confirms'})
                       </span>
                     </div>
@@ -241,31 +241,31 @@ export default async function ExperimentPage({ params }: Props) {
         position: 'sticky', top: 0, zIndex: 200,
         height: 52, display: 'flex', alignItems: 'center',
         justifyContent: 'space-between',
-        background: 'rgba(5,7,9,0.95)',
+        background: 'rgba(255,255,255,0.92)',
         backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(245,158,11,0.12)',
+        borderBottom: '1px solid var(--border-soft)',
       }}>
-        <Link href="/experiments" className="hover-green" style={{
-          fontFamily: 'var(--font-mono)', fontSize: 11,
-          textTransform: 'uppercase', letterSpacing: '2px',
+        <Link href="/experiments" style={{
+          fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 600,
+          color: 'var(--slate)',
         }}>
           ← Back to studies
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <span className="hidden sm:inline" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px', color: '#4a7055' }}>
-            // STUDY_DETAIL
+          <span className="hidden sm:inline" style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)' }}>
+            Study detail
           </span>
           {exp.status === 'recruiting' && slotsLeft > 0 && (
             <Link
               href={`/experiments/${exp.id}/apply`}
               style={{
-                fontFamily: 'var(--font-mono)', fontSize: 10,
-                textTransform: 'uppercase', letterSpacing: '1.5px',
-                fontWeight: 700, color: '#070c07',
-                background: '#f59e0b',
+                fontFamily: 'var(--font-display)', fontSize: 12,
+                textTransform: 'uppercase', letterSpacing: '0.5px',
+                fontWeight: 700, color: '#ffffff',
+                background: 'var(--teal)',
                 padding: '7px 16px',
                 textDecoration: 'none',
-                borderRadius: 2,
+                borderRadius: 'var(--radius-sm)',
                 whiteSpace: 'nowrap',
               }}
             >
@@ -312,19 +312,21 @@ export default async function ExperimentPage({ params }: Props) {
               textTransform: 'uppercase', letterSpacing: '2px',
               color: cc,
               border: `1px solid ${cc}40`,
-              background: `${cc}0a`,
+              background: `${cc}0d`,
               padding: '3px 8px',
+              borderRadius: 999,
             }}>
               {exp.category.toUpperCase()}
             </span>
             {Boolean((exp as unknown as Record<string, unknown>).experiment_code) && (
               <span style={{
                 fontFamily: 'var(--font-mono)', fontSize: 10,
-                color: '#4a7055',
-                border: '1px solid rgba(255,255,255,0.08)',
-                background: 'rgba(255,255,255,0.02)',
+                color: 'var(--muted)',
+                border: '1px solid var(--border-soft)',
+                background: 'var(--bg-page)',
                 padding: '3px 8px',
                 letterSpacing: '1px',
+                borderRadius: 999,
               }}>
                 {(exp as unknown as Record<string, unknown>).experiment_code as string}
               </span>
@@ -333,20 +335,20 @@ export default async function ExperimentPage({ params }: Props) {
           <h1 style={{
             fontFamily: 'var(--font-heading)',
             fontSize: 'clamp(28px, 4vw, 42px)',
-            fontWeight: 700, color: '#eef4f0',
+            fontWeight: 700, color: 'var(--ink)',
             lineHeight: 1.15, marginBottom: 8,
           }}>
             {exp.title}
           </h1>
           <p style={{
-            fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a7055',
+            fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)',
             letterSpacing: '0.5px',
           }}>
             by {orgName}
             {orgProfile && (
               <>
                 {' '}·{' '}
-                <Link href={`/org/${orgProfile.id}`} style={{ color: '#7f8e87', textDecoration: 'none' }}>
+                <Link href={`/org/${orgProfile.id}`} style={{ color: 'var(--muted)', textDecoration: 'none' }}>
                   View org →
                 </Link>
               </>
@@ -366,31 +368,32 @@ export default async function ExperimentPage({ params }: Props) {
           ].map((item, i) => (
             <div key={i} style={{
               paddingRight: 24,
-              borderRight: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+              borderRight: i < 3 ? '1px solid var(--border-soft)' : 'none',
               paddingLeft: i > 0 ? 24 : 0,
             }}>
               <p style={{
                 fontFamily: 'var(--font-mono)', fontSize: 9,
                 textTransform: 'uppercase', letterSpacing: '2px',
-                color: '#4a7055', marginBottom: 6,
+                color: 'var(--muted)', marginBottom: 6,
               }}>
                 {item.label}
               </p>
               {item.status ? (
                 <span style={{
-                  fontFamily: 'var(--font-mono)', fontSize: 12,
+                  fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 600,
                   padding: '4px 10px',
                   color: item.status.color,
                   background: item.status.bg,
                   border: item.status.border,
-                  letterSpacing: '1px',
+                  letterSpacing: '0.5px',
+                  borderRadius: 999,
                 }}>
                   ● {item.status.label}
                 </span>
               ) : (
                 <p style={{
                   fontFamily: 'var(--font-heading)', fontSize: 16, fontWeight: 600,
-                  color: '#eef4f0', margin: 0,
+                  color: 'var(--ink)', margin: 0,
                 }}>
                   {item.value}
                 </p>
@@ -404,48 +407,48 @@ export default async function ExperimentPage({ params }: Props) {
         {/* ── Reward row ── */}
         <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: 0, padding: '20px 0' }}>
           {/* Reward per participant */}
-          <div style={{ paddingRight: 24, borderRight: '1px solid rgba(255,255,255,0.06)' }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
+          <div style={{ paddingRight: 24, borderRight: '1px solid var(--border-soft)' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
               REWARD
             </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 28, fontWeight: 700, color: '#f59e0b', margin: 0, lineHeight: 1 }}>
+            <p style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--teal)', margin: 0, lineHeight: 1 }}>
               ${exp.bounty_per_participant.toFixed(0)}
             </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055', marginTop: 4 }}>per participant</p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--muted)', marginTop: 4 }}>per participant</p>
           </div>
 
           {/* Pool */}
-          <div style={{ paddingLeft: 24, paddingRight: 24, borderRight: '1px solid rgba(255,255,255,0.06)' }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
+          <div style={{ paddingLeft: 24, paddingRight: 24, borderRight: '1px solid var(--border-soft)' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
               POOL
             </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 600, color: '#94a3b8', margin: 0, lineHeight: 1 }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 600, color: 'var(--slate)', margin: 0, lineHeight: 1 }}>
               ${exp.total_bounty_pool.toLocaleString()}
             </p>
           </div>
 
           {/* Enrolled */}
-          <div style={{ paddingLeft: 24, paddingRight: 24, borderRight: '1px solid rgba(255,255,255,0.06)' }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
+          <div style={{ paddingLeft: 24, paddingRight: 24, borderRight: '1px solid var(--border-soft)' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
               ENROLLED
             </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 600, color: '#94a3b8', margin: 0, lineHeight: 1 }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 600, color: 'var(--slate)', margin: 0, lineHeight: 1 }}>
               {exp.slots_filled}/{exp.slots_total}
             </p>
-            <div style={{ width: '100%', height: 3, background: 'rgba(255,255,255,0.06)', marginTop: 6 }}>
-              <div style={{ height: 3, width: `${slotPct}%`, background: cc }} />
+            <div style={{ width: '100%', height: 3, background: 'var(--border-soft)', marginTop: 6, borderRadius: 2 }}>
+              <div style={{ height: 3, width: `${slotPct}%`, background: cc, borderRadius: 2 }} />
             </div>
           </div>
 
           {/* Compliance */}
           <div style={{ paddingLeft: 24 }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 6 }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
               COMPLIANCE
             </p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 600, color: '#94a3b8', margin: 0, lineHeight: 1 }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 600, color: 'var(--slate)', margin: 0, lineHeight: 1 }}>
               {threshold}%
             </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055', marginTop: 4 }}>min. threshold</p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--muted)', marginTop: 4 }}>min. threshold</p>
           </div>
         </div>
 
@@ -460,7 +463,7 @@ export default async function ExperimentPage({ params }: Props) {
             // DESCRIPTION
           </p>
           <p style={{
-            fontFamily: 'var(--font-heading)', fontSize: 15, color: '#94a3b8',
+            fontFamily: 'var(--font-heading)', fontSize: 15, color: 'var(--slate)',
             lineHeight: 1.75,
           }}>
             {exp.description}
@@ -469,11 +472,11 @@ export default async function ExperimentPage({ params }: Props) {
             <div style={{ marginTop: 20 }}>
               <p style={{
                 fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px',
-                textTransform: 'uppercase', color: '#4a7055', marginBottom: 10,
+                textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 10,
               }}>
                 What you&apos;ll need to do
               </p>
-              <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: '#94a3b8', lineHeight: 1.75 }}>
+              <p style={{ fontFamily: 'var(--font-heading)', fontSize: 15, color: 'var(--slate)', lineHeight: 1.75 }}>
                 {exp.tests_needed}
               </p>
             </div>
@@ -505,18 +508,18 @@ export default async function ExperimentPage({ params }: Props) {
                 <div>
                   <p style={{
                     fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px',
-                    textTransform: 'uppercase', color: '#f59e0b', marginBottom: 12,
+                    textTransform: 'uppercase', color: 'var(--success)', marginBottom: 12,
                   }}>
                     WHO IS ELIGIBLE
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {inclusion ? inclusion.map((line, i) => (
                       <div key={i} style={{ display: 'flex', gap: 8 }}>
-                        <span style={{ color: '#f59e0b', flexShrink: 0 }}>✓</span>
-                        <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#94a3b8' }}>{line}</span>
+                        <span style={{ color: 'var(--success)', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: 'var(--slate)' }}>{line}</span>
                       </div>
                     )) : (
-                      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#4a7055' }}>Open to all eligible adults.</span>
+                      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: 'var(--muted)' }}>Open to all eligible adults.</span>
                     )}
                   </div>
                 </div>
@@ -532,10 +535,10 @@ export default async function ExperimentPage({ params }: Props) {
                     {exclusion ? exclusion.map((line, i) => (
                       <div key={i} style={{ display: 'flex', gap: 8 }}>
                         <span style={{ color: '#ff8f8f', flexShrink: 0 }}>✕</span>
-                        <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#94a3b8' }}>{line}</span>
+                        <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: 'var(--slate)' }}>{line}</span>
                       </div>
                     )) : (
-                      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#4a7055' }}>No specific exclusions listed.</span>
+                      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: 'var(--muted)' }}>No specific exclusions listed.</span>
                     )}
                   </div>
                 </div>
@@ -577,7 +580,7 @@ export default async function ExperimentPage({ params }: Props) {
                 {daysLeft !== null && daysLeft > 0 && (
                   <span style={{
                     fontFamily: 'var(--font-mono)', fontSize: 10,
-                    color: daysLeft <= 14 ? '#ffb300' : '#4a7055',
+                    color: daysLeft <= 14 ? '#ffb300' : 'var(--muted)',
                     border: `1px solid ${daysLeft <= 14 ? 'rgba(255,179,0,0.25)' : 'rgba(255,255,255,0.07)'}`,
                     background: daysLeft <= 14 ? 'rgba(255,179,0,0.05)' : 'transparent',
                     padding: '2px 8px',
@@ -589,7 +592,7 @@ export default async function ExperimentPage({ params }: Props) {
                 )}
                 {daysLeft !== null && daysLeft <= 0 && (
                   <span style={{
-                    fontFamily: 'var(--font-mono)', fontSize: 10, color: '#7f8e87',
+                    fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)',
                     border: '1px solid rgba(255,255,255,0.07)', padding: '2px 8px',
                   }}>
                     Applications closed
@@ -599,10 +602,10 @@ export default async function ExperimentPage({ params }: Props) {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px 32px' }}>
                 {fields.map(({ label, value }) => (
                   <div key={label}>
-                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#4a7055', marginBottom: 5 }}>
+                    <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 5 }}>
                       {label}
                     </p>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#94a3b8', margin: 0 }}>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: 'var(--slate)', margin: 0 }}>
                       {value}
                     </p>
                   </div>
@@ -666,7 +669,7 @@ export default async function ExperimentPage({ params }: Props) {
             <ThinDivider />
             <p style={{
               fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px',
-              textTransform: 'uppercase', color: '#4a7055',
+              textTransform: 'uppercase', color: 'var(--muted)',
               marginTop: 20, marginBottom: 12,
             }}>
               // AMENDMENTS
@@ -674,7 +677,7 @@ export default async function ExperimentPage({ params }: Props) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[...exp.amendment_log].reverse().map((a, i) => (
                 <div key={i} style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)' }}>
                     {new Date(a.ts).toLocaleDateString()}
                   </span>
                   <span style={{
@@ -684,11 +687,11 @@ export default async function ExperimentPage({ params }: Props) {
                   }}>
                     {a.field}
                   </span>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)' }}>
                     changed from{' '}
                     <span style={{ color: '#ffd166' }}>{a.old_value || '—'}</span>
                     {' to '}
-                    <span style={{ color: '#94a3b8' }}>{a.new_value || '—'}</span>
+                    <span style={{ color: 'var(--slate)' }}>{a.new_value || '—'}</span>
                   </span>
                 </div>
               ))}

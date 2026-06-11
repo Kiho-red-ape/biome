@@ -14,7 +14,6 @@ export function PartnerFormToggle() {
         style={{
           gap: 10,
           transform: 'none',
-          boxShadow: '4px 4px 0 var(--black)',
         }}
       >
         Apply to partner {open ? '▴' : '▾'}

@@ -34,7 +34,7 @@ export function PartnersStrip({ partners }: { partners: Partner[] }) {
   if (partners.length === 0) return null;
 
   return (
-    <section style={{ background: 'var(--navy)', borderBottom: '3px solid var(--black)' }}>
+    <section style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border-soft)' }}>
       <div className="section-inner" style={{ textAlign: 'center' }}>
         <span className="section-label" style={{ marginBottom: 40, display: 'block' }}>Partners</span>
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 40, marginBottom: 32 }}>
@@ -46,18 +46,18 @@ export function PartnersStrip({ partners }: { partners: Partner[] }) {
             fontFamily:  'var(--font-display)',
             fontSize:    14,
             fontWeight:  600,
-            color:       'rgba(255,255,255,0.6)',
-            borderBottom: '2px solid rgba(255,255,255,0.3)',
+            color:       'var(--slate)',
+            borderBottom: '2px solid var(--border-mid)',
             paddingBottom: 2,
             transition:  'color 150ms, border-color 150ms',
           }}
           onMouseEnter={e => {
-            (e.currentTarget as HTMLAnchorElement).style.color = 'var(--amber)';
-            (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--amber)';
+            (e.currentTarget as HTMLAnchorElement).style.color = 'var(--teal)';
+            (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--teal)';
           }}
           onMouseLeave={e => {
-            (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.6)';
-            (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.3)';
+            (e.currentTarget as HTMLAnchorElement).style.color = 'var(--slate)';
+            (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border-mid)';
           }}
         >
           Interested in partnering? →

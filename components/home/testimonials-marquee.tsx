@@ -50,7 +50,7 @@ const ALL = [...TESTIMONIALS, ...TESTIMONIALS];
 
 export function TestimonialsMarquee() {
   return (
-    <section style={{ background: 'var(--white)', borderBottom: '3px solid var(--black)', overflow: 'hidden' }}>
+    <section style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border-soft)', overflow: 'hidden' }}>
       <div style={{ padding: '64px 0 0' }}>
         <div style={{ padding: '0 24px', marginBottom: 40 }}>
           <span className="section-label section-label-dark">From the community</span>
@@ -58,7 +58,7 @@ export function TestimonialsMarquee() {
             fontFamily: 'var(--font-display)',
             fontWeight: 700,
             fontSize:   'clamp(22px, 3vw, 32px)',
-            color:      'var(--black)',
+            color:      'var(--ink)',
             lineHeight: 1.1,
           }}>
             Researchers. Participants. Partners.
@@ -71,12 +71,12 @@ export function TestimonialsMarquee() {
         {/* Fade edges */}
         <div style={{
           position:   'absolute', top: 0, left: 0, bottom: 0, width: 80,
-          background: 'linear-gradient(to right, var(--white), transparent)',
+          background: 'linear-gradient(to right, var(--surface), transparent)',
           zIndex:     10, pointerEvents: 'none',
         }} />
         <div style={{
           position:   'absolute', top: 0, right: 0, bottom: 0, width: 80,
-          background: 'linear-gradient(to left, var(--white), transparent)',
+          background: 'linear-gradient(to left, var(--surface), transparent)',
           zIndex:     10, pointerEvents: 'none',
         }} />
 
@@ -95,9 +95,10 @@ export function TestimonialsMarquee() {
               style={{
                 width:         340,
                 flexShrink:    0,
-                border:        '3px solid var(--black)',
-                boxShadow:     '4px 4px 0 var(--black)',
-                background:    'var(--white)',
+                border:        '1px solid var(--border-soft)',
+                boxShadow:     'var(--shadow-sm)',
+                borderRadius:  'var(--radius)',
+                background:    'var(--surface)',
                 padding:       '24px',
                 display:       'flex',
                 flexDirection: 'column',
@@ -106,7 +107,7 @@ export function TestimonialsMarquee() {
             >
               {/* Header row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ border: '2px solid var(--black)', flexShrink: 0 }}>
+                <div style={{ border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', flexShrink: 0 }}>
                   <Identicon participantId={t.id} size={44} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -114,7 +115,7 @@ export function TestimonialsMarquee() {
                     fontFamily:  'var(--font-display)',
                     fontWeight:  600,
                     fontSize:    14,
-                    color:       'var(--black)',
+                    color:       'var(--ink)',
                     lineHeight:  1.2,
                     overflow:    'hidden',
                     textOverflow:'ellipsis',
@@ -129,17 +130,18 @@ export function TestimonialsMarquee() {
                       fontWeight:    600,
                       letterSpacing: '1.5px',
                       textTransform: 'uppercase',
-                      background:    t.role === 'Participant' ? 'var(--navy)' : t.role === 'Researcher' ? 'var(--amber)' : 'var(--black)',
-                      color:         t.role === 'Researcher' ? 'var(--black)' : 'var(--white)',
+                      background:    t.role === 'Participant' ? 'var(--teal-soft)' : t.role === 'Researcher' ? 'var(--bg-page)' : 'var(--success-soft)',
+                      color:         t.role === 'Participant' ? 'var(--teal-dark)' : t.role === 'Researcher' ? 'var(--slate)' : 'var(--success)',
                       padding:       '2px 6px',
-                      border:        '1.5px solid var(--black)',
+                      border:        '1px solid var(--border-soft)',
+                      borderRadius:  999,
                     }}>
                       {t.role}
                     </span>
                     <span style={{
-                      fontFamily: 'var(--font-body)',
+                      fontFamily: 'var(--font-mono)',
                       fontSize:   10,
-                      color:      'var(--gray)',
+                      color:      'var(--muted)',
                     }}>
                       {t.id}
                     </span>
@@ -151,7 +153,7 @@ export function TestimonialsMarquee() {
               <p style={{
                 fontFamily: 'var(--font-body)',
                 fontSize:   14,
-                color:      'var(--black)',
+                color:      'var(--slate)',
                 lineHeight: 1.65,
                 margin:     0,
                 flex:       1,
@@ -162,7 +164,7 @@ export function TestimonialsMarquee() {
               {/* Tag */}
               <div style={{
                 paddingTop:  12,
-                borderTop:   '2px solid var(--black)',
+                borderTop:   '1px solid var(--border-soft)',
                 display:     'flex',
                 alignItems:  'center',
                 gap:         6,
@@ -173,10 +175,11 @@ export function TestimonialsMarquee() {
                   fontWeight:    600,
                   letterSpacing: '1.5px',
                   textTransform: 'uppercase',
-                  background:    'var(--amber)',
-                  color:         'var(--black)',
+                  background:    'var(--teal-soft)',
+                  color:         'var(--teal-dark)',
                   padding:       '2px 8px',
-                  border:        '1.5px solid var(--black)',
+                  border:        '1px solid rgba(14,116,144,0.2)',
+                  borderRadius:  999,
                 }}>
                   {t.tag}
                 </span>

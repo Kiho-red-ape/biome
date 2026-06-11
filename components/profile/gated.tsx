@@ -1,7 +1,6 @@
 'use client';
 
 import { usePrivy } from '@privy-io/react-auth';
-import Link from 'next/link';
 
 export function ProfileGated({ children }: { children: React.ReactNode }) {
   const { authenticated, login } = usePrivy();
@@ -10,29 +9,30 @@ export function ProfileGated({ children }: { children: React.ReactNode }) {
 
   return (
     <div style={{
-      border:      '3px solid var(--black)',
-      boxShadow:   '4px 4px 0 var(--black)',
-      background:  'var(--white)',
-      padding:     '48px 24px',
-      textAlign:   'center',
-      margin:      '0 auto',
+      background:   'var(--surface)',
+      border:       '1px solid var(--border-soft)',
+      borderRadius: 'var(--radius)',
+      boxShadow:    'var(--shadow-sm)',
+      padding:      '48px 24px',
+      textAlign:    'center',
+      margin:       '0 auto',
     }}>
       <div style={{
         fontFamily:    'var(--font-display)',
-        fontSize:      11,
+        fontSize:      12,
         fontWeight:    600,
-        letterSpacing: '2px',
+        letterSpacing: '1.5px',
         textTransform: 'uppercase',
-        color:         'var(--gray)',
+        color:         'var(--teal)',
         marginBottom:  16,
       }}>
         Private
       </div>
       <p style={{
         fontFamily:   'var(--font-display)',
-        fontWeight:   700,
+        fontWeight:   600,
         fontSize:     18,
-        color:        'var(--black)',
+        color:        'var(--ink)',
         marginBottom: 8,
         lineHeight:   1.2,
       }}>
@@ -40,12 +40,12 @@ export function ProfileGated({ children }: { children: React.ReactNode }) {
       </p>
       <p style={{
         fontFamily:   'var(--font-body)',
-        fontSize:     13,
-        color:        'var(--gray)',
+        fontSize:     14,
+        color:        'var(--slate)',
         marginBottom: 28,
-        lineHeight:   1.5,
+        lineHeight:   1.6,
       }}>
-        Stats, study history, and earnings are visible to signed-in members.
+        Stats, study history, and compensation are visible to signed-in members.
       </p>
       <button onClick={login} className="btn-primary">
         Sign in →

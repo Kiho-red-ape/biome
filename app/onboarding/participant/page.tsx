@@ -41,9 +41,9 @@ const COUNTRIES = [
 // ─── Step indicator ────────────────────────────────────────────────────────────
 
 function StepIndicator({ current }: { current: number }) {
-  const steps = ['ACCOUNT', 'DEMOGRAPHICS', 'CAPABILITY', 'HISTORY'];
+  const steps = ['Account', 'Demographics', 'Capability', 'History'];
   return (
-    <div className="flex items-center gap-2 mb-8">
+    <div className="flex items-center gap-2 mb-8" aria-label={`Step ${current} of ${steps.length}`}>
       {steps.map((label, i) => {
         const num = i + 1;
         const active = num === current;
@@ -52,24 +52,27 @@ function StepIndicator({ current }: { current: number }) {
           <div key={label} className="flex items-center gap-2">
             <div className="flex items-center gap-1.5">
               <span
-                className="mono text-xs w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
+                className="text-xs font-semibold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
                 style={{
-                  background: active ? 'var(--green)' : done ? 'var(--green-dim)' : 'var(--bg3)',
-                  color: active ? '#050709' : done ? 'var(--text-dim)' : 'var(--text-dim)',
-                  border: active ? 'none' : '1px solid rgba(77,255,128,0.12)',
+                  background: active ? 'var(--teal)' : done ? 'var(--teal-soft)' : 'var(--surface)',
+                  color:      active ? '#ffffff' : done ? 'var(--teal-dark)' : 'var(--muted)',
+                  border:     active ? '1px solid var(--teal)' : done ? '1px solid var(--teal)' : '1px solid var(--border-mid)',
                 }}
               >
                 {done ? '✓' : num}
               </span>
               <span
-                className="mono text-xs hidden sm:block"
-                style={{ color: active ? 'var(--green)' : 'var(--text-dim)' }}
+                className="text-xs font-medium hidden sm:block"
+                style={{ color: active ? 'var(--teal-dark)' : done ? 'var(--slate)' : 'var(--muted)' }}
               >
                 {label}
               </span>
             </div>
             {i < steps.length - 1 && (
-              <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>—</span>
+              <span
+                aria-hidden
+                style={{ width: 18, height: 1, background: done ? 'var(--teal)' : 'var(--border-mid)', display: 'inline-block' }}
+              />
             )}
           </div>
         );
@@ -78,16 +81,28 @@ function StepIndicator({ current }: { current: number }) {
   );
 }
 
-// ─── Input styles (shared) ─────────────────────────────────────────────────────
+// ─── Shared label styles ───────────────────────────────────────────────────────
 
-const inputStyle: React.CSSProperties = {
-  background: 'var(--bg3)',
-  border: '1px solid rgba(77,255,128,0.15)',
-  color: 'var(--text-bright)',
+function FieldLabel({ children, hint }: { children: React.ReactNode; hint?: string }) {
+  return (
+    <label className="text-sm font-medium block mb-2" style={{ color: 'var(--ink)' }}>
+      {children}
+      {hint && (
+        <span className="ml-2 text-xs font-normal" style={{ color: 'var(--muted)' }}>
+          {hint}
+        </span>
+      )}
+    </label>
+  );
+}
+
+const cardStyle: React.CSSProperties = {
+  background:   'var(--surface)',
+  border:       '1px solid var(--border-soft)',
+  borderRadius: 'var(--radius)',
+  boxShadow:    'var(--shadow-sm)',
+  padding:      36,
 };
-
-const inputFocusClass =
-  'w-full px-4 py-2.5 rounded text-sm outline-none transition-colors focus:border-green-400';
 
 // ─── Main page ─────────────────────────────────────────────────────────────────
 
@@ -202,10 +217,8 @@ export default function ParticipantOnboardingPage() {
 
   if (!ready || (!authenticated && !checking) || checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-          // INITIALISING...
-        </span>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-page)' }}>
+        <span className="text-sm" style={{ color: 'var(--muted)' }}>Loading…</span>
       </div>
     );
   }
@@ -214,69 +227,57 @@ export default function ParticipantOnboardingPage() {
 
   if (welcome) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4 py-16">
-        <div
-          className="w-full max-w-lg rounded p-px"
-          style={{ background: 'var(--green)' }}
-        >
-          <div className="rounded p-8 flex flex-col gap-6" style={{ background: 'var(--bg2)' }}>
-            <p className="mono text-xs" style={{ color: 'var(--green)' }}>
-              // IDENTITY_ASSIGNED
+      <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: 'var(--bg-page)' }}>
+        <div className="w-full max-w-lg flex flex-col gap-6" style={cardStyle}>
+          <span className="section-label">Identity assigned</span>
+
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: 'var(--muted)' }}>
+              Your pseudonym
             </p>
-
-            <div>
-              <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>
-                YOUR_PSEUDONYM
-              </p>
-              <h1
-                className="text-3xl font-black tracking-tight"
-                style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}
-              >
-                {welcome.pseudonym}
-              </h1>
-            </div>
-
-            <div
-              className="rounded p-4"
-              style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.15)' }}
-            >
-              <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>
-                PARTICIPANT_ID
-              </p>
-              <p
-                className="mono text-xl font-bold tracking-widest"
-                style={{ color: 'var(--green)' }}
-              >
-                {welcome.participantId}
-              </p>
-            </div>
-
-            <div
-              className="rounded p-3 flex items-start gap-2"
-              style={{ background: 'rgba(255,179,0,0.06)', border: '1px solid rgba(255,179,0,0.2)' }}
-            >
-              <span style={{ color: 'var(--amber)' }}>⚠</span>
-              <p className="mono text-xs leading-relaxed" style={{ color: 'var(--amber)' }}>
-                This pseudonym and participant ID are permanent. They cannot be changed.
-                Save your participant ID — you may need it to reference your account.
-              </p>
-            </div>
-
-            <button
-              onClick={() => router.replace('/dashboard')}
-              className="w-full py-3 rounded font-semibold text-sm transition-all hover:opacity-90"
-              style={{ background: 'var(--green)', color: '#060a14' }}
-            >
-              Enter BIOME →
-            </button>
-            <button
-              onClick={() => router.replace('/onboarding/experimenter')}
-              className="w-full py-2.5 rounded text-sm mono transition-all hover:opacity-80"
-              style={{ color: 'var(--text-dim)', border: '1px solid rgba(77,255,128,0.12)' }}
-            >
-              Also set up an organization →
-            </button>
+            <h1 style={{ fontSize: 30 }}>{welcome.pseudonym}</h1>
           </div>
+
+          <div
+            className="p-4"
+            style={{
+              background:   'var(--teal-faint)',
+              border:       '1px solid var(--teal-soft)',
+              borderRadius: 'var(--radius-sm)',
+            }}
+          >
+            <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: 'var(--muted)' }}>
+              Participant ID
+            </p>
+            <p
+              className="text-xl font-bold tracking-widest"
+              style={{ color: 'var(--teal-dark)', fontFamily: 'var(--font-mono)' }}
+            >
+              {welcome.participantId}
+            </p>
+          </div>
+
+          <div
+            className="p-4 flex items-start gap-3"
+            style={{
+              background:   'var(--warning-soft)',
+              border:       '1px solid rgba(180,83,9,0.2)',
+              borderRadius: 'var(--radius-sm)',
+            }}
+          >
+            <span aria-hidden style={{ color: 'var(--warning)' }}>⚠</span>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--warning)' }}>
+              This pseudonym and participant ID are permanent. They cannot be changed.
+              Save your participant ID — you may need it to reference your account.
+            </p>
+          </div>
+
+          <button onClick={() => router.replace('/dashboard')} className="btn-primary w-full">
+            Enter BIOME →
+          </button>
+          <button onClick={() => router.replace('/onboarding/experimenter')} className="btn-secondary w-full">
+            Also set up an organization →
+          </button>
         </div>
       </main>
     );
@@ -287,216 +288,176 @@ export default function ParticipantOnboardingPage() {
   const canSubmit = country && termsAccepted && !loading;
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-16">
+    <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: 'var(--bg-page)' }}>
       {legalDoc && <LegalModal docKey={legalDoc} onClose={() => setLegalDoc(null)} />}
-      <div
-        className="w-full max-w-lg rounded p-px"
-        style={{ background: 'var(--green-dim)' }}
-      >
-        <div className="rounded p-8" style={{ background: 'var(--bg2)' }}>
+      <div className="w-full max-w-lg" style={cardStyle}>
 
-          <StepIndicator current={1} />
+        <StepIndicator current={1} />
 
-          <p className="mono text-xs mb-2" style={{ color: 'var(--text-dim)' }}>
-            // STEP_01 — ACCOUNT_VERIFICATION
-          </p>
-          <h1
-            className="text-2xl font-black mb-1"
-            style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}
-          >
-            Verify your account
-          </h1>
-          <p className="text-sm mb-8" style={{ color: 'var(--text-dim)' }}>
-            This information anchors your participant identity. Keep it accurate.
-          </p>
+        <span className="section-label">Step 1 of 4 — Account</span>
+        <h1 style={{ fontSize: 26, marginBottom: 4 }}>Verify your account</h1>
+        <p className="text-sm mb-8" style={{ color: 'var(--slate)' }}>
+          This information anchors your identity on BIOME. Keep it accurate.
+        </p>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
-            {/* Email — read-only from Privy */}
-            <div>
-              <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>
-                EMAIL_ADDRESS
-              </label>
-              <div
-                className="w-full px-4 py-2.5 rounded text-sm flex items-center justify-between"
-                style={{
-                  background: 'var(--bg3)',
-                  border: '1px solid rgba(77,255,128,0.08)',
-                  color: 'var(--text-dim)',
-                }}
-              >
-                <span>{emailAddress ?? 'Connected via wallet'}</span>
-                {emailVerified && (
-                  <span className="mono text-xs flex items-center gap-1" style={{ color: 'var(--green)' }}>
-                    <span>✓</span> VERIFIED
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Phone — linked via Privy modal */}
-            <div>
-              <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>
-                PHONE_NUMBER
-                <span className="ml-2 opacity-60">(optional — strengthens verification)</span>
-              </label>
-              {linkedPhone ? (
-                <div
-                  className="w-full px-4 py-2.5 rounded text-sm flex items-center justify-between"
-                  style={{
-                    background: 'var(--bg3)',
-                    border: '1px solid rgba(77,255,128,0.25)',
-                    color: 'var(--text-bright)',
-                  }}
-                >
-                  <span>{linkedPhone}</span>
-                  <span className="mono text-xs flex items-center gap-1" style={{ color: 'var(--green)' }}>
-                    <span>✓</span> VERIFIED
-                  </span>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={linkPhone}
-                  className="w-full px-4 py-2.5 rounded text-sm text-left transition-all hover:opacity-80"
-                  style={{
-                    background: 'var(--bg3)',
-                    border: '1px dashed rgba(77,255,128,0.25)',
-                    color: 'var(--text-dim)',
-                  }}
-                >
-                  <span className="mono">+ Link phone number via SMS →</span>
-                </button>
+          {/* Email — read-only from Privy */}
+          <div>
+            <FieldLabel>Email address</FieldLabel>
+            <div
+              className="w-full px-4 py-3 text-sm flex items-center justify-between"
+              style={{
+                background:   'var(--bg-page)',
+                border:       '1px solid var(--border-soft)',
+                borderRadius: 'var(--radius-sm)',
+                color:        'var(--slate)',
+              }}
+            >
+              <span>{emailAddress ?? 'Connected via wallet'}</span>
+              {emailVerified && (
+                <span className="chip chip-success">✓ Verified</span>
               )}
             </div>
+          </div>
 
-            {/* Country */}
-            <div>
-              <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>
-                COUNTRY <span style={{ color: 'var(--green)' }}>*</span>
-              </label>
-              <select
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                required
-                className={inputFocusClass}
-                style={inputStyle}
+          {/* Phone — linked via Privy modal */}
+          <div>
+            <FieldLabel hint="(optional — strengthens verification)">Phone number</FieldLabel>
+            {linkedPhone ? (
+              <div
+                className="w-full px-4 py-3 text-sm flex items-center justify-between"
+                style={{
+                  background:   'var(--bg-page)',
+                  border:       '1px solid var(--border-soft)',
+                  borderRadius: 'var(--radius-sm)',
+                  color:        'var(--ink)',
+                }}
               >
-                <option value="" disabled>Select your country</option>
-                {COUNTRIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Year of birth */}
-            <div>
-              <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>
-                YEAR OF BIRTH
-                <span className="ml-2 opacity-60">(optional — used for study matching)</span>
-              </label>
-              <input
-                type="number"
-                value={yearOfBirth}
-                onChange={(e) => setYearOfBirth(e.target.value)}
-                placeholder="e.g. 1990"
-                min={1920}
-                max={2010}
-                className={inputFocusClass}
-                style={inputStyle}
-              />
-            </div>
-
-            {/* Sex assigned at birth */}
-            <div>
-              <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>
-                SEX ASSIGNED AT BIRTH
-                <span className="ml-2 opacity-60">(optional)</span>
-              </label>
-              <select
-                value={sex}
-                onChange={(e) => setSex(e.target.value)}
-                className={inputFocusClass}
-                style={inputStyle}
+                <span>{linkedPhone}</span>
+                <span className="chip chip-success">✓ Verified</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={linkPhone}
+                className="w-full px-4 py-3 text-sm text-left transition-colors"
+                style={{
+                  background:   'var(--surface)',
+                  border:       '1px dashed var(--border-mid)',
+                  borderRadius: 'var(--radius-sm)',
+                  color:        'var(--teal)',
+                  cursor:       'pointer',
+                }}
               >
-                <option value="">Prefer not to say</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="intersex">Intersex</option>
-                <option value="prefer_not_to_say">Prefer not to say</option>
-              </select>
-            </div>
-
-            {/* Study alerts */}
-            <div>
-              <label className="flex items-start gap-3 cursor-pointer" style={{ color: 'var(--text-dim)' }}>
-                <input
-                  type="checkbox"
-                  checked={studyAlerts}
-                  onChange={(e) => setStudyAlerts(e.target.checked)}
-                  className="mt-0.5 flex-shrink-0"
-                  style={{ accentColor: 'var(--green)' }}
-                />
-                <span className="text-xs leading-relaxed">
-                  Notify me when new studies open that match my profile.
-                </span>
-              </label>
-            </div>
-
-            {/* Terms */}
-            <div>
-              <label
-                className="flex items-start gap-3 cursor-pointer"
-                style={{ color: 'var(--text-dim)' }}
-              >
-                <input
-                  type="checkbox"
-                  checked={termsAccepted}
-                  onChange={(e) => setTermsAccepted(e.target.checked)}
-                  className="mt-0.5 flex-shrink-0 accent-green-400"
-                  style={{ accentColor: 'var(--green)' }}
-                />
-                <span className="text-xs leading-relaxed">
-                  I agree to the{' '}
-                  <button
-                    type="button"
-                    onClick={() => setLegalDoc('tos')}
-                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--green)', textDecoration: 'underline', fontFamily: 'inherit', fontSize: 'inherit' }}
-                  >Terms of Service</button>{' '}and{' '}
-                  <button
-                    type="button"
-                    onClick={() => setLegalDoc('participant_agreement')}
-                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--green)', textDecoration: 'underline', fontFamily: 'inherit', fontSize: 'inherit' }}
-                  >Participant Study Agreement</button>. I understand that
-                  my pseudonym and participant ID will be permanently assigned and cannot be changed.
-                </span>
-              </label>
-            </div>
-
-            {/* Error */}
-            {error && (
-              <p className="mono text-xs" style={{ color: 'var(--amber)' }}>
-                // ERROR: {error}
-              </p>
+                + Link phone number via SMS →
+              </button>
             )}
+          </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={!canSubmit}
-              className="w-full py-3 rounded font-semibold text-sm transition-all disabled:opacity-40 hover:opacity-90"
-              style={{ background: 'var(--green)', color: '#060a14' }}
+          {/* Country */}
+          <div>
+            <FieldLabel>Country <span style={{ color: 'var(--teal)' }}>*</span></FieldLabel>
+            <select
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              required
             >
-              {loading ? '// GENERATING_IDENTITY...' : 'Confirm & generate my participant ID →'}
-            </button>
+              <option value="" disabled>Select your country</option>
+              {COUNTRIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
 
-          </form>
+          {/* Year of birth */}
+          <div>
+            <FieldLabel hint="(optional — used for study matching)">Year of birth</FieldLabel>
+            <input
+              type="number"
+              value={yearOfBirth}
+              onChange={(e) => setYearOfBirth(e.target.value)}
+              placeholder="e.g. 1990"
+              min={1920}
+              max={2010}
+            />
+          </div>
 
-          <p className="mono text-xs mt-6 text-center" style={{ color: 'var(--text-dim)' }}>
-            // Steps 2–4 can be completed later, before applying to experiments.
-          </p>
+          {/* Sex assigned at birth */}
+          <div>
+            <FieldLabel hint="(optional)">Sex assigned at birth</FieldLabel>
+            <select value={sex} onChange={(e) => setSex(e.target.value)}>
+              <option value="">Prefer not to say</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="intersex">Intersex</option>
+              <option value="prefer_not_to_say">Prefer not to say</option>
+            </select>
+          </div>
 
-        </div>
+          {/* Study alerts */}
+          <div>
+            <label className="flex items-start gap-3 cursor-pointer" style={{ color: 'var(--slate)' }}>
+              <input
+                type="checkbox"
+                checked={studyAlerts}
+                onChange={(e) => setStudyAlerts(e.target.checked)}
+                className="mt-0.5 flex-shrink-0"
+                style={{ accentColor: 'var(--teal)', width: 16, height: 16 }}
+              />
+              <span className="text-sm leading-relaxed">
+                Notify me when new studies open that match my profile.
+              </span>
+            </label>
+          </div>
+
+          {/* Terms */}
+          <div>
+            <label className="flex items-start gap-3 cursor-pointer" style={{ color: 'var(--slate)' }}>
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                className="mt-0.5 flex-shrink-0"
+                style={{ accentColor: 'var(--teal)', width: 16, height: 16 }}
+              />
+              <span className="text-sm leading-relaxed">
+                I agree to the{' '}
+                <button
+                  type="button"
+                  onClick={() => setLegalDoc('tos')}
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--teal)', textDecoration: 'underline', fontFamily: 'inherit', fontSize: 'inherit' }}
+                >Terms of Service</button>{' '}and{' '}
+                <button
+                  type="button"
+                  onClick={() => setLegalDoc('participant_agreement')}
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--teal)', textDecoration: 'underline', fontFamily: 'inherit', fontSize: 'inherit' }}
+                >Participant Study Agreement</button>. I understand that
+                my pseudonym and participant ID will be permanently assigned and cannot be changed.
+              </span>
+            </label>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <p className="text-sm" style={{ color: 'var(--error)' }}>{error}</p>
+          )}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={!canSubmit}
+            className="btn-primary w-full disabled:opacity-40"
+          >
+            {loading ? 'Generating your ID…' : 'Confirm & generate my participant ID →'}
+          </button>
+
+        </form>
+
+        <p className="text-xs mt-6 text-center" style={{ color: 'var(--muted)' }}>
+          Steps 2–4 can be completed later, before applying to studies.
+        </p>
+
       </div>
     </main>
   );
