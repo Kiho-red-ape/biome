@@ -11,8 +11,8 @@ export default function StagingBanner() {
           right: 0,
           zIndex: 999,
           minHeight: '36px',
-          backgroundColor: '#1a1a2e',
-          borderBottom: '1px solid rgba(142, 231, 255, 0.3)',
+          backgroundColor: '#0f172a',
+          borderBottom: '1px solid rgba(125, 211, 232, 0.3)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -37,7 +37,7 @@ export default function StagingBanner() {
           style={{
             fontFamily: "'IBM Plex Mono', 'JetBrains Mono', monospace",
             fontSize: '11px',
-            color: '#f59e0b',
+            color: '#7dd3e8',
             textDecoration: 'none',
             whiteSpace: 'nowrap',
           }}
