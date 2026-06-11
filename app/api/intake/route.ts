@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { syncIntakeToAirtable } from '@/lib/airtable-sync';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServiceClient();
 
-    const { error } = await supabase.from('client_intakes').insert({
+    const intake = {
       name:                String(name),
       organization:        String(organization),
       email:               String(email),
@@ -28,12 +29,17 @@ export async function POST(req: NextRequest) {
       budget_range:        body.budget_range ? String(body.budget_range) : null,
       referral_source:     body.referral_source ? String(body.referral_source) : null,
       additional_notes:    body.additional_notes ? String(body.additional_notes) : null,
-    });
+    };
+
+    const { error } = await supabase.from('client_intakes').insert(intake);
 
     if (error) {
       console.error('intake insert error:', error);
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
+
+    // Fire-and-forget CRM sync (no-op if Airtable env vars are unset)
+    void syncIntakeToAirtable(intake);
 
     return NextResponse.json({ ok: true });
   } catch (err) {

@@ -10,6 +10,7 @@ import { ComplianceDashboard } from '@/components/compliance/compliance-dashboar
 import { MessageComposer } from '@/components/experiments/message-composer';
 import { EscrowDepositPanel } from '@/components/experiments/escrow-deposit-panel';
 import { ExperimenterPayoutPanel } from '@/components/experiments/experimenter-payout-panel';
+import { DocumentVault } from '@/components/documents/document-vault';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -663,6 +664,22 @@ export default function ExperimentManagePage() {
               )}
             </div>
             <ComplianceDashboard experimentId={exp.id} privyDid={user.id} />
+          </div>
+        )}
+
+        {/* ── Document Vault ── */}
+        {user && (
+          <div className="mb-8" style={{
+            border: '3px solid var(--black)', boxShadow: '4px 4px 0 var(--black)',
+            background: 'var(--white)', padding: 24,
+          }}>
+            <DocumentVault
+              experimentId={exp.id}
+              hasSamples={
+                !!(exp.category && /sample|biomarker|microbiome|blood|saliva|stool|urine|swab/i.test(exp.category + ' ' + exp.description))
+              }
+              displayName={exp.experiment_code ?? undefined}
+            />
           </div>
         )}
 
