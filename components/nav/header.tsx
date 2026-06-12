@@ -190,7 +190,10 @@ export function SiteHeader() {
                       </>
                     )}
                     {navProfile?.kind === 'experimenter' && (
-                      <DropItem href="/dashboard/experiments" onClick={() => setDropOpen(false)}>My Studies</DropItem>
+                      <>
+                        <DropItem href="/dashboard/experiments" onClick={() => setDropOpen(false)}>My Studies</DropItem>
+                        <DropItem href="/ome" onClick={() => setDropOpen(false)}>OME — Recruitment AI</DropItem>
+                      </>
                     )}
                     {!navProfile && <DropItem href="/onboarding" onClick={() => setDropOpen(false)}>Complete Setup</DropItem>}
                     <div style={{ borderTop: '1px solid var(--border-soft)' }}>

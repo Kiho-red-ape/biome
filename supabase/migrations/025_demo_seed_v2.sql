@@ -185,9 +185,9 @@ INSERT INTO study_documents (
 ) VALUES (
   '00000000-0001-0000-0000-d00000000005',
   '00000000-0001-0000-0000-000000000001',
-  'data_processing_agreement',
-  'GDPR Data Processing Agreement',
-  'Data Processing Agreement (DPA) under GDPR Article 28. Covers pseudonymisation procedures, data retention policy (2 years post-study), sub-processor list, and data subject rights process.',
+  'data_sharing_agreement',
+  'GDPR Data Processing Agreement (DPA)',
+  'Data Processing Agreement under GDPR Article 28. Covers pseudonymisation procedures, data retention policy (2 years post-study), sub-processor list, and data subject rights process.',
   'approved',
   'operator',
   'demo:researcher',

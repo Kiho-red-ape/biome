@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS study_documents (
     'service_contract',       -- Biome ↔ Sponsor master service agreement
     'researcher_agreement',   -- Individual PI agreement with Biome
     'sponsor_authorization',  -- Sponsor authorisation letter
-    'data_sharing_agreement', -- DPA / data processing agreement
+    'data_sharing_agreement',   -- generic data sharing agreement
+    'data_processing_agreement', -- GDPR Article 28 DPA
     'insurance_certificate',  -- Study insurance
     'regulatory_filing',      -- Any regulatory submissions
     'lab_agreement',          -- Lab partner agreement
