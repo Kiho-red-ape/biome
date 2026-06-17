@@ -311,6 +311,85 @@ INSERT INTO india_health_facilities (
 ('SGPGI Lucknow', 'research_centre', 'Lucknow', 'Uttar Pradesh', 'tier2',
  true, true, false, true,
  ARRAY['blood_tests','biopsy','biomarker_panel','mri','ecg','eeg','pathology'],
+ 'manual', true),
+
+-- ── Tier 2 city facilities ────────────────────────────────────────
+
+('PGI Chandigarh — Gastroenterology OPD', 'specialty_clinic', 'Chandigarh', 'Punjab', 'tier2',
+ true, true, true, true,
+ ARRAY['blood_tests','stool_tests','biomarker_panel','biopsy','microbiome','pathology'],
+ 'manual', true),
+
+('Jaipur Golden Hospital', 'hospital', 'Jaipur', 'Rajasthan', 'tier2',
+ true, false, true, false,
+ ARRAY['blood_tests','ecg','biomarker_panel','mri','ct','pathology'],
+ 'manual', true),
+
+('AIIMS Nagpur', 'research_centre', 'Nagpur', 'Maharashtra', 'tier2',
+ true, true, true, true,
+ ARRAY['blood_tests','stool_tests','biopsy','biomarker_panel','mri','ecg','eeg','pathology','genomics'],
+ 'manual', true),
+
+('Deenanath Mangeshkar Hospital — Neurology', 'specialty_clinic', 'Pune', 'Maharashtra', 'tier2',
+ true, false, true, true,
+ ARRAY['blood_tests','mri','ecg','eeg','biomarker_panel'],
+ 'manual', true),
+
+('Amrita Institute of Medical Sciences — Kochi', 'hospital', 'Kochi', 'Kerala', 'tier2',
+ true, true, true, true,
+ ARRAY['blood_tests','stool_tests','biopsy','biomarker_panel','mri','ecg','eeg','genomics','pathology','microbiome'],
+ 'manual', true),
+
+('Nizam''s Institute of Medical Sciences', 'research_centre', 'Hyderabad', 'Telangana', 'tier1',
+ true, true, true, true,
+ ARRAY['blood_tests','biopsy','biomarker_panel','mri','ecg','eeg','pathology','genomics'],
+ 'manual', true),
+
+('PSG Hospitals — Gastroenterology', 'specialty_clinic', 'Coimbatore', 'Tamil Nadu', 'tier2',
+ true, false, true, false,
+ ARRAY['blood_tests','stool_tests','biomarker_panel','biopsy','microbiome','pathology'],
+ 'manual', true),
+
+('New Civil Hospital Surat — Cardiology', 'specialty_clinic', 'Surat', 'Gujarat', 'tier2',
+ false, false, true, false,
+ ARRAY['blood_tests','ecg','biomarker_panel'],
+ 'manual', false),
+
+('Baroda Medical College Hospital', 'hospital', 'Vadodara', 'Gujarat', 'tier2',
+ false, true, false, true,
+ ARRAY['blood_tests','stool_tests','biopsy','biomarker_panel','mri','ecg','pathology'],
+ 'manual', true),
+
+('AIIMS Bhopal', 'research_centre', 'Bhopal', 'Madhya Pradesh', 'tier2',
+ true, true, true, true,
+ ARRAY['blood_tests','stool_tests','biopsy','biomarker_panel','mri','ecg','eeg','genomics','pathology','microbiome'],
+ 'manual', true),
+
+-- ── Specialist & diagnostic facilities ───────────────────────────
+
+('Thyrocare Technologies — National Network', 'diagnostic_lab', 'Navi Mumbai', 'Maharashtra', 'tier1',
+ false, true, true, false,
+ ARRAY['blood_tests','stool_tests','biomarker_panel','microbiome','genomics','urine_tests'],
+ 'manual', true),
+
+('Manipal-ACuitas Microbiome Lab', 'diagnostic_lab', 'Bengaluru', 'Karnataka', 'tier1',
+ false, true, false, false,
+ ARRAY['stool_tests','microbiome','blood_tests','genomics','biomarker_panel'],
+ 'manual', true),
+
+('Kovai Medical Center and Hospital — Neurology', 'specialty_clinic', 'Coimbatore', 'Tamil Nadu', 'tier2',
+ true, false, false, false,
+ ARRAY['blood_tests','mri','ecg','eeg','biomarker_panel'],
+ 'manual', true),
+
+('Suyog Diagnostics Imaging Centre', 'imaging_centre', 'Pune', 'Maharashtra', 'tier2',
+ false, true, true, false,
+ ARRAY['mri','ct','blood_tests'],
+ 'manual', false),
+
+('Sterling Hospitals — Cardiology', 'specialty_clinic', 'Ahmedabad', 'Gujarat', 'tier1',
+ true, false, true, true,
+ ARRAY['blood_tests','ecg','biomarker_panel','mri','ct'],
  'manual', true)
 
 ON CONFLICT DO NOTHING;

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, FormEvent } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
+import { useSearchParams } from 'next/navigation';
 import { SiteHeader } from '@/components/nav/header';
 import Link from 'next/link';
 
@@ -13,8 +14,7 @@ type Message = {
 
 type Usage = { inputTokens: number; outputTokens: number; costUsd: number };
 
-const SUGGESTIONS = [
-  'Find hospitals in Bengaluru for a gut microbiome study needing stool samples',
+const BASE_SUGGESTIONS = [
   'What ABDM steps do I need to complete to access patient diagnostic data?',
   'Which diagnostic labs can handle 16S rRNA microbiome sequencing in India?',
   'How do I approach an IEC for retrospective blood test data in Tamil Nadu?',
@@ -22,16 +22,33 @@ const SUGGESTIONS = [
 
 export default function OMEPage() {
   const { authenticated, user, login } = usePrivy();
-  const [messages,    setMessages]    = useState<Message[]>([]);
-  const [input,       setInput]       = useState('');
-  const [loading,     setLoading]     = useState(false);
-  const [sessionId,   setSessionId]   = useState<string | undefined>();
-  const [totalCost,   setTotalCost]   = useState(0);
+  const searchParams = useSearchParams();
+
+  const studyId    = searchParams.get('study') ?? undefined;
+  const studyTitle = searchParams.get('title') ?? undefined;
+
+  const [messages,        setMessages]        = useState<Message[]>([]);
+  const [input,           setInput]           = useState('');
+  const [loading,         setLoading]         = useState(false);
+  const [sessionId,       setSessionId]       = useState<string | undefined>();
+  const [totalCost,       setTotalCost]       = useState(0);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
+
+  // Build suggestions: study-specific first suggestion when study context is present
+  const suggestions: string[] = studyId && studyTitle
+    ? [
+        `Find hospitals in India suitable for recruiting research partners for this study`,
+        ...BASE_SUGGESTIONS,
+      ]
+    : [
+        'Find hospitals in Bengaluru for a gut microbiome study needing stool samples',
+        ...BASE_SUGGESTIONS,
+      ];
 
   async function send(text: string) {
     if (!text.trim() || loading || !authenticated) return;
@@ -42,13 +59,19 @@ export default function OMEPage() {
     setLoading(true);
 
     try {
+      const body: Record<string, string | undefined> = {
+        message:   text,
+        sessionId,
+      };
+      if (studyId) body.experimentId = studyId;
+
       const res = await fetch('/api/ome/chat', {
         method:  'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-privy-did':  user?.id ?? '',
         },
-        body: JSON.stringify({ message: text, sessionId }),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json() as {
@@ -92,7 +115,7 @@ export default function OMEPage() {
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '32px 16px 120px' }}>
 
         {/* Header */}
-        <div style={{ marginBottom: 32 }}>
+        <div style={{ marginBottom: studyId && !bannerDismissed ? 12 : 32 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
             <div style={{
               width: 36, height: 36, borderRadius: '50%',
@@ -115,6 +138,47 @@ export default function OMEPage() {
             </p>
           )}
         </div>
+
+        {/* Study context banner */}
+        {studyId && !bannerDismissed && (
+          <div style={{
+            display:         'flex',
+            alignItems:      'center',
+            justifyContent:  'space-between',
+            gap:             12,
+            background:      'var(--teal-faint)',
+            border:          '1px solid var(--border-soft)',
+            borderRadius:    'var(--radius-sm)',
+            padding:         '10px 16px',
+            marginBottom:    28,
+          }}>
+            <span style={{
+              fontFamily: 'var(--font-body)',
+              fontSize:   13,
+              color:      'var(--teal-dark)',
+              lineHeight: 1.4,
+            }}>
+              Loaded study:{' '}
+              <strong>{studyTitle ?? studyId}</strong>
+            </span>
+            <button
+              onClick={() => setBannerDismissed(true)}
+              aria-label="Dismiss"
+              style={{
+                background:  'none',
+                border:      'none',
+                cursor:      'pointer',
+                fontFamily:  'var(--font-mono)',
+                fontSize:    12,
+                color:       'var(--teal-dark)',
+                flexShrink:  0,
+                padding:     '2px 6px',
+                opacity:     0.7,
+              }}>
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Auth gate */}
         {!authenticated && (
@@ -142,7 +206,7 @@ export default function OMEPage() {
               or get step-by-step guidance on ABDM, IEC applications, and compliant data access.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {SUGGESTIONS.map((s) => (
+              {suggestions.map((s) => (
                 <button
                   key={s}
                   onClick={() => void send(s)}

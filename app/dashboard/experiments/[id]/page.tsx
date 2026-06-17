@@ -83,6 +83,8 @@ function relDate(d: string) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+type Tab = 'overview' | 'ome';
+
 export default function ExperimentManagePage() {
   const params  = useParams<{ id: string }>();
   const id      = params.id;
@@ -98,6 +100,7 @@ export default function ExperimentManagePage() {
   const [publishing, setPublishing] = useState(false);
   const [commencing, setCommencing] = useState(false);
   const [saveMsg,    setSaveMsg]    = useState<string | null>(null);
+  const [activeTab,  setActiveTab]  = useState<Tab>('overview');
 
   // Edit form state
   const [form, setForm] = useState<Partial<Record<EditableField, string | boolean>>>({});
@@ -487,6 +490,111 @@ export default function ExperimentManagePage() {
           </div>
         )}
 
+        {/* ── Tab bar ── */}
+        <div className="flex gap-1 mb-6"
+          style={{ borderBottom: '1px solid var(--border-soft)', paddingBottom: 0 }}>
+          {([
+            { key: 'overview', label: 'Overview' },
+            { key: 'ome',      label: 'OME' },
+          ] as { key: Tab; label: string }[]).map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              style={{
+                fontFamily:      'var(--font-body)',
+                fontSize:        13,
+                fontWeight:      activeTab === t.key ? 600 : 400,
+                padding:         '8px 18px',
+                border:          'none',
+                borderBottom:    activeTab === t.key ? '2px solid var(--teal)' : '2px solid transparent',
+                background:      'transparent',
+                color:           activeTab === t.key ? 'var(--teal-dark)' : 'var(--muted)',
+                cursor:          'pointer',
+                marginBottom:    -1,
+                transition:      'color 0.15s',
+              }}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ── OME tab panel ── */}
+        {activeTab === 'ome' && (
+          <div style={{
+            background:   'var(--surface)',
+            border:       '1px solid var(--border-soft)',
+            borderRadius: 'var(--radius)',
+            boxShadow:    'var(--shadow-sm)',
+            padding:      '32px 28px',
+            marginBottom: 32,
+          }}>
+            {/* Description */}
+            <p style={{
+              fontFamily:   'var(--font-body)',
+              fontSize:     14,
+              color:        'var(--slate)',
+              lineHeight:   1.65,
+              marginBottom: 28,
+              maxWidth:     560,
+            }}>
+              OME finds hospitals, labs, and clinics across India to help you recruit the right
+              research partners for this study.
+            </p>
+
+            {/* Primary CTA */}
+            <Link
+              href={`/ome?study=${exp.id}&title=${encodeURIComponent(exp.title)}`}
+              style={{
+                display:         'inline-block',
+                fontFamily:      'var(--font-body)',
+                fontSize:        15,
+                fontWeight:      600,
+                padding:         '12px 28px',
+                borderRadius:    'var(--radius-sm)',
+                background:      'var(--teal)',
+                color:           '#ffffff',
+                textDecoration:  'none',
+                marginBottom:    24,
+                transition:      'opacity 0.15s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.88')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}>
+              Open OME for this study →
+            </Link>
+
+            {/* Secondary links */}
+            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+              <Link
+                href="/ome/facilities"
+                style={{
+                  fontFamily:     'var(--font-body)',
+                  fontSize:       13,
+                  color:          'var(--teal-dark)',
+                  textDecoration: 'none',
+                  borderBottom:   '1px solid var(--teal-soft)',
+                  paddingBottom:  1,
+                }}>
+                Browse facility directory →
+              </Link>
+              <Link
+                href="/ome/sessions"
+                style={{
+                  fontFamily:     'var(--font-body)',
+                  fontSize:       13,
+                  color:          'var(--teal-dark)',
+                  textDecoration: 'none',
+                  borderBottom:   '1px solid var(--teal-soft)',
+                  paddingBottom:  1,
+                }}>
+                View past OME sessions →
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* ── Overview tab content ── */}
+        {activeTab === 'overview' && (<>
+
         {/* ── Study stats ── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
@@ -693,6 +801,8 @@ export default function ExperimentManagePage() {
             />
           </div>
         )}
+
+        </>)} {/* end activeTab === 'overview' */}
 
       </div>
     </main>
