@@ -24,16 +24,49 @@ export default function OMEPage() {
   const { authenticated, user, login } = usePrivy();
   const searchParams = useSearchParams();
 
-  const studyId    = searchParams.get('study') ?? undefined;
-  const studyTitle = searchParams.get('title') ?? undefined;
+  const studyId      = searchParams.get('study')   ?? undefined;
+  const studyTitle   = searchParams.get('title')   ?? undefined;
+  const sessionParam = searchParams.get('session') ?? undefined;
 
   const [messages,        setMessages]        = useState<Message[]>([]);
   const [input,           setInput]           = useState('');
   const [loading,         setLoading]         = useState(false);
-  const [sessionId,       setSessionId]       = useState<string | undefined>();
+  const [sessionId,       setSessionId]       = useState<string | undefined>(sessionParam);
   const [totalCost,       setTotalCost]       = useState(0);
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [historyLoading,  setHistoryLoading]  = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Load session history when ?session= param is present
+  useEffect(() => {
+    if (!sessionParam || !authenticated || !user) return;
+
+    setHistoryLoading(true);
+    fetch(`/api/ome/messages?sessionId=${sessionParam}`, {
+      headers: { 'x-privy-did': user.id },
+    })
+      .then((r) => r.json() as Promise<{
+        messages?: { role: string; content: string; cost_usd: number }[];
+        error?: string;
+      }>)
+      .then((data) => {
+        if (!data.messages) return;
+        const loaded: Message[] = data.messages
+          .filter((m) => m.role === 'user' || m.role === 'assistant')
+          .map((m) => ({
+            role:    m.role as 'user' | 'assistant',
+            content: m.content,
+            costUsd: m.role === 'assistant' ? m.cost_usd : undefined,
+          }));
+        setMessages(loaded);
+        const total = data.messages.reduce((sum, m) => sum + (m.cost_usd ?? 0), 0);
+        setTotalCost(total);
+      })
+      .catch(() => {})
+      .finally(() => setHistoryLoading(false));
+  // run once when user is ready + session param known
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionParam, authenticated, user?.id]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -106,7 +139,7 @@ export default function OMEPage() {
   }
 
   const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
-  const isEmpty = messages.length === 0;
+  const isEmpty = messages.length === 0 && !historyLoading;
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
@@ -224,6 +257,13 @@ export default function OMEPage() {
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* History loading */}
+        {authenticated && historyLoading && (
+          <div style={{ textAlign: 'center', padding: '40px 0' }}>
+            <span style={{ ...MONO, fontSize: 13, color: 'var(--muted)' }}>Loading session…</span>
           </div>
         )}
 

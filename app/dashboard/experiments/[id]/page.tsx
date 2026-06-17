@@ -12,6 +12,8 @@ import { EscrowDepositPanel } from '@/components/experiments/escrow-deposit-pane
 import { ExperimenterPayoutPanel } from '@/components/experiments/experimenter-payout-panel';
 import { DocumentVault } from '@/components/documents/document-vault';
 
+import type { FacilityMatch } from '@/app/api/ome/matches/route';
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type FullExperiment = {
@@ -91,16 +93,19 @@ export default function ExperimentManagePage() {
   const router  = useRouter();
   const { user, ready, authenticated } = usePrivy();
 
-  const [exp,        setExp]        = useState<FullExperiment | null>(null);
-  const [applicants, setApplicants] = useState<ApplicantRow[]>([]);
-  const [loading,    setLoading]    = useState(true);
-  const [error,      setError]      = useState<string | null>(null);
-  const [editing,    setEditing]    = useState(false);
-  const [saving,     setSaving]     = useState(false);
-  const [publishing, setPublishing] = useState(false);
-  const [commencing, setCommencing] = useState(false);
-  const [saveMsg,    setSaveMsg]    = useState<string | null>(null);
-  const [activeTab,  setActiveTab]  = useState<Tab>('overview');
+  const [exp,           setExp]           = useState<FullExperiment | null>(null);
+  const [applicants,    setApplicants]    = useState<ApplicantRow[]>([]);
+  const [loading,       setLoading]       = useState(true);
+  const [error,         setError]         = useState<string | null>(null);
+  const [editing,       setEditing]       = useState(false);
+  const [saving,        setSaving]        = useState(false);
+  const [publishing,    setPublishing]    = useState(false);
+  const [commencing,    setCommencing]    = useState(false);
+  const [saveMsg,       setSaveMsg]       = useState<string | null>(null);
+  const [activeTab,     setActiveTab]     = useState<Tab>('overview');
+  const [savedMatches,  setSavedMatches]  = useState<FacilityMatch[]>([]);
+  const [loadingMatches,setLoadingMatches]= useState(false);
+  const [updatingMatch, setUpdatingMatch] = useState<string | null>(null);
 
   // Edit form state
   const [form, setForm] = useState<Partial<Record<EditableField, string | boolean>>>({});
@@ -135,6 +140,35 @@ export default function ExperimentManagePage() {
     if (!authenticated || !user) { router.replace('/'); return; }
     void load();
   }, [ready, authenticated, user, router, load]);
+
+  async function loadMatches(expId: string) {
+    if (!user) return;
+    setLoadingMatches(true);
+    try {
+      const res  = await fetch(`/api/ome/matches?experimentId=${expId}`, {
+        headers: { 'x-privy-did': user.id },
+      });
+      const data = await res.json() as { matches?: FacilityMatch[]; error?: string };
+      setSavedMatches(data.matches ?? []);
+    } catch { /* ignore */ }
+    finally { setLoadingMatches(false); }
+  }
+
+  async function updateMatchStatus(matchId: string, status: string) {
+    if (!user) return;
+    setUpdatingMatch(matchId);
+    try {
+      await fetch('/api/ome/matches', {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-privy-did': user.id },
+        body: JSON.stringify({ matchId, status }),
+      });
+      setSavedMatches((prev) =>
+        prev.map((m) => m.id === matchId ? { ...m, status } : m)
+      );
+    } catch { /* ignore */ }
+    finally { setUpdatingMatch(null); }
+  }
 
   function startEdit() {
     if (!exp) return;
@@ -499,7 +533,10 @@ export default function ExperimentManagePage() {
           ] as { key: Tab; label: string }[]).map((t) => (
             <button
               key={t.key}
-              onClick={() => setActiveTab(t.key)}
+              onClick={() => {
+                setActiveTab(t.key);
+                if (t.key === 'ome' && exp) void loadMatches(exp.id);
+              }}
               style={{
                 fontFamily:      'var(--font-body)',
                 fontSize:        13,
@@ -563,9 +600,9 @@ export default function ExperimentManagePage() {
             </Link>
 
             {/* Secondary links */}
-            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', marginBottom: 32 }}>
               <Link
-                href="/ome/facilities"
+                href={`/ome/facilities?study=${exp.id}&title=${encodeURIComponent(exp.title)}`}
                 style={{
                   fontFamily:     'var(--font-body)',
                   fontSize:       13,
@@ -574,7 +611,7 @@ export default function ExperimentManagePage() {
                   borderBottom:   '1px solid var(--teal-soft)',
                   paddingBottom:  1,
                 }}>
-                Browse facility directory →
+                Browse &amp; save facilities for this study →
               </Link>
               <Link
                 href="/ome/sessions"
@@ -588,6 +625,139 @@ export default function ExperimentManagePage() {
                 }}>
                 View past OME sessions →
               </Link>
+            </div>
+
+            {/* Saved facilities */}
+            <div>
+              <p style={{
+                fontFamily: 'var(--font-body)',
+                fontWeight: 600,
+                fontSize: 13,
+                color: 'var(--ink)',
+                margin: '0 0 12px',
+              }}>
+                Saved facilities
+                {savedMatches.length > 0 && (
+                  <span style={{ fontWeight: 400, color: 'var(--muted)', marginLeft: 8 }}>
+                    {savedMatches.length}
+                  </span>
+                )}
+              </p>
+
+              {loadingMatches && (
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)' }}>
+                  Loading…
+                </p>
+              )}
+
+              {!loadingMatches && savedMatches.length === 0 && (
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>
+                  No facilities saved yet. Use the directory or ask OME to find sites.
+                </p>
+              )}
+
+              {!loadingMatches && savedMatches.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {savedMatches.map((m) => {
+                    const f = m.facility;
+                    if (!f) return null;
+                    const STATUS_LABELS: Record<string, string> = {
+                      suggested:          'Suggested',
+                      contacted:          'Contacted',
+                      declined:           'Declined',
+                      partnership_active: 'Partnership Active',
+                    };
+                    const STATUS_COLORS: Record<string, string> = {
+                      suggested:          'var(--muted)',
+                      contacted:          'var(--teal-dark)',
+                      declined:           '#dc2626',
+                      partnership_active: '#16a34a',
+                    };
+                    return (
+                      <div key={m.id} style={{
+                        display:        'flex',
+                        alignItems:     'center',
+                        justifyContent: 'space-between',
+                        gap:            12,
+                        background:     'var(--bg-page)',
+                        border:         '1px solid var(--border-soft)',
+                        borderRadius:   'var(--radius-sm)',
+                        padding:        '12px 14px',
+                        flexWrap:       'wrap',
+                      }}>
+                        <div style={{ minWidth: 0 }}>
+                          <p style={{
+                            fontFamily: 'var(--font-body)',
+                            fontWeight: 600,
+                            fontSize: 13,
+                            color: 'var(--ink)',
+                            margin: 0,
+                          }}>
+                            {f.name}
+                          </p>
+                          <p style={{
+                            fontFamily: 'var(--font-body)',
+                            fontSize: 12,
+                            color: 'var(--muted)',
+                            margin: '2px 0 0',
+                          }}>
+                            {[f.city, f.state].filter(Boolean).join(' · ')}
+                            {f.contact_email && ` · ${f.contact_email}`}
+                          </p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                          <span style={{
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: 11,
+                            color: STATUS_COLORS[m.status] ?? 'var(--muted)',
+                            fontWeight: 600,
+                          }}>
+                            {STATUS_LABELS[m.status] ?? m.status}
+                          </span>
+                          {m.status !== 'contacted' && m.status !== 'partnership_active' && m.status !== 'declined' && (
+                            <button
+                              disabled={updatingMatch === m.id}
+                              onClick={() => void updateMatchStatus(m.id, 'contacted')}
+                              style={{
+                                fontFamily: 'var(--font-body)',
+                                fontSize: 11,
+                                fontWeight: 500,
+                                padding: '3px 10px',
+                                borderRadius: 999,
+                                border: '1px solid var(--teal)',
+                                background: 'transparent',
+                                color: 'var(--teal-dark)',
+                                cursor: 'pointer',
+                                opacity: updatingMatch === m.id ? 0.5 : 1,
+                              }}>
+                              Mark contacted
+                            </button>
+                          )}
+                          {m.status === 'contacted' && (
+                            <button
+                              disabled={updatingMatch === m.id}
+                              onClick={() => void updateMatchStatus(m.id, 'partnership_active')}
+                              style={{
+                                fontFamily: 'var(--font-body)',
+                                fontSize: 11,
+                                fontWeight: 500,
+                                padding: '3px 10px',
+                                borderRadius: 999,
+                                border: '1px solid #16a34a',
+                                background: 'transparent',
+                                color: '#15803d',
+                                cursor: 'pointer',
+                                opacity: updatingMatch === m.id ? 0.5 : 1,
+                              }}>
+                              Partnership active
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}

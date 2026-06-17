@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { usePrivy } from '@privy-io/react-auth';
 import { SiteHeader } from '@/components/nav/header';
 import type { Facility } from '@/app/api/ome/facilities/route';
 
@@ -132,7 +134,15 @@ function CapChip({ label }: { label: string }) {
 
 // ── Facility card ─────────────────────────────────────────────────────────────
 
-function FacilityCard({ facility: f }: { facility: Facility }) {
+function FacilityCard({
+  facility: f,
+  saved,
+  onSave,
+}: {
+  facility: Facility;
+  saved?: boolean;
+  onSave?: (facilityId: string) => void;
+}) {
   const caps = f.capabilities ?? [];
   const visibleCaps = caps.slice(0, 4);
   const extraCaps = caps.length > 4 ? caps.length - 4 : 0;
@@ -150,7 +160,7 @@ function FacilityCard({ facility: f }: { facility: Facility }) {
       flexDirection: 'column',
       gap: 10,
     }}>
-      {/* Name + type */}
+      {/* Name + website */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
         <p style={{
           fontFamily: 'var(--font-body)',
@@ -244,6 +254,47 @@ function FacilityCard({ facility: f }: { facility: Facility }) {
           {f.contact_email}
         </p>
       )}
+
+      {/* Save to study button */}
+      {onSave && (
+        <div style={{ marginTop: 2 }}>
+          {saved ? (
+            <span style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 12,
+              fontWeight: 500,
+              color: 'var(--teal-dark)',
+              background: 'var(--teal-soft)',
+              border: '1px solid rgba(14,116,144,0.2)',
+              borderRadius: 999,
+              padding: '4px 12px',
+              display: 'inline-block',
+            }}>
+              Saved to study ✓
+            </span>
+          ) : (
+            <button
+              onClick={() => onSave(f.id)}
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: 12,
+                fontWeight: 500,
+                padding: '4px 12px',
+                borderRadius: 999,
+                border: '1px solid var(--teal)',
+                background: 'transparent',
+                color: 'var(--teal-dark)',
+                cursor: 'pointer',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--teal-soft)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+            >
+              Save to study
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -317,6 +368,13 @@ function FilterSelect({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function FacilitiesPage() {
+  const searchParams = useSearchParams();
+  const { authenticated, user } = usePrivy();
+
+  const studyId    = searchParams.get('study') ?? undefined;
+  const studyTitle = searchParams.get('title') ?? undefined;
+  const sessionId  = searchParams.get('session') ?? undefined;
+
   const [filters, setFilters] = useState<Filters>({
     search: '', state: '', type: '', capability: '', abdm: false, ctri: false, research: false,
   });
@@ -327,6 +385,44 @@ export default function FacilitiesPage() {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Track which facility IDs are already saved for this study
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [savingId, setSavingId] = useState<string | null>(null);
+
+  // Load already-saved facilities when study context is active
+  useEffect(() => {
+    if (!studyId || !authenticated || !user) return;
+    fetch(`/api/ome/matches?experimentId=${studyId}`, {
+      headers: { 'x-privy-did': user.id },
+    })
+      .then((r) => r.json() as Promise<{ matches?: { facility: { id: string } | null }[] }>)
+      .then((data) => {
+        const ids = new Set(
+          (data.matches ?? [])
+            .map((m) => m.facility?.id)
+            .filter((id): id is string => !!id)
+        );
+        setSavedIds(ids);
+      })
+      .catch(() => {});
+  }, [studyId, authenticated, user]);
+
+  async function handleSave(facilityId: string) {
+    if (!studyId || !user || savingId) return;
+    setSavingId(facilityId);
+    try {
+      const res = await fetch('/api/ome/matches', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'x-privy-did': user.id },
+        body: JSON.stringify({ experimentId: studyId, facilityId, sessionId }),
+      });
+      if (res.ok) {
+        setSavedIds((prev) => new Set([...prev, facilityId]));
+      }
+    } catch { /* ignore */ }
+    finally { setSavingId(null); }
+  }
 
   // Debounce search input
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -408,6 +504,48 @@ export default function FacilitiesPage() {
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 16px 64px' }}>
 
+        {/* Study context banner */}
+        {studyId && (
+          <div style={{
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'space-between',
+            gap:            12,
+            background:     'var(--teal-faint)',
+            border:         '1px solid var(--border-soft)',
+            borderRadius:   'var(--radius-sm)',
+            padding:        '10px 16px',
+            marginBottom:   20,
+            flexWrap:       'wrap',
+          }}>
+            <span style={{
+              fontFamily: 'var(--font-body)',
+              fontSize:   13,
+              color:      'var(--teal-dark)',
+            }}>
+              Saving to: <strong>{studyTitle ?? studyId}</strong>
+              {savedIds.size > 0 && (
+                <span style={{ marginLeft: 12, color: 'var(--teal)', fontWeight: 600 }}>
+                  {savedIds.size} saved
+                </span>
+              )}
+            </span>
+            <Link
+              href={`/ome?study=${studyId}&title=${encodeURIComponent(studyTitle ?? '')}`}
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: 12,
+                color: 'var(--teal-dark)',
+                textDecoration: 'none',
+                borderBottom: '1px solid var(--teal-soft)',
+                paddingBottom: 1,
+                whiteSpace: 'nowrap',
+              }}>
+              ← Back to OME chat
+            </Link>
+          </div>
+        )}
+
         {/* Header */}
         <div style={{ marginBottom: 28 }}>
           <h1 style={{
@@ -426,6 +564,7 @@ export default function FacilitiesPage() {
             margin: 0,
           }}>
             Hospitals, labs, and clinics across India
+            {studyId && authenticated && ' · Click "Save to study" to shortlist a facility'}
           </p>
         </div>
 
@@ -566,7 +705,14 @@ export default function FacilitiesPage() {
             gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
             gap: 16,
           }}>
-            {facilities.map((f) => <FacilityCard key={f.id} facility={f} />)}
+            {facilities.map((f) => (
+              <FacilityCard
+                key={f.id}
+                facility={f}
+                saved={savedIds.has(f.id)}
+                onSave={studyId && authenticated ? handleSave : undefined}
+              />
+            ))}
           </div>
         )}
 
