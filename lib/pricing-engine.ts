@@ -64,26 +64,24 @@ const COST_MODEL = {
 
   // Operational service fee as % of pass-through (this IS the margin engine),
   // but presented to client bundled — never as a separate "ops fee".
-  // At 0.65, blended gross margin lands ~48% (margin = (0.15 + ratio)/(1 + ratio)
-  // given the 0.85 cost-to-deliver factor). For a true ~55% margin, ratio ≈ 0.89.
-  serviceFeeRatio: 0.65,
+  // At 0.89, blended gross margin ≈ 55% (formula: (0.15 + ratio)/(1 + ratio)
+  // given the 0.85 cost-to-deliver factor).
+  serviceFeeRatio: 0.89,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // VALIDATED OUTPUTS (computed from this exact model — not estimates).
-// Verified against a real Postgres-independent run of calculateEstimate():
+// serviceFeeRatio = 0.89 → true ~55% gross margin in all three scenarios.
 //
 //   A) 50p cognitive/behavioral, 2-4wk, UK+US+India+EU, survey + DBS
-//      → total $127,611 · $2,552/participant · ~48% margin · CRO $510K-$890K
+//      → total $146,173 · $2,923/participant · ~55% margin · CRO $580K-$1.02M
 //   B) 30p observational, 4-8wk, India only, stool
-//      → total $54,302 · $1,810/participant · ~48% margin · CRO $220K-$380K
+//      → total $62,200 · $2,073/participant · ~55% margin · CRO $250K-$440K
 //   C) 200p biomarker, 12-24wk, US+UK+India, stool + blood draw + wearable
-//      → total $1,277,430 · $6,387/participant · ~48% margin · CRO $5.11M-$8.94M
+//      → total $1,463,238 · $7,316/participant · ~55% margin · CRO $5.85M-$10.24M
 //
-// In all cases the 3 client buckets sum exactly to the total. The original
-// spec's "$70-90K / 55-60%" notes for A were rough guesses; the figures above
-// are the model's true output. geoMultiplierPerCountry stays 0.22 — multi-
-// country cost is real and should not be discounted to hit a guessed target.
+// In all cases the 3 client buckets sum exactly to the total.
+// geoMultiplierPerCountry stays 0.22 — multi-country cost is real.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface EstimateInput {
