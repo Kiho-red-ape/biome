@@ -1,13 +1,11 @@
 -- ============================================================================
 -- BIOME STAGING SETUP — run this whole file in the Supabase SQL editor.
 -- Order matters. This bundles migrations 026 -> 025 -> 027.
--- Safe to re-run (idempotent inserts use ON CONFLICT / IF NOT EXISTS).
--- Prereq: migrations 001-024 already applied.
+-- Safe to re-run (idempotent: ON CONFLICT DO NOTHING + unique keys).
+-- Prereq: migrations 001-024 already applied (demo study seeded).
 -- ============================================================================
 
--- ============================================================================
--- STEP 1 of 3 — migration 026: patch study_documents.document_type CHECK
--- ============================================================================
+-- ===== STEP 1 of 3 — migration 026: patch study_documents.document_type =====
 -- ================================================================
 -- MIGRATION 026 — Patch document_type check constraint
 -- Adds data_processing_agreement as an alias alongside
@@ -43,9 +41,7 @@ ALTER TABLE study_documents
 
 COMMIT;
 
--- ============================================================================
--- STEP 2 of 3 — migration 025: demo seed v2
--- ============================================================================
+-- ===== STEP 2 of 3 — migration 025: demo seed v2 =====
 -- ================================================================
 -- MIGRATION 025 — Demo seed v2
 -- Enriches the existing demo study (00000000-0001-0000-0000-000000000001)
@@ -311,7 +307,7 @@ INSERT INTO document_signatures (
 
 INSERT INTO document_send_log (
   id, document_id, sent_to_email, sent_by,
-  message, viewed_at, signed_at, created_at
+  message, viewed_at, signed_at, sent_at
 ) VALUES (
   '00000000-0001-0000-0000-f00000000001',
   '00000000-0001-0000-0000-d00000000003',
@@ -516,9 +512,7 @@ WHERE id = '00000000-0001-0000-0000-000000000001'
 
 COMMIT;
 
--- ============================================================================
--- STEP 3 of 3 — migration 027: OME agent tables + India facility seed
--- ============================================================================
+-- ===== STEP 3 of 3 — migration 027: OME agent + India facility seed =====
 -- ================================================================
 -- MIGRATION 027 — OME Agent
 -- Tables for OME: Biome's on-platform AI recruitment intelligence agent.
@@ -625,6 +619,9 @@ CREATE INDEX IF NOT EXISTS idx_ihf_city       ON india_health_facilities(city);
 CREATE INDEX IF NOT EXISTS idx_ihf_type       ON india_health_facilities(facility_type);
 CREATE INDEX IF NOT EXISTS idx_ihf_caps       ON india_health_facilities USING GIN(capabilities);
 CREATE INDEX IF NOT EXISTS idx_ihf_ctri       ON india_health_facilities(ctri_site) WHERE ctri_site = true;
+-- Natural-key uniqueness so the seed's ON CONFLICT DO NOTHING dedupes on re-run
+-- (ids are gen_random_uuid(), so the PK alone never catches a duplicate seed row).
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ihf_name_unique ON india_health_facilities(name);
 
 -- ── ome_facility_matches ─────────────────────────────────────────
 -- OME's recommendations: which facilities suit which study.
@@ -675,6 +672,8 @@ CREATE TABLE IF NOT EXISTS ome_knowledge_entries (
 
 CREATE INDEX IF NOT EXISTS idx_ome_kb_category ON ome_knowledge_entries(category);
 CREATE INDEX IF NOT EXISTS idx_ome_kb_tags     ON ome_knowledge_entries USING GIN(tags);
+-- Natural-key uniqueness so the seed's ON CONFLICT DO NOTHING dedupes on re-run.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ome_kb_unique ON ome_knowledge_entries(category, title);
 
 -- ── RLS: service-role only ────────────────────────────────────────
 
@@ -772,7 +771,7 @@ Tier 3 / Rural:
 - Partner with NGOs (SEWA, ASHA workers) for community recruitment.
 
 For microbiome and stool studies: target gastroenterology OPDs in NABH hospitals — highest consent rates for non-invasive samples.',
-ARRAY['recruitment','tier1','tier2','strategy','india'])
+ARRAY['recruitment','tier1','tier2','strategy','india'], NULL)
 
 ON CONFLICT DO NOTHING;
 

@@ -263,7 +263,7 @@ INSERT INTO document_signatures (
 
 INSERT INTO document_send_log (
   id, document_id, sent_to_email, sent_by,
-  message, viewed_at, signed_at, created_at
+  message, viewed_at, signed_at, sent_at
 ) VALUES (
   '00000000-0001-0000-0000-f00000000001',
   '00000000-0001-0000-0000-d00000000003',

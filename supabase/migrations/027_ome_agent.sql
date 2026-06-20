@@ -104,6 +104,9 @@ CREATE INDEX IF NOT EXISTS idx_ihf_city       ON india_health_facilities(city);
 CREATE INDEX IF NOT EXISTS idx_ihf_type       ON india_health_facilities(facility_type);
 CREATE INDEX IF NOT EXISTS idx_ihf_caps       ON india_health_facilities USING GIN(capabilities);
 CREATE INDEX IF NOT EXISTS idx_ihf_ctri       ON india_health_facilities(ctri_site) WHERE ctri_site = true;
+-- Natural-key uniqueness so the seed's ON CONFLICT DO NOTHING dedupes on re-run
+-- (ids are gen_random_uuid(), so the PK alone never catches a duplicate seed row).
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ihf_name_unique ON india_health_facilities(name);
 
 -- ── ome_facility_matches ─────────────────────────────────────────
 -- OME's recommendations: which facilities suit which study.
@@ -154,6 +157,8 @@ CREATE TABLE IF NOT EXISTS ome_knowledge_entries (
 
 CREATE INDEX IF NOT EXISTS idx_ome_kb_category ON ome_knowledge_entries(category);
 CREATE INDEX IF NOT EXISTS idx_ome_kb_tags     ON ome_knowledge_entries USING GIN(tags);
+-- Natural-key uniqueness so the seed's ON CONFLICT DO NOTHING dedupes on re-run.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ome_kb_unique ON ome_knowledge_entries(category, title);
 
 -- ── RLS: service-role only ────────────────────────────────────────
 
@@ -251,7 +256,7 @@ Tier 3 / Rural:
 - Partner with NGOs (SEWA, ASHA workers) for community recruitment.
 
 For microbiome and stool studies: target gastroenterology OPDs in NABH hospitals — highest consent rates for non-invasive samples.',
-ARRAY['recruitment','tier1','tier2','strategy','india'])
+ARRAY['recruitment','tier1','tier2','strategy','india'], NULL)
 
 ON CONFLICT DO NOTHING;
 
