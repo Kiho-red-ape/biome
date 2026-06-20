@@ -2,7 +2,6 @@ import { createAnonClient } from '@/lib/supabase/anon';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { ExperimentStatus } from '@/lib/types';
-import { categoryColor } from '@/lib/utils/profile';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -17,11 +16,11 @@ type OrgExp = {
 };
 
 const STATUS_COLORS: Record<ExperimentStatus, string> = {
-  recruiting: 'var(--green)',
-  active:     'var(--cyan)',
-  draft:      'var(--text-dim)',
-  completed:  'var(--text-dim)',
-  cancelled:  'var(--amber)',
+  recruiting: 'var(--teal)',
+  active:     'var(--teal-dark)',
+  draft:      'var(--muted)',
+  completed:  'var(--muted)',
+  cancelled:  '#dc2626',
 };
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -48,50 +47,57 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
   const approved = org.screening_status === 'approved';
 
   return (
-    <main className="min-h-screen px-4 py-8">
+    <main className="min-h-screen px-4 py-10" style={{ background: 'var(--bg-page)' }}>
       <div className="max-w-2xl mx-auto">
 
         {/* Nav */}
         <div className="flex items-center justify-between mb-8">
-          <Link href="/" className="mono text-xs no-underline" style={{ color: 'var(--text-dim)' }}>
-            ← BACK
+          <Link href="/" className="no-underline" style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>
+            ← Back
           </Link>
-          <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-            // EXPERIMENTER_PROFILE
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)' }}>
+            Researcher Profile
           </span>
         </div>
 
         {/* ── Org header ───────────────────────────────────────────── */}
         <div
-          className="rounded p-6 mb-4"
-          style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}
+          className="p-6 mb-4"
+          style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}
         >
           <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
             <h1
-              className="text-2xl font-black leading-tight"
-              style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}
+              className="leading-tight"
+              style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--ink)' }}
             >
               {org.org_name}
             </h1>
             <span
-              className="mono text-xs px-2.5 py-1 rounded flex items-center gap-1.5"
+              className="inline-flex items-center gap-1.5"
               style={{
-                color:      approved ? 'var(--green)' : 'var(--amber)',
-                background: approved ? 'rgba(77,255,128,0.06)' : 'rgba(255,179,0,0.06)',
-                border:     `1px solid ${approved ? 'rgba(77,255,128,0.2)' : 'rgba(255,179,0,0.2)'}`,
+                fontFamily:   'var(--font-mono)',
+                fontSize:     10,
+                fontWeight:   700,
+                letterSpacing:'1px',
+                textTransform:'uppercase',
+                padding:      '4px 10px',
+                borderRadius: '4px',
+                color:        approved ? '#ffffff' : '#d97706',
+                background:   approved ? 'var(--teal)' : '#fef3c7',
+                border:       approved ? 'none' : '1px solid #fde68a',
               }}
             >
-              <span className={approved ? 'blink' : ''}>●</span>
-              {approved ? '✓ APPROVED' : 'PENDING REVIEW'}
+              <span>●</span>
+              {approved ? '✓ Approved' : 'Pending Review'}
             </span>
           </div>
 
           {org.role_title && (
-            <p className="text-sm mb-3" style={{ color: 'var(--text-dim)' }}>{org.role_title}</p>
+            <p className="mb-3" style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--muted)' }}>{org.role_title}</p>
           )}
 
           {org.org_description && (
-            <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-bright)' }}>
+            <p className="mb-4" style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.65, color: 'var(--slate)' }}>
               {org.org_description}
             </p>
           )}
@@ -101,8 +107,8 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
               href={org.org_website}
               target="_blank"
               rel="noopener noreferrer"
-              className="mono text-xs inline-flex items-center gap-1 transition-opacity hover:opacity-80"
-              style={{ color: 'var(--cyan)' }}
+              className="inline-flex items-center gap-1 transition-opacity hover:opacity-80 no-underline"
+              style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--teal-dark)' }}
             >
               {org.org_website} ↗
             </a>
@@ -114,14 +120,20 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
               {(org.expertise_areas as string[]).map((area) => (
                 <span
                   key={area}
-                  className="mono text-xs px-2 py-0.5 rounded"
                   style={{
-                    color:      categoryColor(area),
-                    border:     `1px solid ${categoryColor(area)}30`,
-                    background: `${categoryColor(area)}08`,
+                    fontFamily:   'var(--font-mono)',
+                    fontSize:     10,
+                    fontWeight:   600,
+                    letterSpacing:'1px',
+                    textTransform:'uppercase',
+                    padding:      '3px 8px',
+                    borderRadius: '4px',
+                    color:        'var(--teal-dark)',
+                    background:   'var(--teal-faint)',
+                    border:       '1px solid var(--border-soft)',
                   }}
                 >
-                  {area.toUpperCase()}
+                  {area}
                 </span>
               ))}
             </div>
@@ -129,85 +141,85 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
         </div>
 
         {/* ── Stats row ────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-2 gap-0 mb-4"
+          style={{ border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)', background: 'var(--surface)', overflow: 'hidden' }}>
           {[
-            { label: 'EXPERIMENTS POSTED',  value: String(org.experiments_posted)  },
-            { label: 'BIOME VERIFIED',       value: String(org.verified_experiments) },
-          ].map((s) => (
+            { label: 'Studies Posted',  value: String(org.experiments_posted)   },
+            { label: 'BIOME Verified',  value: String(org.verified_experiments) },
+          ].map((s, i) => (
             <div
               key={s.label}
-              className="rounded p-4"
-              style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.06)' }}
+              style={{ padding: '20px', borderRight: i === 0 ? '1px solid var(--border-soft)' : 'none' }}
             >
-              <p className="mono text-xs mb-1.5" style={{ color: 'var(--text-dim)' }}>{s.label}</p>
-              <p className="mono text-2xl font-bold" style={{ color: 'var(--text-white)' }}>{s.value}</p>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>{s.label}</p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 24, fontWeight: 700, color: 'var(--ink)', lineHeight: 1 }}>{s.value}</p>
             </div>
           ))}
         </div>
 
-        {/* ── Experiments ──────────────────────────────────────────── */}
+        {/* ── Studies ──────────────────────────────────────────────── */}
         <div
-          className="rounded overflow-hidden"
-          style={{ border: '1px solid rgba(77,255,128,0.08)' }}
+          style={{ border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)', background: 'var(--surface)', overflow: 'hidden' }}
         >
           <div
-            className="px-4 py-3 flex items-center gap-2"
-            style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.06)' }}
+            className="flex items-center gap-2"
+            style={{ padding: '14px 24px', background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}
           >
-            <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// EXPERIMENTS</p>
-            <span className="mono text-xs" style={{ color: 'var(--green)' }}>[{experiments.length}]</span>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--slate)' }}>Studies</p>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, color: 'var(--teal-dark)' }}>{experiments.length}</span>
           </div>
 
           {experiments.length === 0 ? (
-            <div className="px-4 py-10 text-center" style={{ background: 'var(--bg)' }}>
-              <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-                // NO_EXPERIMENTS_POSTED
+            <div className="text-center" style={{ padding: '40px 24px' }}>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--muted)' }}>
+                No studies posted yet.
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto" style={{ background: 'var(--bg)' }}>
+            <div className="overflow-x-auto">
               <table className="w-full border-collapse" style={{ minWidth: 500 }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(77,255,128,0.06)' }}>
-                    {['EXPERIMENT', 'STATUS', 'REWARD', 'SLOTS'].map((h) => (
-                      <th key={h} className="mono text-xs font-normal px-4 py-2.5 text-left" style={{ color: 'var(--text-dim)' }}>
+                  <tr style={{ borderBottom: '1px solid var(--border-soft)', background: 'var(--bg-page)' }}>
+                    {['Study', 'Status', 'Reward', 'Slots'].map((h) => (
+                      <th key={h} className="text-left" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', padding: '12px 16px' }}>
                         {h}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {experiments.map((e) => {
-                    const sc  = STATUS_COLORS[e.status] ?? 'var(--text-dim)';
-                    const cc  = categoryColor(e.category);
+                  {experiments.map((e, idx) => {
+                    const sc  = STATUS_COLORS[e.status] ?? 'var(--muted)';
                     const pct = e.slots_total > 0 ? (e.slots_filled / e.slots_total) * 100 : 0;
                     return (
-                      <tr key={e.id} style={{ borderBottom: '1px solid rgba(77,255,128,0.04)' }}>
-                        <td className="px-4 py-3">
-                          <Link href={`/experiments/${e.id}`} className="flex flex-col gap-1 no-underline">
-                            <span className="text-sm font-medium" style={{ color: 'var(--text-bright)' }}>
+                      <tr key={e.id} style={{ borderBottom: idx < experiments.length - 1 ? '1px solid var(--border-soft)' : 'none' }}>
+                        <td style={{ padding: '16px' }}>
+                          <Link href={`/experiments/${e.id}`} className="flex flex-col gap-1.5 no-underline">
+                            <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>
                               {e.title}
                             </span>
                             <span
-                              className="mono text-xs px-1.5 py-0.5 rounded self-start"
-                              style={{ color: cc, border: `1px solid ${cc}30`, background: `${cc}08` }}
+                              className="self-start"
+                              style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--teal-dark)', background: 'var(--teal-faint)', borderRadius: '4px', padding: '2px 6px' }}
                             >
-                              {e.category.toUpperCase()}
+                              {e.category}
                             </span>
                           </Link>
                         </td>
-                        <td className="px-4 py-3 mono text-xs uppercase" style={{ color: sc }}>
-                          {e.status}
+                        <td style={{ padding: '16px' }}>
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', color: sc }}>
+                            {e.status}
+                          </span>
                         </td>
-                        <td className="px-4 py-3 mono text-xs tabular-nums" style={{ color: 'var(--green)' }}>
+                        <td className="tabular-nums" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600, color: 'var(--teal-dark)', padding: '16px' }}>
                           ${e.bounty_per_participant.toFixed(2)}
                         </td>
-                        <td className="px-4 py-3">
+                        <td style={{ padding: '16px' }}>
                           <div className="flex items-center gap-2">
-                            <div className="w-12 h-1 rounded overflow-hidden" style={{ background: 'rgba(77,255,128,0.1)' }}>
-                              <div className="h-1 rounded" style={{ width: `${pct}%`, background: 'var(--green-dim)' }} />
+                            <div className="overflow-hidden" style={{ width: 48, height: 4, borderRadius: 4, background: 'var(--bg-page)' }}>
+                              <div style={{ height: 4, borderRadius: 4, width: `${pct}%`, background: 'var(--teal)' }} />
                             </div>
-                            <span className="mono text-xs tabular-nums" style={{ color: 'var(--text-dim)' }}>
+                            <span className="tabular-nums" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
                               {e.slots_filled}/{e.slots_total}
                             </span>
                           </div>
