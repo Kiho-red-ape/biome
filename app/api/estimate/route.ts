@@ -3,26 +3,42 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { sendEmail } from '@/lib/email';
 import { syncEstimateToAirtable } from '@/lib/airtable-sync';
 
+interface InternalBreakdown {
+  recruitmentCost:     number;
+  sampleCost:          number;
+  compensationCost:    number;
+  passThroughCost:     number;
+  serviceFee:          number;
+  recruitTarget:       number;
+  estimatedActualCost: number;
+  estimatedMargin:     number;
+  riskFlags:           string[];
+}
+
 interface EstimateBody {
-  email: string;
-  organization?: string;
-  study_type: string;
-  sponsor_type: string;
-  participants: number;
-  duration: string;
-  geography: string[];
-  samples: string[];
-  irb_status: string;
+  email:           string;
+  organization?:   string;
+  study_type:      string;
+  sponsor_type:    string;
+  participants:    number;
+  duration:        string;
+  geography:       string[];
+  samples:         string[];
+  irb_status:      string;
   estimated_total: number;
-  estimated_ops_fee: number;
   estimate_breakdown: {
-    recruitment: number;
-    samples: number;
-    irb: number;
-    ops_fee: number;
-    total: number;
+    buckets: {
+      recruitmentAndScreening: number;
+      operationsAndLogistics:  number;
+      participantCompensation: number;
+    };
+    cro_low:  number;
+    cro_high: number;
+    internal: InternalBreakdown;
   };
 }
+
+const money = (n: number) => `$${n.toLocaleString('en-US')}`;
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,7 +46,10 @@ export async function POST(req: NextRequest) {
     if (!b.email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
 
     const db = createServiceClient();
+    const bd = b.estimate_breakdown;
+    const internal = bd?.internal;
 
+    // Store the FULL internal breakdown in estimate_leads.estimate_breakdown (jsonb).
     await db.from('estimate_leads').insert({
       email:              b.email.toLowerCase(),
       organization:       b.organization ?? null,
@@ -42,10 +61,11 @@ export async function POST(req: NextRequest) {
       samples:            b.samples ?? [],
       irb_status:         b.irb_status,
       estimated_total:    b.estimated_total,
-      estimated_ops_fee:  b.estimated_ops_fee,
-      estimate_breakdown: b.estimate_breakdown,
+      estimated_ops_fee:  internal?.serviceFee ?? null,
+      estimate_breakdown: bd,
     });
 
+    // Sync to Airtable — client-facing total only, never internal margin.
     await syncEstimateToAirtable({
       email:           b.email.toLowerCase(),
       organization:    b.organization ?? '',
@@ -54,34 +74,55 @@ export async function POST(req: NextRequest) {
       estimated_total: b.estimated_total,
     });
 
-    const bd = b.estimate_breakdown;
-    const breakdown = [
-      bd.recruitment ? `  Recruitment:   $${bd.recruitment.toLocaleString()}` : '',
-      bd.samples     ? `  Sample kits:   $${bd.samples.toLocaleString()}`     : '',
-      bd.irb         ? `  IRB support:   $${bd.irb.toLocaleString()}`         : '',
-      bd.ops_fee     ? `  Ops fee (8%):  $${bd.ops_fee.toLocaleString()}`     : '',
-    ].filter(Boolean).join('\n');
+    // Lead confirmation email — clean 3-bucket summary, NO internal numbers.
+    const buckets = bd?.buckets;
+    const clientBreakdown = buckets ? [
+      `  Recruitment & screening:   ${money(buckets.recruitmentAndScreening)}`,
+      `  Operations & logistics:    ${money(buckets.operationsAndLogistics)}`,
+      `  Participant compensation:  ${money(buckets.participantCompensation)}`,
+    ].join('\n') : '';
 
     await sendEmail(
       b.email.toLowerCase(),
-      `Your BIOME study estimate — $${b.estimated_total.toLocaleString()}`,
-      `Hi${b.organization ? ` ${b.organization}` : ''},\n\nHere's your study estimate:\n\n` +
+      `Your Biome study estimate — ${money(b.estimated_total)}`,
+      `Hi${b.organization ? ` ${b.organization}` : ''},\n\n` +
+      `Here's your indicative study estimate:\n\n` +
       `STUDY TYPE:    ${b.study_type}\n` +
       `PARTICIPANTS:  ${b.participants}\n` +
-      `DURATION:      ${b.duration}\n` +
+      `DURATION:      ${b.duration.replace('_', '–').replace('plus', '+')} weeks\n` +
       `GEOGRAPHY:     ${b.geography.join(', ')}\n` +
       `SAMPLES:       ${b.samples.join(', ') || 'Survey only'}\n\n` +
-      `ESTIMATED TOTAL: $${b.estimated_total.toLocaleString()}\n\n` +
-      `BREAKDOWN:\n${breakdown}\n\n` +
-      `These are estimates, not binding quotes.\n\n` +
-      `Ready to proceed? Submit your full intake at https://biome.to/intake\n\n` +
-      `—\nKishore · BIOME\nkishore@biome.to`,
+      `ESTIMATED INVESTMENT: ${money(b.estimated_total)}\n\n` +
+      `${clientBreakdown}\n\n` +
+      `This is an indicative estimate based on your inputs — not a binding quote.\n` +
+      `Final scope and pricing are confirmed in a brief consultation.\n\n` +
+      `Ready to talk? Reply here or start your intake at https://biome.to/intake\n\n` +
+      `—\nThe Biome team\ncontact@biome.to`,
     );
+
+    // Operator notification — FULL internal economics for Kishore only.
+    const internalLines = internal ? [
+      `Client total:        ${money(b.estimated_total)}`,
+      ``,
+      `Recruitment (risk+dropout): ${money(internal.recruitmentCost)}`,
+      `Samples (kits+ship+lab):    ${money(internal.sampleCost)}`,
+      `Compensation:               ${money(internal.compensationCost)}`,
+      `Pass-through subtotal:      ${money(internal.passThroughCost)}`,
+      `Service fee (margin):       ${money(internal.serviceFee)}`,
+      ``,
+      `Est. actual cost to deliver: ${money(internal.estimatedActualCost)}`,
+      `Est. gross margin:           ${internal.estimatedMargin}%`,
+      `Recruit target (30% buffer): ${internal.recruitTarget} participants`,
+      `Risk flags:                  ${internal.riskFlags.join(', ') || 'none'}`,
+    ].join('\n') : '';
 
     await sendEmail(
       'kishore@biome.to',
-      `New estimate lead — $${b.estimated_total.toLocaleString()} — ${b.organization ?? b.email}`,
-      `Email: ${b.email}\nOrg: ${b.organization ?? '—'}\nType: ${b.study_type}\nParticipants: ${b.participants}\nTotal: $${b.estimated_total.toLocaleString()}`,
+      `New estimate lead — ${money(b.estimated_total)} — ${b.organization ?? b.email}`,
+      `Email: ${b.email}\nOrg: ${b.organization ?? '—'}\nType: ${b.study_type}\n` +
+      `Participants: ${b.participants}\nDuration: ${b.duration}\n` +
+      `Geography: ${b.geography.join(', ')}\nSamples: ${b.samples.join(', ') || 'none'}\n\n` +
+      `── INTERNAL BREAKDOWN (operator only) ──\n${internalLines}`,
     );
 
     return NextResponse.json({ ok: true });

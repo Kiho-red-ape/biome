@@ -10,7 +10,20 @@ export function EstimateLeadRow({ lead }: Props) {
   const [saving,    setSaving]    = useState(false);
   const [open,      setOpen]      = useState(false);
 
-  const bd = lead.estimate_breakdown as Record<string, number> | null;
+  const rawBd = lead.estimate_breakdown as Record<string, unknown> | null;
+
+  // New-shape breakdown: { buckets, cro_low, cro_high, internal }
+  const internal = (rawBd?.internal ?? null) as {
+    recruitmentCost?: number; sampleCost?: number; compensationCost?: number;
+    passThroughCost?: number; serviceFee?: number; recruitTarget?: number;
+    estimatedActualCost?: number; estimatedMargin?: number; riskFlags?: string[];
+  } | null;
+  const buckets = (rawBd?.buckets ?? null) as Record<string, number> | null;
+  // Legacy flat breakdown (older leads): plain { recruitment, samples, ... }
+  const legacyBd = !internal && !buckets && rawBd
+    ? (rawBd as Record<string, number>)
+    : null;
+  const clientTotal = lead.estimated_total as number | undefined;
 
   async function markContacted() {
     setSaving(true);
@@ -110,8 +123,87 @@ export function EstimateLeadRow({ lead }: Props) {
             ))}
           </div>
 
-          {/* Estimate breakdown */}
-          {bd && (
+          {/* Internal estimate breakdown — operator only */}
+          {internal && (
+            <div style={{
+              marginBottom: 16,
+              padding: '14px 16px',
+              background: 'rgba(245,158,11,0.04)',
+              border: '1px solid rgba(245,158,11,0.14)',
+              borderRadius: 2,
+            }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#f59e0b', marginBottom: 12 }}>
+                Internal estimate breakdown · operator only
+              </p>
+
+              {clientTotal !== undefined && (
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#94a3b8', marginBottom: 12 }}>
+                  <span style={{ color: '#7f8e87' }}>Client sees total:</span>{' '}
+                  <span style={{ color: '#f8fafc', fontWeight: 700 }}>${clientTotal.toLocaleString()}</span>
+                </p>
+              )}
+
+              {(() => {
+                const rows: [string, string][] = [
+                  ['Recruitment (risk + dropout)', internal.recruitmentCost != null ? `$${internal.recruitmentCost.toLocaleString()}` : '—'],
+                  ['Samples (kits + shipping + lab)', internal.sampleCost != null ? `$${internal.sampleCost.toLocaleString()}` : '—'],
+                  ['Compensation', internal.compensationCost != null ? `$${internal.compensationCost.toLocaleString()}` : '—'],
+                  ['Pass-through subtotal', internal.passThroughCost != null ? `$${internal.passThroughCost.toLocaleString()}` : '—'],
+                  ['Service fee (margin)', internal.serviceFee != null ? `$${internal.serviceFee.toLocaleString()}` : '—'],
+                  ['Client total', clientTotal != null ? `$${clientTotal.toLocaleString()}` : '—'],
+                ];
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 12 }}>
+                    {rows.map(([k, v], i) => (
+                      <div key={k} style={{
+                        display: 'flex', justifyContent: 'space-between', gap: 16,
+                        paddingTop: i === 3 || i === 5 ? 5 : 0,
+                        borderTop: i === 3 || i === 5 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                      }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#7f8e87' }}>{k}</span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: i >= 3 ? '#f8fafc' : '#94a3b8', fontWeight: i === 5 ? 700 : 400 }}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                {internal.estimatedActualCost != null && (
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#94a3b8' }}>
+                    <span style={{ color: '#7f8e87' }}>Est. cost to deliver:</span> ${internal.estimatedActualCost.toLocaleString()}
+                  </span>
+                )}
+                {internal.estimatedMargin != null && (
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4ade80' }}>
+                    <span style={{ color: '#7f8e87' }}>Est. gross margin:</span> {internal.estimatedMargin}%
+                  </span>
+                )}
+                {internal.recruitTarget != null && (
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#94a3b8' }}>
+                    <span style={{ color: '#7f8e87' }}>Recruit target (30% buffer):</span> {internal.recruitTarget}
+                  </span>
+                )}
+              </div>
+
+              {internal.riskFlags && internal.riskFlags.length > 0 && (
+                <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {internal.riskFlags.map(flag => (
+                    <span key={flag} style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.5px',
+                      color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)',
+                      borderRadius: 2, padding: '2px 8px',
+                    }}>
+                      {flag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Legacy flat breakdown (older leads) */}
+          {legacyBd && (
             <div style={{
               display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 16,
               padding: '12px 16px',
@@ -119,9 +211,9 @@ export function EstimateLeadRow({ lead }: Props) {
               border: '1px solid rgba(245,158,11,0.08)',
               borderRadius: 2,
             }}>
-              {Object.entries(bd).map(([k, v]) => (
+              {Object.entries(legacyBd).map(([k, v]) => (
                 <span key={k} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#94a3b8' }}>
-                  <span style={{ color: '#7f8e87' }}>{k}:</span> ${v.toLocaleString()}
+                  <span style={{ color: '#7f8e87' }}>{k}:</span> ${typeof v === 'number' ? v.toLocaleString() : String(v)}
                 </span>
               ))}
             </div>

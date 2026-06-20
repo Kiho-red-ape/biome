@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { calculateEstimate, type EstimateResult } from '@/lib/estimate-calculator';
+import { calculateEstimate, type EstimateResult } from '@/lib/pricing-engine';
 
 function fmt(n: number) {
   return '$' + n.toLocaleString('en-US');
@@ -150,20 +150,48 @@ function FormSection({ children, step }: { children: ReactNode; step: string }) 
 
 // ─── Results display ──────────────────────────────────────────────────────────
 
+function durationLabel(d: string) {
+  return d.replace('_', '–').replace('plus', '+');
+}
+
+function BucketRow({ label, description, amount }: { label: string; description: string; amount: number }) {
+  return (
+    <div style={{
+      padding:        '18px 22px',
+      borderBottom:   '1px solid var(--border-soft)',
+      display:        'flex',
+      justifyContent: 'space-between',
+      alignItems:     'flex-start',
+      gap:            20,
+    }}>
+      <div style={{ flex: 1 }}>
+        <p style={{ fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 600, color: 'var(--ink)', marginBottom: 4 }}>
+          {label}
+        </p>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
+          {description}
+        </p>
+      </div>
+      <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 16, color: 'var(--ink)', flexShrink: 0, whiteSpace: 'nowrap' }}>
+        {fmt(amount)}
+      </span>
+    </div>
+  );
+}
+
 function EstimateDisplay({ result, onRecalculate }: { result: EstimateResult; onRecalculate: () => void }) {
   return (
     <div>
       {/* Total hero */}
       <div style={{
         background:   'var(--teal-dark)',
-        border:       '1px solid var(--border-mid)',
         boxShadow:    'var(--shadow-md)',
         borderRadius: 'var(--radius)',
         padding:      '32px 36px',
         marginBottom: 24,
       }}>
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--teal-soft)', marginBottom: 12 }}>
-          Estimate complete
+          Estimate ready
         </p>
         <p style={{
           fontFamily:   'var(--font-display)',
@@ -175,82 +203,73 @@ function EstimateDisplay({ result, onRecalculate }: { result: EstimateResult; on
         }}>
           {fmt(result.total)}
         </p>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>
-          {result.participants} research partners · {result.duration.replace('_', '–').replace('plus', '+')} weeks
-          · {fmt(result.perParticipant)}/research partner
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'rgba(255,255,255,0.72)' }}>
+          Estimated investment · {result.participants} research partners · {durationLabel(result.duration)} weeks
         </p>
       </div>
 
-      {/* Line items table */}
+      {/* Three grouped buckets */}
       <div style={{ border: '1px solid var(--border-soft)', background: 'var(--surface)', borderRadius: 'var(--radius)', overflow: 'hidden', marginBottom: 24, boxShadow: 'var(--shadow-sm)' }}>
-        {result.lineItems.map((item, i) => (
-          <div key={i} style={{
-            padding:      '14px 20px',
-            borderBottom: '1px solid var(--border-soft)',
-            display:      'flex',
-            justifyContent: 'space-between',
-            gap:          16,
-          }}>
-            <div>
-              <p style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 600, color: 'var(--ink)', marginBottom: 2 }}>
-                {item.label}
-              </p>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)', margin: 0 }}>
-                {item.description}
-              </p>
-            </div>
-            <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 15, color: 'var(--ink)', flexShrink: 0 }}>
-              {fmt(item.amount)}
-            </span>
-          </div>
-        ))}
-
-        {/* Pass-through subtotal */}
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-soft)', display: 'flex', justifyContent: 'space-between', gap: 16, background: 'var(--bg-page)' }}>
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Pass-through subtotal</p>
-          <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 15, color: 'var(--ink)' }}>{fmt(result.subtotalPassThrough)}</span>
-        </div>
-
-        {/* Ops fee */}
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-mid)', display: 'flex', justifyContent: 'space-between', gap: 16, background: 'var(--teal-faint)' }}>
-          <div>
-            <p style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: 'var(--ink)', marginBottom: 2 }}>Biome operations fee</p>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)', margin: 0 }}>Platform, compliance, reporting, delivery</p>
-          </div>
-          <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 15, color: 'var(--teal-dark)', flexShrink: 0 }}>{fmt(result.opsFee)}</span>
-        </div>
+        <BucketRow
+          label="Recruitment & screening"
+          description="Targeted campaigns, eligibility verification, enrollment, and consent capture."
+          amount={result.buckets.recruitmentAndScreening}
+        />
+        <BucketRow
+          label="Operations & logistics"
+          description="Sample kits, lab coordination, compliance tracking, and data delivery."
+          amount={result.buckets.operationsAndLogistics}
+        />
+        <BucketRow
+          label="Participant compensation"
+          description="Compliance-gated payouts to your cohort."
+          amount={result.buckets.participantCompensation}
+        />
 
         {/* Total row */}
-        <div style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--ink)' }}>
-            Total
-          </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 28, color: 'var(--teal-dark)' }}>
+        <div style={{ padding: '22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, background: 'var(--teal-faint)' }}>
+          <div>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16, letterSpacing: '0.5px', color: 'var(--ink)', display: 'block' }}>
+              Total estimated investment
+            </span>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)' }}>
+              {fmt(result.perParticipant)} per participant
+            </span>
+          </div>
+          <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 28, color: 'var(--teal-dark)', whiteSpace: 'nowrap' }}>
             {fmt(result.total)}
           </span>
         </div>
       </div>
 
-      {/* Warnings */}
-      {result.warnings.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
-          {result.warnings.map((w, i) => (
-            <div key={i} style={{ padding: '12px 16px', border: '1px solid #d97706', background: 'rgba(217,119,6,0.06)', borderRadius: 'var(--radius-sm)', display: 'flex', gap: 10 }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: '#d97706', flexShrink: 0 }}>!</span>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--ink)', lineHeight: 1.6, margin: 0 }}>{w}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* CRO value comparison */}
+      <div style={{
+        background:   'var(--teal-soft)',
+        border:       '1px solid rgba(14,116,144,0.18)',
+        borderRadius: 'var(--radius)',
+        padding:      '22px 26px',
+        marginBottom: 24,
+      }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--teal-dark)', marginBottom: 10 }}>
+          For comparison
+        </p>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--ink)', lineHeight: 1.6, margin: 0 }}>
+          A traditional CRO would typically quote{' '}
+          <strong style={{ color: 'var(--teal-dark)' }}>{fmt(result.croLow)}–{fmt(result.croHigh)}</strong>{' '}
+          for comparable operational scope.
+        </p>
+      </div>
 
+      {/* Disclaimer */}
       <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 28 }}>
-        Indicative estimate only — not a quote or binding offer. Final scope confirmed in conversation.
+        Indicative estimate based on your inputs. Not a binding quote. Final scope and pricing
+        confirmed in a brief consultation. Costs vary with study-specific requirements.
       </p>
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-        <a href="/intake" className="btn-primary">Start a conversation →</a>
+        <a href="/intake" className="btn-primary">Book a scoping call →</a>
         <button type="button" onClick={onRecalculate} className="btn-secondary" style={{ color: 'var(--slate)', borderColor: 'var(--border-mid)' }}>
-          Recalculate
+          Adjust inputs
         </button>
       </div>
     </div>
@@ -259,14 +278,15 @@ function EstimateDisplay({ result, onRecalculate }: { result: EstimateResult; on
 
 // ─── Email gate ───────────────────────────────────────────────────────────────
 
-function EmailGate({ onSubmit }: { onSubmit: (email: string) => void }) {
+function EmailGate({ onSubmit }: { onSubmit: (email: string, organization: string) => void }) {
   const [email, setEmail] = useState('');
+  const [org,   setOrg]   = useState('');
   const [err,   setErr]   = useState('');
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email.includes('@') || !email.includes('.')) { setErr('Enter a valid email.'); return; }
-    onSubmit(email);
+    onSubmit(email, org.trim());
   }
 
   return (
@@ -295,27 +315,47 @@ function EmailGate({ onSubmit }: { onSubmit: (email: string) => void }) {
       <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--slate)', lineHeight: 1.6, marginBottom: 28 }}>
         We&apos;ll send you a copy and someone from the team will follow up.
       </p>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         <input
-          type="email"
-          value={email}
-          onChange={e => { setEmail(e.target.value); setErr(''); }}
-          placeholder="you@institution.edu"
-          required
+          type="text"
+          value={org}
+          onChange={e => setOrg(e.target.value)}
+          placeholder="Organization (optional)"
           style={{
-            flex:         1,
-            minWidth:     200,
             fontFamily:   'var(--font-body)',
             fontSize:     16,
             padding:      '14px 16px',
-            border:       err ? '1px solid var(--error)' : '1px solid var(--border-mid)',
+            border:       '1px solid var(--border-mid)',
             borderRadius: 'var(--radius-sm)',
             background:   'var(--surface)',
             color:        'var(--ink)',
             outline:      'none',
+            boxSizing:    'border-box',
           }}
         />
-        <button type="submit" className="btn-primary">View estimate →</button>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <input
+            type="email"
+            value={email}
+            onChange={e => { setEmail(e.target.value); setErr(''); }}
+            placeholder="you@institution.edu"
+            required
+            style={{
+              flex:         1,
+              minWidth:     200,
+              fontFamily:   'var(--font-body)',
+              fontSize:     16,
+              padding:      '14px 16px',
+              border:       err ? '1px solid var(--error)' : '1px solid var(--border-mid)',
+              borderRadius: 'var(--radius-sm)',
+              background:   'var(--surface)',
+              color:        'var(--ink)',
+              outline:      'none',
+              boxSizing:    'border-box',
+            }}
+          />
+          <button type="submit" className="btn-primary">View estimate →</button>
+        </div>
       </form>
       {err && <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--error)', marginTop: 10 }}>{err}</p>}
     </div>
@@ -361,17 +401,36 @@ export function EstimateWizard() {
     setGated(true);
   }
 
-  function handleEmailSubmit(email: string) {
+  function handleEmailSubmit(email: string, organization: string) {
     setForm(f => ({ ...f, email }));
     const r = calculateEstimate(form);
     setResult(r);
     setGated(false);
-    fetch('/api/contact', {
+
+    // Store the FULL internal breakdown in estimate_leads, email Kishore,
+    // sync client-facing total to Airtable, then results are shown above.
+    fetch('/api/estimate', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: email, email, subject: 'Estimate request',
-        message: `Estimate request from ${email}\n\nStudy type: ${form.studyType}\nResearch partners: ${form.participants}\nDuration: ${form.duration}\nGeography: ${form.geography.join(', ')}\nSamples: ${form.samples.join(', ')}\nIRB: ${form.irbStatus}\n\nTotal: ${fmt(calculateEstimate(form).total)}`,
+        email,
+        organization,
+        study_type:      form.studyType,
+        sponsor_type:    form.irbStatus,
+        participants:    form.participants,
+        duration:        form.duration,
+        geography:       form.geography,
+        samples:         form.samples,
+        irb_status:      form.irbStatus,
+        estimated_total: r.total,
+        // Client-facing buckets + full internal model — operator-only fields
+        // live under `internal` and are never rendered on the public estimate.
+        estimate_breakdown: {
+          buckets:  r.buckets,
+          cro_low:  r.croLow,
+          cro_high: r.croHigh,
+          internal: r._internal,
+        },
       }),
     }).catch(() => null);
   }
