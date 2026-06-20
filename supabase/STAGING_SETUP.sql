@@ -7,7 +7,6 @@
 
 -- ============================================================================
 -- STEP 1 of 3 — migration 026: patch study_documents.document_type CHECK
--- (must run BEFORE 025 so the demo seed's document_type values are allowed)
 -- ============================================================================
 -- ================================================================
 -- MIGRATION 026 — Patch document_type check constraint
@@ -45,7 +44,7 @@ ALTER TABLE study_documents
 COMMIT;
 
 -- ============================================================================
--- STEP 2 of 3 — migration 025: demo seed v2 (studies, partners, docs, msgs)
+-- STEP 2 of 3 — migration 025: demo seed v2
 -- ============================================================================
 -- ================================================================
 -- MIGRATION 025 — Demo seed v2
@@ -278,7 +277,7 @@ INSERT INTO document_signatures (
   id, document_id, signer_user_id, signer_name, signer_role,
   ip_address, user_agent, document_hash, document_version, signed_at
 ) VALUES (
-  '00000000-0001-0000-0000-s00000000001',
+  '00000000-0001-0000-0000-c00000000001',
   '00000000-0001-0000-0000-d00000000003',
   'demo:participant',
   'Alex Thornton',
@@ -294,7 +293,7 @@ INSERT INTO document_signatures (
   id, document_id, signer_user_id, signer_name, signer_role,
   ip_address, user_agent, document_hash, document_version, signed_at
 ) VALUES (
-  '00000000-0001-0000-0000-s00000000002',
+  '00000000-0001-0000-0000-c00000000002',
   '00000000-0001-0000-0000-d00000000004',
   'demo:researcher',
   'Dr. S. Chen',
@@ -314,7 +313,7 @@ INSERT INTO document_send_log (
   id, document_id, sent_to_email, sent_by,
   message, viewed_at, signed_at, created_at
 ) VALUES (
-  '00000000-0001-0000-0000-l00000000001',
+  '00000000-0001-0000-0000-f00000000001',
   '00000000-0001-0000-0000-d00000000003',
   'participant@biome.to',
   'demo:researcher',
@@ -339,7 +338,7 @@ INSERT INTO sample_kits (
   results_ready_at, chain_of_custody_log, notes, created_at, updated_at
 )
 SELECT
-  '00000000-0001-0000-0000-k00000000001',
+  '00000000-0001-0000-0000-b00000000001',
   '00000000-0001-0000-0000-000000000001',
   a.id,
   'demo:participant',
@@ -385,7 +384,7 @@ INSERT INTO sample_kits (
   chain_of_custody_log, notes, created_at, updated_at
 )
 SELECT
-  '00000000-0001-0000-0000-k00000000002',
+  '00000000-0001-0000-0000-b00000000002',
   '00000000-0001-0000-0000-000000000001',
   a.id,
   'demo:participant',
@@ -423,7 +422,7 @@ INSERT INTO sample_kits (
   return_status, chain_of_custody_log, notes, created_at, updated_at
 )
 SELECT
-  '00000000-0001-0000-0000-k00000000003',
+  '00000000-0001-0000-0000-b00000000003',
   '00000000-0001-0000-0000-000000000001',
   a.id,
   'demo:participant',
@@ -462,37 +461,37 @@ BEGIN
       message_text, message_type, read_at, created_at
     ) VALUES
     -- Researcher → Participant: welcome
-    ( '00000000-0001-0000-0000-m00000000001', demo_exp,
+    ( '00000000-0001-0000-0000-e00000000001', demo_exp,
       'researcher', NULL, 'participant', 'GBM-P001',
       E'Welcome to the Gut-Brain Microbiome Study, P001-Teal-Falcon.\n\nYour baseline sample kit has been dispatched and should arrive within 2 working days (tracking: FX794831200GB).\n\nPlease review the consent form sent to your registered email before starting. Reply here if you have any questions.',
       'text', now() - interval '12 days', now() - interval '13 days' ),
 
     -- Participant → Researcher: question
-    ( '00000000-0001-0000-0000-m00000000002', demo_exp,
+    ( '00000000-0001-0000-0000-e00000000002', demo_exp,
       'participant', 'GBM-P001', 'researcher', NULL,
       'Hi, I received the kit today. Quick question — the instructions say to collect in the morning. Is there a specific time window I should aim for?',
       'text', now() - interval '10 days', now() - interval '11 days' ),
 
     -- Researcher → Participant: answer
-    ( '00000000-0001-0000-0000-m00000000003', demo_exp,
+    ( '00000000-0001-0000-0000-e00000000003', demo_exp,
       'researcher', NULL, 'participant', 'GBM-P001',
       E'Great question! Aim to collect within the first 4 hours of waking for the most consistent results. Avoid collecting if you''ve had antibiotics, probiotics, or alcohol in the 48h prior.\n\nYou can store the sealed tube in your fridge (not freezer) for up to 24h before posting.',
       'text', now() - interval '9 days', now() - interval '10 days' ),
 
     -- Participant → Researcher: confirmation
-    ( '00000000-0001-0000-0000-m00000000004', demo_exp,
+    ( '00000000-0001-0000-0000-e00000000004', demo_exp,
       'participant', 'GBM-P001', 'researcher', NULL,
       'Perfect, thank you. Sample collected this morning and posted via the return label. Also completed the Week 2 food journal — should that be uploaded anywhere or does the system capture it automatically?',
       'text', now() - interval '8 days', now() - interval '8 days' ),
 
     -- Researcher → Participant: instructions
-    ( '00000000-0001-0000-0000-m00000000005', demo_exp,
+    ( '00000000-0001-0000-0000-e00000000005', demo_exp,
       'researcher', NULL, 'participant', 'GBM-P001',
       E'Excellent work — your sample is showing as received at the lab.\n\nFor the food journal: log your meals in the Milestone section of the study portal. Click "Week 2 – Food Journal" and use the text field. Don''t worry about exact portions — estimates are fine.\n\nYour first compensation payment of $60 will be processed once the lab confirms your Week 2 sample. Typically 5–7 working days.',
       'text', now() - interval '7 days', now() - interval '7 days' ),
 
     -- Researcher broadcast: Week 4 reminder
-    ( '00000000-0001-0000-0000-m00000000006', demo_exp,
+    ( '00000000-0001-0000-0000-e00000000006', demo_exp,
       'researcher', NULL, 'all_participants', NULL,
       E'[STUDY UPDATE — Week 4]\n\nYour Week 4 sample kits have been dispatched today. All research partners should expect delivery within 2 working days.\n\nPlease remember:\n• Collect on a weekday morning if possible\n• Post within 24h of collection\n• Complete the mid-study food journal before Week 5\n\nYou''re doing brilliantly — halfway there!',
       'system_notice', now() - interval '5 days', now() - interval '5 days' )
@@ -518,7 +517,7 @@ WHERE id = '00000000-0001-0000-0000-000000000001'
 COMMIT;
 
 -- ============================================================================
--- STEP 3 of 3 — migration 027: OME agent (tables, RPC, India facility seed)
+-- STEP 3 of 3 — migration 027: OME agent tables + India facility seed
 -- ============================================================================
 -- ================================================================
 -- MIGRATION 027 — OME Agent
