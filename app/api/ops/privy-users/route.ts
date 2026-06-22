@@ -69,10 +69,15 @@ export async function GET() {
                ?? null;
     const sp  = profileMap[u.id];
     const pp  = ppMap[u.id];
+    // Privy returns created_at as a Unix timestamp in SECONDS. Normalize to ISO
+    // so the client renders it correctly (was showing "Jan 1970").
+    const createdMs = typeof u.created_at === 'number'
+      ? (u.created_at as number) * 1000
+      : Date.parse(u.created_at);
     return {
       privy_id:            u.id,
       email,
-      created_at:          u.created_at,
+      created_at:          new Date(Number.isFinite(createdMs) ? createdMs : Date.now()).toISOString(),
       supabase_role:       sp?.role ?? null,
       supabase_region:     sp?.region ?? null,
       participant_id:      pp?.participant_id ?? null,
@@ -89,7 +94,7 @@ export async function GET() {
 
 interface PrivyUser {
   id: string;
-  created_at: string;
+  created_at: number | string;
   linked_accounts?: { type: string; address?: string; email?: string }[];
 }
 

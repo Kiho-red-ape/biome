@@ -84,7 +84,7 @@ const NAV: { label: string; href: string; children?: { label: string; href: stri
   { label: 'Team & Admins', href: '/ops/admins' },
 ];
 
-function SidebarLink({ href, label }: { href: string; label: string }) {
+function SidebarLink({ href, label, child }: { href: string; label: string; child?: boolean }) {
   const pathname = usePathname();
   const isActive = pathname === href || (href !== '/ops' && pathname.startsWith(href.split('?')[0]));
   return (
@@ -92,14 +92,15 @@ function SidebarLink({ href, label }: { href: string; label: string }) {
       href={href}
       style={{
         display:        'block',
-        padding:        '5px 16px 5px 12px',
-        fontFamily:     'var(--font-mono)',
-        fontSize:       11,
-        letterSpacing:  '0.5px',
-        color:          isActive ? '#ffb300' : '#7f8e87',
-        background:     isActive ? 'rgba(255,179,0,0.06)' : 'transparent',
+        padding:        child ? '6px 16px 6px 30px' : '7px 16px',
+        fontFamily:     child ? 'var(--font-body)' : 'var(--font-mono)',
+        fontSize:       child ? 12 : 12,
+        fontWeight:     isActive ? 600 : child ? 400 : 500,
+        letterSpacing:  child ? 0 : '0.3px',
+        color:          isActive ? 'var(--teal-dark)' : 'var(--slate)',
+        background:     isActive ? 'var(--teal-soft)' : 'transparent',
         textDecoration: 'none',
-        borderLeft:     `2px solid ${isActive ? '#ffb300' : 'transparent'}`,
+        borderLeft:     `3px solid ${isActive ? 'var(--teal)' : 'transparent'}`,
         transition:     'color 100ms, background 100ms',
         whiteSpace:     'nowrap',
         overflow:       'hidden',
@@ -149,98 +150,103 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
 
   if (!adminChecked || !isAdmin) {
     return (
-      <div style={{ minHeight: '100vh', background: '#060a14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>…</span>
+      <div style={{ minHeight: '100vh', background: 'var(--bg-page)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)' }}>Verifying access…</span>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#060a14' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-page)' }}>
       {/* Top bar */}
       <div style={{
-        height:      44,
+        height:      52,
         display:     'flex',
         alignItems:  'center',
         justifyContent: 'space-between',
-        padding:     '0 20px',
-        background:  '#0b0e0b',
-        borderBottom: '1px solid rgba(255,179,0,0.15)',
+        padding:     '0 24px',
+        background:  'var(--surface)',
+        borderBottom: '1px solid var(--border-soft)',
         flexShrink:  0,
         gap:         16,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <span style={{
-            fontFamily:    'var(--font-mono)',
-            fontSize:      10,
-            letterSpacing: '3px',
-            color:         '#ffb300',
-            textTransform: 'uppercase',
-          }}>
-            ◆ OPERATOR MODE
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.01em' }}>
+            Biome <span style={{ color: 'var(--teal)' }}>Ops</span>
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
-            {userEmail}
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 600, letterSpacing: '1px',
+            textTransform: 'uppercase', color: 'var(--teal-dark)', background: 'var(--teal-soft)',
+            padding: '3px 8px', borderRadius: 4,
+          }}>
+            Operator
           </span>
         </div>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
-          {time}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)' }}>
+            {userEmail}
+          </span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
+            {time}
+          </span>
+        </div>
       </div>
 
       {/* Body: sidebar + content */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* Sidebar */}
         <nav style={{
-          width:       240,
+          width:       236,
           flexShrink:  0,
-          background:  '#080b08',
-          borderRight: '1px solid rgba(255,255,255,0.05)',
+          background:  'var(--surface)',
+          borderRight: '1px solid var(--border-soft)',
           overflowY:   'auto',
           padding:     '16px 0',
         }}>
           <p style={{
             fontFamily:    'var(--font-mono)',
             fontSize:      9,
-            letterSpacing: '3px',
-            color:         '#ffb300',
+            letterSpacing: '2px',
+            color:         'var(--muted)',
             textTransform: 'uppercase',
             padding:       '0 16px',
-            marginBottom:  12,
+            marginBottom:  10,
           }}>
-            // OPERATOR_CONSOLE
+            Console
           </p>
 
           {NAV.map((section) => (
-            <div key={section.href} style={{ marginBottom: 4 }}>
-              <SidebarLink href={section.href} label={`◆ ${section.label}`} />
+            <div key={section.href} style={{ marginBottom: 2 }}>
+              <SidebarLink href={section.href} label={section.label} />
               {section.children?.map((child) => (
-                <SidebarLink key={child.href} href={child.href} label={`  ${child.label}`} />
+                <SidebarLink key={child.href} href={child.href} label={child.label} child />
               ))}
             </div>
           ))}
 
           {/* Divider + back to site */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', margin: '16px 0' }} />
+          <div style={{ borderTop: '1px solid var(--border-soft)', margin: '14px 0' }} />
           <Link
             href="/"
             style={{
               display:       'block',
-              padding:       '5px 16px',
+              padding:       '7px 16px',
               fontFamily:    'var(--font-mono)',
-              fontSize:      10,
-              color:         '#475569',
+              fontSize:      11,
+              color:         'var(--muted)',
               textDecoration: 'none',
-              letterSpacing: '0.5px',
+              letterSpacing: '0.3px',
             }}
           >
-            ← back to site
+            ← Back to site
           </Link>
         </nav>
 
         {/* Main content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: 32 }}>
-          {children}
+        <main style={{ flex: 1, overflowY: 'auto', padding: '32px 36px' }}>
+          <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+            {children}
+          </div>
         </main>
       </div>
     </div>

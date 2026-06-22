@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
+import {
+  OpsPageHeader, OpsStats, OpsBadge, OpsButton, OpsTabs,
+  OpsTable, OpsTd, OpsEmpty, OpsAlert,
+} from '../_components/ui';
 
 interface User {
   privy_id: string;
@@ -19,14 +21,14 @@ interface User {
   onboarded: boolean;
 }
 
-function verBadge(u: User) {
-  if (!u.in_supabase) return { label: 'NOT SYNCED', color: '#ff6464' };
-  if (!u.onboarded)   return { label: 'NO PROFILE', color: '#3a4a43' };
+function verBadge(u: User): { label: string; tone: 'teal' | 'green' | 'amber' | 'red' | 'slate' | 'blue' } {
+  if (!u.in_supabase) return { label: 'Not synced', tone: 'red' };
+  if (!u.onboarded)   return { label: 'No profile', tone: 'slate' };
   const s = u.verification_status;
-  if (s === 'fully_verified')  return { label: 'FULL',    color: '#f59e0b' };
-  if (s === 'phone_verified')  return { label: 'PHONE',   color: '#38bdf8' };
-  if (s === 'email_verified')  return { label: 'EMAIL',   color: '#ffb300' };
-  return { label: 'PENDING', color: '#5b5b3a' };
+  if (s === 'fully_verified')  return { label: 'Full',    tone: 'green' };
+  if (s === 'phone_verified')  return { label: 'Phone',   tone: 'blue' };
+  if (s === 'email_verified')  return { label: 'Email',   tone: 'teal' };
+  return { label: 'Pending', tone: 'amber' };
 }
 
 export default function OpsParticipants() {
@@ -34,17 +36,43 @@ export default function OpsParticipants() {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState<string | null>(null);
   const [filter,  setFilter]  = useState<'all' | 'onboarded' | 'not_synced' | 'verified'>('all');
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState<string | null>(null);
 
-  useEffect(() => {
+  function load() {
+    setLoading(true);
     fetch('/api/ops/privy-users')
       .then(r => r.json())
       .then((d: { users?: User[]; error?: string }) => {
         if (d.error) { setError(d.error); return; }
+        setError(null);
         setUsers(d.users ?? []);
       })
       .catch(e => setError(String(e)))
       .finally(() => setLoading(false));
-  }, []);
+  }
+
+  useEffect(() => { load(); }, []);
+
+  async function syncToSupabase() {
+    setSyncing(true);
+    setSyncMsg(null);
+    try {
+      const res = await fetch('/api/ops/privy-users/sync', { method: 'POST' });
+      const d = await res.json() as { ok?: boolean; synced?: number; error?: string };
+      if (d.ok) {
+        setSyncMsg(d.synced ? `Synced ${d.synced} account${d.synced === 1 ? '' : 's'} to Supabase.` : 'All accounts already synced.');
+        load();
+      } else {
+        setSyncMsg(d.error ?? 'Sync failed.');
+      }
+    } catch (e) {
+      setSyncMsg(String(e));
+    } finally {
+      setSyncing(false);
+      setTimeout(() => setSyncMsg(null), 5000);
+    }
+  }
 
   const filtered = users.filter(u => {
     if (filter === 'onboarded')  return u.onboarded;
@@ -53,118 +81,85 @@ export default function OpsParticipants() {
     return true;
   });
 
-  const notSynced = users.filter(u => !u.in_supabase).length;
+  const onboardedCount = users.filter(u => u.onboarded).length;
+  const notSynced      = users.filter(u => !u.in_supabase).length;
 
   return (
     <div>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 6 }}>
-            // PARTICIPANTS
-          </p>
-          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 20, color: '#f8fafc', marginBottom: 4 }}>
-            All Users
-          </h1>
-          {!loading && (
-            <p style={{ ...MONO, fontSize: 11, color: '#475569' }}>
-              {users.length} in Privy · {users.filter(u => u.onboarded).length} onboarded
-              {notSynced > 0 && <span style={{ color: '#ff6464' }}> · {notSynced} not synced to Supabase</span>}
-            </p>
-          )}
-        </div>
-        <Link href="/ops/notifications" style={{
-          ...MONO, fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
-          padding: '8px 18px', background: 'rgba(255,179,0,0.08)',
-          border: '1px solid rgba(255,179,0,0.3)', color: '#ffb300',
-          borderRadius: 2, textDecoration: 'none',
-        }}>
-          Send Notification →
-        </Link>
-      </div>
+      <OpsPageHeader
+        label="Participants"
+        title="All Users"
+        subtitle={!loading ? `Privy accounts cross-referenced with Supabase profiles` : undefined}
+        actions={
+          <>
+            {notSynced > 0 && (
+              <OpsButton onClick={syncToSupabase} disabled={syncing} variant="ghost">
+                {syncing ? 'Syncing…' : `Sync ${notSynced} to Supabase`}
+              </OpsButton>
+            )}
+            <OpsButton href="/ops/notifications" variant="primary">Send notification →</OpsButton>
+          </>
+        }
+      />
 
-      {/* Filter tabs */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
-        {([
-          { key: 'all',        label: 'All' },
-          { key: 'onboarded',  label: 'Onboarded' },
-          { key: 'verified',   label: 'Verified' },
-          { key: 'not_synced', label: 'Not Synced' },
-        ] as const).map(({ key, label }) => (
-          <button key={key} onClick={() => setFilter(key)} style={{
-            ...MONO, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
-            padding: '5px 14px', cursor: 'pointer',
-            border: `1px solid ${filter === key ? '#ffb300' : 'rgba(255,255,255,0.08)'}`,
-            background: filter === key ? 'rgba(255,179,0,0.06)' : 'transparent',
-            color: filter === key ? '#ffb300' : '#475569',
-            borderRadius: 2,
-          }}>{label}</button>
-        ))}
-      </div>
-
-      {loading && (
-        <p style={{ ...MONO, fontSize: 11, color: '#475569', padding: '32px 0' }}>// Loading from Privy...</p>
-      )}
-
-      {error && (
-        <div style={{ ...MONO, fontSize: 11, color: '#ff6464', background: 'rgba(255,100,100,0.06)', border: '1px solid rgba(255,100,100,0.2)', padding: '16px', borderRadius: 2, marginBottom: 24 }}>
-          <p style={{ fontWeight: 700, marginBottom: 4 }}>Failed to load Privy users</p>
-          <p style={{ color: '#94a3b8' }}>{error}</p>
-          <p style={{ marginTop: 8, color: '#475569' }}>
-            Make sure <code>PRIVY_APP_SECRET</code> is set in your environment variables (Netlify → Site config → Environment variables).
-          </p>
-        </div>
-      )}
+      {syncMsg && <OpsAlert tone={syncMsg.includes('fail') || syncMsg.includes('Error') ? 'err' : 'ok'}>{syncMsg}</OpsAlert>}
 
       {!loading && !error && (
-        <div style={{ overflowX: 'auto', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 4 }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', ...MONO, fontSize: 11 }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}>
-                {['Email', 'Participant ID', 'Status', 'Role', 'Country', 'Studies', 'Joined', 'Actions'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', padding: '10px 12px', color: '#475569', fontWeight: 400, letterSpacing: '1px', whiteSpace: 'nowrap', fontSize: 10 }}>{h}</th>
-                ))}
+        <OpsStats items={[
+          { label: 'In Privy',   value: users.length },
+          { label: 'Onboarded',  value: onboardedCount, accent: true },
+          { label: 'Not synced', value: notSynced },
+        ]} />
+      )}
+
+      <OpsTabs
+        active={filter}
+        onChange={setFilter}
+        tabs={[
+          { key: 'all',        label: 'All',        count: users.length },
+          { key: 'onboarded',  label: 'Onboarded',  count: onboardedCount },
+          { key: 'verified',   label: 'Verified',   count: users.filter(u => u.verification_status === 'fully_verified').length },
+          { key: 'not_synced', label: 'Not synced', count: notSynced },
+        ]}
+      />
+
+      {error && (
+        <OpsAlert tone="err">
+          <strong>Failed to load Privy users.</strong> {error}
+          <br />Make sure <code>PRIVY_APP_SECRET</code> is set in your environment variables.
+        </OpsAlert>
+      )}
+
+      {loading && <OpsAlert tone="info">Loading from Privy…</OpsAlert>}
+
+      {!loading && !error && (
+        <OpsTable head={['Email', 'Participant ID', 'Status', 'Role', 'Country', 'Studies', 'Joined', '']}>
+          {filtered.length === 0 && <OpsEmpty>No users found.</OpsEmpty>}
+          {filtered.map(u => {
+            const badge = verBadge(u);
+            return (
+              <tr key={u.privy_id} style={{ opacity: u.in_supabase ? 1 : 0.62 }}>
+                <OpsTd>{u.email ?? <span style={{ color: 'var(--muted)' }}>—</span>}</OpsTd>
+                <OpsTd mono dim nowrap>{u.participant_id ?? '—'}</OpsTd>
+                <OpsTd nowrap><OpsBadge tone={badge.tone}>{badge.label}</OpsBadge></OpsTd>
+                <OpsTd dim>{u.supabase_role ?? '—'}</OpsTd>
+                <OpsTd dim nowrap>{u.country ?? u.supabase_region ?? '—'}</OpsTd>
+                <OpsTd dim>{u.previous_study_count ?? '—'}</OpsTd>
+                <OpsTd mono dim nowrap>
+                  {new Date(u.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </OpsTd>
+                <OpsTd nowrap>
+                  {u.participant_id && (
+                    <Link href={`/ops/notifications?to=${encodeURIComponent(u.participant_id)}`}
+                      style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--teal-dark)', textDecoration: 'none' }}>
+                      Notify
+                    </Link>
+                  )}
+                </OpsTd>
               </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 && (
-                <tr><td colSpan={8} style={{ padding: 32, color: '#475569', textAlign: 'center' }}>No users found.</td></tr>
-              )}
-              {filtered.map(u => {
-                const badge = verBadge(u);
-                return (
-                  <tr key={u.privy_id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', opacity: u.in_supabase ? 1 : 0.5 }}>
-                    <td style={{ padding: '10px 12px', color: '#f8fafc' }}>{u.email ?? <span style={{ color: '#3a4a43' }}>—</span>}</td>
-                    <td style={{ padding: '10px 12px', color: '#475569', whiteSpace: 'nowrap', fontSize: 10 }}>
-                      {u.participant_id ?? <span style={{ color: '#3a4a43' }}>—</span>}
-                    </td>
-                    <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
-                      <span style={{ fontSize: 9, letterSpacing: '1px', padding: '2px 8px', border: `1px solid ${badge.color}44`, color: badge.color, borderRadius: 2 }}>
-                        {badge.label}
-                      </span>
-                    </td>
-                    <td style={{ padding: '10px 12px', color: '#94a3b8' }}>{u.supabase_role ?? '—'}</td>
-                    <td style={{ padding: '10px 12px', color: '#94a3b8', whiteSpace: 'nowrap' }}>
-                      {u.country ?? u.supabase_region ?? '—'}
-                    </td>
-                    <td style={{ padding: '10px 12px', color: '#94a3b8' }}>{u.previous_study_count ?? '—'}</td>
-                    <td style={{ padding: '10px 12px', color: '#475569', whiteSpace: 'nowrap', fontSize: 10 }}>
-                      {new Date(u.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' })}
-                    </td>
-                    <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
-                      {u.participant_id && (
-                        <Link href={`/ops/notifications?to=${encodeURIComponent(u.participant_id)}`}
-                          style={{ ...MONO, fontSize: 10, color: '#475569', textDecoration: 'none' }}>
-                          Notify
-                        </Link>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+            );
+          })}
+        </OpsTable>
       )}
     </div>
   );
