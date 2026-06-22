@@ -1,4 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/server';
+import { OpsPageHeader } from '../_components/ui';
 import { ReportGenerator } from './report-generator';
 
 export default async function OpsReports() {
@@ -10,9 +11,11 @@ export default async function OpsReports() {
 
   return (
     <div>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 20 }}>
-        // SPONSOR_REPORTS
-      </p>
+      <OpsPageHeader
+        label="Reports"
+        title="Sponsor Reports"
+        subtitle="Generate weekly reports for study sponsors. Downloads as Markdown."
+      />
       <ReportGenerator studies={(studies ?? []) as { id: string; title: string; experiment_code: string | null; status: string }[]} />
     </div>
   );

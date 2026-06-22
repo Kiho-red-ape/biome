@@ -1,24 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/server';
-
-function Stat({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
-  return (
-    <div style={{
-      background:   '#0b1014',
-      border:       '1px solid rgba(255,179,0,0.1)',
-      padding:      '16px 20px',
-      borderRadius: 2,
-      minWidth:     160,
-    }}>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 6 }}>
-        {label}
-      </p>
-      <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 28, color: '#f8fafc', lineHeight: 1 }}>
-        {value}
-      </p>
-      {sub && <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569', marginTop: 4 }}>{sub}</p>}
-    </div>
-  );
-}
+import { OpsPageHeader, OpsStats } from './_components/ui';
 
 export default async function OpsOverview() {
   const db = createServiceClient();
@@ -45,22 +26,21 @@ export default async function OpsOverview() {
 
   return (
     <div>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 20 }}>
-        // OVERVIEW
-      </p>
+      <OpsPageHeader
+        label="Overview"
+        title="Operator Console"
+        subtitle="All counts are live from the database. Use the sidebar to navigate."
+      />
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 40 }}>
-        <Stat label="Active studies"      value={activeStudies ?? 0}       sub={`${totalStudies ?? 0} total`} />
-        <Stat label="Participants"        value={totalParticipants ?? 0}    sub={`${verifiedParticipants ?? 0} verified`} />
-        <Stat label="Kits pending ship"   value={pendingKits ?? 0} />
-        <Stat label="Payouts pending"     value={pendingPayouts ?? 0} />
-        <Stat label="New intakes"         value={newIntakes ?? 0} />
-        <Stat label="Partner apps"        value={pendingPartners ?? 0}      sub="pending review" />
-      </div>
-
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569', lineHeight: 2 }}>
-        Use the sidebar to navigate. All counts are live from the database.
-      </p>
+      <OpsStats items={[
+        { label: 'Active studies',    value: `${activeStudies ?? 0} / ${totalStudies ?? 0}`, accent: true },
+        { label: 'Participants',      value: totalParticipants ?? 0, accent: true },
+        { label: 'Verified',          value: verifiedParticipants ?? 0 },
+        { label: 'Kits pending ship', value: pendingKits ?? 0 },
+        { label: 'Payouts pending',   value: pendingPayouts ?? 0 },
+        { label: 'New intakes',       value: newIntakes ?? 0 },
+        { label: 'Partner apps',      value: pendingPartners ?? 0 },
+      ]} />
     </div>
   );
 }

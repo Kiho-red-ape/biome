@@ -1,13 +1,16 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import { OpsPageHeader, OpsBadge, OpsTable, OpsTd, OpsEmpty } from '../_components/ui';
 
-const STATUS_COLOR: Record<string, string> = {
-  draft:      '#475569',
-  recruiting: '#38bdf8',
-  active:     '#f59e0b',
-  completed:  '#475569',
-  cancelled:  '#475569',
-};
+type StudyTone = 'teal' | 'green' | 'amber' | 'red' | 'slate' | 'blue';
+
+function statusTone(s: string): StudyTone {
+  if (s === 'recruiting') return 'blue';
+  if (s === 'active')     return 'teal';
+  if (s === 'completed')  return 'green';
+  if (s === 'cancelled')  return 'red';
+  return 'slate';
+}
 
 export default async function OpsStudies() {
   const db = createServiceClient();
@@ -21,47 +24,44 @@ export default async function OpsStudies() {
 
   return (
     <div>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 20 }}>
-        // ALL_STUDIES
-      </p>
+      <OpsPageHeader
+        label="Studies"
+        title="All Studies"
+        subtitle={`${rows.length} total experiment${rows.length === 1 ? '' : 's'}`}
+      />
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              {['Code', 'Title', 'Status', 'Category', 'Slots', 'Bounty', 'Pool', 'Verified', 'Created'].map((h) => (
-                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#475569', fontWeight: 400, letterSpacing: '1px', whiteSpace: 'nowrap' }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && (
-              <tr><td colSpan={9} style={{ padding: 24, color: '#475569', textAlign: 'center' }}>No studies yet.</td></tr>
-            )}
-            {rows.map((s) => (
-              <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                <td style={{ padding: '10px 12px', color: '#475569' }}>{(s.experiment_code as string | null) ?? '—'}</td>
-                <td style={{ padding: '10px 12px', maxWidth: 240 }}>
-                  <Link href={`/experiments/${s.id}`} target="_blank" style={{ color: '#f8fafc', textDecoration: 'none' }}>
-                    {(s.title as string).slice(0, 50)}{(s.title as string).length > 50 ? '…' : ''}
-                  </Link>
-                </td>
-                <td style={{ padding: '10px 12px' }}>
-                  <span style={{ color: STATUS_COLOR[s.status as string] ?? '#475569' }}>{s.status as string}</span>
-                </td>
-                <td style={{ padding: '10px 12px', color: '#94a3b8' }}>{s.category as string}</td>
-                <td style={{ padding: '10px 12px', color: '#94a3b8' }}>{s.slots_filled as number}/{s.slots_total as number}</td>
-                <td style={{ padding: '10px 12px', color: '#f59e0b' }}>${s.bounty_per_participant as number}</td>
-                <td style={{ padding: '10px 12px', color: '#94a3b8' }}>${(s.total_bounty_pool as number).toLocaleString()}</td>
-                <td style={{ padding: '10px 12px', color: s.is_verified ? '#f59e0b' : '#475569' }}>{s.is_verified ? '✓' : '—'}</td>
-                <td style={{ padding: '10px 12px', color: '#475569', whiteSpace: 'nowrap' }}>
-                  {new Date(s.created_at as string).toLocaleDateString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <OpsTable head={['Code', 'Title', 'Status', 'Category', 'Slots', 'Bounty', 'Pool', 'Verified', 'Created']}>
+        {rows.length === 0 && <OpsEmpty>No studies yet.</OpsEmpty>}
+        {rows.map((s) => (
+          <tr key={s.id}>
+            <OpsTd mono dim nowrap>{(s.experiment_code as string | null) ?? '—'}</OpsTd>
+            <OpsTd>
+              <Link
+                href={`/experiments/${s.id}`}
+                target="_blank"
+                style={{ color: 'var(--teal-dark)', textDecoration: 'none', fontFamily: 'var(--font-body)', fontSize: 13 }}
+              >
+                {(s.title as string).slice(0, 50)}{(s.title as string).length > 50 ? '…' : ''}
+              </Link>
+            </OpsTd>
+            <OpsTd nowrap>
+              <OpsBadge tone={statusTone(s.status as string)}>{s.status as string}</OpsBadge>
+            </OpsTd>
+            <OpsTd dim>{s.category as string}</OpsTd>
+            <OpsTd mono dim nowrap>{s.slots_filled as number}/{s.slots_total as number}</OpsTd>
+            <OpsTd mono nowrap>${s.bounty_per_participant as number}</OpsTd>
+            <OpsTd mono dim nowrap>${(s.total_bounty_pool as number).toLocaleString()}</OpsTd>
+            <OpsTd nowrap>
+              {s.is_verified
+                ? <OpsBadge tone="teal">Verified</OpsBadge>
+                : <span style={{ color: 'var(--muted)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>—</span>}
+            </OpsTd>
+            <OpsTd mono dim nowrap>
+              {new Date(s.created_at as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </OpsTd>
+          </tr>
+        ))}
+      </OpsTable>
     </div>
   );
 }

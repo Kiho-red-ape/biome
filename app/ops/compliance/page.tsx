@@ -1,4 +1,6 @@
+import Link from 'next/link';
 import { createServiceClient } from '@/lib/supabase/server';
+import { OpsPageHeader, OpsCard, OpsTable, OpsTd, OpsEmpty, OpsBadge } from '../_components/ui';
 import { ComplianceExport } from './compliance-export';
 
 export default async function OpsCompliance({
@@ -22,36 +24,25 @@ export default async function OpsCompliance({
 
     const rows = (consents ?? []) as Record<string, unknown>[];
     content = (
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              {['App ID', 'Participant', 'Study', 'ICF Version', 'Consented At'].map((h) => (
-                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#475569', fontWeight: 400, whiteSpace: 'nowrap' }}>{h}</th>
-              ))}
+      <OpsTable head={['App ID', 'Participant', 'Study', 'ICF Version', 'Consented At']}>
+        {rows.length === 0 && <OpsEmpty>No consent records yet.</OpsEmpty>}
+        {rows.map((r) => {
+          const exp = r.experiments as { title: string } | null;
+          return (
+            <tr key={r.id as string}>
+              <OpsTd mono dim nowrap>{(r.id as string).slice(0, 8)}…</OpsTd>
+              <OpsTd mono dim nowrap>{(r.participant_id as string).slice(0, 20)}…</OpsTd>
+              <OpsTd>{exp?.title?.slice(0, 30) ?? '—'}</OpsTd>
+              <OpsTd mono dim>{(r.study_agreement_version as string | null) ?? '1'}</OpsTd>
+              <OpsTd mono dim nowrap>
+                {r.study_agreement_accepted_at
+                  ? new Date(r.study_agreement_accepted_at as string).toLocaleString()
+                  : '—'}
+              </OpsTd>
             </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && (
-              <tr><td colSpan={5} style={{ padding: 24, color: '#475569', textAlign: 'center' }}>No consent records yet.</td></tr>
-            )}
-            {rows.map((r) => {
-              const exp = r.experiments as { title: string } | null;
-              return (
-                <tr key={r.id as string} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: '8px 12px', color: '#475569', fontSize: 10 }}>{(r.id as string).slice(0, 8)}…</td>
-                  <td style={{ padding: '8px 12px', color: '#94a3b8', fontSize: 10 }}>{(r.participant_id as string).slice(0, 20)}…</td>
-                  <td style={{ padding: '8px 12px', color: '#94a3b8' }}>{exp?.title?.slice(0, 30) ?? '—'}</td>
-                  <td style={{ padding: '8px 12px', color: '#94a3b8' }}>{(r.study_agreement_version as string | null) ?? '1'}</td>
-                  <td style={{ padding: '8px 12px', color: '#475569', whiteSpace: 'nowrap' }}>
-                    {r.study_agreement_accepted_at ? new Date(r.study_agreement_accepted_at as string).toLocaleString() : '—'}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+          );
+        })}
+      </OpsTable>
     );
   }
 
@@ -64,35 +55,24 @@ export default async function OpsCompliance({
 
     const rows = (notifs ?? []) as Record<string, unknown>[];
     content = (
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              {['Recipient', 'Type', 'Message', 'Sent', 'Read'].map((h) => (
-                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#475569', fontWeight: 400, whiteSpace: 'nowrap' }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && (
-              <tr><td colSpan={5} style={{ padding: 24, color: '#475569', textAlign: 'center' }}>No communications yet.</td></tr>
-            )}
-            {rows.map((n) => (
-              <tr key={n.id as string} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                <td style={{ padding: '8px 12px', color: '#475569', fontSize: 10 }}>{(n.user_id as string).slice(0, 20)}…</td>
-                <td style={{ padding: '8px 12px', color: '#94a3b8' }}>{n.type as string}</td>
-                <td style={{ padding: '8px 12px', color: '#94a3b8', maxWidth: 300 }}>{(n.message as string).slice(0, 80)}</td>
-                <td style={{ padding: '8px 12px', color: '#475569', whiteSpace: 'nowrap' }}>
-                  {new Date(n.created_at as string).toLocaleDateString()}
-                </td>
-                <td style={{ padding: '8px 12px', color: n.is_read ? '#475569' : '#f59e0b' }}>
-                  {n.is_read ? '✓' : '●'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <OpsTable head={['Recipient', 'Type', 'Message', 'Sent', 'Read']}>
+        {rows.length === 0 && <OpsEmpty>No communications yet.</OpsEmpty>}
+        {rows.map((n) => (
+          <tr key={n.id as string}>
+            <OpsTd mono dim nowrap>{(n.user_id as string).slice(0, 20)}…</OpsTd>
+            <OpsTd nowrap><OpsBadge tone="slate">{n.type as string}</OpsBadge></OpsTd>
+            <OpsTd>{(n.message as string).slice(0, 80)}</OpsTd>
+            <OpsTd mono dim nowrap>
+              {new Date(n.created_at as string).toLocaleDateString()}
+            </OpsTd>
+            <OpsTd nowrap>
+              {n.is_read
+                ? <span style={{ color: 'var(--muted)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>Read</span>
+                : <OpsBadge tone="amber">Unread</OpsBadge>}
+            </OpsTd>
+          </tr>
+        ))}
+      </OpsTable>
     );
   }
 
@@ -104,35 +84,42 @@ export default async function OpsCompliance({
     content = <ComplianceExport studies={(studies ?? []) as { id: string; title: string; experiment_code: string | null }[]} />;
   }
 
+  const tabs = [
+    { key: 'consent', label: 'Consent Audit' },
+    { key: 'comms',   label: 'Communication Log' },
+    { key: 'export',  label: 'Export' },
+  ];
+
   return (
     <div>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 20 }}>
-        // COMPLIANCE
-      </p>
+      <OpsPageHeader label="Compliance" title="Compliance" />
 
       {/* Tab bar */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 24, borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 0 }}>
-        {[
-          { key: 'consent', label: 'Consent Audit' },
-          { key: 'comms',   label: 'Communication Log' },
-          { key: 'export',  label: 'Export' },
-        ].map(({ key, label }) => (
-          <a
-            key={key}
-            href={`/ops/compliance?tab=${key}`}
-            style={{
-              fontFamily:    'var(--font-mono)',
-              fontSize:      11,
-              padding:       '8px 16px',
-              color:         activeTab === key ? '#ffb300' : '#475569',
-              textDecoration: 'none',
-              borderBottom:  `2px solid ${activeTab === key ? '#ffb300' : 'transparent'}`,
-              letterSpacing: '0.5px',
-            }}
-          >
-            {label}
-          </a>
-        ))}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+        {tabs.map(({ key, label }) => {
+          const on = activeTab === key;
+          return (
+            <Link
+              key={key}
+              href={`/ops/compliance?tab=${key}`}
+              style={{
+                fontFamily:    'var(--font-mono)',
+                fontSize:      11,
+                fontWeight:    600,
+                letterSpacing: '0.5px',
+                padding:       '6px 14px',
+                borderRadius:  999,
+                border:        `1px solid ${on ? 'var(--teal)' : 'var(--border-mid)'}`,
+                background:    on ? 'var(--teal-soft)' : 'var(--surface)',
+                color:         on ? 'var(--teal-dark)' : 'var(--slate)',
+                textDecoration: 'none',
+                whiteSpace:    'nowrap',
+              }}
+            >
+              {label}
+            </Link>
+          );
+        })}
       </div>
 
       {content}

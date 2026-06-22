@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
+import { OpsPageHeader, OpsCard, OpsTable, OpsTd, OpsEmpty, OpsBadge, OpsButton, OpsAlert } from '../_components/ui';
 
 type AdminProfile = {
   id:             string;
@@ -14,24 +15,17 @@ type AdminProfile = {
 
 type MeStatus = { is_admin: boolean; is_super_admin: boolean };
 
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
-
-function Badge({ label, variant }: { label: string; variant: 'super' | 'admin' | 'none' }) {
-  const styles: Record<string, React.CSSProperties> = {
-    super: { background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' },
-    admin: { background: 'rgba(56,189,248,0.08)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.25)' },
-    none:  { background: 'rgba(255,255,255,0.04)', color: '#475569', border: '1px solid rgba(255,255,255,0.08)' },
-  };
-  return (
-    <span style={{
-      ...MONO, fontSize: 9, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
-      padding: '3px 10px', borderRadius: 3, display: 'inline-block',
-      ...styles[variant],
-    }}>
-      {label}
-    </span>
-  );
-}
+const INPUT: React.CSSProperties = {
+  flex:         '1 1 220px',
+  padding:      '9px 12px',
+  fontFamily:   'var(--font-mono)',
+  fontSize:     12,
+  background:   'var(--bg-page)',
+  border:       '1px solid var(--border-mid)',
+  borderRadius: 'var(--radius-sm)',
+  color:        'var(--ink)',
+  outline:      'none',
+};
 
 export default function AdminsPage() {
   const { user } = usePrivy();
@@ -42,13 +36,12 @@ export default function AdminsPage() {
   const [loading, setLoading]   = useState(true);
   const [newEmail, setNewEmail] = useState('');
   const [adding, setAdding]     = useState(false);
-  const [error, setError]       = useState<string | null>(null);
-  const [success, setSuccess]   = useState<string | null>(null);
+  const [toast, setToast]       = useState<{ ok: boolean; msg: string } | null>(null);
   const [revoking, setRevoking] = useState<string | null>(null);
 
-  function flash(type: 'ok' | 'err', msg: string) {
-    if (type === 'ok') { setSuccess(msg); setTimeout(() => setSuccess(null), 3000); }
-    else               { setError(msg);   setTimeout(() => setError(null),   4000); }
+  function flash(ok: boolean, msg: string) {
+    setToast({ ok, msg });
+    setTimeout(() => setToast(null), 4000);
   }
 
   async function load() {
@@ -59,7 +52,7 @@ export default function AdminsPage() {
         fetch(`/api/ops/me?privyDid=${encodeURIComponent(privyDid)}`),
         fetch(`/api/ops/admins?privyDid=${encodeURIComponent(privyDid)}`),
       ]);
-      const meData    = await meRes.json() as MeStatus;
+      const meData     = await meRes.json() as MeStatus;
       const adminsData = await adminsRes.json() as { admins?: AdminProfile[]; error?: string };
       setMe(meData);
       if (adminsData.admins) setAdmins(adminsData.admins);
@@ -75,22 +68,22 @@ export default function AdminsPage() {
     if (!privyDid || !newEmail.trim()) return;
     const email = newEmail.trim().toLowerCase();
     if (!email.endsWith('@biome.to')) {
-      flash('err', 'Only @biome.to email addresses can be made admin.');
+      flash(false, 'Only @biome.to email addresses can be made admin.');
       return;
     }
     setAdding(true);
     const res = await fetch('/api/ops/admins', {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ privyDid, targetEmail: email }),
+      body:    JSON.stringify({ privyDid, targetEmail: email }),
     });
     const data = await res.json() as { ok?: boolean; error?: string };
     if (data.ok) {
-      flash('ok', `Admin access granted to ${email}.`);
+      flash(true, `Admin access granted to ${email}.`);
       setNewEmail('');
       void load();
     } else {
-      flash('err', data.error ?? 'Failed to grant admin.');
+      flash(false, data.error ?? 'Failed to grant admin.');
     }
     setAdding(false);
   }
@@ -99,16 +92,16 @@ export default function AdminsPage() {
     if (!privyDid) return;
     setRevoking(email);
     const res = await fetch('/api/ops/admins', {
-      method: 'DELETE',
+      method:  'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ privyDid, targetEmail: email }),
+      body:    JSON.stringify({ privyDid, targetEmail: email }),
     });
     const data = await res.json() as { ok?: boolean; error?: string };
     if (data.ok) {
-      flash('ok', `Admin access revoked for ${email}.`);
+      flash(true, `Admin access revoked for ${email}.`);
       void load();
     } else {
-      flash('err', data.error ?? 'Failed to revoke admin.');
+      flash(false, data.error ?? 'Failed to revoke admin.');
     }
     setRevoking(null);
   }
@@ -117,42 +110,17 @@ export default function AdminsPage() {
 
   return (
     <div style={{ maxWidth: 720 }}>
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <p style={{ ...MONO, fontSize: 9, letterSpacing: '3px', textTransform: 'uppercase', color: '#f59e0b', marginBottom: 8 }}>
-          // TEAM_AND_ADMINS
-        </p>
-        <h1 style={{ ...MONO, fontSize: 18, fontWeight: 700, color: '#f8fafc', margin: '0 0 6px' }}>
-          Team & Admin Access
-        </h1>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: '#475569', margin: 0 }}>
-          Only <span style={{ ...MONO, fontSize: 12, color: '#94a3b8' }}>@biome.to</span> email addresses can hold admin access.
-          Super admins can grant and revoke admin — regular admins cannot.
-        </p>
-      </div>
+      <OpsPageHeader
+        label="Team"
+        title="Team & Admin Access"
+        subtitle="Only @biome.to email addresses can hold admin access. Super admins can grant and revoke — regular admins cannot."
+      />
 
-      {/* Toast */}
-      {success && (
-        <div style={{ ...MONO, fontSize: 12, color: '#4ade80', background: 'rgba(74,222,128,0.06)', border: '1px solid rgba(74,222,128,0.2)', borderRadius: 4, padding: '10px 16px', marginBottom: 20 }}>
-          ✓ {success}
-        </div>
-      )}
-      {error && (
-        <div style={{ ...MONO, fontSize: 12, color: '#f87171', background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 4, padding: '10px 16px', marginBottom: 20 }}>
-          ✗ {error}
-        </div>
-      )}
+      {toast && <OpsAlert tone={toast.ok ? 'ok' : 'err'}>{toast.msg}</OpsAlert>}
 
-      {/* Grant admin form — super admin only */}
       {isSuperAdmin && (
-        <div style={{
-          background: 'rgba(245,158,11,0.04)',
-          border: '1px solid rgba(245,158,11,0.14)',
-          borderRadius: 4,
-          padding: '20px 20px',
-          marginBottom: 28,
-        }}>
-          <p style={{ ...MONO, fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#f59e0b', marginBottom: 14 }}>
+        <OpsCard style={{ padding: '20px 20px', marginBottom: 28 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--teal-dark)', marginBottom: 14 }}>
             Grant admin access
           </p>
           <form onSubmit={(e) => void grantAdmin(e)} style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -162,139 +130,75 @@ export default function AdminsPage() {
               onChange={(e) => setNewEmail(e.target.value)}
               placeholder="name@biome.to"
               required
-              style={{
-                flex: '1 1 220px',
-                padding: '9px 12px',
-                ...MONO, fontSize: 12,
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 3,
-                color: '#f8fafc',
-                outline: 'none',
-              }}
+              style={INPUT}
             />
-            <button
-              type="submit"
-              disabled={adding}
-              style={{
-                padding: '9px 20px',
-                ...MONO, fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase',
-                background: adding ? 'rgba(245,158,11,0.06)' : 'rgba(245,158,11,0.1)',
-                border: '1px solid rgba(245,158,11,0.3)',
-                color: '#f59e0b',
-                borderRadius: 3,
-                cursor: adding ? 'default' : 'pointer',
-              }}
-            >
+            <OpsButton type="submit" disabled={adding} variant="primary">
               {adding ? 'Granting…' : 'Grant access'}
-            </button>
+            </OpsButton>
           </form>
-          <p style={{ ...MONO, fontSize: 10, color: '#475569', marginTop: 10, marginBottom: 0 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', marginTop: 10, marginBottom: 0 }}>
             The team member must have already signed in to Biome with their @biome.to email before you can grant access.
           </p>
-        </div>
+        </OpsCard>
       )}
 
-      {/* Current team table */}
-      <div style={{
-        background: '#0b1014',
-        border: '1px solid rgba(255,255,255,0.06)',
-        borderRadius: 4,
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 140px 120px',
-          padding: '10px 16px',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          background: 'rgba(255,255,255,0.02)',
-        }}>
-          {['Team member', 'Role', isSuperAdmin ? 'Actions' : ''].map((h) => (
-            <span key={h} style={{ ...MONO, fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#475569' }}>
-              {h}
-            </span>
-          ))}
-        </div>
-
+      <OpsTable head={['Team member', 'Role', isSuperAdmin ? 'Actions' : '']}>
         {loading && (
-          <div style={{ padding: '24px 16px', ...MONO, fontSize: 12, color: '#475569' }}>
-            Loading…
-          </div>
+          <tr>
+            <td colSpan={3} style={{ padding: '24px 16px', fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)' }}>
+              Loading…
+            </td>
+          </tr>
         )}
-
         {!loading && admins.length === 0 && (
-          <div style={{ padding: '24px 16px', ...MONO, fontSize: 12, color: '#475569' }}>
-            No @biome.to accounts found. Team members must sign in first.
-          </div>
+          <OpsEmpty>No @biome.to accounts found. Team members must sign in first.</OpsEmpty>
         )}
-
         {!loading && admins.map((a) => {
-          const roleLabel = a.is_super_admin ? 'Super admin' : a.is_admin ? 'Admin' : 'No access';
-          const roleVariant = a.is_super_admin ? 'super' : a.is_admin ? 'admin' : 'none';
-          const canRevoke = isSuperAdmin && a.is_admin && !a.is_super_admin;
+          const roleLabel   = a.is_super_admin ? 'Super admin' : a.is_admin ? 'Admin' : 'No access';
+          const roleTone    = a.is_super_admin ? 'amber' : a.is_admin ? 'teal' : 'slate';
+          const canRevoke   = isSuperAdmin && a.is_admin && !a.is_super_admin;
 
           return (
-            <div
-              key={a.id}
-              style={{
-                display: 'grid', gridTemplateColumns: '1fr 140px 120px',
-                alignItems: 'center',
-                padding: '13px 16px',
-                borderBottom: '1px solid rgba(255,255,255,0.04)',
-              }}
-            >
-              <div>
-                <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: '#f8fafc' }}>
+            <tr key={a.id}>
+              <OpsTd>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--ink)', marginBottom: 2 }}>
                   {a.display_name ?? '—'}
                 </div>
-                <div style={{ ...MONO, fontSize: 11, color: '#475569', marginTop: 2 }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
                   {a.email}
                 </div>
-              </div>
-
-              <div>
-                <Badge label={roleLabel} variant={roleVariant} />
-              </div>
-
-              <div>
+              </OpsTd>
+              <OpsTd nowrap>
+                <OpsBadge tone={roleTone as 'amber' | 'teal' | 'slate'}>{roleLabel}</OpsBadge>
+              </OpsTd>
+              <OpsTd nowrap>
                 {canRevoke && (
-                  <button
+                  <OpsButton
                     onClick={() => a.email && void revokeAdmin(a.email)}
                     disabled={revoking === a.email}
-                    style={{
-                      ...MONO, fontSize: 10, letterSpacing: '0.5px', textTransform: 'uppercase',
-                      padding: '5px 12px',
-                      background: 'transparent',
-                      border: '1px solid rgba(248,113,113,0.25)',
-                      color: '#f87171',
-                      borderRadius: 3,
-                      cursor: revoking === a.email ? 'default' : 'pointer',
-                      opacity: revoking === a.email ? 0.5 : 1,
-                    }}
+                    variant="danger"
                   >
                     {revoking === a.email ? 'Revoking…' : 'Revoke'}
-                  </button>
+                  </OpsButton>
                 )}
                 {a.is_super_admin && (
-                  <span style={{ ...MONO, fontSize: 10, color: '#475569' }}>Protected</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>Protected</span>
                 )}
-              </div>
-            </div>
+              </OpsTd>
+            </tr>
           );
         })}
-      </div>
+      </OpsTable>
 
-      {/* Legend */}
       <div style={{ marginTop: 20, display: 'flex', gap: 20, flexWrap: 'wrap' }}>
         {[
           { label: 'Super admin', desc: 'Full access + can manage team admins. Cannot be revoked via UI.' },
-          { label: 'Admin', desc: 'Full ops access. Cannot add or remove admins.' },
-          { label: 'No access', desc: 'Has a @biome.to account but no ops access yet.' },
+          { label: 'Admin',       desc: 'Full ops access. Cannot add or remove admins.' },
+          { label: 'No access',   desc: 'Has a @biome.to account but no ops access yet.' },
         ].map((l) => (
-          <div key={l.label} style={{ display: 'flex', gap: 6 }}>
-            <span style={{ ...MONO, fontSize: 10, color: '#475569' }}>
-              <span style={{ color: '#94a3b8' }}>{l.label}:</span> {l.desc}
-            </span>
-          </div>
+          <span key={l.label} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)' }}>
+            <span style={{ color: 'var(--slate)' }}>{l.label}:</span> {l.desc}
+          </span>
         ))}
       </div>
     </div>

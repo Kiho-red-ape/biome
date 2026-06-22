@@ -1,8 +1,24 @@
 'use client';
 
 import { useState } from 'react';
+import { OpsCard, OpsBadge } from '../_components/ui';
 
 interface Props { lead: Record<string, unknown> }
+
+const TA: React.CSSProperties = {
+  fontFamily:   'var(--font-mono)',
+  fontSize:     12,
+  color:        'var(--ink)',
+  background:   'var(--bg-page)',
+  border:       '1px solid var(--border-mid)',
+  borderRadius: 'var(--radius-sm)',
+  padding:      '8px 12px',
+  resize:       'vertical',
+  outline:      'none',
+  width:        '100%',
+  boxSizing:    'border-box',
+  lineHeight:   1.6,
+};
 
 export function EstimateLeadRow({ lead }: Props) {
   const [contacted, setContacted] = useState(!!lead.contacted);
@@ -10,19 +26,14 @@ export function EstimateLeadRow({ lead }: Props) {
   const [saving,    setSaving]    = useState(false);
   const [open,      setOpen]      = useState(false);
 
-  const rawBd = lead.estimate_breakdown as Record<string, unknown> | null;
-
-  // New-shape breakdown: { buckets, cro_low, cro_high, internal }
+  const rawBd    = lead.estimate_breakdown as Record<string, unknown> | null;
   const internal = (rawBd?.internal ?? null) as {
     recruitmentCost?: number; sampleCost?: number; compensationCost?: number;
     passThroughCost?: number; serviceFee?: number; recruitTarget?: number;
     estimatedActualCost?: number; estimatedMargin?: number; riskFlags?: string[];
   } | null;
-  const buckets = (rawBd?.buckets ?? null) as Record<string, number> | null;
-  // Legacy flat breakdown (older leads): plain { recruitment, samples, ... }
-  const legacyBd = !internal && !buckets && rawBd
-    ? (rawBd as Record<string, number>)
-    : null;
+  const buckets  = (rawBd?.buckets ?? null) as Record<string, number> | null;
+  const legacyBd = !internal && !buckets && rawBd ? (rawBd as Record<string, number>) : null;
   const clientTotal = lead.estimated_total as number | undefined;
 
   async function markContacted() {
@@ -47,14 +58,10 @@ export function EstimateLeadRow({ lead }: Props) {
   }
 
   return (
-    <div style={{
-      background: '#0b1014',
-      border:     `1px solid ${contacted ? 'rgba(255,255,255,0.04)' : 'rgba(56,189,248,0.12)'}`,
-      borderRadius: 2,
-      overflow:   'hidden',
-    }}>
-      {/* Header row */}
+    <OpsCard style={{ overflow: 'hidden', opacity: contacted ? 0.75 : 1 }}>
+      {/* Header row — always visible */}
       <div
+        onClick={() => setOpen(o => !o)}
         style={{
           display:        'flex',
           justifyContent: 'space-between',
@@ -64,50 +71,36 @@ export function EstimateLeadRow({ lead }: Props) {
           flexWrap:       'wrap',
           gap:            8,
         }}
-        onClick={() => setOpen(o => !o)}
       >
         <div>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f8fafc' }}>
-            {(lead.email as string)}
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 14, color: 'var(--ink)' }}>
+            {lead.email as string}
           </span>
           {!!lead.organization && (
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569', marginLeft: 10 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', marginLeft: 10 }}>
               {lead.organization as string}
             </span>
           )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {!!lead.estimated_total && (
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f59e0b' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: 'var(--teal-dark)' }}>
               ${(lead.estimated_total as number).toLocaleString()}
             </span>
           )}
-          <span style={{
-            fontFamily:   'var(--font-mono)',
-            fontSize:     9,
-            letterSpacing: '1px',
-            textTransform: 'uppercase',
-            color:        contacted ? '#475569' : '#38bdf8',
-            border:       `1px solid ${contacted ? 'rgba(255,255,255,0.08)' : 'rgba(56,189,248,0.3)'}`,
-            padding:      '2px 8px',
-            borderRadius: 2,
-          }}>
-            {contacted ? 'contacted' : 'new'}
+          <OpsBadge tone={contacted ? 'slate' : 'teal'}>{contacted ? 'contacted' : 'new'}</OpsBadge>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)' }}>
+            {new Date(lead.created_at as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
-            {new Date(lead.created_at as string).toLocaleDateString()}
-          </span>
-          <span style={{ color: '#475569', fontSize: 10 }}>{open ? '▲' : '▼'}</span>
+          <span style={{ color: 'var(--muted)', fontSize: 10 }}>{open ? '▲' : '▼'}</span>
         </div>
       </div>
 
       {/* Expanded detail */}
       {open && (
-        <div style={{ padding: '0 20px 20px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-          {/* Study details */}
-          <div style={{
-            display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 16, marginBottom: 16,
-          }}>
+        <div style={{ padding: '0 20px 20px', borderTop: '1px solid var(--border-soft)' }}>
+          {/* Study meta */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginTop: 16, marginBottom: 16 }}>
             {[
               ['Type',         lead.study_type],
               ['Sponsor',      lead.sponsor_type],
@@ -117,71 +110,73 @@ export function EstimateLeadRow({ lead }: Props) {
               ['Samples',      (lead.samples as string[] | null)?.join(', ')],
               ['IRB',          lead.irb_status],
             ].filter(([, v]) => v).map(([k, v]) => (
-              <span key={k as string} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
-                <span style={{ color: '#7f8e87' }}>{k as string}:</span> {String(v)}
+              <span key={k as string} style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)' }}>
+                <span style={{ color: 'var(--muted)' }}>{k as string}:</span> {String(v)}
               </span>
             ))}
           </div>
 
-          {/* Internal estimate breakdown — operator only */}
+          {/* Internal breakdown */}
           {internal && (
             <div style={{
               marginBottom: 16,
-              padding: '14px 16px',
-              background: 'rgba(245,158,11,0.04)',
-              border: '1px solid rgba(245,158,11,0.14)',
-              borderRadius: 2,
+              padding:      '14px 16px',
+              background:   'var(--bg-page)',
+              border:       '1px solid var(--border-soft)',
+              borderRadius: 'var(--radius-sm)',
             }}>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: '#f59e0b', marginBottom: 12 }}>
-                Internal estimate breakdown · operator only
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 12 }}>
+                Internal estimate · operator only
               </p>
 
               {clientTotal !== undefined && (
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#94a3b8', marginBottom: 12 }}>
-                  <span style={{ color: '#7f8e87' }}>Client sees total:</span>{' '}
-                  <span style={{ color: '#f8fafc', fontWeight: 700 }}>${clientTotal.toLocaleString()}</span>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--slate)', marginBottom: 12 }}>
+                  <span style={{ color: 'var(--muted)' }}>Client sees total:</span>{' '}
+                  <span style={{ color: 'var(--ink)', fontWeight: 700 }}>${clientTotal.toLocaleString()}</span>
                 </p>
               )}
 
               {(() => {
-                const rows: [string, string][] = [
-                  ['Recruitment (risk + dropout)', internal.recruitmentCost != null ? `$${internal.recruitmentCost.toLocaleString()}` : '—'],
-                  ['Samples (kits + shipping + lab)', internal.sampleCost != null ? `$${internal.sampleCost.toLocaleString()}` : '—'],
-                  ['Compensation', internal.compensationCost != null ? `$${internal.compensationCost.toLocaleString()}` : '—'],
-                  ['Pass-through subtotal', internal.passThroughCost != null ? `$${internal.passThroughCost.toLocaleString()}` : '—'],
-                  ['Service fee (margin)', internal.serviceFee != null ? `$${internal.serviceFee.toLocaleString()}` : '—'],
-                  ['Client total', clientTotal != null ? `$${clientTotal.toLocaleString()}` : '—'],
+                const rows2: [string, string][] = [
+                  ['Recruitment (risk + dropout)', internal.recruitmentCost  != null ? `$${internal.recruitmentCost.toLocaleString()}`  : '—'],
+                  ['Samples (kits + shipping + lab)', internal.sampleCost   != null ? `$${internal.sampleCost.toLocaleString()}`        : '—'],
+                  ['Compensation',                    internal.compensationCost != null ? `$${internal.compensationCost.toLocaleString()}` : '—'],
+                  ['Pass-through subtotal',           internal.passThroughCost  != null ? `$${internal.passThroughCost.toLocaleString()}`  : '—'],
+                  ['Service fee (margin)',             internal.serviceFee       != null ? `$${internal.serviceFee.toLocaleString()}`       : '—'],
+                  ['Client total',                    clientTotal               != null ? `$${clientTotal.toLocaleString()}`               : '—'],
                 ];
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 12 }}>
-                    {rows.map(([k, v], i) => (
+                    {rows2.map(([k, v], i) => (
                       <div key={k} style={{
-                        display: 'flex', justifyContent: 'space-between', gap: 16,
-                        paddingTop: i === 3 || i === 5 ? 5 : 0,
-                        borderTop: i === 3 || i === 5 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                        display:     'flex',
+                        justifyContent: 'space-between',
+                        gap:         16,
+                        paddingTop:  i === 3 || i === 5 ? 5 : 0,
+                        borderTop:   i === 3 || i === 5 ? '1px solid var(--border-soft)' : 'none',
                       }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#7f8e87' }}>{k}</span>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: i >= 3 ? '#f8fafc' : '#94a3b8', fontWeight: i === 5 ? 700 : 400 }}>{v}</span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)' }}>{k}</span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: i >= 3 ? 'var(--ink)' : 'var(--slate)', fontWeight: i === 5 ? 700 : 400 }}>{v}</span>
                       </div>
                     ))}
                   </div>
                 );
               })()}
 
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, paddingTop: 10, borderTop: '1px solid var(--border-soft)' }}>
                 {internal.estimatedActualCost != null && (
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#94a3b8' }}>
-                    <span style={{ color: '#7f8e87' }}>Est. cost to deliver:</span> ${internal.estimatedActualCost.toLocaleString()}
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)' }}>
+                    <span style={{ color: 'var(--muted)' }}>Est. cost to deliver:</span> ${internal.estimatedActualCost.toLocaleString()}
                   </span>
                 )}
                 {internal.estimatedMargin != null && (
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4ade80' }}>
-                    <span style={{ color: '#7f8e87' }}>Est. gross margin:</span> {internal.estimatedMargin}%
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#15803d', fontWeight: 600 }}>
+                    <span style={{ color: 'var(--muted)', fontWeight: 400 }}>Est. gross margin:</span> {internal.estimatedMargin}%
                   </span>
                 )}
                 {internal.recruitTarget != null && (
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#94a3b8' }}>
-                    <span style={{ color: '#7f8e87' }}>Recruit target (30% buffer):</span> {internal.recruitTarget}
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)' }}>
+                    <span style={{ color: 'var(--muted)' }}>Recruit target (30% buffer):</span> {internal.recruitTarget}
                   </span>
                 )}
               </div>
@@ -189,31 +184,28 @@ export function EstimateLeadRow({ lead }: Props) {
               {internal.riskFlags && internal.riskFlags.length > 0 && (
                 <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {internal.riskFlags.map(flag => (
-                    <span key={flag} style={{
-                      fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.5px',
-                      color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)',
-                      borderRadius: 2, padding: '2px 8px',
-                    }}>
-                      {flag}
-                    </span>
+                    <OpsBadge key={flag} tone="amber">{flag}</OpsBadge>
                   ))}
                 </div>
               )}
             </div>
           )}
 
-          {/* Legacy flat breakdown (older leads) */}
+          {/* Legacy flat breakdown */}
           {legacyBd && (
             <div style={{
-              display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 16,
-              padding: '12px 16px',
-              background: 'rgba(245,158,11,0.03)',
-              border: '1px solid rgba(245,158,11,0.08)',
-              borderRadius: 2,
+              display:      'flex',
+              flexWrap:     'wrap',
+              gap:          14,
+              marginBottom: 16,
+              padding:      '12px 16px',
+              background:   'var(--bg-page)',
+              border:       '1px solid var(--border-soft)',
+              borderRadius: 'var(--radius-sm)',
             }}>
               {Object.entries(legacyBd).map(([k, v]) => (
-                <span key={k} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#94a3b8' }}>
-                  <span style={{ color: '#7f8e87' }}>{k}:</span> ${typeof v === 'number' ? v.toLocaleString() : String(v)}
+                <span key={k} style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)' }}>
+                  <span style={{ color: 'var(--muted)' }}>{k}:</span> ${typeof v === 'number' ? v.toLocaleString() : String(v)}
                 </span>
               ))}
             </div>
@@ -225,58 +217,47 @@ export function EstimateLeadRow({ lead }: Props) {
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Internal notes…"
             rows={2}
-            style={{
-              width:       '100%',
-              fontFamily:  'var(--font-mono)',
-              fontSize:    12,
-              color:       '#94a3b8',
-              background:  'rgba(255,255,255,0.03)',
-              border:      '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 2,
-              padding:     '8px 12px',
-              resize:      'vertical',
-              outline:     'none',
-              marginBottom: 12,
-              boxSizing:   'border-box',
-            }}
+            style={{ ...TA, marginBottom: 12 }}
           />
 
           {/* Actions */}
           <div style={{ display: 'flex', gap: 10 }}>
             {!contacted && (
               <button
-                onClick={markContacted}
+                onClick={() => void markContacted()}
                 disabled={saving}
                 style={{
                   fontFamily:    'var(--font-mono)',
-                  fontSize:      10,
-                  letterSpacing: '1px',
-                  textTransform: 'uppercase',
-                  padding:       '6px 16px',
-                  background:    'rgba(56,189,248,0.08)',
-                  border:        '1px solid rgba(56,189,248,0.3)',
-                  color:         '#38bdf8',
-                  borderRadius:  2,
-                  cursor:        'pointer',
+                  fontSize:      11,
+                  fontWeight:    600,
+                  letterSpacing: '0.5px',
+                  padding:       '7px 16px',
+                  background:    'var(--teal)',
+                  border:        '1px solid var(--teal)',
+                  color:         '#fff',
+                  borderRadius:  'var(--radius-sm)',
+                  cursor:        saving ? 'default' : 'pointer',
+                  opacity:       saving ? 0.6 : 1,
                 }}
               >
                 {saving ? 'Saving…' : '✓ Mark contacted'}
               </button>
             )}
             <button
-              onClick={saveNotes}
+              onClick={() => void saveNotes()}
               disabled={saving}
               style={{
                 fontFamily:    'var(--font-mono)',
-                fontSize:      10,
-                letterSpacing: '1px',
-                textTransform: 'uppercase',
-                padding:       '6px 16px',
-                background:    'transparent',
-                border:        '1px solid rgba(255,255,255,0.1)',
-                color:         '#475569',
-                borderRadius:  2,
-                cursor:        'pointer',
+                fontSize:      11,
+                fontWeight:    600,
+                letterSpacing: '0.5px',
+                padding:       '7px 16px',
+                background:    'var(--surface)',
+                border:        '1px solid var(--border-mid)',
+                color:         'var(--slate)',
+                borderRadius:  'var(--radius-sm)',
+                cursor:        saving ? 'default' : 'pointer',
+                opacity:       saving ? 0.6 : 1,
               }}
             >
               Save notes
@@ -284,6 +265,6 @@ export function EstimateLeadRow({ lead }: Props) {
           </div>
         </div>
       )}
-    </div>
+    </OpsCard>
   );
 }

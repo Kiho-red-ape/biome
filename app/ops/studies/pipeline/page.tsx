@@ -1,13 +1,12 @@
 import { createServiceClient } from '@/lib/supabase/server';
+import { OpsPageHeader, OpsCard, OpsBadge } from '../../_components/ui';
 import { IntakeTriage } from './intake-triage';
 
-const STATUS_COLOR: Record<string, string> = {
-  new:       '#ffb300',
-  reviewing: '#38bdf8',
-  qualified: '#f59e0b',
-  nurture:   '#94a3b8',
-  declined:  '#475569',
-  converted: '#f59e0b',
+type BadgeTone = 'teal' | 'green' | 'amber' | 'red' | 'slate' | 'blue';
+
+const STATUS_TONE: Record<string, BadgeTone> = {
+  new: 'amber', reviewing: 'blue', qualified: 'green',
+  nurture: 'slate', declined: 'red', converted: 'teal',
 };
 
 export default async function OpsPipeline() {
@@ -21,66 +20,59 @@ export default async function OpsPipeline() {
 
   return (
     <div>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 20 }}>
-        // PIPELINE — CLIENT_INTAKES
-      </p>
+      <OpsPageHeader
+        label="Studies"
+        title="Client Intake Pipeline"
+        subtitle={`${rows.length} intake${rows.length === 1 ? '' : 's'} total`}
+      />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {rows.length === 0 && (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>No intakes yet.</p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>No intakes yet.</p>
         )}
         {rows.map((intake) => (
-          <div key={intake.id as string} style={{
-            background: '#0b1014', border: '1px solid rgba(255,255,255,0.06)',
-            padding: '20px 24px', borderRadius: 2,
-          }}>
+          <OpsCard key={intake.id as string} style={{ padding: '20px 24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
               <div>
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f8fafc', marginBottom: 2 }}>
+                <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15, color: 'var(--ink)', marginBottom: 4 }}>
                   {intake.study_title as string}
                 </p>
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
                   {intake.organization as string} · {intake.name as string} · {intake.email as string}
                 </p>
               </div>
-              <span style={{
-                fontFamily:    'var(--font-mono)',
-                fontSize:      10,
-                color:         STATUS_COLOR[(intake.triage_status as string) ?? 'new'] ?? '#475569',
-                background:    'rgba(255,255,255,0.04)',
-                border:        '1px solid rgba(255,255,255,0.08)',
-                padding:       '3px 10px',
-                borderRadius:  2,
-                letterSpacing: '1px',
-                textTransform: 'uppercase',
-              }}>
+              <OpsBadge tone={STATUS_TONE[intake.triage_status as string] ?? 'slate'}>
                 {intake.triage_status as string}
-              </span>
+              </OpsBadge>
             </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 12 }}>
               {[
                 ['Type',         intake.study_type as string | null],
                 ['Participants', intake.target_participants as number | null],
                 ['Budget',       intake.budget_range as string | null],
                 ['Geography',    (intake.geography as string[] | null)?.join(', ')],
                 ['IRB',          intake.irb_status as string | null],
-                ['Submitted',    new Date(intake.created_at as string).toLocaleDateString()],
+                ['Submitted',    new Date(intake.created_at as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })],
               ].filter(([, v]) => v).map(([k, v]) => (
-                <span key={k as string} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
-                  <span style={{ color: '#7f8e87' }}>{k as string}:</span> {String(v)}
+                <span key={k as string} style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)' }}>
+                  <span style={{ color: 'var(--muted)' }}>{k as string}:</span> {String(v)}
                 </span>
               ))}
             </div>
 
             {!!intake.description && (
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#94a3b8', lineHeight: 1.6, marginBottom: 16 }}>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)', lineHeight: 1.6, marginBottom: 16 }}>
                 {intake.description as string}
               </p>
             )}
 
-            <IntakeTriage intakeId={intake.id as string} currentStatus={intake.triage_status as string} currentNotes={intake.triage_notes as string | null} />
-          </div>
+            <IntakeTriage
+              intakeId={intake.id as string}
+              currentStatus={intake.triage_status as string}
+              currentNotes={intake.triage_notes as string | null}
+            />
+          </OpsCard>
         ))}
       </div>
     </div>

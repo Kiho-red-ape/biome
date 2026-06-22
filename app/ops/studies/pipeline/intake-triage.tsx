@@ -13,10 +13,10 @@ export function IntakeTriage({
   currentStatus: string;
   currentNotes: string | null;
 }) {
-  const [status, setStatus]   = useState(currentStatus);
-  const [notes,  setNotes]    = useState(currentNotes ?? '');
-  const [saving, setSaving]   = useState(false);
-  const [saved,  setSaved]    = useState(false);
+  const [status, setStatus] = useState(currentStatus);
+  const [notes,  setNotes]  = useState(currentNotes ?? '');
+  const [saving, setSaving] = useState(false);
+  const [saved,  setSaved]  = useState(false);
 
   async function save() {
     setSaving(true);
@@ -31,33 +31,34 @@ export function IntakeTriage({
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {/* Status buttons */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 12, borderTop: '1px solid var(--border-soft)' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-        {STATUSES.map((s) => (
-          <button
-            key={s}
-            onClick={() => setStatus(s)}
-            style={{
-              fontFamily:   'var(--font-mono)',
-              fontSize:     10,
-              padding:      '4px 10px',
-              background:   status === s ? 'rgba(255,179,0,0.1)' : 'transparent',
-              border:       `1px solid ${status === s ? 'rgba(255,179,0,0.4)' : 'rgba(255,255,255,0.08)'}`,
-              color:        status === s ? '#ffb300' : '#475569',
-              cursor:       'pointer',
-              borderRadius: 2,
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-              transition:   'all 100ms',
-            }}
-          >
-            {s}
-          </button>
-        ))}
+        {STATUSES.map((s) => {
+          const on = status === s;
+          return (
+            <button
+              key={s}
+              onClick={() => setStatus(s)}
+              style={{
+                fontFamily:    'var(--font-mono)',
+                fontSize:      10,
+                fontWeight:    600,
+                letterSpacing: '0.5px',
+                padding:       '4px 12px',
+                borderRadius:  999,
+                border:        `1px solid ${on ? 'var(--teal)' : 'var(--border-mid)'}`,
+                background:    on ? 'var(--teal-soft)' : 'var(--surface)',
+                color:         on ? 'var(--teal-dark)' : 'var(--slate)',
+                cursor:        'pointer',
+                transition:    'all 100ms',
+              }}
+            >
+              {s}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Notes */}
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
@@ -65,15 +66,15 @@ export function IntakeTriage({
         rows={2}
         style={{
           width:        '100%',
-          background:   '#060a14',
-          border:       '1px solid rgba(255,255,255,0.06)',
-          color:        '#94a3b8',
+          background:   'var(--bg-page)',
+          border:       '1px solid var(--border-mid)',
+          color:        'var(--ink)',
           fontFamily:   'var(--font-mono)',
-          fontSize:     11,
+          fontSize:     12,
           padding:      '8px 10px',
           resize:       'vertical',
           outline:      'none',
-          borderRadius: 2,
+          borderRadius: 'var(--radius-sm)',
           boxSizing:    'border-box',
         }}
       />
@@ -82,18 +83,18 @@ export function IntakeTriage({
         onClick={() => void save()}
         disabled={saving}
         style={{
-          fontFamily:   'var(--font-mono)',
-          fontSize:     10,
-          padding:      '6px 14px',
-          background:   saved ? 'rgba(245,158,11,0.1)' : 'rgba(255,179,0,0.08)',
-          border:       `1px solid ${saved ? 'rgba(245,158,11,0.3)' : 'rgba(255,179,0,0.2)'}`,
-          color:        saved ? '#f59e0b' : '#ffb300',
-          cursor:       'pointer',
-          borderRadius: 2,
-          alignSelf:    'flex-start',
-          transition:   'all 150ms',
-          letterSpacing: '1px',
-          textTransform: 'uppercase',
+          fontFamily:    'var(--font-mono)',
+          fontSize:      11,
+          fontWeight:    600,
+          letterSpacing: '0.5px',
+          padding:       '7px 16px',
+          background:    saved ? 'rgba(22,163,74,0.08)' : 'var(--surface)',
+          border:        `1px solid ${saved ? 'rgba(22,163,74,0.3)' : 'var(--border-mid)'}`,
+          color:         saved ? '#15803d' : 'var(--slate)',
+          cursor:        'pointer',
+          borderRadius:  'var(--radius-sm)',
+          alignSelf:     'flex-start',
+          transition:    'all 150ms',
         }}
       >
         {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save triage'}

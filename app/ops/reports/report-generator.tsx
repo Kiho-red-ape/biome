@@ -4,6 +4,19 @@ import { useState } from 'react';
 
 interface Study { id: string; title: string; experiment_code: string | null; status: string }
 
+const SEL: React.CSSProperties = {
+  fontFamily:   'var(--font-mono)',
+  fontSize:     12,
+  color:        'var(--ink)',
+  background:   'var(--bg-page)',
+  border:       '1px solid var(--border-mid)',
+  borderRadius: 'var(--radius-sm)',
+  padding:      '8px 12px',
+  outline:      'none',
+  minWidth:     280,
+  appearance:   'none',
+};
+
 export function ReportGenerator({ studies }: { studies: Study[] }) {
   const [selectedStudy, setSelectedStudy] = useState('');
   const [generating,    setGenerating]    = useState(false);
@@ -41,26 +54,12 @@ export function ReportGenerator({ studies }: { studies: Study[] }) {
 
   return (
     <div>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#94a3b8', lineHeight: 1.7, marginBottom: 24 }}>
-        Generate a weekly sponsor report for a study. Includes enrollment status,
-        compliance metrics, sample logistics, payout summary, and risks.
-        Download as Markdown and send to the sponsor manually.
-      </p>
-
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 24 }}>
         <div>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#475569', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 6 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 6 }}>
             Select study
           </p>
-          <select
-            value={selectedStudy}
-            onChange={(e) => setSelectedStudy(e.target.value)}
-            style={{
-              background: '#0b1014', border: '1px solid rgba(255,255,255,0.08)',
-              color: '#f8fafc', fontFamily: 'var(--font-mono)', fontSize: 11,
-              padding: '8px 12px', borderRadius: 2, outline: 'none', minWidth: 280, appearance: 'none',
-            }}
-          >
+          <select value={selectedStudy} onChange={(e) => setSelectedStudy(e.target.value)} style={SEL}>
             <option value="">— choose a study —</option>
             {studies.map((s) => (
               <option key={s.id} value={s.id}>
@@ -74,12 +73,17 @@ export function ReportGenerator({ studies }: { studies: Study[] }) {
           onClick={() => void generate()}
           disabled={!selectedStudy || generating}
           style={{
-            fontFamily: 'var(--font-mono)', fontSize: 11, padding: '8px 20px',
-            background: selectedStudy ? 'rgba(255,179,0,0.08)' : 'transparent',
-            border: `1px solid ${selectedStudy ? 'rgba(255,179,0,0.3)' : 'rgba(255,255,255,0.06)'}`,
-            color: selectedStudy ? '#ffb300' : '#475569',
-            cursor: selectedStudy ? 'pointer' : 'default',
-            borderRadius: 2, textTransform: 'uppercase', letterSpacing: '1px',
+            fontFamily:    'var(--font-mono)',
+            fontSize:      11,
+            fontWeight:    600,
+            letterSpacing: '0.5px',
+            padding:       '8px 20px',
+            background:    selectedStudy && !generating ? 'var(--teal)' : 'var(--surface)',
+            border:        `1px solid ${selectedStudy && !generating ? 'var(--teal)' : 'var(--border-mid)'}`,
+            color:         selectedStudy && !generating ? '#fff' : 'var(--muted)',
+            cursor:        selectedStudy && !generating ? 'pointer' : 'default',
+            borderRadius:  'var(--radius-sm)',
+            opacity:       (!selectedStudy || generating) ? 0.6 : 1,
           }}
         >
           {generating ? 'Generating…' : 'Generate report →'}
@@ -87,35 +91,41 @@ export function ReportGenerator({ studies }: { studies: Study[] }) {
       </div>
 
       {error && (
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#ffb300', marginBottom: 16 }}>{error}</p>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#b91c1c', marginBottom: 16 }}>{error}</p>
       )}
 
       {report && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#15803d', letterSpacing: '0.5px' }}>
               ✓ Report generated
             </p>
             <button
               onClick={download}
               style={{
-                fontFamily: 'var(--font-mono)', fontSize: 10, padding: '5px 12px',
-                background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)',
-                color: '#f59e0b', cursor: 'pointer', borderRadius: 2,
-                textTransform: 'uppercase', letterSpacing: '1px',
+                fontFamily:    'var(--font-mono)',
+                fontSize:      11,
+                fontWeight:    600,
+                letterSpacing: '0.5px',
+                padding:       '6px 14px',
+                background:    'var(--surface)',
+                border:        '1px solid var(--border-mid)',
+                color:         'var(--slate)',
+                cursor:        'pointer',
+                borderRadius:  'var(--radius-sm)',
               }}
             >
               Download .md
             </button>
           </div>
           <pre style={{
-            background:   '#0b1014',
-            border:       '1px solid rgba(255,255,255,0.06)',
+            background:   'var(--bg-page)',
+            border:       '1px solid var(--border-soft)',
             padding:      '20px 24px',
-            borderRadius: 2,
+            borderRadius: 'var(--radius)',
             fontFamily:   'var(--font-mono)',
             fontSize:     11,
-            color:        '#94a3b8',
+            color:        'var(--slate)',
             lineHeight:   1.7,
             overflowX:    'auto',
             whiteSpace:   'pre-wrap',

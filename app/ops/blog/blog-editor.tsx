@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { OpsPageHeader, OpsCard, OpsButton, OpsAlert } from '../_components/ui';
 
 interface Post {
   id: string; slug: string; title: string; excerpt: string | null;
@@ -16,41 +17,43 @@ function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-const inputStyle: React.CSSProperties = {
+const INPUT: React.CSSProperties = {
   fontFamily:   'var(--font-mono)',
   fontSize:     12,
-  color:        '#f8fafc',
-  background:   'rgba(255,255,255,0.04)',
-  border:       '1px solid rgba(255,255,255,0.1)',
-  borderRadius: 2,
-  padding:      '8px 12px',
+  color:        'var(--ink)',
+  background:   'var(--bg-page)',
+  border:       '1px solid var(--border-mid)',
+  borderRadius: 'var(--radius-sm)',
+  padding:      '9px 12px',
   width:        '100%',
   outline:      'none',
   boxSizing:    'border-box',
 };
 
-const labelStyle: React.CSSProperties = {
+const LABEL: React.CSSProperties = {
   fontFamily:    'var(--font-mono)',
-  fontSize:      10,
-  color:         '#475569',
+  fontSize:      9,
   letterSpacing: '1px',
+  textTransform: 'uppercase',
+  color:         'var(--muted)',
   display:       'block',
   marginBottom:  6,
 };
 
-const hintStyle: React.CSSProperties = {
+const HINT: React.CSSProperties = {
   fontFamily: 'var(--font-mono)',
   fontSize:   10,
-  color:      '#3a4a43',
-  marginTop:  4,
+  color:      'var(--muted)',
+  marginTop:  5,
 };
 
-function SectionDivider({ label }: { label: string }) {
+function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 20, marginTop: 4 }}>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2.5px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 14 }}>
-        // {label}
+    <div style={{ borderTop: '1px solid var(--border-soft)', paddingTop: 20, marginTop: 8 }}>
+      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2.5px', textTransform: 'uppercase', color: 'var(--teal-dark)', marginBottom: 16 }}>
+        {label}
       </p>
+      {children}
     </div>
   );
 }
@@ -87,17 +90,17 @@ export function BlogEditor({ post }: Props) {
     setError('');
     const finalStatus = newStatus ?? status;
     const body = {
-      title:         title.trim(),
-      slug:          slug.trim(),
-      excerpt:       excerpt.trim() || null,
-      hook:          hook.trim() || null,
-      content:       content.trim(),
-      author:        author.trim() || 'Kishore Ramesh Kumar',
-      tags:          tags.split(',').map(t => t.trim()).filter(Boolean),
-      status:        finalStatus,
-      artifact_url:  artifactUrl.trim() || null,
+      title:          title.trim(),
+      slug:           slug.trim(),
+      excerpt:        excerpt.trim() || null,
+      hook:           hook.trim() || null,
+      content:        content.trim(),
+      author:         author.trim() || 'Kishore Ramesh Kumar',
+      tags:           tags.split(',').map(t => t.trim()).filter(Boolean),
+      status:         finalStatus,
+      artifact_url:   artifactUrl.trim() || null,
       artifact_label: artifactUrl.trim() ? (artifactLabel.trim() || 'Download worksheet') : null,
-      published_at:  finalStatus === 'published'
+      published_at:   finalStatus === 'published'
         ? (post?.published_at ?? new Date().toISOString())
         : null,
     };
@@ -142,243 +145,144 @@ export function BlogEditor({ post }: Props) {
 
   return (
     <div style={{ maxWidth: 800 }}>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 24 }}>
-        // {post ? 'EDIT_POST' : 'NEW_POST'}
-      </p>
+      <OpsPageHeader
+        label="Blog"
+        title={post ? 'Edit Post' : 'New Post'}
+        actions={<OpsButton href="/ops/blog" variant="ghost">← Back to posts</OpsButton>}
+      />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-        {/* ─ METADATA ─ */}
-        <SectionDivider label="METADATA" />
-
-        <div>
-          <label style={labelStyle}>TITLE *</label>
-          <input type="text" value={title} onChange={(e) => handleTitleChange(e.target.value)} style={{ ...inputStyle, fontSize: 16 }} placeholder="Post title" />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <div>
-            <label style={labelStyle}>SLUG *</label>
-            <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} style={inputStyle} placeholder="post-slug" />
-          </div>
-          <div>
-            <label style={labelStyle}>AUTHOR</label>
-            <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} style={inputStyle} />
-          </div>
-        </div>
-
-        <div>
-          <label style={labelStyle}>TAGS (comma-separated)</label>
-          <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} style={inputStyle} placeholder="microbiome, research, ops" />
-        </div>
-
-        <div>
-          <label style={labelStyle}>EXCERPT</label>
-          <input type="text" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} style={inputStyle} placeholder="One-line SEO description (optional)" />
-          <p style={hintStyle}>Appears in search results and blog index cards. Not shown on post page.</p>
-        </div>
-
-        {/* ─ PUBLIC HOOK ─ */}
-        <SectionDivider label="PUBLIC_HOOK" />
-        <div>
-          <label style={labelStyle}>HOOK — TOP OF FOLD, FULLY VISIBLE</label>
-          <textarea
-            value={hook}
-            onChange={(e) => setHook(e.target.value)}
-            rows={4}
-            style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.7 }}
-            placeholder="The compelling opener. 1–4 sentences that make someone stop scrolling. This appears prominently above the main body, always visible — no gate."
-          />
-          <p style={hintStyle}>Displayed large at the top. This is what people see before they commit to reading.</p>
-        </div>
-
-        {/* ─ SUBSTANCE ─ */}
-        <SectionDivider label="SUBSTANCE" />
-        <div>
-          <label style={labelStyle}>SUBSTANCE — THE FRAMEWORK BODY *</label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={24}
-            style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.7 }}
-            placeholder="The full framework, analysis, or argument. Fully readable on the post page — no gate. Use blank lines to separate paragraphs."
-          />
-          <p style={hintStyle}>The meat. Fully public — no email gate on this section. Gate only applies to the downloadable artifact.</p>
-        </div>
-
-        {/* ─ GATED ARTIFACT ─ */}
-        <SectionDivider label="GATED_ARTIFACT" />
-        <div style={{ padding: '16px 20px', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 2, background: 'rgba(255,255,255,0.01)', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
-            Optional. If provided, readers give their email to download this file. Appears as a call-to-action at the end of the post.
-          </p>
-          <div>
-            <label style={labelStyle}>ARTIFACT URL (PDF, JPEG, or any file URL)</label>
-            <input
-              type="url"
-              value={artifactUrl}
-              onChange={(e) => setArtifactUrl(e.target.value)}
-              style={inputStyle}
-              placeholder="https://... (Google Drive, Dropbox, S3, or direct link)"
-            />
-            <p style={hintStyle}>Upload the file externally and paste the public URL here. Google Drive: File → Share → "Anyone with the link" → Copy.</p>
-          </div>
-          {artifactUrl && (
+        <Section label="Metadata">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
-              <label style={labelStyle}>DOWNLOAD BUTTON LABEL</label>
-              <input
-                type="text"
-                value={artifactLabel}
-                onChange={(e) => setArtifactLabel(e.target.value)}
-                style={inputStyle}
-                placeholder="Download worksheet"
-              />
+              <label style={LABEL}>Title *</label>
+              <input type="text" value={title} onChange={(e) => handleTitleChange(e.target.value)}
+                style={{ ...INPUT, fontSize: 16 }} placeholder="Post title" />
             </div>
-          )}
-        </div>
 
-        {/* ─ STATUS + ACTIONS ─ */}
-        <SectionDivider label="PUBLISH" />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div>
+                <label style={LABEL}>Slug *</label>
+                <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} style={INPUT} placeholder="post-slug" />
+              </div>
+              <div>
+                <label style={LABEL}>Author</label>
+                <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} style={INPUT} />
+              </div>
+            </div>
 
-        <div>
-          <label style={labelStyle}>STATUS</label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            {['draft', 'published', 'archived'].map(s => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setStatus(s)}
-                style={{
-                  fontFamily:    'var(--font-mono)',
-                  fontSize:      10,
-                  letterSpacing: '1px',
-                  textTransform: 'uppercase',
-                  padding:       '5px 14px',
-                  border:        `1px solid ${status === s ? '#ffb300' : 'rgba(255,255,255,0.1)'}`,
-                  background:    status === s ? 'rgba(255,179,0,0.08)' : 'transparent',
-                  color:         status === s ? '#ffb300' : '#475569',
-                  borderRadius:  2,
-                  cursor:        'pointer',
-                }}
-              >
-                {s}
-              </button>
-            ))}
+            <div>
+              <label style={LABEL}>Tags (comma-separated)</label>
+              <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} style={INPUT} placeholder="microbiome, research, ops" />
+            </div>
+
+            <div>
+              <label style={LABEL}>Excerpt</label>
+              <input type="text" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} style={INPUT}
+                placeholder="One-line SEO description (optional)" />
+              <p style={HINT}>Appears in search results and blog index cards. Not shown on post page.</p>
+            </div>
           </div>
-        </div>
+        </Section>
 
-        {error && (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#ff6b6b' }}>{error}</p>
-        )}
+        <Section label="Public Hook">
+          <label style={LABEL}>Hook — top of fold, always visible</label>
+          <textarea value={hook} onChange={(e) => setHook(e.target.value)} rows={4}
+            style={{ ...INPUT, resize: 'vertical', lineHeight: 1.7 }}
+            placeholder="The compelling opener. 1–4 sentences that make someone stop scrolling." />
+          <p style={HINT}>Displayed large at the top. Always visible — no gate.</p>
+        </Section>
 
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', paddingTop: 8, alignItems: 'center' }}>
-          <button
-            type="button"
-            onClick={() => save()}
-            disabled={saving}
-            style={{
-              fontFamily:    'var(--font-mono)',
-              fontSize:      11,
-              letterSpacing: '1.5px',
-              textTransform: 'uppercase',
-              padding:       '8px 24px',
-              background:    'rgba(255,179,0,0.1)',
-              border:        '1px solid rgba(255,179,0,0.4)',
-              color:         '#ffb300',
-              borderRadius:  2,
-              cursor:        saving ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {saving ? 'Saving…' : post ? 'Save changes' : 'Create draft'}
-          </button>
+        <Section label="Substance">
+          <label style={LABEL}>Substance — the framework body *</label>
+          <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={24}
+            style={{ ...INPUT, resize: 'vertical', lineHeight: 1.7 }}
+            placeholder="The full framework, analysis, or argument. Fully readable on the post page — no gate." />
+          <p style={HINT}>The meat. Fully public — no email gate on this section.</p>
+        </Section>
 
-          {status !== 'published' && (
-            <button
-              type="button"
-              onClick={() => save('published')}
-              disabled={saving}
-              style={{
-                fontFamily:    'var(--font-mono)',
-                fontSize:      11,
-                letterSpacing: '1.5px',
-                textTransform: 'uppercase',
-                padding:       '8px 24px',
-                background:    'rgba(245,158,11,0.08)',
-                border:        '1px solid rgba(245,158,11,0.3)',
-                color:         '#f59e0b',
-                borderRadius:  2,
-                cursor:        saving ? 'not-allowed' : 'pointer',
-              }}
-            >
-              Publish →
-            </button>
-          )}
+        <Section label="Gated Artifact">
+          <OpsCard style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)', lineHeight: 1.6, margin: 0 }}>
+              Optional. If provided, readers give their email to download this file. Appears as a call-to-action at the end of the post.
+            </p>
+            <div>
+              <label style={LABEL}>Artifact URL (PDF, JPEG, or any file URL)</label>
+              <input type="url" value={artifactUrl} onChange={(e) => setArtifactUrl(e.target.value)} style={INPUT}
+                placeholder="https://... (Google Drive, Dropbox, S3, or direct link)" />
+              <p style={HINT}>Upload the file externally and paste the public URL here.</p>
+            </div>
+            {artifactUrl && (
+              <div>
+                <label style={LABEL}>Download button label</label>
+                <input type="text" value={artifactLabel} onChange={(e) => setArtifactLabel(e.target.value)} style={INPUT}
+                  placeholder="Download worksheet" />
+              </div>
+            )}
+          </OpsCard>
+        </Section>
 
-          {/* Delete — only for drafts/archived */}
-          {post && status !== 'published' && (
-            <div style={{ marginLeft: 'auto' }}>
-              {!confirmDelete ? (
-                <button
-                  type="button"
-                  onClick={() => setConfirmDelete(true)}
-                  style={{
+        <Section label="Publish">
+          <div style={{ marginBottom: 16 }}>
+            <span style={LABEL}>Status</span>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {['draft', 'published', 'archived'].map(s => {
+                const on = status === s;
+                return (
+                  <button key={s} type="button" onClick={() => setStatus(s)} style={{
                     fontFamily:    'var(--font-mono)',
                     fontSize:      10,
-                    letterSpacing: '1px',
-                    textTransform: 'uppercase',
+                    fontWeight:    600,
+                    letterSpacing: '0.5px',
                     padding:       '5px 14px',
-                    background:    'transparent',
-                    border:        '1px solid rgba(255,80,80,0.2)',
-                    color:         '#7a3a3a',
-                    borderRadius:  2,
+                    borderRadius:  999,
+                    border:        `1px solid ${on ? 'var(--teal)' : 'var(--border-mid)'}`,
+                    background:    on ? 'var(--teal-soft)' : 'var(--surface)',
+                    color:         on ? 'var(--teal-dark)' : 'var(--slate)',
                     cursor:        'pointer',
-                  }}
-                >
-                  Delete draft
-                </button>
-              ) : (
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#ff6b6b' }}>Are you sure?</span>
-                  <button
-                    type="button"
-                    onClick={handleDelete}
-                    disabled={deleting}
-                    style={{
-                      fontFamily:    'var(--font-mono)',
-                      fontSize:      10,
-                      letterSpacing: '1px',
-                      textTransform: 'uppercase',
-                      padding:       '5px 14px',
-                      background:    'rgba(255,80,80,0.1)',
-                      border:        '1px solid rgba(255,80,80,0.4)',
-                      color:         '#ff6b6b',
-                      borderRadius:  2,
-                      cursor:        deleting ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    {deleting ? 'Deleting…' : 'Yes, delete'}
+                  }}>
+                    {s}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmDelete(false)}
-                    style={{
-                      fontFamily:    'var(--font-mono)',
-                      fontSize:      10,
-                      padding:       '5px 14px',
-                      background:    'transparent',
-                      border:        '1px solid rgba(255,255,255,0.1)',
-                      color:         '#475569',
-                      borderRadius:  2,
-                      cursor:        'pointer',
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
+                );
+              })}
             </div>
-          )}
-        </div>
+          </div>
+
+          {error && <OpsAlert tone="err">{error}</OpsAlert>}
+
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            <OpsButton onClick={() => void save()} disabled={saving} variant="primary">
+              {saving ? 'Saving…' : post ? 'Save changes' : 'Create draft'}
+            </OpsButton>
+
+            {status !== 'published' && (
+              <OpsButton onClick={() => void save('published')} disabled={saving} variant="ghost">
+                Publish →
+              </OpsButton>
+            )}
+
+            {post && status !== 'published' && (
+              <div style={{ marginLeft: 'auto' }}>
+                {!confirmDelete ? (
+                  <OpsButton onClick={() => setConfirmDelete(true)} variant="danger">
+                    Delete draft
+                  </OpsButton>
+                ) : (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#b91c1c' }}>Are you sure?</span>
+                    <OpsButton onClick={() => void handleDelete()} disabled={deleting} variant="danger">
+                      {deleting ? 'Deleting…' : 'Yes, delete'}
+                    </OpsButton>
+                    <OpsButton onClick={() => setConfirmDelete(false)} variant="ghost">
+                      Cancel
+                    </OpsButton>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </Section>
       </div>
     </div>
   );

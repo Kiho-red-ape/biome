@@ -1,22 +1,35 @@
 'use client';
 
 import { useState } from 'react';
+import { OpsPageHeader, OpsCard, OpsAlert } from '../_components/ui';
 
 const DEMO_ACCOUNTS = [
-  { demoId: 'demo:researcher', email: 'researcher@biome.to', role: 'Researcher',  note: 'Has a live study (Gut Microbiome & Diet Correlation)' },
+  { demoId: 'demo:researcher',  email: 'researcher@biome.to',  role: 'Researcher',  note: 'Has a live study (Gut Microbiome & Diet Correlation)' },
   { demoId: 'demo:participant', email: 'participant@biome.to', role: 'Participant', note: 'Enrolled in the demo study with 2 verified milestones' },
-  { demoId: 'demo:partner', email: 'partner@biome.to', role: 'Partner',         note: 'Researcher profile — Wellness Research Partners' },
+  { demoId: 'demo:partner',     email: 'partner@biome.to',    role: 'Partner',     note: 'Researcher profile — Wellness Research Partners' },
 ];
+
+const INPUT: React.CSSProperties = {
+  fontFamily:   'var(--font-mono)',
+  fontSize:     12,
+  color:        'var(--ink)',
+  background:   'var(--bg-page)',
+  border:       '1px solid var(--border-mid)',
+  borderRadius: 'var(--radius-sm)',
+  padding:      '8px 12px',
+  outline:      'none',
+  boxSizing:    'border-box',
+};
 
 function Row({ account }: { account: typeof DEMO_ACCOUNTS[0] }) {
   const [realDid, setRealDid] = useState('');
-  const [status,  setStatus]  = useState('');
+  const [status,  setStatus]  = useState<{ ok: boolean; msg: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function relink() {
-    if (!realDid.trim()) { setStatus('Enter the real Privy DID.'); return; }
+    if (!realDid.trim()) { setStatus({ ok: false, msg: 'Enter the real Privy DID.' }); return; }
     setLoading(true);
-    setStatus('');
+    setStatus(null);
     try {
       const res = await fetch('/api/ops/seed-demo', {
         method:  'POST',
@@ -24,29 +37,36 @@ function Row({ account }: { account: typeof DEMO_ACCOUNTS[0] }) {
         body:    JSON.stringify({ demoId: account.demoId, realDid: realDid.trim() }),
       });
       const data = await res.json() as { ok?: boolean; message?: string; error?: string };
-      setStatus(data.ok ? `✓ ${data.message}` : `✗ ${data.error}`);
+      setStatus({ ok: !!data.ok, msg: data.ok ? (data.message ?? 'Relinked.') : (data.error ?? 'Failed.') });
     } catch (e) {
-      setStatus(`✗ ${String(e)}`);
+      setStatus({ ok: false, msg: String(e) });
     }
     setLoading(false);
   }
 
-  const MONO = 'var(--font-mono)';
-
   return (
-    <div style={{
-      background: '#0b1014', border: '1px solid rgba(255,255,255,0.05)',
-      borderRadius: 2, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 12,
-    }}>
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+    <OpsCard style={{ padding: '20px 24px' }}>
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-start', marginBottom: 14 }}>
         <div style={{ flex: 1, minWidth: 200 }}>
-          <p style={{ fontFamily: MONO, fontSize: 12, color: '#f8fafc', marginBottom: 2 }}>{account.email}</p>
-          <p style={{ fontFamily: MONO, fontSize: 10, color: '#ffb300', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 4 }}>{account.role}</p>
-          <p style={{ fontFamily: MONO, fontSize: 11, color: '#475569' }}>{account.note}</p>
+          <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14, color: 'var(--ink)', marginBottom: 2 }}>
+            {account.email}
+          </p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--teal-dark)', marginBottom: 6 }}>
+            {account.role}
+          </p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)' }}>{account.note}</p>
         </div>
-        <div style={{ fontFamily: MONO, fontSize: 10, color: '#3a4a43', border: '1px solid rgba(255,255,255,0.05)', padding: '3px 10px', borderRadius: 2 }}>
-          placeholder id: {account.demoId}
-        </div>
+        <span style={{
+          fontFamily:    'var(--font-mono)',
+          fontSize:      10,
+          color:         'var(--muted)',
+          border:        '1px solid var(--border-soft)',
+          padding:       '3px 10px',
+          borderRadius:  'var(--radius-sm)',
+          whiteSpace:    'nowrap',
+        }}>
+          {account.demoId}
+        </span>
       </div>
 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -55,21 +75,24 @@ function Row({ account }: { account: typeof DEMO_ACCOUNTS[0] }) {
           value={realDid}
           onChange={(e) => setRealDid(e.target.value)}
           placeholder="did:privy:xxxxxxxx (from Privy dashboard after first login)"
-          style={{
-            fontFamily: MONO, fontSize: 11, flex: 1, minWidth: 280,
-            padding: '8px 12px', background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.1)', borderRadius: 2,
-            color: '#f8fafc', outline: 'none',
-          }}
+          style={{ ...INPUT, flex: 1, minWidth: 280 }}
         />
         <button
           type="button"
-          onClick={relink}
+          onClick={() => void relink()}
           disabled={loading}
           style={{
-            fontFamily: MONO, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
-            padding: '8px 20px', background: 'rgba(255,179,0,0.1)', border: '1px solid rgba(255,179,0,0.3)',
-            color: '#ffb300', borderRadius: 2, cursor: loading ? 'not-allowed' : 'pointer',
+            fontFamily:    'var(--font-mono)',
+            fontSize:      11,
+            fontWeight:    600,
+            letterSpacing: '0.5px',
+            padding:       '8px 20px',
+            background:    'var(--teal)',
+            border:        '1px solid var(--teal)',
+            color:         '#fff',
+            borderRadius:  'var(--radius-sm)',
+            cursor:        loading ? 'default' : 'pointer',
+            opacity:       loading ? 0.6 : 1,
           }}
         >
           {loading ? 'Linking…' : 'Relink →'}
@@ -77,43 +100,38 @@ function Row({ account }: { account: typeof DEMO_ACCOUNTS[0] }) {
       </div>
 
       {status && (
-        <p style={{ fontFamily: MONO, fontSize: 11, color: status.startsWith('✓') ? '#f59e0b' : '#ff6464', lineHeight: 1.5 }}>
-          {status}
-        </p>
+        <div style={{ marginTop: 10 }}>
+          <OpsAlert tone={status.ok ? 'ok' : 'err'}>{status.ok ? `✓ ${status.msg}` : `✗ ${status.msg}`}</OpsAlert>
+        </div>
       )}
-    </div>
+    </OpsCard>
   );
 }
 
 export default function DemoSeedPage() {
-  const MONO = 'var(--font-mono)';
   return (
     <div style={{ maxWidth: 760 }}>
-      <p style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 8 }}>
-        // DEMO_SEED
-      </p>
-      <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: '#f8fafc', marginBottom: 8 }}>
-        Demo account setup
-      </h1>
-      <p style={{ fontFamily: MONO, fontSize: 12, color: '#475569', lineHeight: 1.8, marginBottom: 32, maxWidth: 600 }}>
-        Seed data is pre-inserted with placeholder IDs (demo:researcher, demo:participant, demo:partner).
-        After each email account first logs in via Privy, get their real DID from the Privy dashboard
-        and use the relink tool below to attach the real DID to the pre-seeded profile.
-      </p>
+      <OpsPageHeader
+        label="Demo"
+        title="Demo Account Setup"
+        subtitle="Seed data is pre-inserted with placeholder IDs. After each email account first logs in via Privy, get their real DID and use the relink tool below."
+      />
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 32 }}>
         {DEMO_ACCOUNTS.map(a => <Row key={a.demoId} account={a} />)}
       </div>
 
-      <div style={{ marginTop: 40, padding: '16px 20px', border: '1px solid rgba(255,179,0,0.1)', borderRadius: 2, background: 'rgba(255,179,0,0.02)' }}>
-        <p style={{ fontFamily: MONO, fontSize: 11, color: '#ffb300', marginBottom: 8 }}>HOW TO FIND A PRIVY DID</p>
-        <p style={{ fontFamily: MONO, fontSize: 11, color: '#475569', lineHeight: 1.8 }}>
-          1. Open the Privy dashboard → Users{'\n'}
-          2. Search for the email address{'\n'}
-          3. Click the user row — the DID is the ID column (format: did:privy:xxxxxxxx){'\n'}
-          4. Paste it above and click Relink
+      <OpsCard style={{ padding: '16px 20px' }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--teal-dark)', marginBottom: 10 }}>
+          How to find a Privy DID
         </p>
-      </div>
+        <ol style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)', lineHeight: 2, paddingLeft: 20, margin: 0 }}>
+          <li>Open the Privy dashboard → Users</li>
+          <li>Search for the email address</li>
+          <li>Click the user row — the DID is the ID column (format: did:privy:xxxxxxxx)</li>
+          <li>Paste it above and click Relink</li>
+        </ol>
+      </OpsCard>
     </div>
   );
 }

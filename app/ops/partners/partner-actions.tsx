@@ -11,10 +11,10 @@ export function PartnerActions({
   currentStatus: string;
   displayOnHomepage: boolean;
 }) {
-  const [status,  setStatus]  = useState(currentStatus);
+  const [status,   setStatus]   = useState(currentStatus);
   const [homepage, setHomepage] = useState(displayOnHomepage);
-  const [saving,  setSaving]  = useState(false);
-  const [saved,   setSaved]   = useState(false);
+  const [saving,   setSaving]   = useState(false);
+  const [saved,    setSaved]    = useState(false);
 
   async function update(patch: Record<string, unknown>) {
     setSaving(true);
@@ -36,9 +36,16 @@ export function PartnerActions({
             onClick={() => { setStatus('approved'); void update({ status: 'approved' }); }}
             disabled={saving}
             style={{
-              fontFamily: 'var(--font-mono)', fontSize: 10, padding: '5px 12px',
-              background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)',
-              color: '#f59e0b', cursor: 'pointer', borderRadius: 2, textTransform: 'uppercase', letterSpacing: '1px',
+              fontFamily:    'var(--font-mono)',
+              fontSize:      11,
+              fontWeight:    600,
+              letterSpacing: '0.5px',
+              padding:       '6px 14px',
+              background:    'var(--teal)',
+              border:        '1px solid var(--teal)',
+              color:         '#fff',
+              cursor:        'pointer',
+              borderRadius:  'var(--radius-sm)',
             }}
           >
             Approve
@@ -47,9 +54,16 @@ export function PartnerActions({
             onClick={() => { setStatus('rejected'); void update({ status: 'rejected' }); }}
             disabled={saving}
             style={{
-              fontFamily: 'var(--font-mono)', fontSize: 10, padding: '5px 12px',
-              background: 'transparent', border: '1px solid rgba(255,255,255,0.08)',
-              color: '#475569', cursor: 'pointer', borderRadius: 2, textTransform: 'uppercase', letterSpacing: '1px',
+              fontFamily:    'var(--font-mono)',
+              fontSize:      11,
+              fontWeight:    600,
+              letterSpacing: '0.5px',
+              padding:       '6px 14px',
+              background:    'var(--surface)',
+              border:        '1px solid var(--border-mid)',
+              color:         'var(--slate)',
+              cursor:        'pointer',
+              borderRadius:  'var(--radius-sm)',
             }}
           >
             Reject
@@ -62,23 +76,28 @@ export function PartnerActions({
           <div
             onClick={() => { const next = !homepage; setHomepage(next); void update({ display_on_homepage: next }); }}
             style={{
-              width: 14, height: 14,
-              background: homepage ? '#f59e0b' : 'transparent',
-              border: `1px solid ${homepage ? '#f59e0b' : 'rgba(255,255,255,0.15)'}`,
-              borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer',
+              width:          16,
+              height:         16,
+              background:     homepage ? 'var(--teal)' : 'var(--surface)',
+              border:         `1px solid ${homepage ? 'var(--teal)' : 'var(--border-mid)'}`,
+              borderRadius:   4,
+              display:        'flex',
+              alignItems:     'center',
+              justifyContent: 'center',
+              cursor:         'pointer',
+              flexShrink:     0,
             }}
           >
-            {homepage && <span style={{ color: '#060a14', fontSize: 9, fontWeight: 900 }}>✓</span>}
+            {homepage && <span style={{ color: '#fff', fontSize: 10, fontWeight: 900, lineHeight: 1 }}>✓</span>}
           </div>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#94a3b8' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)' }}>
             Show on homepage
           </span>
         </label>
       )}
 
       {saved && (
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#f59e0b' }}>✓ Saved</span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#15803d' }}>✓ Saved</span>
       )}
     </div>
   );

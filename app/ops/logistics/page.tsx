@@ -1,4 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/server';
+import { OpsPageHeader, OpsCard, OpsBadge } from '../_components/ui';
 import { KitStatusUpdater } from './kit-status-updater';
 
 function isOverdue(kit: Record<string, unknown>): boolean {
@@ -28,39 +29,32 @@ export default async function OpsLogistics({
   let rows = (kits ?? []) as Record<string, unknown>[];
   if (status === 'overdue') rows = rows.filter(isOverdue);
 
-  const title = status === 'pending'    ? 'PENDING_SHIPMENT'
-    : status === 'awaiting'   ? 'AWAITING_COLLECTION'
-    : status === 'in_transit' ? 'IN_TRANSIT_TO_LAB'
-    : status === 'overdue'    ? 'OVERDUE_KITS'
-    : 'ALL_KITS';
+  const title = status === 'pending'    ? 'Pending Shipment'
+    : status === 'awaiting'   ? 'Awaiting Collection'
+    : status === 'in_transit' ? 'In Transit to Lab'
+    : status === 'overdue'    ? 'Overdue Kits'
+    : 'All Kits';
 
   return (
     <div>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 20 }}>
-        // {title}
-      </p>
+      <OpsPageHeader label="Logistics" title={title} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {rows.length === 0 && (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>No kits found.</p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>No kits found.</p>
         )}
         {rows.map((kit) => {
           const overdue = isOverdue(kit);
           const exp = kit.experiments as { title: string } | null;
           return (
-            <div key={kit.id as string} style={{
-              background:   '#0b1014',
-              border:       `1px solid ${overdue ? 'rgba(255,179,0,0.2)' : 'rgba(255,255,255,0.06)'}`,
-              padding:      '16px 20px',
-              borderRadius: 2,
-            }}>
+            <OpsCard key={kit.id as string} style={{ padding: '16px 20px', border: overdue ? '1px solid rgba(217,119,6,0.25)' : undefined }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
                 <div>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#f8fafc', marginBottom: 2 }}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     {kit.kit_type as string} kit · {kit.participant_id as string}
-                    {overdue && <span style={{ color: '#ffb300', marginLeft: 8 }}>⚠ OVERDUE</span>}
+                    {overdue && <OpsBadge tone="amber">⚠ Overdue</OpsBadge>}
                   </p>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)' }}>
                     {exp?.title ?? 'Unknown study'} · Created {new Date(kit.created_at as string).toLocaleDateString()}
                   </p>
                 </div>
@@ -77,19 +71,19 @@ export default async function OpsLogistics({
                     fontFamily:    'var(--font-mono)',
                     fontSize:      10,
                     padding:       '3px 10px',
-                    background:    'rgba(255,255,255,0.03)',
-                    border:        '1px solid rgba(255,255,255,0.07)',
-                    color:         '#94a3b8',
-                    borderRadius:  2,
+                    background:    'var(--bg-page)',
+                    border:        '1px solid var(--border-soft)',
+                    color:         'var(--muted)',
+                    borderRadius:  'var(--radius-sm)',
                     letterSpacing: '0.5px',
                   }}>
-                    {label}: <span style={{ color: '#f8fafc' }}>{val}</span>
+                    {label}: <span style={{ color: 'var(--ink)' }}>{val}</span>
                   </span>
                 ))}
               </div>
 
               <KitStatusUpdater kitId={kit.id as string} />
-            </div>
+            </OpsCard>
           );
         })}
       </div>

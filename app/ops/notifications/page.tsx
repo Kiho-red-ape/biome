@@ -1,45 +1,57 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' };
-
-const inputStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono)', fontSize: 12, color: '#f8fafc',
-  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: 2, padding: '10px 14px', width: '100%', outline: 'none', boxSizing: 'border-box',
-};
-
-const labelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569',
-  letterSpacing: '1px', textTransform: 'uppercase', display: 'block', marginBottom: 6,
-};
+import { OpsPageHeader, OpsCard, OpsAlert } from '../_components/ui';
 
 type AudienceKind = 'all' | 'study' | 'country' | 'manual';
 
 interface Study { id: string; title: string; status: string; }
 interface HistoryItem { type: string; payload: { title: string; message: string }; created_at: string; }
 
+const INPUT: React.CSSProperties = {
+  fontFamily:   'var(--font-mono)',
+  fontSize:     12,
+  color:        'var(--ink)',
+  background:   'var(--bg-page)',
+  border:       '1px solid var(--border-mid)',
+  borderRadius: 'var(--radius-sm)',
+  padding:      '9px 12px',
+  width:        '100%',
+  outline:      'none',
+  boxSizing:    'border-box',
+};
+
+const LABEL: React.CSSProperties = {
+  fontFamily:    'var(--font-mono)',
+  fontSize:      9,
+  letterSpacing: '1px',
+  textTransform: 'uppercase',
+  color:         'var(--muted)',
+  display:       'block',
+  marginBottom:  6,
+};
+
+const NOTIF_TYPES = ['info', 'study_match', 'newsletter', 'alert', 'milestone_verified'];
+const COUNTRIES   = ['India','United States','United Kingdom','EU','Australia','Singapore','Canada','Germany','France','Brazil','Japan','Other'];
+
 export default function OpsNotificationsPage() {
-  const [notifType, setNotifType]   = useState('info');
-  const [title,     setTitle]       = useState('');
-  const [message,   setMessage]     = useState('');
-  const [audience,  setAudience]    = useState<AudienceKind>('all');
-  const [studyId,   setStudyId]     = useState('');
-  const [country,   setCountry]     = useState('');
-  const [manualIds, setManualIds]   = useState('');
-  const [sending,   setSending]     = useState(false);
-  const [result,    setResult]      = useState<{ ok?: boolean; count?: number; error?: string } | null>(null);
-  const [studies,   setStudies]     = useState<Study[]>([]);
-  const [history,   setHistory]     = useState<HistoryItem[]>([]);
+  const [notifType, setNotifType] = useState('info');
+  const [title,     setTitle]     = useState('');
+  const [message,   setMessage]   = useState('');
+  const [audience,  setAudience]  = useState<AudienceKind>('all');
+  const [studyId,   setStudyId]   = useState('');
+  const [country,   setCountry]   = useState('');
+  const [manualIds, setManualIds] = useState('');
+  const [sending,   setSending]   = useState(false);
+  const [result,    setResult]    = useState<{ ok?: boolean; count?: number; error?: string } | null>(null);
+  const [studies,   setStudies]   = useState<Study[]>([]);
+  const [history,   setHistory]   = useState<HistoryItem[]>([]);
 
   useEffect(() => {
-    // Load recruiting studies
     fetch('/api/experiments?status=recruiting&status=active')
       .then(r => r.json())
       .then((d: { experiments?: Study[] }) => setStudies(d.experiments ?? []))
       .catch(() => {});
-    // Load notification history
     fetch('/api/ops/notifications')
       .then(r => r.json())
       .then((d: { notifications?: HistoryItem[] }) => setHistory(d.notifications ?? []))
@@ -66,8 +78,10 @@ export default function OpsNotificationsPage() {
       setResult(data);
       if (data.ok) {
         setTitle(''); setMessage('');
-        // Refresh history
-        fetch('/api/ops/notifications').then(r => r.json()).then((d: { notifications?: HistoryItem[] }) => setHistory(d.notifications ?? [])).catch(() => {});
+        fetch('/api/ops/notifications')
+          .then(r => r.json())
+          .then((d: { notifications?: HistoryItem[] }) => setHistory(d.notifications ?? []))
+          .catch(() => {});
       }
     } catch {
       setResult({ error: 'Network error' });
@@ -75,153 +89,179 @@ export default function OpsNotificationsPage() {
     setSending(false);
   }
 
-  const NOTIF_TYPES = ['info', 'study_match', 'newsletter', 'alert', 'milestone_verified'];
-
-  const COUNTRIES = ['India','United States','United Kingdom','EU','Australia','Singapore','Canada','Germany','France','Brazil','Japan','Other'];
+  function PillGroup<T extends string>({
+    options, active, onChange, labelFn,
+  }: { options: T[]; active: T; onChange: (v: T) => void; labelFn?: (v: T) => string }) {
+    return (
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        {options.map(o => {
+          const on = active === o;
+          return (
+            <button key={o} type="button" onClick={() => onChange(o)} style={{
+              fontFamily:    'var(--font-mono)',
+              fontSize:      10,
+              fontWeight:    600,
+              letterSpacing: '0.5px',
+              padding:       '5px 12px',
+              borderRadius:  999,
+              border:        `1px solid ${on ? 'var(--teal)' : 'var(--border-mid)'}`,
+              background:    on ? 'var(--teal-soft)' : 'var(--surface)',
+              color:         on ? 'var(--teal-dark)' : 'var(--slate)',
+              cursor:        'pointer',
+              transition:    'all 100ms',
+            }}>
+              {labelFn ? labelFn(o) : o}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: 760 }}>
-      <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 8 }}>
-        // NOTIFICATIONS
-      </p>
-      <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 22, color: '#f8fafc', marginBottom: 4 }}>
-        Send Notification
-      </h1>
-      <p style={{ ...MONO, fontSize: 12, color: '#475569', lineHeight: 1.7, marginBottom: 32 }}>
-        Send in-app notifications to participants. Study match notifications go to participants not yet enrolled in that study.
-      </p>
+      <OpsPageHeader
+        label="Notifications"
+        title="Send Notification"
+        subtitle="Send in-app notifications to participants. Study match notifications go to participants not yet enrolled in that study."
+      />
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <OpsCard style={{ padding: '24px 28px', marginBottom: 32 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-        {/* Type */}
-        <div>
-          <span style={labelStyle}>Notification Type</span>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {NOTIF_TYPES.map(t => (
-              <button key={t} type="button" onClick={() => setNotifType(t)} style={{
-                ...MONO, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
-                padding: '5px 12px', borderRadius: 2, cursor: 'pointer',
-                border: `1px solid ${notifType === t ? '#ffb300' : 'rgba(255,255,255,0.08)'}`,
-                background: notifType === t ? 'rgba(255,179,0,0.08)' : 'transparent',
-                color: notifType === t ? '#ffb300' : '#475569',
-              }}>{t}</button>
-            ))}
-          </div>
-        </div>
-
-        {/* Title */}
-        <div>
-          <label style={labelStyle}>Title *</label>
-          <input type="text" value={title} onChange={e => setTitle(e.target.value)} style={inputStyle} placeholder="e.g. New study available matching your profile" maxLength={200} />
-        </div>
-
-        {/* Message */}
-        <div>
-          <label style={labelStyle}>Message *</label>
-          <textarea value={message} onChange={e => setMessage(e.target.value)} rows={5}
-            style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.7 }}
-            placeholder="Write the full notification message here. Keep it concise and actionable." maxLength={2000} />
-          <p style={{ ...MONO, fontSize: 10, color: '#3a4a43', marginTop: 4 }}>{message.length}/2000</p>
-        </div>
-
-        {/* Audience */}
-        <div>
-          <span style={labelStyle}>Audience</span>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-            {(['all','study','country','manual'] as AudienceKind[]).map(a => (
-              <button key={a} type="button" onClick={() => setAudience(a)} style={{
-                ...MONO, fontSize: 10, letterSpacing: '1px', textTransform: 'uppercase',
-                padding: '5px 12px', borderRadius: 2, cursor: 'pointer',
-                border: `1px solid ${audience === a ? '#f59e0b' : 'rgba(255,255,255,0.08)'}`,
-                background: audience === a ? 'rgba(245,158,11,0.06)' : 'transparent',
-                color: audience === a ? '#f59e0b' : '#475569',
-              }}>
-                {a === 'all' ? 'All Participants' : a === 'study' ? 'Study Match' : a === 'country' ? 'By Country' : 'Manual IDs'}
-              </button>
-            ))}
+          <div>
+            <span style={LABEL}>Notification type</span>
+            <PillGroup options={NOTIF_TYPES} active={notifType} onChange={setNotifType} />
           </div>
 
-          {audience === 'study' && (
-            <div>
-              <label style={labelStyle}>Study</label>
-              <select value={studyId} onChange={e => setStudyId(e.target.value)}
-                style={{ ...inputStyle, appearance: 'none' }}>
-                <option value="">Select a study</option>
-                {studies.map(s => (
-                  <option key={s.id} value={s.id}>{s.title} ({s.status})</option>
-                ))}
-              </select>
-              <p style={{ ...MONO, fontSize: 10, color: '#475569', marginTop: 6, lineHeight: 1.5 }}>
-                Will notify all participants who have not yet applied to this study.
-              </p>
-            </div>
-          )}
+          <div>
+            <label style={LABEL}>Title *</label>
+            <input type="text" value={title} onChange={e => setTitle(e.target.value)} style={INPUT}
+              placeholder="e.g. New study available matching your profile" maxLength={200} />
+          </div>
 
-          {audience === 'country' && (
-            <div>
-              <label style={labelStyle}>Country</label>
-              <select value={country} onChange={e => setCountry(e.target.value)}
-                style={{ ...inputStyle, appearance: 'none' }}>
-                <option value="">Select country</option>
-                {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-          )}
-
-          {audience === 'manual' && (
-            <div>
-              <label style={labelStyle}>Participant IDs (P-XXXX-XXXX, one per line or comma-separated)</label>
-              <textarea value={manualIds} onChange={e => setManualIds(e.target.value)} rows={4}
-                style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }}
-                placeholder={'P-1234-ABCD\nP-5678-EFGH'} />
-            </div>
-          )}
-        </div>
-
-        {/* Result */}
-        {result && (
-          <div style={{
-            padding: '12px 16px', borderRadius: 2,
-            background: result.ok ? 'rgba(245,158,11,0.05)' : 'rgba(255,100,100,0.05)',
-            border: `1px solid ${result.ok ? 'rgba(245,158,11,0.2)' : 'rgba(255,100,100,0.2)'}`,
-          }}>
-            <p style={{ ...MONO, fontSize: 12, color: result.ok ? '#f59e0b' : '#ff6464', margin: 0 }}>
-              {result.ok ? `✓ Sent to ${result.count} participant${result.count !== 1 ? 's' : ''}` : `✗ ${result.error}`}
+          <div>
+            <label style={LABEL}>Message *</label>
+            <textarea value={message} onChange={e => setMessage(e.target.value)} rows={5}
+              style={{ ...INPUT, resize: 'vertical', lineHeight: 1.7 }}
+              placeholder="Write the full notification message here. Keep it concise and actionable." maxLength={2000} />
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', marginTop: 4 }}>
+              {message.length}/2000
             </p>
           </div>
-        )}
 
-        {/* Send button */}
-        <div>
-          <button type="button" onClick={send} disabled={sending || !title.trim() || !message.trim()}
-            style={{
-              ...MONO, fontSize: 11, letterSpacing: '1.5px', textTransform: 'uppercase',
-              padding: '10px 28px', borderRadius: 2, cursor: sending ? 'not-allowed' : 'pointer',
-              background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)',
-              color: '#f59e0b', opacity: (sending || !title.trim() || !message.trim()) ? 0.4 : 1,
-            }}>
-            {sending ? 'Sending…' : 'Send notification →'}
-          </button>
+          <div>
+            <span style={LABEL}>Audience</span>
+            <div style={{ marginBottom: 14 }}>
+              <PillGroup<AudienceKind>
+                options={['all', 'study', 'country', 'manual']}
+                active={audience}
+                onChange={setAudience}
+                labelFn={a => a === 'all' ? 'All Participants' : a === 'study' ? 'Study Match' : a === 'country' ? 'By Country' : 'Manual IDs'}
+              />
+            </div>
+
+            {audience === 'study' && (
+              <div>
+                <label style={LABEL}>Study</label>
+                <select value={studyId} onChange={e => setStudyId(e.target.value)}
+                  style={{ ...INPUT, appearance: 'none' }}>
+                  <option value="">Select a study</option>
+                  {studies.map(s => (
+                    <option key={s.id} value={s.id}>{s.title} ({s.status})</option>
+                  ))}
+                </select>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', marginTop: 6 }}>
+                  Will notify all participants who have not yet applied to this study.
+                </p>
+              </div>
+            )}
+
+            {audience === 'country' && (
+              <div>
+                <label style={LABEL}>Country</label>
+                <select value={country} onChange={e => setCountry(e.target.value)}
+                  style={{ ...INPUT, appearance: 'none' }}>
+                  <option value="">Select country</option>
+                  {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            )}
+
+            {audience === 'manual' && (
+              <div>
+                <label style={LABEL}>Participant IDs (P-XXXX-XXXX, one per line or comma-separated)</label>
+                <textarea value={manualIds} onChange={e => setManualIds(e.target.value)} rows={4}
+                  style={{ ...INPUT, resize: 'vertical', lineHeight: 1.6 }}
+                  placeholder={'P-1234-ABCD\nP-5678-EFGH'} />
+              </div>
+            )}
+          </div>
+
+          {result && (
+            <OpsAlert tone={result.ok ? 'ok' : 'err'}>
+              {result.ok
+                ? `✓ Sent to ${result.count} participant${result.count !== 1 ? 's' : ''}`
+                : `✗ ${result.error}`}
+            </OpsAlert>
+          )}
+
+          <div>
+            <button type="button" onClick={() => void send()}
+              disabled={sending || !title.trim() || !message.trim()}
+              style={{
+                fontFamily:    'var(--font-mono)',
+                fontSize:      11,
+                fontWeight:    600,
+                letterSpacing: '0.5px',
+                padding:       '10px 28px',
+                borderRadius:  'var(--radius-sm)',
+                cursor:        sending || !title.trim() || !message.trim() ? 'default' : 'pointer',
+                background:    'var(--teal)',
+                border:        '1px solid var(--teal)',
+                color:         '#fff',
+                opacity:       (sending || !title.trim() || !message.trim()) ? 0.5 : 1,
+              }}>
+              {sending ? 'Sending…' : 'Send notification →'}
+            </button>
+          </div>
         </div>
+      </OpsCard>
 
-      </div>
-
-      {/* History */}
       {history.length > 0 && (
-        <div style={{ marginTop: 56, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 32 }}>
-          <p style={{ ...MONO, fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 16 }}>
-            // RECENT_SENT
+        <div>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 16 }}>
+            Recent sent
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {history.slice(0, 20).map((item, i) => (
-              <div key={i} style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 2 }}>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ ...MONO, fontSize: 9, letterSpacing: '1px', textTransform: 'uppercase', color: '#ffb300', border: '1px solid rgba(255,179,0,0.2)', padding: '1px 6px', borderRadius: 2 }}>{item.type}</span>
-                  <span style={{ ...MONO, fontSize: 10, color: '#475569' }}>{new Date(item.created_at).toLocaleString()}</span>
+              <OpsCard key={i} style={{ padding: '12px 16px' }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{
+                    fontFamily:    'var(--font-mono)',
+                    fontSize:      9,
+                    fontWeight:    700,
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase',
+                    color:         'var(--teal-dark)',
+                    background:    'var(--teal-soft)',
+                    border:        '1px solid rgba(14,116,144,0.2)',
+                    padding:       '2px 8px',
+                    borderRadius:  4,
+                  }}>
+                    {item.type}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)' }}>
+                    {new Date(item.created_at).toLocaleString()}
+                  </span>
                 </div>
-                <p style={{ ...MONO, fontSize: 12, color: '#f8fafc', margin: '0 0 2px' }}>{item.payload?.title}</p>
-                <p style={{ ...MONO, fontSize: 11, color: '#475569', margin: 0 }}>{item.payload?.message?.slice(0, 120)}{(item.payload?.message?.length ?? 0) > 120 ? '…' : ''}</p>
-              </div>
+                <p style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 13, color: 'var(--ink)', margin: '0 0 2px' }}>
+                  {item.payload?.title}
+                </p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--slate)', margin: 0 }}>
+                  {item.payload?.message?.slice(0, 120)}{(item.payload?.message?.length ?? 0) > 120 ? '…' : ''}
+                </p>
+              </OpsCard>
             ))}
           </div>
         </div>

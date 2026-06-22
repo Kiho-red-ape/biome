@@ -1,4 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/server';
+import { OpsPageHeader, OpsCard, OpsBadge, OpsButton } from '../_components/ui';
 
 type ResearcherRow = {
   id: string;
@@ -12,6 +13,15 @@ type ResearcherRow = {
   created_at: string;
 };
 
+type ReviewTone = 'teal' | 'green' | 'amber' | 'red' | 'slate' | 'blue';
+
+function reviewTone(s: string): ReviewTone {
+  if (s === 'active')         return 'green';
+  if (s === 'pending_review') return 'amber';
+  if (s === 'rejected')       return 'red';
+  return 'slate';
+}
+
 export default async function ResearchersPage() {
   const db = createServiceClient();
 
@@ -22,22 +32,21 @@ export default async function ResearchersPage() {
 
   const rows = (pending ?? []) as ResearcherRow[];
 
-  const pendingRows = rows.filter(r => r.review_status === 'pending_review');
-  const activeRows  = rows.filter(r => r.review_status === 'active');
+  const pendingRows  = rows.filter(r => r.review_status === 'pending_review');
+  const activeRows   = rows.filter(r => r.review_status === 'active');
   const rejectedRows = rows.filter(r => r.review_status === 'rejected');
 
   return (
-    <div style={{ maxWidth: 900 }}>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 8 }}>
-        // RESEARCHER_APPROVALS
-      </p>
-      <h1 style={{ fontFamily: 'var(--font-mono)', fontSize: 18, color: '#f8fafc', marginBottom: 32 }}>
-        Experimenter profiles
-      </h1>
+    <div>
+      <OpsPageHeader
+        label="Researchers"
+        title="Experimenter Profiles"
+        subtitle={`${pendingRows.length} pending review · ${activeRows.length} active`}
+      />
 
-      {pendingRows.length > 0 ? (
-        <section style={{ marginBottom: 48 }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px', color: '#38bdf8', textTransform: 'uppercase', marginBottom: 16 }}>
+      {pendingRows.length > 0 && (
+        <section style={{ marginBottom: 40 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--teal-dark)', marginBottom: 14 }}>
             Pending review ({pendingRows.length})
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -46,36 +55,32 @@ export default async function ResearchersPage() {
             ))}
           </div>
         </section>
-      ) : (
-        <div style={{ padding: '24px 0', marginBottom: 32 }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#475569' }}>
-            No pending applications.
-          </p>
-        </div>
+      )}
+
+      {pendingRows.length === 0 && (
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)', marginBottom: 32 }}>
+          No pending applications.
+        </p>
       )}
 
       {activeRows.length > 0 && (
-        <section style={{ marginBottom: 48 }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px', color: '#f59e0b', textTransform: 'uppercase', marginBottom: 16 }}>
+        <section style={{ marginBottom: 40 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 14 }}>
             Active ({activeRows.length})
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {activeRows.map(r => (
-              <ResearcherCard key={r.id} row={r} compact />
-            ))}
+            {activeRows.map(r => <ResearcherCard key={r.id} row={r} compact />)}
           </div>
         </section>
       )}
 
       {rejectedRows.length > 0 && (
         <section>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '2px', color: '#475569', textTransform: 'uppercase', marginBottom: 16 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 14 }}>
             Rejected ({rejectedRows.length})
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {rejectedRows.map(r => (
-              <ResearcherCard key={r.id} row={r} compact />
-            ))}
+            {rejectedRows.map(r => <ResearcherCard key={r.id} row={r} compact />)}
           </div>
         </section>
       )}
@@ -84,47 +89,34 @@ export default async function ResearchersPage() {
 }
 
 function ResearcherCard({ row, compact = false }: { row: ResearcherRow; compact?: boolean }) {
-  const statusColor =
-    row.review_status === 'pending_review' ? '#38bdf8' :
-    row.review_status === 'active'         ? '#f59e0b' : '#475569';
-
   return (
-    <div style={{
-      background:   '#0b1014',
-      border:       `1px solid ${row.review_status === 'pending_review' ? 'rgba(56,189,248,0.15)' : 'rgba(255,255,255,0.05)'}`,
-      borderRadius: 2,
-      padding:      compact ? '12px 16px' : '20px 24px',
-    }}>
+    <OpsCard style={{ padding: compact ? '12px 16px' : '20px 24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
         <div>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#f8fafc', marginBottom: 2 }}>
+          <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: compact ? 13 : 15, color: 'var(--ink)', marginBottom: 2 }}>
             {row.org_name}
           </p>
           {row.role_title && !compact && (
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>{row.role_title}</p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)' }}>{row.role_title}</p>
           )}
           {row.org_website && !compact && (
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569', marginTop: 4 }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--teal-dark)', marginTop: 4 }}>
               {row.org_website}
             </p>
           )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <span style={{
-            fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '1px',
-            textTransform: 'uppercase', color: statusColor,
-            border: `1px solid ${statusColor}44`, padding: '2px 8px', borderRadius: 2,
-          }}>
+          <OpsBadge tone={reviewTone(row.review_status)}>
             {row.review_status.replace('_', ' ')}
-          </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#475569' }}>
-            {new Date(row.created_at).toLocaleDateString()}
+          </OpsBadge>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
+            {new Date(row.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
           </span>
         </div>
       </div>
 
       {!compact && row.org_description && (
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#7f8e87', marginTop: 12, lineHeight: 1.7 }}>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)', marginTop: 12, lineHeight: 1.7 }}>
           {row.org_description}
         </p>
       )}
@@ -132,13 +124,7 @@ function ResearcherCard({ row, compact = false }: { row: ResearcherRow; compact?
       {!compact && row.expertise_areas && row.expertise_areas.length > 0 && (
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
           {row.expertise_areas.map(a => (
-            <span key={a} style={{
-              fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.5px',
-              color: '#475569', border: '1px solid rgba(255,255,255,0.08)',
-              padding: '2px 8px', borderRadius: 2,
-            }}>
-              {a}
-            </span>
+            <OpsBadge key={a} tone="slate">{a}</OpsBadge>
           ))}
         </div>
       )}
@@ -146,7 +132,7 @@ function ResearcherCard({ row, compact = false }: { row: ResearcherRow; compact?
       {row.review_status === 'pending_review' && !compact && (
         <ApprovalActions userId={row.user_id} />
       )}
-    </div>
+    </OpsCard>
   );
 }
 
@@ -167,24 +153,36 @@ function ApprovalActions({ userId }: { userId: string }) {
       <button
         name="action" value="active"
         style={{
-          fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '1px',
-          textTransform: 'uppercase', padding: '6px 16px',
-          background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)',
-          color: '#f59e0b', borderRadius: 2, cursor: 'pointer',
+          fontFamily:    'var(--font-mono)',
+          fontSize:      11,
+          fontWeight:    600,
+          letterSpacing: '0.5px',
+          padding:       '8px 16px',
+          background:    'var(--teal)',
+          border:        '1px solid var(--teal)',
+          color:         '#fff',
+          borderRadius:  'var(--radius-sm)',
+          cursor:        'pointer',
         }}
       >
-        ✓ Approve
+        Approve
       </button>
       <button
         name="action" value="rejected"
         style={{
-          fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '1px',
-          textTransform: 'uppercase', padding: '6px 16px',
-          background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
-          color: '#475569', borderRadius: 2, cursor: 'pointer',
+          fontFamily:    'var(--font-mono)',
+          fontSize:      11,
+          fontWeight:    600,
+          letterSpacing: '0.5px',
+          padding:       '8px 16px',
+          background:    'transparent',
+          border:        '1px solid rgba(220,38,38,0.3)',
+          color:         '#b91c1c',
+          borderRadius:  'var(--radius-sm)',
+          cursor:        'pointer',
         }}
       >
-        ✕ Reject
+        Reject
       </button>
     </form>
   );

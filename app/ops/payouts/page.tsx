@@ -1,4 +1,14 @@
 import { createServiceClient } from '@/lib/supabase/server';
+import { OpsPageHeader, OpsBadge, OpsTable, OpsTd, OpsEmpty } from '../_components/ui';
+
+type PayoutTone = 'teal' | 'green' | 'amber' | 'red' | 'slate' | 'blue';
+
+function payoutTone(status: string): PayoutTone {
+  if (status === 'paid') return 'green';
+  if (status === 'failed') return 'red';
+  if (status === 'pending' || status === 'processing') return 'amber';
+  return 'slate';
+}
 
 export default async function OpsPayouts({
   searchParams,
@@ -19,55 +29,38 @@ export default async function OpsPayouts({
   const { data: payouts } = await query;
   const rows = (payouts ?? []) as Record<string, unknown>[];
 
-  const title = ps === 'pending' ? 'PENDING_PAYOUTS' : ps === 'paid' ? 'COMPLETED_PAYOUTS' : 'PAYOUTS';
+  const title = ps === 'pending' ? 'Pending Payouts' : ps === 'paid' ? 'Completed Payouts' : 'Payouts';
 
   return (
     <div>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px', color: '#ffb300', textTransform: 'uppercase', marginBottom: 20 }}>
-        // {title}
-      </p>
+      <OpsPageHeader label="Payouts" title={title} />
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-              {['Application', 'Study', 'Participant', 'Amount', 'Fee', 'Status', 'Trolley ID', 'Initiated'].map((h) => (
-                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#475569', fontWeight: 400, letterSpacing: '1px', whiteSpace: 'nowrap' }}>{h}</th>
-              ))}
+      <OpsTable head={['Application', 'Study', 'Participant', 'Amount', 'Fee', 'Status', 'Trolley ID', 'Initiated']}>
+        {rows.length === 0 && <OpsEmpty>No payouts with status: {ps}</OpsEmpty>}
+        {rows.map((p) => {
+          const exp = p.experiments as { title: string } | null;
+          return (
+            <tr key={p.id as string}>
+              <OpsTd mono dim nowrap>{(p.id as string).slice(0, 8)}…</OpsTd>
+              <OpsTd>{exp?.title?.slice(0, 30) ?? '—'}</OpsTd>
+              <OpsTd mono dim>{(p.participant_id as string).slice(0, 16)}…</OpsTd>
+              <OpsTd mono nowrap>
+                {p.payout_net_amount != null ? `$${(p.payout_net_amount as number).toFixed(2)}` : '—'}
+              </OpsTd>
+              <OpsTd mono dim>
+                {p.payout_fee_amount != null ? `$${(p.payout_fee_amount as number).toFixed(2)}` : '—'}
+              </OpsTd>
+              <OpsTd nowrap><OpsBadge tone={payoutTone(p.payout_status as string)}>{p.payout_status as string}</OpsBadge></OpsTd>
+              <OpsTd mono dim nowrap>
+                {(p.trolley_payment_id as string | null) ?? '—'}
+              </OpsTd>
+              <OpsTd mono dim nowrap>
+                {p.payout_initiated_at ? new Date(p.payout_initiated_at as string).toLocaleDateString() : '—'}
+              </OpsTd>
             </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && (
-              <tr><td colSpan={8} style={{ padding: 24, color: '#475569', textAlign: 'center' }}>No payouts with status: {ps}</td></tr>
-            )}
-            {rows.map((p) => {
-              const exp = p.experiments as { title: string } | null;
-              return (
-                <tr key={p.id as string} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ padding: '8px 12px', color: '#475569', fontSize: 10 }}>{(p.id as string).slice(0, 8)}…</td>
-                  <td style={{ padding: '8px 12px', color: '#94a3b8', maxWidth: 200 }}>{exp?.title?.slice(0, 30) ?? '—'}</td>
-                  <td style={{ padding: '8px 12px', color: '#94a3b8' }}>{(p.participant_id as string).slice(0, 16)}…</td>
-                  <td style={{ padding: '8px 12px', color: '#f59e0b' }}>
-                    {p.payout_net_amount != null ? `$${(p.payout_net_amount as number).toFixed(2)}` : '—'}
-                  </td>
-                  <td style={{ padding: '8px 12px', color: '#475569' }}>
-                    {p.payout_fee_amount != null ? `$${(p.payout_fee_amount as number).toFixed(2)}` : '—'}
-                  </td>
-                  <td style={{ padding: '8px 12px', color: p.payout_status === 'paid' ? '#f59e0b' : '#ffb300' }}>
-                    {p.payout_status as string}
-                  </td>
-                  <td style={{ padding: '8px 12px', color: '#475569', fontSize: 10 }}>
-                    {(p.trolley_payment_id as string | null) ?? '—'}
-                  </td>
-                  <td style={{ padding: '8px 12px', color: '#475569', whiteSpace: 'nowrap' }}>
-                    {p.payout_initiated_at ? new Date(p.payout_initiated_at as string).toLocaleDateString() : '—'}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+          );
+        })}
+      </OpsTable>
     </div>
   );
 }
