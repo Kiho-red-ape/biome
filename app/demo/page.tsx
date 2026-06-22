@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { SiteHeader } from '@/components/nav/header';
@@ -472,67 +472,197 @@ function OnboardLink({ label, path, origin }: { label: string; path: string; ori
   );
 }
 
-// ─── Stepper ────────────────────────────────────────────────────────────────
+// ─── Interactive step viewer ─────────────────────────────────────────────────
 
 function FlowWalkthrough({ flow, origin }: { flow: Flow; origin: string }) {
+  const [activeStep, setActiveStep] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  const total = flow.steps.length;
+  const step = flow.steps[activeStep];
+  const isLast = activeStep === total - 1;
+
+  // Fade transition when step changes
+  function goTo(index: number) {
+    if (index === activeStep) return;
+    setVisible(false);
+    setTimeout(() => {
+      setActiveStep(index);
+      setVisible(true);
+    }, 140);
+  }
+
+  function prev() {
+    if (activeStep > 0) goTo(activeStep - 1);
+  }
+
+  function next() {
+    if (activeStep < total - 1) goTo(activeStep + 1);
+  }
+
+  // Reset to step 0 when flow changes
+  useEffect(() => {
+    setActiveStep(0);
+    setVisible(true);
+  }, [flow.role]);
+
+  const progressPct = Math.round(((activeStep + 1) / total) * 100);
+
   return (
     <div>
       {/* Flow intro */}
-      <div style={{ marginBottom: 28 }}>
+      <div style={{ marginBottom: 24 }}>
         <span style={{ ...MONO, fontSize: 12, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--teal)' }}>
           {flow.eyebrow}
         </span>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(22px, 3vw, 30px)', color: 'var(--ink)', margin: '10px 0 12px' }}>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(20px, 3vw, 28px)', color: 'var(--ink)', margin: '10px 0 10px' }}>
           {flow.title}
         </h2>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--slate)', lineHeight: 1.6, maxWidth: 620, margin: 0 }}>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--slate)', lineHeight: 1.6, maxWidth: 600, margin: 0 }}>
           {flow.blurb}
         </p>
       </div>
 
-      {/* Stepper */}
-      <div style={{ position: 'relative' }}>
-        {flow.steps.map((step, i) => {
-          const isLast = i === flow.steps.length - 1;
-          return (
-            <div key={step.title} style={{ display: 'flex', gap: 16 }} className="demo-step-row">
-              {/* Rail */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: '50%',
-                  background: 'var(--teal)', color: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  ...MONO, fontSize: 13, fontWeight: 700, flexShrink: 0,
-                }}>
-                  {i + 1}
-                </div>
-                {!isLast && <div style={{ flex: 1, width: 2, background: 'var(--border-mid)', marginTop: 2, marginBottom: 2, minHeight: 24 }} />}
-              </div>
-
-              {/* Content */}
-              <div style={{ paddingBottom: isLast ? 0 : 28, minWidth: 0, flex: 1 }}>
-                <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 17, color: 'var(--ink)', margin: '4px 0 6px' }}>
-                  {step.title}
-                </h3>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--slate)', lineHeight: 1.55, margin: '0 0 14px', maxWidth: 560 }}>
-                  {step.desc}
-                </p>
-                <div style={{ maxWidth: 520 }}>{step.preview}</div>
-              </div>
-            </div>
-          );
-        })}
+      {/* Progress bar */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
+          <span style={{ ...MONO, fontSize: 11, fontWeight: 600, letterSpacing: '1px', color: 'var(--teal)' }}>
+            Step {activeStep + 1} of {total} — {step.title}
+          </span>
+          <span style={{ ...MONO, fontSize: 11, color: 'var(--muted)' }}>
+            {progressPct}%
+          </span>
+        </div>
+        <div style={{ height: 3, background: 'var(--border-soft)', borderRadius: 99, overflow: 'hidden' }}>
+          <div style={{
+            height: '100%',
+            width: `${progressPct}%`,
+            background: 'var(--teal)',
+            borderRadius: 99,
+            transition: 'width 220ms ease',
+          }} />
+        </div>
       </div>
 
-      {/* Real dashboard CTA */}
-      <div style={{ marginTop: 8, marginBottom: 36 }}>
-        <Link href={flow.cta.href} className="btn-primary" style={{ display: 'inline-flex', textDecoration: 'none' }}>
-          {flow.cta.label}
-        </Link>
+      {/* Two-column layout */}
+      <div className="demo-step-layout" style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 20, alignItems: 'start' }}>
+
+        {/* Left: step list */}
+        <div className="demo-step-list" style={{
+          background: 'var(--bg-page)',
+          border: '1px solid var(--border-soft)',
+          borderRadius: 'var(--radius-sm)',
+          overflow: 'hidden',
+        }}>
+          {flow.steps.map((s, i) => {
+            const isActive = i === activeStep;
+            const isDone = i < activeStep;
+            return (
+              <button
+                key={s.title}
+                onClick={() => goTo(i)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  width: '100%', textAlign: 'left', cursor: 'pointer',
+                  padding: '11px 14px',
+                  background: isActive ? 'var(--teal-faint)' : 'transparent',
+                  borderTop: 'none',
+                  borderRight: 'none',
+                  borderBottom: '1px solid var(--border-soft)',
+                  borderLeft: isActive ? '3px solid var(--teal)' : '3px solid transparent',
+                  transition: 'background 150ms, border-left-color 150ms',
+                }}
+              >
+                <div style={{
+                  width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                  background: isActive ? 'var(--teal)' : isDone ? 'var(--teal-soft)' : 'var(--border-mid)',
+                  color: isActive ? '#fff' : isDone ? 'var(--teal-dark)' : 'var(--muted)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  ...MONO, fontSize: 10, fontWeight: 700,
+                  transition: 'background 150ms',
+                }}>
+                  {isDone ? '✓' : i + 1}
+                </div>
+                <span style={{
+                  fontFamily: 'var(--font-body)', fontSize: 12,
+                  color: isActive ? 'var(--teal-dark)' : 'var(--slate)',
+                  fontWeight: isActive ? 600 : 400,
+                  lineHeight: 1.3,
+                }}>
+                  {s.title}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Right: active step content */}
+        <div style={{
+          opacity: visible ? 1 : 0,
+          transition: 'opacity 140ms ease',
+        }}>
+          <div style={{ marginBottom: 18 }}>
+            <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'clamp(18px, 2.5vw, 24px)', color: 'var(--ink)', margin: '0 0 10px' }}>
+              {step.title}
+            </h3>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--slate)', lineHeight: 1.6, margin: 0, maxWidth: 520 }}>
+              {step.desc}
+            </p>
+          </div>
+
+          {/* Preview card */}
+          <div style={{ marginBottom: 24 }}>
+            {step.preview}
+          </div>
+
+          {/* Prev / Next navigation */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <button
+              onClick={prev}
+              disabled={activeStep === 0}
+              style={{
+                padding: '9px 18px', borderRadius: 'var(--radius-sm)',
+                background: 'var(--bg-page)',
+                border: '1px solid var(--border-mid)',
+                color: activeStep === 0 ? 'var(--muted)' : 'var(--ink)',
+                cursor: activeStep === 0 ? 'default' : 'pointer',
+                ...MONO, fontSize: 12, fontWeight: 600,
+                opacity: activeStep === 0 ? 0.4 : 1,
+                transition: 'opacity 150ms',
+              }}
+            >
+              ← Prev
+            </button>
+
+            {!isLast ? (
+              <button
+                onClick={next}
+                className="btn-primary"
+                style={{ padding: '9px 18px', fontSize: 13 }}
+              >
+                Next →
+              </button>
+            ) : (
+              <Link
+                href={flow.cta.href}
+                className="btn-primary"
+                style={{ display: 'inline-flex', textDecoration: 'none', padding: '9px 18px', fontSize: 13 }}
+              >
+                {flow.cta.label}
+              </Link>
+            )}
+
+            {/* Mobile counter — shown via CSS */}
+            <span className="demo-mobile-counter" style={{ ...MONO, fontSize: 11, color: 'var(--muted)', display: 'none' }}>
+              {activeStep + 1} / {total}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Onboard someone */}
       <div style={{
+        marginTop: 36,
         background: 'var(--teal-faint)',
         border: '1px solid var(--border-soft)',
         borderRadius: 'var(--radius)',
@@ -566,9 +696,10 @@ const CARD_COPY: Record<Role, { eyebrow: string; title: string; desc: string }> 
   'partner-org':         { eyebrow: '03', title: 'Partner',          desc: 'Labs, clinics & orgs activated per study.' },
 };
 
-function RoleCard({ role, onSelect }: { role: Role; onSelect: (r: Role) => void }) {
+function RoleCard({ role, isActive, onSelect }: { role: Role; isActive: boolean; onSelect: (r: Role) => void }) {
   const [hover, setHover] = useState(false);
   const c = CARD_COPY[role];
+  const highlighted = hover || isActive;
   return (
     <button
       onClick={() => onSelect(role)}
@@ -576,14 +707,14 @@ function RoleCard({ role, onSelect }: { role: Role; onSelect: (r: Role) => void 
       onMouseLeave={() => setHover(false)}
       style={{
         textAlign: 'left', cursor: 'pointer', width: '100%',
-        background: 'var(--surface)',
+        background: isActive ? 'var(--teal-faint)' : 'var(--surface)',
         border: '1px solid var(--border-soft)',
-        borderTop: `2px solid ${hover ? 'var(--teal)' : 'var(--border-soft)'}`,
+        borderTop: `2px solid ${highlighted ? 'var(--teal)' : 'var(--border-soft)'}`,
         borderRadius: 'var(--radius)',
-        boxShadow: hover ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+        boxShadow: highlighted ? 'var(--shadow-md)' : 'var(--shadow-sm)',
         padding: '24px 22px',
-        transition: 'box-shadow 150ms, border-color 150ms, transform 150ms',
-        transform: hover ? 'translateY(-2px)' : 'none',
+        transition: 'box-shadow 150ms, border-color 150ms, transform 150ms, background 150ms',
+        transform: highlighted ? 'translateY(-2px)' : 'none',
         display: 'flex', flexDirection: 'column', gap: 10, minHeight: 180,
       }}
     >
@@ -596,8 +727,8 @@ function RoleCard({ role, onSelect }: { role: Role; onSelect: (r: Role) => void 
       <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--slate)', lineHeight: 1.5, flex: 1 }}>
         {c.desc}
       </span>
-      <span style={{ ...MONO, fontSize: 12, fontWeight: 700, color: hover ? 'var(--teal-dark)' : 'var(--muted)' }}>
-        Walk through →
+      <span style={{ ...MONO, fontSize: 12, fontWeight: 700, color: highlighted ? 'var(--teal-dark)' : 'var(--muted)' }}>
+        {isActive ? 'Viewing →' : 'Walk through →'}
       </span>
     </button>
   );
@@ -618,6 +749,11 @@ export default function DemoPage() {
   const isOwner = email?.toLowerCase() === DEMO_OWNER_EMAIL;
   const activeFlow = FLOWS.find((f) => f.role === selected) ?? null;
 
+  function selectRole(r: Role) {
+    setSelected(r);
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
       <SiteHeader />
@@ -633,7 +769,7 @@ export default function DemoPage() {
         </span>
       </div>
 
-      <div style={{ maxWidth: 880, margin: '0 auto', padding: 'clamp(28px, 5vh, 56px) clamp(16px, 4vw, 32px) 100px' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(28px, 5vh, 56px) clamp(16px, 4vw, 32px) 100px' }}>
 
         {/* Hero */}
         <header style={{ marginBottom: 36 }}>
@@ -677,10 +813,8 @@ export default function DemoPage() {
                 <RoleCard
                   key={f.role}
                   role={f.role}
-                  onSelect={(r) => {
-                    setSelected(r);
-                    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
+                  isActive={selected === f.role}
+                  onSelect={selectRole}
                 />
               ))}
             </div>
@@ -694,16 +828,6 @@ export default function DemoPage() {
                 boxShadow: 'var(--shadow-sm)',
                 padding: 'clamp(20px, 4vw, 36px)',
               }}>
-                <button
-                  onClick={() => setSelected(null)}
-                  style={{
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    ...MONO, fontSize: 12, fontWeight: 600, color: 'var(--muted)',
-                    padding: 0, marginBottom: 20,
-                  }}
-                >
-                  ← Back to roles
-                </button>
                 <FlowWalkthrough flow={activeFlow} origin={origin} />
               </section>
             )}
@@ -730,6 +854,9 @@ export default function DemoPage() {
       <style>{`
         @media (max-width: 720px) {
           .demo-card-grid { grid-template-columns: 1fr !important; }
+          .demo-step-layout { grid-template-columns: 1fr !important; }
+          .demo-step-list { display: none !important; }
+          .demo-mobile-counter { display: inline !important; }
         }
       `}</style>
     </main>
