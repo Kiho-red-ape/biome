@@ -116,14 +116,17 @@ export async function POST(req: NextRequest) {
       `Risk flags:                  ${internal.riskFlags.join(', ') || 'none'}`,
     ].join('\n') : '';
 
-    await sendEmail(
-      'kishore@biome.to',
-      `New estimate lead — ${money(b.estimated_total)} — ${b.organization ?? b.email}`,
+    const internalSubject = `New estimate lead — ${money(b.estimated_total)} — ${b.organization ?? b.email}`;
+    const internalBody =
       `Email: ${b.email}\nOrg: ${b.organization ?? '—'}\nType: ${b.study_type}\n` +
       `Participants: ${b.participants}\nDuration: ${b.duration}\n` +
       `Geography: ${b.geography.join(', ')}\nSamples: ${b.samples.join(', ') || 'none'}\n\n` +
-      `── INTERNAL BREAKDOWN (operator only) ──\n${internalLines}`,
-    );
+      `── INTERNAL BREAKDOWN (operator only) ──\n${internalLines}`;
+
+    await Promise.all([
+      sendEmail('kishore@biome.to', internalSubject, internalBody),
+      sendEmail('hello@biome.to',   internalSubject, internalBody),
+    ]);
 
     return NextResponse.json({ ok: true });
   } catch (err) {
