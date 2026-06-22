@@ -5,8 +5,6 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-const OPERATOR_EMAILS = ['kishore@biome.to', 'hello@biome.to'];
-
 const NAV: { label: string; href: string; children?: { label: string; href: string }[] }[] = [
   { label: 'Overview',   href: '/ops' },
   {
@@ -82,7 +80,8 @@ const NAV: { label: string; href: string; children?: { label: string; href: stri
     ],
   },
   { label: 'Reports', href: '/ops/reports' },
-  { label: 'Demo Seed', href: '/ops/demo-seed' },
+  { label: 'Demo Seed',  href: '/ops/demo-seed' },
+  { label: 'Team & Admins', href: '/ops/admins' },
 ];
 
 function SidebarLink({ href, label }: { href: string; label: string }) {
@@ -116,15 +115,29 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
   const { ready, authenticated, user } = usePrivy();
   const router = useRouter();
   const [time, setTime] = useState('');
+  const [adminChecked, setAdminChecked] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const userEmail = user?.email?.address ?? null;
-  const isAuthorized = authenticated && !!userEmail && OPERATOR_EMAILS.includes(userEmail);
 
   useEffect(() => {
-    if (ready && (!authenticated || (userEmail && !OPERATOR_EMAILS.includes(userEmail)))) {
+    if (!ready) return;
+    if (!authenticated || !user?.id) {
       router.replace('/');
+      return;
     }
-  }, [ready, authenticated, userEmail, router]);
+    fetch(`/api/ops/me?privyDid=${encodeURIComponent(user.id)}`)
+      .then((r) => r.json())
+      .then((d: { is_admin: boolean }) => {
+        if (d.is_admin) {
+          setIsAdmin(true);
+          setAdminChecked(true);
+        } else {
+          router.replace('/');
+        }
+      })
+      .catch(() => router.replace('/'));
+  }, [ready, authenticated, user?.id, router]);
 
   // Live UTC clock
   useEffect(() => {
@@ -134,7 +147,7 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
     return () => clearInterval(id);
   }, []);
 
-  if (!ready || !isAuthorized) {
+  if (!adminChecked || !isAdmin) {
     return (
       <div style={{ minHeight: '100vh', background: '#060a14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#475569' }}>…</span>
