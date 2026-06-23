@@ -42,14 +42,14 @@ type DisplayMessage = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const privyDid = request.nextUrl.searchParams.get('privyDid');
   if (!privyDid) {
     return NextResponse.json({ error: 'privyDid required' }, { status: 400 });
   }
 
-  const experimentId = params.id;
+  const { id: experimentId } = await params;
   const db = createServiceClient();
 
   // Look up the participant's pseudonymous study identity
@@ -147,14 +147,14 @@ const bodySchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const privyDid = request.nextUrl.searchParams.get('privyDid');
   if (!privyDid) {
     return NextResponse.json({ error: 'privyDid required' }, { status: 400 });
   }
 
-  const experimentId = params.id;
+  const { id: experimentId } = await params;
   const db = createServiceClient();
 
   // Parse body

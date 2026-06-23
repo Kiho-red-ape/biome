@@ -84,14 +84,14 @@ type SampleKit = {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const privyDid = request.nextUrl.searchParams.get('privyDid');
   if (!privyDid) {
     return NextResponse.json({ error: 'privyDid required' }, { status: 400 });
   }
 
-  const experimentId = params.id;
+  const { id: experimentId } = await params;
   const db = createServiceClient();
 
   // ── 1. Fetch application + experiment in one query ─────────────────────────
