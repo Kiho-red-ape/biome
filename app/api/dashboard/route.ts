@@ -189,10 +189,13 @@ export async function GET(request: NextRequest) {
 
   const p = profile as (typeof profile & { stripe_onboarding_complete?: boolean }) | null;
 
+  const pp = profile as (typeof profile & { stripe_account_id?: string | null }) | null;
+
   return NextResponse.json({
     profile,
     applications: apps ?? [],
     activeStudies,
-    stripeOnboardingComplete: p?.stripe_onboarding_complete ?? false,
+    payoutMethodConfigured: p?.stripe_onboarding_complete ?? false,
+    payoutMethodType: pp?.stripe_account_id ? 'stripe' : null,
   });
 }

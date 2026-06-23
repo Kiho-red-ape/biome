@@ -9,6 +9,10 @@ import { countryFlag } from '@/lib/utils/profile';
 import type { ParticipantProfile } from '@/lib/types';
 import { PayoutCard } from '@/components/dashboard/payout-card';
 import { SiteHeader } from '@/components/nav/header';
+import { DashCard, CardLabel } from '@/components/dashboard/card';
+import { NeedsAttention } from '@/components/dashboard/needs-attention';
+import { InboxPreview } from '@/components/dashboard/inbox-preview';
+import { DocumentsCenter } from '@/components/dashboard/documents-center';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -137,42 +141,6 @@ function reputationLabel(rate: number | null | undefined): { label: string; bg: 
   if (rate >= 95)   return { label: 'Excellent',    bg: 'var(--teal)',       color: '#ffffff'          };
   if (rate >= 80)   return { label: 'Strong',       bg: 'var(--teal-dark)',  color: '#ffffff'          };
   return               { label: 'Needs Review', bg: 'var(--teal-soft)', color: 'var(--teal-dark)' };
-}
-
-// ─── Card shell ───────────────────────────────────────────────────────────────
-
-function DashCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return (
-    <div style={{
-      background:   'var(--surface)',
-      border:       '1px solid var(--border-soft)',
-      borderRadius: 'var(--radius)',
-      boxShadow:    'var(--shadow-sm)',
-      marginBottom: 24,
-      ...style,
-    }}>
-      {children}
-    </div>
-  );
-}
-
-function CardLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{
-      padding:      '14px 24px',
-      borderBottom: '1px solid var(--border-soft)',
-      fontFamily:   'var(--font-body)',
-      fontSize:     11,
-      fontWeight:   600,
-      letterSpacing:'2px',
-      textTransform:'uppercase' as const,
-      color:        'var(--slate)',
-      background:   'var(--bg-page)',
-      borderRadius: 'var(--radius) var(--radius) 0 0',
-    }}>
-      {children}
-    </div>
-  );
 }
 
 // ─── Active Study Card ────────────────────────────────────────────────────────
@@ -614,6 +582,9 @@ export default function DashboardPage() {
           ))}
         </div>
 
+        {/* Needs your attention — aggregated pending tasks across all studies */}
+        <NeedsAttention privyDid={user!.id} />
+
         {/* Profile completeness */}
         {completeness.pct < 100 && (
           <DashCard>
@@ -656,9 +627,16 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Inbox preview */}
+        <InboxPreview privyDid={user!.id} />
+
+        {/* Documents center */}
+        <DocumentsCenter privyDid={user!.id} />
+
         {/* Compensation */}
         {payoutApps.length > 0 && (
-          <DashCard>
+          <DashCard style={{ scrollMarginTop: 80 }}>
+            <div id="compensation" />
             <CardLabel>
               Compensation ({payoutApps.length})
               {!payoutMethodConfigured && (
@@ -768,46 +746,11 @@ export default function DashboardPage() {
           )}
         </DashCard>
 
-        {/* Achievements */}
-        <DashCard>
-          <CardLabel>Achievements</CardLabel>
-          <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }} className="dash-badges-grid">
-            {[
-              { icon: '🔬', label: 'First Study' },
-              { icon: '⭐', label: '5 Completed' },
-              { icon: '💯', label: '100% Streak' },
-              { icon: '🏆', label: 'Top 10'      },
-              { icon: '🧬', label: 'Verified'    },
-            ].map((a) => (
-              <div key={a.label} style={{
-                border:        '1px solid var(--border-soft)',
-                borderRadius:  'var(--radius-sm)',
-                padding:       '16px 8px',
-                display:       'flex',
-                flexDirection: 'column',
-                alignItems:    'center',
-                gap:           8,
-                opacity:       0.35,
-                background:    'var(--bg-page)',
-              }}>
-                <span style={{ fontSize: 24 }}>{a.icon}</span>
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 600, textAlign: 'center', color: 'var(--ink)' }}>
-                  {a.label}
-                </span>
-              </div>
-            ))}
-          </div>
-          <div style={{ padding: '0 24px 20px', fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}>
-            Unlock badges by completing studies
-          </div>
-        </DashCard>
-
       </div>
 
       <style>{`
         @media (max-width: 640px) {
           .dash-stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .dash-badges-grid { grid-template-columns: repeat(3, 1fr) !important; }
         }
       `}</style>
     </main>

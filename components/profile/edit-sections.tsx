@@ -6,15 +6,55 @@ import type { ParticipantProfile } from '@/lib/types';
 
 // ─── Shared field components ─────────────────────────────────────────────────
 
-function FieldRow({ label, value, locked }: { label: string; value: string | number | boolean | null | undefined; locked?: boolean }) {
+function LockTag() {
+  return (
+    <span
+      className="inline-flex items-center gap-1"
+      title="Permanent field — cannot be changed after submission"
+      style={{
+        fontFamily:    'var(--font-mono)',
+        fontSize:      9,
+        fontWeight:    600,
+        letterSpacing: '0.5px',
+        color:         'var(--slate)',
+        background:    'var(--surface)',
+        border:        '1px solid var(--border-soft)',
+        borderRadius:  4,
+        padding:       '1px 5px',
+      }}
+    >
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <rect x="5" y="11" width="14" height="9" rx="2" />
+        <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+      </svg>
+      PERMANENT
+    </span>
+  );
+}
+
+function FieldRow({ label, value, locked, zebra }: {
+  label: string;
+  value: string | number | boolean | null | undefined;
+  locked?: boolean;
+  zebra?: boolean;
+}) {
   const display = value === null || value === undefined || value === '' ? '—' : String(value);
   return (
-    <div className="flex items-start justify-between gap-4 py-2" style={{ borderBottom: '1px solid var(--border-soft)' }}>
-      <span className="text-sm flex items-center gap-1.5" style={{ color: 'var(--muted)', flexShrink: 0 }}>
-        {locked && <span title="Permanent field">🔒</span>}
+    <div
+      className="grid items-center gap-4"
+      style={{
+        gridTemplateColumns: '40% 1fr',
+        padding:             '12px 16px',
+        background:          zebra ? 'var(--bg-page)' : 'transparent',
+        borderRadius:        'var(--radius-sm)',
+      }}
+    >
+      <span className="text-sm flex items-center gap-2" style={{ color: 'var(--muted)' }}>
         {label}
+        {locked && <LockTag />}
       </span>
-      <span className="text-sm text-right" style={{ color: 'var(--ink)' }}>{display}</span>
+      <span className="text-sm" style={{ color: 'var(--ink)', fontWeight: 500 }}>{display}</span>
     </div>
   );
 }
@@ -191,13 +231,13 @@ function Step2Form({ profile, onSaved }: { profile: ParticipantProfile; onSaved:
 function Step2ReadOnly({ profile }: { profile: ParticipantProfile }) {
   return (
     <div className="flex flex-col">
-      <FieldRow label="Year of birth"  value={profile.year_of_birth}          locked />
+      <FieldRow label="Year of birth"  value={profile.year_of_birth}          locked zebra />
       <FieldRow label="Sex"            value={profile.sex_assigned_at_birth}   locked />
-      <FieldRow label="Gender"         value={profile.gender_identity} />
+      <FieldRow label="Gender"         value={profile.gender_identity}                zebra />
       <FieldRow label="Ethnicity"      value={profile.ethnicity}               locked />
-      <FieldRow label="Nationality"    value={profile.nationality}             locked />
+      <FieldRow label="Nationality"    value={profile.nationality}             locked zebra />
       <FieldRow label="Region"         value={profile.state_region} />
-      <FieldRow label="Urbanicity"     value={profile.urbanicity} />
+      <FieldRow label="Urbanicity"     value={profile.urbanicity}                     zebra />
     </div>
   );
 }
@@ -264,13 +304,13 @@ function Step3Form({ profile, onSaved }: { profile: ParticipantProfile; onSaved:
 function Step3ReadOnly({ profile }: { profile: ParticipantProfile }) {
   return (
     <div className="flex flex-col">
-      <FieldRow label="Smartphone OS"      value={profile.smartphone_os} />
+      <FieldRow label="Smartphone OS"      value={profile.smartphone_os}                                                              zebra />
       <FieldRow label="Internet"           value={profile.internet_reliability} />
-      <FieldRow label="Can receive kits"   value={profile.can_receive_kits === null ? null : profile.can_receive_kits ? 'Yes' : 'No'} />
+      <FieldRow label="Can receive kits"   value={profile.can_receive_kits === null ? null : profile.can_receive_kits ? 'Yes' : 'No'} zebra />
       <FieldRow label="Wearables"          value={(profile.wearable_devices ?? []).join(', ')} />
-      <FieldRow label="Sample comfort"     value={(profile.sample_comfort ?? []).join(', ')} />
+      <FieldRow label="Sample comfort"     value={(profile.sample_comfort ?? []).join(', ')}                                          zebra />
       <FieldRow label="Languages"          value={(profile.language_fluency ?? []).join(', ')} />
-      <FieldRow label="Weekly hours"       value={profile.weekly_availability_hours} />
+      <FieldRow label="Weekly hours"       value={profile.weekly_availability_hours}                                                  zebra />
     </div>
   );
 }
@@ -334,9 +374,9 @@ function Step4Form({ profile, onSaved }: { profile: ParticipantProfile; onSaved:
 function Step4ReadOnly({ profile }: { profile: ParticipantProfile }) {
   return (
     <div className="flex flex-col">
-      <FieldRow label="Prior studies"      value={profile.previous_study_count} />
+      <FieldRow label="Prior studies"        value={profile.previous_study_count}             zebra />
       <FieldRow label="Recent interventions" value={profile.recent_interventions} />
-      <FieldRow label="Washout sensitive"  value={profile.washout_sensitive ? 'Yes' : 'No'} />
+      <FieldRow label="Washout sensitive"    value={profile.washout_sensitive ? 'Yes' : 'No'} zebra />
     </div>
   );
 }
