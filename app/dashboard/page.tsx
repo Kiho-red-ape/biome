@@ -216,6 +216,20 @@ function ActiveStudyCard({ study, privyDid, onRefresh }: {
               {exp.category}
             </span>
           </div>
+          <Link
+            href={`/dashboard/studies/${exp.id}`}
+            style={{
+              fontFamily:     'var(--font-body)',
+              fontSize:       12,
+              fontWeight:     600,
+              color:          'rgba(255,255,255,0.85)',
+              textDecoration: 'none',
+              marginTop:      6,
+              display:        'inline-block',
+            }}
+          >
+            View workspace
+          </Link>
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <div style={{

@@ -105,18 +105,18 @@ export async function GET(request: NextRequest) {
     const signed = (d.document_signatures ?? []).some((s) => s.signer_user_id === privyDid);
     if (signed) continue;
     push('sign_document', d.id, `Sign “${d.title}”`, d.experiment_id,
-         d.signature_due_date, `/experiments/${d.experiment_id}`);
+         d.signature_due_date, `/dashboard/studies/${d.experiment_id}`);
   }
 
   // 2/3. Accept agreement & eligibility — derived from the apps we already have.
   for (const a of apps) {
     if (a.status === 'approved' && !a.study_agreement_accepted_at) {
       push('accept_agreement', a.id, 'Accept study agreement', a.experiment_id, null,
-           `/experiments/${a.experiment_id}`);
+           `/dashboard/studies/${a.experiment_id}`);
     }
     if (a.eligibility_status === null) {
       push('eligibility_quiz', a.id, 'Complete pre-study eligibility form', a.experiment_id, null,
-           `/experiments/${a.experiment_id}`);
+           `/dashboard/studies/${a.experiment_id}`);
     }
   }
 
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
       studyTitle: studyTitle(m.experiment_id),
       urgency: overdue ? 'overdue' : 'due_soon',
       dueDate: null,
-      href: `/experiments/${m.experiment_id}`,
+      href: `/dashboard/studies/${m.experiment_id}`,
     });
   }
 
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
     return_status: string; phlebotomy_status: string | null; phlebotomy_appointment_date: string | null;
   };
   for (const k of ((kitsRes.data ?? []) as unknown as KitRow[])) {
-    const href = `/experiments/${k.experiment_id}`;
+    const href = `/dashboard/studies/${k.experiment_id}`;
     if (k.collection_status === 'awaiting' && k.collection_due_date) {
       push('collect_sample', k.id, 'Collect your sample', k.experiment_id, k.collection_due_date, href);
     }
@@ -196,7 +196,7 @@ export async function GET(request: NextRequest) {
       if (seen.has(msg.experiment_id)) continue;
       seen.add(msg.experiment_id);
       push('reply_message', msg.experiment_id, 'New message from the research team',
-           msg.experiment_id, null, `/experiments/${msg.experiment_id}`);
+           msg.experiment_id, null, `/dashboard/studies/${msg.experiment_id}`);
     }
   }
 

@@ -42,7 +42,7 @@ function TaskIcon({ kind }: { kind: TaskKind }) {
   }
 }
 
-export function NeedsAttention({ privyDid }: { privyDid: string }) {
+export function NeedsAttention({ privyDid, filterStudyId }: { privyDid: string; filterStudyId?: string }) {
   const [tasks,   setTasks]   = useState<TaskItem[] | null>(null);
   const [error,   setError]   = useState(false);
 
@@ -56,7 +56,13 @@ export function NeedsAttention({ privyDid }: { privyDid: string }) {
   }, [privyDid]);
 
   // Stay silent while loading, on error, or when there's nothing to do — keeps a calm hub.
-  if (error || !tasks || tasks.length === 0) return null;
+  if (error || !tasks) return null;
+
+  const visible = filterStudyId
+    ? tasks.filter((t) => t.studyId === filterStudyId || t.kind === 'configure_payout')
+    : tasks;
+
+  if (visible.length === 0) return null;
 
   return (
     <DashCard>
@@ -66,11 +72,11 @@ export function NeedsAttention({ privyDid }: { privyDid: string }) {
           marginLeft: 10, background: 'var(--teal)', color: '#fff', borderRadius: 999,
           fontSize: 10, fontWeight: 700, padding: '1px 8px', letterSpacing: 0,
         }}>
-          {tasks.length}
+          {visible.length}
         </span>
       </CardLabel>
       <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {tasks.map((t) => {
+        {visible.map((t) => {
           const u = URGENCY[t.urgency];
           return (
             <Link key={t.id} href={t.href} style={{

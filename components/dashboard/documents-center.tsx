@@ -92,7 +92,7 @@ function DocRow({ doc, privyDid }: { doc: ParticipantDoc; privyDid: string }) {
   );
 }
 
-export function DocumentsCenter({ privyDid }: { privyDid: string }) {
+export function DocumentsCenter({ privyDid, filterStudyId }: { privyDid: string; filterStudyId?: string }) {
   const [studies, setStudies] = useState<DocumentStudyGroup[] | null>(null);
   const [error,   setError]   = useState(false);
 
@@ -105,13 +105,19 @@ export function DocumentsCenter({ privyDid }: { privyDid: string }) {
     return () => { active = false; };
   }, [privyDid]);
 
-  if (error || !studies || studies.length === 0) return null;
+  if (error || !studies) return null;
+
+  const visible = filterStudyId
+    ? studies.filter((s) => s.studyId === filterStudyId)
+    : studies;
+
+  if (visible.length === 0) return null;
 
   return (
     <DashCard>
       <CardLabel>Documents</CardLabel>
       <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-        {studies.map((s) => (
+        {visible.map((s) => (
           <div key={s.studyId}>
             <div style={{
               fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px',
