@@ -144,12 +144,12 @@ export async function POST(req: NextRequest) {
       is_verified:            false,
       verification_level:     'none',
     })
-    .select('id, experiment_code')
+    .select('id')
     .single();
 
   if (expErr) return NextResponse.json({ error: `experiment: ${expErr.message}` }, { status: 500 });
 
-  const exp = expRaw as { id: string; experiment_code: string | null };
+  const exp = expRaw as { id: string };
 
   // ── 4. Link intake + mark converted ──────────────────────────────────────────
   const now = new Date().toISOString();
@@ -168,9 +168,8 @@ export async function POST(req: NextRequest) {
   if (linkErr) return NextResponse.json({ error: `link: ${linkErr.message}` }, { status: 500 });
 
   return NextResponse.json({
-    experimentId:   exp.id,
-    experimentCode: exp.experiment_code,
-    profileId:      clientProfileId,
-    alreadyActive:  false,
+    experimentId:  exp.id,
+    profileId:     clientProfileId,
+    alreadyActive: false,
   }, { status: 201 });
 }
