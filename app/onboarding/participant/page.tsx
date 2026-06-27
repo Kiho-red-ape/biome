@@ -272,7 +272,7 @@ export default function ParticipantOnboardingPage() {
             </p>
           </div>
 
-          <button onClick={() => router.replace('/dashboard')} className="btn-primary w-full">
+          <button onClick={() => router.replace('/welcome')} className="btn-primary w-full">
             Enter BIOME →
           </button>
           <button onClick={() => router.replace('/onboarding/experimenter')} className="btn-secondary w-full">

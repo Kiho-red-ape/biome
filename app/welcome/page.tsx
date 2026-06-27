@@ -14,7 +14,21 @@ export default function WelcomePage() {
 
   useEffect(() => {
     if (!ready) return;
-    if (!authenticated || !user) router.replace('/');
+    if (!authenticated || !user) { router.replace('/'); return; }
+
+    // Claim a captured referral code (set on landing by ReferralCapture), once.
+    try {
+      const code = window.localStorage.getItem('biome_ref');
+      if (code) {
+        void fetch('/api/referrals/claim', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ privyDid: user.id, code }),
+        }).finally(() => window.localStorage.removeItem('biome_ref'));
+      }
+    } catch {
+      /* no-op */
+    }
   }, [ready, authenticated, user, router]);
 
   if (!ready || !authenticated || !user) {

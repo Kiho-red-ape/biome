@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import StagingBanner from '@/components/StagingBanner';
+import { ReferralCapture } from '@/components/agent/referral-capture';
 
 export const metadata: Metadata = {
   title: 'BIOME — Clinical Operations Platform',
@@ -25,6 +26,7 @@ export default function RootLayout({
       </head>
       <body>
         <StagingBanner />
+        <ReferralCapture />
         <Providers>
           <div id="app-root">
             {children}
