@@ -78,5 +78,31 @@ export async function POST(req: NextRequest) {
     await db.from('participant_profiles').update(update).eq('user_id', privyDid);
   }
 
+  // ── Screening side-effect: record eligibility outcome; keep non-fits in the pool ──
+  if (stage === 'screen' && experimentId) {
+    const outcome = (result.extracted as Record<string, unknown>).eligibility_outcome;
+    if (outcome === 'eligible' || outcome === 'not_eligible') {
+      const db = createServiceClient();
+      const { data: app } = await db
+        .from('applications')
+        .select('id')
+        .eq('experiment_id', experimentId)
+        .eq('participant_id', privyDid)
+        .maybeSingle();
+
+      if (app) {
+        await db.from('applications')
+          .update({ eligibility_status: outcome })
+          .eq('id', (app as { id: string }).id);
+      } else if (outcome === 'eligible') {
+        // Create an application only for fits; non-fits simply stay in the pool.
+        await db.from('applications').insert({
+          experiment_id: experimentId, participant_id: privyDid, status: 'applied',
+          applied_at: new Date().toISOString(), payout_status: 'pending', eligibility_status: 'eligible',
+        });
+      }
+    }
+  }
+
   return NextResponse.json(result);
 }
