@@ -13,6 +13,7 @@ import { DashCard, CardLabel } from '@/components/dashboard/card';
 import { NeedsAttention } from '@/components/dashboard/needs-attention';
 import { InboxPreview } from '@/components/dashboard/inbox-preview';
 import { DocumentsCenter } from '@/components/dashboard/documents-center';
+import { ReferralCard } from '@/components/agent/referral-card';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -424,6 +425,62 @@ function ActiveStudyCard({ study, privyDid, onRefresh }: {
   );
 }
 
+// ─── Verified-contributor nudge ────────────────────────────────────────────────
+
+function AwarenessNudge({ privyDid }: { privyDid: string }) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/agent/awareness?privyDid=${encodeURIComponent(privyDid)}`)
+      .then((r) => r.json())
+      .then((d: { verificationLevel?: string }) => {
+        if (!active) return;
+        const verified = ['aware', 'verified', 'community_builder'].includes(d.verificationLevel ?? '');
+        setShow(!verified);
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [privyDid]);
+
+  if (!show) return null;
+
+  return (
+    <DashCard>
+      <div style={{
+        padding: '18px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 16,
+        flexWrap: 'wrap',
+      }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>
+            Become a verified contributor
+          </div>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)', marginTop: 4 }}>
+            Complete a few short research-awareness lessons — verified members are matched to studies first.
+          </div>
+        </div>
+        <Link href="/learn" style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: 13,
+          fontWeight: 600,
+          color: '#ffffff',
+          background: 'var(--teal)',
+          borderRadius: 'var(--radius-sm)',
+          padding: '9px 16px',
+          textDecoration: 'none',
+          flexShrink: 0,
+        }}>
+          Start lessons →
+        </Link>
+      </div>
+    </DashCard>
+  );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -596,6 +653,9 @@ export default function DashboardPage() {
           ))}
         </div>
 
+        {/* Verified-contributor nudge */}
+        <AwarenessNudge privyDid={user!.id} />
+
         {/* Needs your attention — aggregated pending tasks across all studies */}
         <NeedsAttention privyDid={user!.id} />
 
@@ -679,6 +739,9 @@ export default function DashboardPage() {
             </div>
           </DashCard>
         )}
+
+        {/* Grow the research community */}
+        <ReferralCard privyDid={user!.id} />
 
         {/* Applications */}
         <DashCard>
