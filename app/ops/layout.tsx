@@ -29,6 +29,7 @@ const GROUPS: NavGroup[] = [
     id: 'people', label: 'People',
     items: [
       { label: 'Participants',           href: '/ops/participants'                   },
+      { label: 'Agent',                  href: '/ops/participants-agent'             },
       { label: 'Experimenter approvals', href: '/ops/researchers', badge: 'pendingApprovals' },
       { label: 'Flagged accounts',       href: '/ops/participants?filter=flagged'    },
     ],
@@ -71,7 +72,8 @@ const BC: Record<string, [string, string]> = {
   '/ops/partners':         ['Pipeline', 'Partner apps'],
   '/ops/studies':          ['Studies', 'All studies'],
   '/ops/studies/pipeline': ['Studies', 'Study pipeline'],
-  '/ops/participants':     ['People', 'Participants'],
+  '/ops/participants':       ['People', 'Participants'],
+  '/ops/participants-agent': ['People', 'Agent'],
   '/ops/researchers':      ['People', 'Experimenter approvals'],
   '/ops/logistics':        ['Operations', 'Sample logistics'],
   '/ops/payouts':          ['Operations', 'Payouts'],
