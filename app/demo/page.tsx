@@ -10,7 +10,7 @@ import { SiteHeader } from '@/components/nav/header';
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const DEMO_OWNER_EMAIL = 'kishore@biome.to';
-const CONTACT_EMAIL = 'contact@biome.to';
+const CONTACT_EMAIL = 'hello@biome.to';
 
 type Role = 'researcher' | 'partner-participant' | 'partner-org';
 
@@ -159,12 +159,69 @@ const FLOWS: Flow[] = [
         ),
       },
       {
-        title: 'Submit intake / post study',
-        desc:  'A short intake captures your protocol, eligibility, and milestones. No long forms — publish straight to your study dashboard.',
+        title: 'Submit an intake',
+        desc:  'The contact form, estimator, and "Run a Study" all create a lead in Biome\'s pipeline. One submission is enough to start the conversation.',
+        preview: (
+          <MiniCard>
+            <MiniLabel>New lead · pipeline</MiniLabel>
+            <ListRow left="Gut microbiome & sleep cohort" sub="Source: Run a Study" right={<Pill bg="var(--teal-soft)" color="var(--teal-dark)">New lead</Pill>} />
+            <ListRow left="Estimated cohort: 120 · 8 weeks" sub="Awaiting ops review" />
+          </MiniCard>
+        ),
+      },
+      {
+        title: 'Get invited to onboard',
+        desc:  'Biome\'s ops team reviews your lead and emails an invite with a unique link to set up your organization. No public sign-up — onboarding is by invitation.',
+        preview: (
+          <MiniCard>
+            <MiniLabel>Invitation · email</MiniLabel>
+            <ListRow left="You are invited to onboard on Biome" sub="From: Biome ops · to your inbox" right={<Pill bg="var(--teal-soft)" color="var(--teal-dark)">Sent</Pill>} />
+            <div style={{ padding: '11px 14px' }}>
+              <span style={{ ...MONO, fontSize: 11, fontWeight: 700, color: 'var(--teal-dark)' }}>Set up your organization →</span>
+            </div>
+          </MiniCard>
+        ),
+      },
+      {
+        title: 'Set up your organization',
+        desc:  'Open the invite link and create your org profile — name, website, and areas of expertise. This becomes the home for your studies and team.',
+        preview: (
+          <MiniCard>
+            <MiniLabel>Organization profile · draft</MiniLabel>
+            <ListRow left="Helix Research Labs" sub="helixresearch.example.org" right={<Pill bg="var(--bg-page)" color="var(--muted)">Draft</Pill>} />
+            <ListRow left="Expertise: microbiome, metabolic health" sub="From invite link" />
+          </MiniCard>
+        ),
+      },
+      {
+        title: 'Get approved',
+        desc:  'Biome reviews your organization profile and approves it. Once approved, your workspace unlocks and you can post studies.',
+        preview: (
+          <MiniCard>
+            <MiniLabel>Org review · approved</MiniLabel>
+            <ListRow left="Helix Research Labs" sub="Reviewed by Biome ops" right={<Pill bg="var(--teal)" color="#fff">Approved</Pill>} />
+          </MiniCard>
+        ),
+      },
+      {
+        title: 'Your org workspace',
+        desc:  'Manage everything from one place. Invite your team by role, and open a per-study console for applicants, compliance, documents, messages, and compensation.',
+        preview: (
+          <MiniCard>
+            <MiniLabel>Team · roles · sample data</MiniLabel>
+            <ListRow left="A. Rao" sub="Clinical operator" right={<Pill bg="var(--teal-faint)" color="var(--teal-dark)">Active</Pill>} />
+            <ListRow left="S. Mehta" sub="Researcher" right={<Pill bg="var(--teal-faint)" color="var(--teal-dark)">Active</Pill>} />
+            <ListRow left="Northwind Health" sub="Sponsor" right={<Pill bg="var(--teal-soft)" color="var(--teal-dark)">Invited</Pill>} />
+          </MiniCard>
+        ),
+      },
+      {
+        title: 'Post a study (draft)',
+        desc:  'The detailed intake captures your protocol, eligibility, milestones, and age group. It saves as a draft until you\'re ready to launch.',
         preview: (
           <MiniCard>
             <MiniLabel>New study · draft</MiniLabel>
-            <ListRow left="Gut microbiome & sleep cohort" sub="Category: Microbiome" right={<Pill bg="var(--bg-page)" color="var(--muted)">Draft</Pill>} />
+            <ListRow left="Gut microbiome & sleep cohort" sub="Category: Microbiome · age 25–55" right={<Pill bg="var(--bg-page)" color="var(--muted)">Draft</Pill>} />
             <ListRow left="Eligibility: adults 25–55, India" sub="Screening criteria attached" />
             <div style={{ padding: '11px 14px' }}>
               <ListRow left="6 milestones · weekly self-report" />
@@ -173,54 +230,46 @@ const FLOWS: Flow[] = [
         ),
       },
       {
-        title: 'Deposit budget',
-        desc:  'Fund the compensation pool upfront so research partners know the study is real. Held against verified milestone completion.',
+        title: 'Attach consent (ICF) & request launch',
+        desc:  'Author your IRB consent document and request launch. Biome validates that the minimum fields and an ICF are in place before the study can go live.',
         preview: (
           <MiniCard>
-            <MiniLabel>Budget · sample data</MiniLabel>
+            <MiniLabel>Launch checklist · sample data</MiniLabel>
+            <ListRow left="Consent document (ICF)" sub="IRB consent · validated" right={<Pill bg="var(--teal)" color="#fff">Approved</Pill>} />
+            <ListRow left="Minimum fields complete" sub="Protocol · eligibility · milestones" right={<Pill bg="var(--teal-faint)" color="var(--teal-dark)">Passed</Pill>} />
+            <ListRow left="Launch requested" sub="Awaiting payment confirmation" right={<Pill bg="var(--teal-soft)" color="var(--teal-dark)">Requested</Pill>} />
+          </MiniCard>
+        ),
+      },
+      {
+        title: 'Biome confirms payment → recruiting',
+        desc:  'Biome ops confirms your deposit and opens the study for recruiting. Funds are held against verified milestone completion.',
+        preview: (
+          <MiniCard>
+            <MiniLabel>Payment confirmed · recruiting</MiniLabel>
             <StatRow items={[
-              { label: 'Per partner', value: '$60',     sub: 'on completion' },
-              { label: 'Pool',        value: '$7,200',  sub: '120 slots' },
-              { label: 'Status',      value: 'Funded',  sub: 'escrow' },
+              { label: 'Deposit', value: '$7,200', sub: 'confirmed' },
+              { label: 'Slots',   value: '120',    sub: 'open' },
+              { label: 'Status',  value: 'Recruiting', sub: 'live' },
             ]} />
           </MiniCard>
         ),
       },
       {
-        title: 'Recruit',
-        desc:  'OME, the recruitment intelligence at /ome, locates hospitals, labs, and clinics across India and guides compliant data access so your cohort fills fast.',
+        title: 'Stage 0 finds your cohort',
+        desc:  'Biome\'s find agent maps where eligible people gather — healthy and patient groups — plus hospitals, clinics, advocacy groups, and clinical operators that fit your protocol.',
         preview: (
           <MiniCard>
-            <MiniLabel>OME · recruitment intelligence</MiniLabel>
-            <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                <span style={{ ...MONO, fontSize: 9, fontWeight: 700, color: '#fff', background: 'var(--teal)', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>OME</span>
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--ink)', lineHeight: 1.5 }}>
-                  Found 7 hospitals in Bengaluru suited to stool-sample recruitment, with ABDM-compliant access notes for each.
-                </span>
-              </div>
-              <Link href="/ome" style={{ ...MONO, fontSize: 11, fontWeight: 700, color: 'var(--teal-dark)', textDecoration: 'none' }}>
-                Open OME →
-              </Link>
-            </div>
-          </MiniCard>
-        ),
-      },
-      {
-        title: 'Screen applicants',
-        desc:  'Review applications against your eligibility criteria and approve the cohort you want. You stay in control of who joins.',
-        preview: (
-          <MiniCard>
-            <MiniLabel>Applicants · sample data</MiniLabel>
-            <ListRow left="P-4821 · adults 25–55" sub="Eligibility: passed" right={<Pill bg="var(--teal)" color="#fff">Approve</Pill>} />
-            <ListRow left="P-4822 · adults 25–55" sub="Eligibility: passed" right={<Pill bg="var(--teal)" color="#fff">Approve</Pill>} />
-            <ListRow left="P-4823 · outside range" sub="Eligibility: review" right={<Pill bg="var(--teal-soft)" color="var(--teal-dark)">Review</Pill>} />
+            <MiniLabel>Recruitment map · sample</MiniLabel>
+            <ListRow left="Patient advocacy group · gut health" sub="~2,400 members · India" right={<Pill bg="var(--teal)" color="#fff">Strong fit</Pill>} />
+            <ListRow left="Hospital · Bengaluru" sub="Gastroenterology clinic" right={<Pill bg="var(--teal-soft)" color="var(--teal-dark)">Good fit</Pill>} />
+            <ListRow left="Healthy-volunteer community" sub="Wellness cohort" right={<Pill bg="var(--teal-faint)" color="var(--teal-dark)">Fit</Pill>} />
           </MiniCard>
         ),
       },
       {
         title: 'Run the study',
-        desc:  'Track milestones and compliance in real time as your cohort works through the protocol from home. Automated alerts flag anything at risk.',
+        desc:  'From the per-study console, screen applicants, review submissions, message participants, track compliance, and release compensation on verified completion.',
         preview: (
           <MiniCard>
             <MiniLabel>Live tracking · sample data</MiniLabel>
@@ -231,32 +280,6 @@ const FLOWS: Flow[] = [
             ]} />
             <div style={{ height: 6, background: 'var(--bg-page)' }}>
               <div style={{ height: '100%', width: '62%', background: 'var(--teal)' }} />
-            </div>
-          </MiniCard>
-        ),
-      },
-      {
-        title: 'Manage documents & compliance',
-        desc:  'Keep consent records, protocol versions, and the audit trail organized in one place — ready to export as a full audit bundle.',
-        preview: (
-          <MiniCard>
-            <MiniLabel>Documents · sample data</MiniLabel>
-            <ListRow left="Consent records (118)" sub="Pseudonymized" right={<Pill bg="var(--teal-faint)" color="var(--teal-dark)">Stored</Pill>} />
-            <ListRow left="Protocol v2.1" sub="Versioned" right={<Pill bg="var(--teal-faint)" color="var(--teal-dark)">Current</Pill>} />
-            <ListRow left="Audit bundle" sub="Export-ready" right={<Pill bg="var(--bg-page)" color="var(--muted)">Export</Pill>} />
-          </MiniCard>
-        ),
-      },
-      {
-        title: 'Payouts',
-        desc:  'On verified completion, research partners receive compensation end-to-end. Per-milestone release keeps payout tied to real participation.',
-        preview: (
-          <MiniCard>
-            <MiniLabel>Compensation · sample data</MiniLabel>
-            <ListRow left="Batch · 112 completed" sub="Verified milestones" right={<Pill bg="var(--teal)" color="#fff">Released</Pill>} />
-            <ListRow left="$60.00 per partner" sub="Net of platform fee" />
-            <div style={{ padding: '11px 14px' }}>
-              <ListRow left="6 pending review" right={<Pill bg="var(--teal-soft)" color="var(--teal-dark)">Pending</Pill>} />
             </div>
           </MiniCard>
         ),
