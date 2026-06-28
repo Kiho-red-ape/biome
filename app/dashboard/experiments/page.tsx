@@ -107,13 +107,20 @@ export default function MyExperimentsPage() {
             <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 26, color: 'var(--ink)', lineHeight: 1.2, margin: 0 }}>
               Studies
             </h1>
-            {orgId && (
-              <Link href={`/org/${orgId}`}
+            <div className="flex items-center flex-wrap" style={{ gap: 16 }}>
+              {orgId && (
+                <Link href={`/org/${orgId}`}
+                  className="no-underline transition-opacity hover:opacity-80"
+                  style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--teal-dark)' }}>
+                  View researcher profile ↗
+                </Link>
+              )}
+              <Link href="/dashboard/org"
                 className="no-underline transition-opacity hover:opacity-80"
                 style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--teal-dark)' }}>
-                View researcher profile ↗
+                Organization →
               </Link>
-            )}
+            </div>
           </div>
           <Link
             href="/post"

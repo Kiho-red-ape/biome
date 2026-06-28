@@ -189,6 +189,7 @@ export function SiteHeader() {
                       <>
                         {navProfile?.participant && <div style={{ borderTop: '1px solid var(--border-soft)' }} />}
                         <DropItem href="/dashboard/experiments" onClick={() => setDropOpen(false)}>Researcher Dashboard</DropItem>
+                        <DropItem href="/dashboard/org" onClick={() => setDropOpen(false)}>Organization</DropItem>
                         <DropItem href="/post" onClick={() => setDropOpen(false)}>Post a Study</DropItem>
                         <DropItem href="/ome" onClick={() => setDropOpen(false)}>OME — Recruitment AI</DropItem>
                       </>
@@ -267,10 +268,16 @@ export function SiteHeader() {
                   </>
                 )}
                 {navProfile?.experimenter && (
-                  <Link href="/dashboard/experiments" onClick={() => setMenuOpen(false)}
-                    style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
-                    Researcher Dashboard
-                  </Link>
+                  <>
+                    <Link href="/dashboard/experiments" onClick={() => setMenuOpen(false)}
+                      style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
+                      Researcher Dashboard
+                    </Link>
+                    <Link href="/dashboard/org" onClick={() => setMenuOpen(false)}
+                      style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
+                      Organization
+                    </Link>
+                  </>
                 )}
                 <div style={{ padding: '20px 24px' }}>
                   <button onClick={() => { setMenuOpen(false); logout(); }} className="btn-secondary" style={{ width: '100%' }}>
