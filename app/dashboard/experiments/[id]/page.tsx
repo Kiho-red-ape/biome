@@ -12,6 +12,8 @@ import { EscrowDepositPanel } from '@/components/experiments/escrow-deposit-pane
 import { ExperimenterPayoutPanel } from '@/components/experiments/experimenter-payout-panel';
 import { DocumentVault } from '@/components/documents/document-vault';
 import { DashCard, CardLabel } from '@/components/dashboard/card';
+import { StudyChat } from '@/components/study-console/study-chat';
+import { NotifyComposer } from '@/components/study-console/notify-composer';
 
 import type { FacilityMatch } from '@/app/api/ome/matches/route';
 
@@ -96,7 +98,7 @@ function relDate(d: string) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-type Tab = 'overview' | 'ome';
+type Tab = 'overview' | 'applicants' | 'compliance' | 'documents' | 'messages' | 'compensation' | 'ome';
 
 export default function ExperimentManagePage() {
   const params  = useParams<{ id: string }>();
@@ -628,12 +630,25 @@ export default function ExperimentManagePage() {
           </div>
         )}
 
-        {/* ── Tab bar ── */}
-        <div className="flex gap-1 mb-6"
-          style={{ borderBottom: '1px solid var(--border-soft)', paddingBottom: 0 }}>
+        {/* ── Tab bar (mini ops console) ── */}
+        <div
+          className="mb-6"
+          style={{
+            display:        'flex',
+            gap:            4,
+            borderBottom:   '1px solid var(--border-soft)',
+            overflowX:      'auto',
+            whiteSpace:     'nowrap',
+            WebkitOverflowScrolling: 'touch',
+          }}>
           {([
-            { key: 'overview', label: 'Overview' },
-            { key: 'ome',      label: 'OME' },
+            { key: 'overview',     label: 'Overview' },
+            { key: 'applicants',   label: 'Applicants' },
+            { key: 'compliance',   label: 'Compliance' },
+            { key: 'documents',    label: 'Documents' },
+            { key: 'messages',     label: 'Messages' },
+            { key: 'compensation', label: 'Compensation' },
+            { key: 'ome',          label: 'OME' },
           ] as { key: Tab; label: string }[]).map((t) => (
             <button
               key={t.key}
@@ -652,6 +667,7 @@ export default function ExperimentManagePage() {
                 color:           activeTab === t.key ? 'var(--teal-dark)' : 'var(--muted)',
                 cursor:          'pointer',
                 marginBottom:    -1,
+                flexShrink:      0,
                 transition:      'color 0.15s',
               }}>
               {t.label}
@@ -885,7 +901,36 @@ export default function ExperimentManagePage() {
           ))}
         </div>
 
-        {/* ── Study lifecycle: consent doc + launch gate ── (pre-recruiting) */}
+        {/* ── Study description + meta ── */}
+        <DashCard>
+          <CardLabel>About this study</CardLabel>
+          <div style={{ padding: '20px 24px' }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--slate)', lineHeight: 1.7, whiteSpace: 'pre-wrap', margin: '0 0 16px' }}>
+              {exp.description}
+            </p>
+            {/* At-a-glance row */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+              {[
+                { label: 'Status',  value: exp.status },
+                { label: 'Payment', value: exp.payment_status ?? '—' },
+                { label: 'Slots',   value: `${exp.slots_filled} / ${exp.slots_total}` },
+              ].map((g) => (
+                <div key={g.label}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', margin: '0 0 3px', textTransform: 'uppercase', letterSpacing: '1px' }}>{g.label}</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>{g.value}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 18 }}>
+              <Link href={`/dashboard/experiments/${exp.id}/recruitment`} className="no-underline transition-opacity hover:opacity-80"
+                style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, color: 'var(--teal-dark)' }}>
+                Recruitment intelligence (Stage 0) →
+              </Link>
+            </div>
+          </div>
+        </DashCard>
+
+        {/* ── Launch gate ── */}
         {(() => {
           const isPreRecruit = exp.status === 'draft' || exp.payment_status === 'unpaid' || exp.payment_status === 'launch_requested';
           const isLaunchRequested = exp.payment_status === 'launch_requested';
@@ -894,104 +939,7 @@ export default function ExperimentManagePage() {
 
           return (
             <>
-              {/* Consent document (ICF) */}
-              {(isPreRecruit) && (
-                <DashCard>
-                  <CardLabel>Consent Document (ICF)</CardLabel>
-                  <div style={{ padding: '20px 24px' }}>
-                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)', lineHeight: 1.6, marginBottom: 16 }}>
-                      An approved consent document is required before your study can recruit, and powers the
-                      comprehension-gated consent flow for participants.
-                    </p>
-
-                    {consentLoading ? (
-                      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)' }}>Loading…</p>
-                    ) : consentEditing ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            Document title
-                          </span>
-                          <input
-                            value={consentTitle}
-                            onChange={(e) => setConsentTitle(e.target.value)}
-                            placeholder="e.g. Informed Consent Form — v1"
-                            className="outline-none"
-                            style={{ fontFamily: 'var(--font-body)', fontSize: 14, padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
-                          />
-                        </label>
-                        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            Paste your IRB-approved consent form text
-                          </span>
-                          <textarea
-                            rows={10}
-                            value={consentBody}
-                            onChange={(e) => setConsentBody(e.target.value)}
-                            placeholder="Paste the full text of your IRB/ethics-board-approved consent form here…"
-                            className="outline-none resize-y"
-                            style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.6, padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
-                          />
-                        </label>
-                        {consentErr && (
-                          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#dc2626' }}>{consentErr}</p>
-                        )}
-                        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                          <button
-                            onClick={saveConsent}
-                            disabled={consentSaving}
-                            className="transition-all hover:opacity-90 disabled:opacity-50"
-                            style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '8px 20px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff', border: 'none', cursor: 'pointer' }}>
-                            {consentSaving ? 'Saving…' : 'Save consent document'}
-                          </button>
-                          <button
-                            onClick={() => { setConsentEditing(false); setConsentErr(null); }}
-                            className="transition-all hover:opacity-80"
-                            style={{ fontFamily: 'var(--font-body)', fontSize: 13, padding: '8px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--slate)', background: 'var(--surface)', cursor: 'pointer' }}>
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : consentDoc ? (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
-                            <span style={{ fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>
-                              {consentDoc.title}
-                            </span>
-                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 8px', borderRadius: 4, color: 'var(--teal-dark)', background: 'var(--teal-faint)', border: '1px solid var(--border-soft)' }}>
-                              Approved
-                            </span>
-                          </div>
-                          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', margin: 0 }}>
-                            Version {consentDoc.version} · Updated {relDate(consentDoc.updated_at)}
-                          </p>
-                        </div>
-                        <button
-                          onClick={openConsentForm}
-                          className="transition-all hover:opacity-80"
-                          style={{ fontFamily: 'var(--font-body)', fontSize: 13, padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--slate)', background: 'var(--surface)', cursor: 'pointer', flexShrink: 0 }}>
-                          Edit / replace
-                        </button>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--muted)', margin: 0 }}>
-                          No consent document yet.
-                        </p>
-                        <button
-                          onClick={openConsentForm}
-                          className="transition-all hover:opacity-90"
-                          style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '8px 18px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
-                          Add consent document →
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </DashCard>
-              )}
-
-              {/* Launch panel */}
+              {/* Launch panel (consent doc lives in the Documents tab) */}
               <DashCard>
                 <CardLabel>Launch</CardLabel>
                 <div style={{ padding: '20px 24px' }}>
@@ -1087,6 +1035,11 @@ export default function ExperimentManagePage() {
           </div>
         )}
 
+        </>)} {/* end activeTab === 'overview' */}
+
+        {/* ── Applicants tab content ── */}
+        {activeTab === 'applicants' && (<>
+
         {/* ── Enrolled research partners (shown when experiment has enrollment_url) ── */}
         {(() => {
           const enrolled  = applicants.filter((a) => a.status === 'enrolled');
@@ -1153,8 +1106,186 @@ export default function ExperimentManagePage() {
           );
         })()}
 
-        {/* ── Message composer ── (shown when there are approved/enrolled research partners) */}
-        {user && (() => {
+        {/* ── Screening dashboard ── */}
+        {user && (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Applicant Screening</p>
+            </div>
+            <ScreeningDashboard
+              experimentId={exp.id}
+              privyDid={user.id}
+              initialApplicants={applicants}
+              experiment={expInfo}
+            />
+          </div>
+        )}
+
+        </>)} {/* end activeTab === 'applicants' */}
+
+        {/* ── Compliance tab content ── */}
+        {activeTab === 'compliance' && (
+          exp.commenced && user ? (
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Compliance</p>
+                {exp.commenced_at && (
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--teal)' }}>
+                    commenced {new Date(exp.commenced_at).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+              <ComplianceDashboard experimentId={exp.id} privyDid={user.id} />
+            </div>
+          ) : (
+            <DashCard>
+              <CardLabel>Compliance</CardLabel>
+              <div style={{ padding: '20px 24px' }}>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)', margin: 0, lineHeight: 1.6 }}>
+                  Compliance review and milestone tracking become available once the study has commenced.
+                </p>
+              </div>
+            </DashCard>
+          )
+        )}
+
+        {/* ── Documents tab content ── */}
+        {activeTab === 'documents' && (<>
+
+        {/* ── Consent document (ICF) ── */}
+        {(() => {
+          const isPreRecruit = exp.status === 'draft' || exp.payment_status === 'unpaid' || exp.payment_status === 'launch_requested';
+          if (!isPreRecruit) return null;
+          return (
+            <DashCard>
+              <CardLabel>Consent Document (ICF)</CardLabel>
+              <div style={{ padding: '20px 24px' }}>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)', lineHeight: 1.6, marginBottom: 16 }}>
+                  An approved consent document is required before your study can recruit, and powers the
+                  comprehension-gated consent flow for participants.
+                </p>
+
+                {consentLoading ? (
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)' }}>Loading…</p>
+                ) : consentEditing ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        Document title
+                      </span>
+                      <input
+                        value={consentTitle}
+                        onChange={(e) => setConsentTitle(e.target.value)}
+                        placeholder="e.g. Informed Consent Form — v1"
+                        className="outline-none"
+                        style={{ fontFamily: 'var(--font-body)', fontSize: 14, padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
+                      />
+                    </label>
+                    <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        Paste your IRB-approved consent form text
+                      </span>
+                      <textarea
+                        rows={10}
+                        value={consentBody}
+                        onChange={(e) => setConsentBody(e.target.value)}
+                        placeholder="Paste the full text of your IRB/ethics-board-approved consent form here…"
+                        className="outline-none resize-y"
+                        style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.6, padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
+                      />
+                    </label>
+                    {consentErr && (
+                      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#dc2626' }}>{consentErr}</p>
+                    )}
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                      <button
+                        onClick={saveConsent}
+                        disabled={consentSaving}
+                        className="transition-all hover:opacity-90 disabled:opacity-50"
+                        style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '8px 20px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff', border: 'none', cursor: 'pointer' }}>
+                        {consentSaving ? 'Saving…' : 'Save consent document'}
+                      </button>
+                      <button
+                        onClick={() => { setConsentEditing(false); setConsentErr(null); }}
+                        className="transition-all hover:opacity-80"
+                        style={{ fontFamily: 'var(--font-body)', fontSize: 13, padding: '8px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--slate)', background: 'var(--surface)', cursor: 'pointer' }}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : consentDoc ? (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
+                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>
+                          {consentDoc.title}
+                        </span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 8px', borderRadius: 4, color: 'var(--teal-dark)', background: 'var(--teal-faint)', border: '1px solid var(--border-soft)' }}>
+                          Approved
+                        </span>
+                      </div>
+                      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', margin: 0 }}>
+                        Version {consentDoc.version} · Updated {relDate(consentDoc.updated_at)}
+                      </p>
+                    </div>
+                    <button
+                      onClick={openConsentForm}
+                      className="transition-all hover:opacity-80"
+                      style={{ fontFamily: 'var(--font-body)', fontSize: 13, padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--slate)', background: 'var(--surface)', cursor: 'pointer', flexShrink: 0 }}>
+                      Edit / replace
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--muted)', margin: 0 }}>
+                      No consent document yet.
+                    </p>
+                    <button
+                      onClick={openConsentForm}
+                      className="transition-all hover:opacity-90"
+                      style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '8px 18px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+                      Add consent document →
+                    </button>
+                  </div>
+                )}
+              </div>
+            </DashCard>
+          );
+        })()}
+
+        {/* ── Document Vault ── */}
+        {user && (
+          <div className="mb-8" style={{
+            border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)',
+            boxShadow: 'var(--shadow-sm)', background: 'var(--surface)', padding: 24,
+          }}>
+            <DocumentVault
+              experimentId={exp.id}
+              hasSamples={
+                !!(exp.category && /sample|biomarker|microbiome|blood|saliva|stool|urine|swab/i.test(exp.category + ' ' + exp.description))
+              }
+              displayName={exp.experiment_code ?? undefined}
+            />
+          </div>
+        )}
+
+        </>)} {/* end activeTab === 'documents' */}
+
+        {/* ── Messages tab content ── */}
+        {activeTab === 'messages' && user && (<>
+
+        {/* ── Announcement (in-app broadcast notification) ── */}
+        <div className="mb-6">
+          <NotifyComposer experimentId={exp.id} privyDid={user.id} />
+        </div>
+
+        {/* ── Study chat ── */}
+        <div className="mb-6">
+          <StudyChat experimentId={exp.id} privyDid={user.id} />
+        </div>
+
+        {/* ── Email message composer (existing) ── (shown when there are approved/enrolled research partners) */}
+        {(() => {
           const msgRecipients = applicants.filter((a) => a.status === 'approved' || a.status === 'enrolled').length;
           if (msgRecipients === 0 && exp.status !== 'active') return null;
           return (
@@ -1167,6 +1298,11 @@ export default function ExperimentManagePage() {
             </div>
           );
         })()}
+
+        </>)} {/* end activeTab === 'messages' */}
+
+        {/* ── Compensation tab content ── */}
+        {activeTab === 'compensation' && (<>
 
         {/* ── Escrow deposit panel ── shown when study has approved research partners */}
         {(() => {
@@ -1203,53 +1339,7 @@ export default function ExperimentManagePage() {
           </div>
         )}
 
-        {/* ── Compliance dashboard ── (shown once study has commenced) */}
-        {exp.commenced && user && (
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Compliance</p>
-              {exp.commenced_at && (
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--teal)' }}>
-                  commenced {new Date(exp.commenced_at).toLocaleDateString()}
-                </span>
-              )}
-            </div>
-            <ComplianceDashboard experimentId={exp.id} privyDid={user.id} />
-          </div>
-        )}
-
-        {/* ── Document Vault ── */}
-        {user && (
-          <div className="mb-8" style={{
-            border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)',
-            boxShadow: 'var(--shadow-sm)', background: 'var(--surface)', padding: 24,
-          }}>
-            <DocumentVault
-              experimentId={exp.id}
-              hasSamples={
-                !!(exp.category && /sample|biomarker|microbiome|blood|saliva|stool|urine|swab/i.test(exp.category + ' ' + exp.description))
-              }
-              displayName={exp.experiment_code ?? undefined}
-            />
-          </div>
-        )}
-
-        {/* ── Screening dashboard ── */}
-        {user && (
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>Applicant Screening</p>
-            </div>
-            <ScreeningDashboard
-              experimentId={exp.id}
-              privyDid={user.id}
-              initialApplicants={applicants}
-              experiment={expInfo}
-            />
-          </div>
-        )}
-
-        </>)} {/* end activeTab === 'overview' */}
+        </>)} {/* end activeTab === 'compensation' */}
 
       </div>
     </main>
