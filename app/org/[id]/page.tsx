@@ -15,12 +15,14 @@ type OrgExp = {
   category: string;
 };
 
-const STATUS_COLORS: Record<ExperimentStatus, string> = {
-  recruiting: 'var(--teal)',
-  active:     'var(--teal-dark)',
-  draft:      'var(--muted)',
-  completed:  'var(--muted)',
-  cancelled:  '#dc2626',
+// Status pills consistent with the dashboard: draft=slate, recruiting=blue,
+// active=teal, completed=green, cancelled=red.
+const STATUS_PILLS: Record<ExperimentStatus, { label: string; bg: string; color: string }> = {
+  draft:      { label: 'Draft',      bg: 'var(--bg-page)',     color: 'var(--slate)'     },
+  recruiting: { label: 'Recruiting', bg: '#e0edff',            color: '#1d4ed8'          },
+  active:     { label: 'Active',     bg: 'var(--teal-soft)',   color: 'var(--teal-dark)' },
+  completed:  { label: 'Completed',  bg: 'var(--success-soft)', color: 'var(--success)'  },
+  cancelled:  { label: 'Cancelled',  bg: 'var(--error-soft)',  color: 'var(--error)'     },
 };
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -48,7 +50,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
 
   return (
     <main className="min-h-screen px-4 py-10" style={{ background: 'var(--bg-page)' }}>
-      <div className="max-w-2xl mx-auto">
+      <div className="mx-auto w-full" style={{ maxWidth: 960 }}>
 
         {/* Nav */}
         <div className="flex items-center justify-between mb-8">
@@ -189,8 +191,8 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
                 </thead>
                 <tbody>
                   {experiments.map((e, idx) => {
-                    const sc  = STATUS_COLORS[e.status] ?? 'var(--muted)';
-                    const pct = e.slots_total > 0 ? (e.slots_filled / e.slots_total) * 100 : 0;
+                    const pill = STATUS_PILLS[e.status] ?? STATUS_PILLS.draft;
+                    const pct  = e.slots_total > 0 ? (e.slots_filled / e.slots_total) * 100 : 0;
                     return (
                       <tr key={e.id} style={{ borderBottom: idx < experiments.length - 1 ? '1px solid var(--border-soft)' : 'none' }}>
                         <td style={{ padding: '16px' }}>
@@ -207,8 +209,21 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
                           </Link>
                         </td>
                         <td style={{ padding: '16px' }}>
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', color: sc }}>
-                            {e.status}
+                          <span
+                            className="inline-flex items-center"
+                            style={{
+                              fontFamily:    'var(--font-mono)',
+                              fontSize:      10,
+                              fontWeight:    600,
+                              letterSpacing: '1px',
+                              textTransform: 'uppercase',
+                              padding:       '3px 8px',
+                              borderRadius:  '4px',
+                              background:    pill.bg,
+                              color:         pill.color,
+                            }}
+                          >
+                            {pill.label}
                           </span>
                         </td>
                         <td className="tabular-nums" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600, color: 'var(--teal-dark)', padding: '16px' }}>

@@ -175,7 +175,7 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
   };
 
   return (
-    <div className="px-4 md:px-6 pb-16">
+    <div className="px-4 md:px-8 pb-16">
 
       {/* ── Hero stats ──────────────────────────────────────────── */}
       <section className="py-8" style={{ borderBottom: '1px solid var(--border-soft)' }}>

@@ -32,9 +32,9 @@ export default async function ExperimentsPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="min-h-screen flex flex-col" style={{ background: 'var(--bg-page)' }}>
       <SiteHeader />
-      <div className="flex-1 max-w-screen-xl mx-auto w-full">
+      <div className="flex-1 w-full mx-auto" style={{ maxWidth: 1200 }}>
         <div className="px-4 md:px-8 pt-8 pb-2">
           <p className="section-label" style={{ marginBottom: 4 }}>
             All studies

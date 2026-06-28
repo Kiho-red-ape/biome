@@ -1,18 +1,19 @@
 // ExperimentIdenticon — Square-cell strip identicon
-// Source grid: 60 cols × 8 rows (viewBox "0 0 60 8") — dark space around each glyph
+// Source grid: 60 cols × 8 rows (viewBox "0 0 60 8") — light clinical field around each glyph
 // Three 20-col zones; each glyph is 6×6 centered inside its zone (7-col left pad, 1-row top pad)
 // Zone layout: cat glyph (cols 7-12) | meas glyph (cols 27-32) | hash glyph (cols 47-52)
 
-// ─── Color ramps (muted, flat — not bright) ───────────────────────────────────
+// ─── Color ramps (clinical light/teal — lit teal pixels on a light field) ──────
+// on  = teal-family pixel color   off = light field cell (teal-faint / bg-page)
 const RAMPS: Record<string, { on: string; off: string }> = {
-  microbiome:        { on: '#3d7a1c', off: '#0a1e06' },
-  nutrition:         { on: '#2a6e87', off: '#071a22' },
-  sleep:             { on: '#8a5f1a', off: '#271a05' },
-  wearables:         { on: '#8c3232', off: '#280e0e' },
-  longevity:         { on: '#5a42a6', off: '#160e33' },
-  'quantified-self': { on: '#3a5a94', off: '#0e1628' },
+  microbiome:        { on: '#0e7490', off: '#e0f2f7' },
+  nutrition:         { on: '#155e75', off: '#e0f2f7' },
+  sleep:             { on: '#0e7490', off: '#f0f9fb' },
+  wearables:         { on: '#155e75', off: '#f0f9fb' },
+  longevity:         { on: '#0e7490', off: '#e0f2f7' },
+  'quantified-self': { on: '#155e75', off: '#e0f2f7' },
 };
-const DEFAULT_RAMP = { on: '#3d7a1c', off: '#0a1e06' };
+const DEFAULT_RAMP = { on: '#0e7490', off: '#e0f2f7' };
 function getRamp(cat: string) { return RAMPS[cat] ?? DEFAULT_RAMP; }
 
 // ─── Category glyphs — 6×6 bounding box, rows 0-5, cols 0-5 ──────────────────
@@ -222,7 +223,7 @@ export function ExperimentIdenticon({
           width={1 - G * 2}
           height={1 - G * 2}
           fill={isLit ? ramp.on : ramp.off}
-          opacity={isLit ? 0.88 : 0.14}
+          opacity={isLit ? 0.92 : 0.6}
         />
       );
     }
@@ -236,7 +237,7 @@ export function ExperimentIdenticon({
       aria-hidden="true"
       style={{ display: 'block' }}
     >
-      <rect width={COLS} height={ROWS} fill={ramp.off} opacity={0.35} />
+      <rect width={COLS} height={ROWS} fill="#f8fafc" />
       {rects}
     </svg>
   );
