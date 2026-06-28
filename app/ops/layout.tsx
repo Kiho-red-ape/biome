@@ -37,6 +37,8 @@ const GROUPS: NavGroup[] = [
   {
     id: 'operations', label: 'Operations',
     items: [
+      { label: 'Launch Requests',  href: '/ops/launch-requests'                        },
+      { label: 'Recruitment',      href: '/ops/recruitment'                            },
       { label: 'Sample logistics', href: '/ops/logistics'                              },
       { label: 'Payouts',          href: '/ops/payouts',    badge: 'pendingPayoutCount' },
       { label: 'Compliance',       href: '/ops/compliance'                             },
@@ -75,6 +77,8 @@ const BC: Record<string, [string, string]> = {
   '/ops/participants':       ['People', 'Participants'],
   '/ops/participants-agent': ['People', 'Agent'],
   '/ops/researchers':      ['People', 'Experimenter approvals'],
+  '/ops/launch-requests':  ['Operations', 'Launch Requests'],
+  '/ops/recruitment':      ['Operations', 'Recruitment'],
   '/ops/logistics':        ['Operations', 'Sample logistics'],
   '/ops/payouts':          ['Operations', 'Payouts'],
   '/ops/compliance':       ['Operations', 'Compliance'],

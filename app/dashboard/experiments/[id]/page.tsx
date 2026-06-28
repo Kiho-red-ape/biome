@@ -11,6 +11,7 @@ import { MessageComposer } from '@/components/experiments/message-composer';
 import { EscrowDepositPanel } from '@/components/experiments/escrow-deposit-panel';
 import { ExperimenterPayoutPanel } from '@/components/experiments/experimenter-payout-panel';
 import { DocumentVault } from '@/components/documents/document-vault';
+import { DashCard, CardLabel } from '@/components/dashboard/card';
 
 import type { FacilityMatch } from '@/app/api/ome/matches/route';
 
@@ -43,6 +44,16 @@ type FullExperiment = {
   compliance_threshold: number | null;
   escrow_status: string | null;
   experiment_code: string | null;
+  payment_status: string | null;
+};
+
+type ConsentDoc = {
+  id: string;
+  title: string;
+  content_html: string;
+  version: number;
+  status: string;
+  updated_at: string;
 };
 
 type AmendLog = {
@@ -107,6 +118,20 @@ export default function ExperimentManagePage() {
   const [loadingMatches,setLoadingMatches]= useState(false);
   const [updatingMatch, setUpdatingMatch] = useState<string | null>(null);
 
+  // Consent document state
+  const [consentDoc,    setConsentDoc]    = useState<ConsentDoc | null>(null);
+  const [consentLoading,setConsentLoading]= useState(true);
+  const [consentEditing,setConsentEditing]= useState(false);
+  const [consentTitle,  setConsentTitle]  = useState('');
+  const [consentBody,   setConsentBody]   = useState('');
+  const [consentSaving, setConsentSaving] = useState(false);
+  const [consentErr,    setConsentErr]    = useState<string | null>(null);
+
+  // Launch state
+  const [launching,     setLaunching]     = useState(false);
+  const [launchMissing, setLaunchMissing] = useState<string[] | null>(null);
+  const [launchErr,     setLaunchErr]     = useState<string | null>(null);
+
   // Edit form state
   const [form, setForm] = useState<Partial<Record<EditableField, string | boolean>>>({});
 
@@ -140,6 +165,85 @@ export default function ExperimentManagePage() {
     if (!authenticated || !user) { router.replace('/'); return; }
     void load();
   }, [ready, authenticated, user, router, load]);
+
+  const loadConsent = useCallback(async () => {
+    if (!user) return;
+    setConsentLoading(true);
+    try {
+      const res  = await fetch(`/api/study/${id}/consent-doc?privyDid=${encodeURIComponent(user.id)}`);
+      const data = await res.json() as { doc?: ConsentDoc | null };
+      setConsentDoc(data.doc ?? null);
+    } catch { /* ignore */ }
+    finally { setConsentLoading(false); }
+  }, [id, user]);
+
+  useEffect(() => {
+    if (!ready || !authenticated || !user) return;
+    void loadConsent();
+  }, [ready, authenticated, user, loadConsent]);
+
+  function openConsentForm() {
+    setConsentTitle(consentDoc?.title ?? '');
+    setConsentBody(consentDoc?.content_html ?? '');
+    setConsentErr(null);
+    setConsentEditing(true);
+  }
+
+  async function saveConsent() {
+    if (!user) return;
+    if (!consentTitle.trim() || !consentBody.trim()) {
+      setConsentErr('Both a title and the consent text are required.');
+      return;
+    }
+    setConsentSaving(true);
+    setConsentErr(null);
+    try {
+      const res  = await fetch(`/api/study/${id}/consent-doc`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ privyDid: user.id, title: consentTitle, contentHtml: consentBody }),
+      });
+      const data = await res.json() as { ok?: boolean; doc?: ConsentDoc; error?: string };
+      if (!res.ok || !data.doc) {
+        setConsentErr(data.error ?? 'Failed to save consent document.');
+        return;
+      }
+      setConsentDoc(data.doc);
+      setConsentEditing(false);
+    } catch {
+      setConsentErr('Failed to save consent document.');
+    } finally {
+      setConsentSaving(false);
+    }
+  }
+
+  async function requestLaunch() {
+    if (!user) return;
+    setLaunching(true);
+    setLaunchErr(null);
+    setLaunchMissing(null);
+    try {
+      const res  = await fetch(`/api/experiments/${id}/launch`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ privyDid: user.id }),
+      });
+      const data = await res.json() as { ok?: boolean; status?: string; error?: string; missing?: string[] };
+      if (res.status === 422) {
+        setLaunchMissing(data.missing ?? []);
+        return;
+      }
+      if (!res.ok) {
+        setLaunchErr(data.error ?? 'Failed to request launch.');
+        return;
+      }
+      setExp((prev) => prev ? { ...prev, payment_status: 'launch_requested' } : prev);
+    } catch {
+      setLaunchErr('Failed to request launch.');
+    } finally {
+      setLaunching(false);
+    }
+  }
 
   async function loadMatches(expId: string) {
     if (!user) return;
@@ -780,6 +884,179 @@ export default function ExperimentManagePage() {
             </div>
           ))}
         </div>
+
+        {/* ── Study lifecycle: consent doc + launch gate ── (pre-recruiting) */}
+        {(() => {
+          const isPreRecruit = exp.status === 'draft' || exp.payment_status === 'unpaid' || exp.payment_status === 'launch_requested';
+          const isLaunchRequested = exp.payment_status === 'launch_requested';
+          const isLive = exp.status === 'recruiting' || exp.status === 'active' || exp.payment_status === 'paid';
+          if (!isPreRecruit && !isLive) return null;
+
+          return (
+            <>
+              {/* Consent document (ICF) */}
+              {(isPreRecruit) && (
+                <DashCard>
+                  <CardLabel>Consent Document (ICF)</CardLabel>
+                  <div style={{ padding: '20px 24px' }}>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)', lineHeight: 1.6, marginBottom: 16 }}>
+                      An approved consent document is required before your study can recruit, and powers the
+                      comprehension-gated consent flow for participants.
+                    </p>
+
+                    {consentLoading ? (
+                      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)' }}>Loading…</p>
+                    ) : consentEditing ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            Document title
+                          </span>
+                          <input
+                            value={consentTitle}
+                            onChange={(e) => setConsentTitle(e.target.value)}
+                            placeholder="e.g. Informed Consent Form — v1"
+                            className="outline-none"
+                            style={{ fontFamily: 'var(--font-body)', fontSize: 14, padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
+                          />
+                        </label>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            Paste your IRB-approved consent form text
+                          </span>
+                          <textarea
+                            rows={10}
+                            value={consentBody}
+                            onChange={(e) => setConsentBody(e.target.value)}
+                            placeholder="Paste the full text of your IRB/ethics-board-approved consent form here…"
+                            className="outline-none resize-y"
+                            style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.6, padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--ink)', background: 'var(--bg-page)' }}
+                          />
+                        </label>
+                        {consentErr && (
+                          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#dc2626' }}>{consentErr}</p>
+                        )}
+                        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                          <button
+                            onClick={saveConsent}
+                            disabled={consentSaving}
+                            className="transition-all hover:opacity-90 disabled:opacity-50"
+                            style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '8px 20px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff', border: 'none', cursor: 'pointer' }}>
+                            {consentSaving ? 'Saving…' : 'Save consent document'}
+                          </button>
+                          <button
+                            onClick={() => { setConsentEditing(false); setConsentErr(null); }}
+                            className="transition-all hover:opacity-80"
+                            style={{ fontFamily: 'var(--font-body)', fontSize: 13, padding: '8px 20px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--slate)', background: 'var(--surface)', cursor: 'pointer' }}>
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : consentDoc ? (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
+                            <span style={{ fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>
+                              {consentDoc.title}
+                            </span>
+                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 8px', borderRadius: 4, color: 'var(--teal-dark)', background: 'var(--teal-faint)', border: '1px solid var(--border-soft)' }}>
+                              Approved
+                            </span>
+                          </div>
+                          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', margin: 0 }}>
+                            Version {consentDoc.version} · Updated {relDate(consentDoc.updated_at)}
+                          </p>
+                        </div>
+                        <button
+                          onClick={openConsentForm}
+                          className="transition-all hover:opacity-80"
+                          style={{ fontFamily: 'var(--font-body)', fontSize: 13, padding: '8px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-mid)', color: 'var(--slate)', background: 'var(--surface)', cursor: 'pointer', flexShrink: 0 }}>
+                          Edit / replace
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--muted)', margin: 0 }}>
+                          No consent document yet.
+                        </p>
+                        <button
+                          onClick={openConsentForm}
+                          className="transition-all hover:opacity-90"
+                          style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '8px 18px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+                          Add consent document →
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </DashCard>
+              )}
+
+              {/* Launch panel */}
+              <DashCard>
+                <CardLabel>Launch</CardLabel>
+                <div style={{ padding: '20px 24px' }}>
+                  {isLive ? (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 600, color: 'var(--teal-dark)', margin: '0 0 4px' }}>
+                          ● Recruiting — live
+                        </p>
+                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)', margin: 0 }}>
+                          Your study is open. BIOME&apos;s Stage 0 find agent is mapping outreach targets.
+                        </p>
+                      </div>
+                      <Link href={`/dashboard/experiments/${exp.id}/recruitment`} className="no-underline transition-opacity hover:opacity-80"
+                        style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff', flexShrink: 0 }}>
+                        View recruitment (Stage 0) →
+                      </Link>
+                    </div>
+                  ) : isLaunchRequested ? (
+                    <div style={{ borderLeft: '3px solid var(--amber, #d97706)', background: 'rgba(217,119,6,0.06)', borderRadius: 'var(--radius-sm)', padding: '14px 16px' }}>
+                      <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600, color: '#b45309', margin: '0 0 4px' }}>
+                        Launch requested — awaiting BIOME payment confirmation
+                      </p>
+                      <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)', margin: 0, lineHeight: 1.6 }}>
+                        Our team will confirm your deposit and open recruiting.
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)', lineHeight: 1.6, marginBottom: 16 }}>
+                        When you&apos;re ready, request launch. BIOME confirms your deposit, opens recruiting, and queues the
+                        Stage 0 find agent.
+                      </p>
+                      {launchMissing && launchMissing.length > 0 && (
+                        <div style={{ border: '1px solid rgba(220,38,38,0.2)', background: 'rgba(220,38,38,0.04)', borderRadius: 'var(--radius-sm)', padding: '14px 16px', marginBottom: 16 }}>
+                          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#b91c1c', textTransform: 'uppercase', letterSpacing: '1px', margin: '0 0 10px' }}>
+                            Still needed before launch
+                          </p>
+                          <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {launchMissing.map((m) => (
+                              <li key={m} style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--ink)', display: 'flex', gap: 8 }}>
+                                <span style={{ color: '#dc2626' }}>✕</span>
+                                <span>{m}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {launchErr && (
+                        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#dc2626', marginBottom: 12 }}>{launchErr}</p>
+                      )}
+                      <button
+                        onClick={requestLaunch}
+                        disabled={launching}
+                        className="transition-all hover:opacity-90 disabled:opacity-50"
+                        style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '10px 22px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff', border: 'none', cursor: 'pointer' }}>
+                        {launching ? 'Requesting…' : 'Request launch →'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </DashCard>
+            </>
+          );
+        })()}
 
         {/* ── Amendment log ── */}
         {exp.amendment_log && exp.amendment_log.length > 0 && (
