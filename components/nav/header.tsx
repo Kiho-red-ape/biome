@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 import { NotificationBell } from '@/components/nav/notification-bell';
 
-type NavProfile =
-  | { kind: 'participant'; pseudonym: string; participantId: string }
-  | { kind: 'experimenter'; orgName: string; orgId: string }
-  | null;
+// A user can be BOTH a participant and an experimenter — carry both so the
+// account menu always exposes researcher entries to researchers.
+type NavProfile = {
+  participant?:  { pseudonym: string; participantId: string };
+  experimenter?: { orgName: string; orgId: string };
+} | null;
 
 const NAV_LINKS = [
   { href: '/run-a-study',  label: 'Run a Study'  },
@@ -46,42 +48,35 @@ export function SiteHeader() {
 
   useEffect(() => {
     if (!authenticated || !user) { setNavProfile(null); return; }
-    const cacheKey = `biome_navprofile_${user.id}`;
+    const cacheKey = `biome_navprofile_v2_${user.id}`;
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) { setNavProfile(JSON.parse(cached) as NavProfile); return; }
 
-    fetch(`/api/participant-profile?privyDid=${encodeURIComponent(user.id)}`)
-      .then(r => r.json())
-      .then((data: { profile?: { participant_id: string; pseudonym: string } | null }) => {
-        if (data.profile?.participant_id) {
-          const np: NavProfile = { kind: 'participant', pseudonym: data.profile.pseudonym, participantId: data.profile.participant_id };
-          setNavProfile(np);
-          sessionStorage.setItem(cacheKey, JSON.stringify(np));
-          return;
-        }
-        return fetch(`/api/experimenter-profile?privyDid=${encodeURIComponent(user.id)}`)
-          .then(r => r.json())
-          .then((d: { profile?: { id: string; org_name: string } | null }) => {
-            if (d.profile?.id) {
-              const np: NavProfile = { kind: 'experimenter', orgName: d.profile.org_name, orgId: d.profile.id };
-              setNavProfile(np);
-              sessionStorage.setItem(cacheKey, JSON.stringify(np));
-            }
-          });
-      })
-      .catch(() => {});
+    // Fetch both roles in parallel — a user may hold both.
+    Promise.all([
+      fetch(`/api/participant-profile?privyDid=${encodeURIComponent(user.id)}`).then(r => r.json()).catch(() => ({})),
+      fetch(`/api/experimenter-profile?privyDid=${encodeURIComponent(user.id)}`).then(r => r.json()).catch(() => ({})),
+    ]).then(([pData, eData]: [
+      { profile?: { participant_id: string; pseudonym: string } | null },
+      { profile?: { id: string; org_name: string } | null },
+    ]) => {
+      const np: NonNullable<NavProfile> = {};
+      if (pData?.profile?.participant_id) np.participant  = { pseudonym: pData.profile.pseudonym, participantId: pData.profile.participant_id };
+      if (eData?.profile?.id)             np.experimenter = { orgName: eData.profile.org_name, orgId: eData.profile.id };
+      const result = (np.participant || np.experimenter) ? np : null;
+      setNavProfile(result);
+      if (result) sessionStorage.setItem(cacheKey, JSON.stringify(result));
+    }).catch(() => {});
   }, [authenticated, user]);
 
-  const displayName =
-    navProfile?.kind === 'participant'  ? navProfile.pseudonym
-    : navProfile?.kind === 'experimenter' ? navProfile.orgName
-    : null;
+  // Prefer the personal pseudonym for the chip; fall back to org name.
+  const displayName = navProfile?.participant?.pseudonym ?? navProfile?.experimenter?.orgName ?? null;
 
   const truncated = displayName ? displayName.slice(0, 14) + (displayName.length > 14 ? '…' : '') : null;
 
   const profileHref =
-    navProfile?.kind === 'participant'  ? `/profile/${navProfile.participantId}`
-    : navProfile?.kind === 'experimenter' ? `/org/${navProfile.orgId}`
+    navProfile?.participant  ? `/profile/${navProfile.participant.participantId}`
+    : navProfile?.experimenter ? `/org/${navProfile.experimenter.orgId}`
     : null;
 
   return (
@@ -183,15 +178,18 @@ export function SiteHeader() {
                     minWidth: 200, zIndex: 300, overflow: 'hidden',
                   }}>
                     {profileHref && <DropItem href={profileHref} onClick={() => setDropOpen(false)}>My Profile</DropItem>}
-                    {navProfile?.kind === 'participant' && (
+                    {navProfile?.participant && (
                       <>
                         <DropItem href="/dashboard" onClick={() => setDropOpen(false)}>Dashboard</DropItem>
+                        <DropItem href="/experiments" onClick={() => setDropOpen(false)}>Browse Studies</DropItem>
                         <DropItem href="/dashboard/preferences" onClick={() => setDropOpen(false)}>Preferences</DropItem>
                       </>
                     )}
-                    {navProfile?.kind === 'experimenter' && (
+                    {navProfile?.experimenter && (
                       <>
-                        <DropItem href="/dashboard/experiments" onClick={() => setDropOpen(false)}>My Studies</DropItem>
+                        {navProfile?.participant && <div style={{ borderTop: '1px solid var(--border-soft)' }} />}
+                        <DropItem href="/dashboard/experiments" onClick={() => setDropOpen(false)}>Researcher Dashboard</DropItem>
+                        <DropItem href="/post" onClick={() => setDropOpen(false)}>Post a Study</DropItem>
                         <DropItem href="/ome" onClick={() => setDropOpen(false)}>OME — Recruitment AI</DropItem>
                       </>
                     )}
@@ -256,10 +254,22 @@ export function SiteHeader() {
                     My Profile
                   </Link>
                 )}
-                {navProfile?.kind === 'participant' && (
-                  <Link href="/dashboard" onClick={() => setMenuOpen(false)}
+                {navProfile?.participant && (
+                  <>
+                    <Link href="/dashboard" onClick={() => setMenuOpen(false)}
+                      style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
+                      Dashboard
+                    </Link>
+                    <Link href="/experiments" onClick={() => setMenuOpen(false)}
+                      style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
+                      Browse Studies
+                    </Link>
+                  </>
+                )}
+                {navProfile?.experimenter && (
+                  <Link href="/dashboard/experiments" onClick={() => setMenuOpen(false)}
                     style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
-                    Dashboard
+                    Researcher Dashboard
                   </Link>
                 )}
                 <div style={{ padding: '20px 24px' }}>

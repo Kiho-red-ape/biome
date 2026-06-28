@@ -1,4 +1,5 @@
 import { createAnonClient } from '@/lib/supabase/anon';
+import { createServiceClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Experiment, ExperimentStatus, AmendmentEntry } from '@/lib/types';
@@ -209,6 +210,20 @@ export default async function ExperimentPage({ params }: Props) {
   const { data: orgData } = await supabase
     .from('experimenter_profiles').select('id, org_name').eq('user_id', exp.experimenter_id).maybeSingle();
   const orgProfile = orgData as { id: string; org_name: string } | null;
+
+  // Does this study have an approved, readable IRB consent document? If so, the
+  // apply CTA routes through the comprehension-gated consent flow. (study_documents
+  // is RLS-locked, so this needs the service client.)
+  const { data: icfDoc } = await createServiceClient()
+    .from('study_documents')
+    .select('id')
+    .eq('experiment_id', id)
+    .eq('document_type', 'consent_form')
+    .in('status', ['approved', 'signed', 'pending_signature'])
+    .not('content_html', 'is', null)
+    .limit(1)
+    .maybeSingle();
+  const hasIcf = !!icfDoc;
 
   const allComments = (commentsResult.data ?? []) as QAComment[];
   const replyMap: Record<string, QAComment[]> = {};
@@ -650,6 +665,7 @@ export default async function ExperimentPage({ params }: Props) {
                   experimentStatus={exp.status}
                   slotsLeft={slotsLeft}
                   deadlineClosed={deadlineClosed}
+                  hasIcf={hasIcf}
                 />
               </div>
               {/* Sticky mobile CTA */}
@@ -659,6 +675,7 @@ export default async function ExperimentPage({ params }: Props) {
                   experimentStatus={exp.status}
                   slotsLeft={slotsLeft}
                   deadlineClosed={deadlineClosed}
+                  hasIcf={hasIcf}
                 />
               </div>
             </>

@@ -19,6 +19,9 @@ interface Props {
   experimentStatus: string;
   slotsLeft: number;
   deadlineClosed: boolean;
+  // When the study has an approved IRB consent document, route applicants
+  // through the comprehension-gated consent flow; otherwise the legacy apply.
+  hasIcf?: boolean;
 }
 
 const LABEL_STYLE = {
@@ -26,7 +29,10 @@ const LABEL_STYLE = {
   textTransform: 'uppercase' as const, letterSpacing: '1px',
 };
 
-export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadlineClosed }: Props) {
+export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadlineClosed, hasIcf }: Props) {
+  const applyHref = hasIcf
+    ? `/experiments/${experimentId}/consent`
+    : `/experiments/${experimentId}/apply`;
   const { authenticated, user, login, ready } = usePrivy();
   const [application, setApplication] = useState<ApplicationData | null | undefined>(undefined);
   const [loading, setLoading] = useState(false);
@@ -257,7 +263,7 @@ export function ExperimentCTA({ experimentId, experimentStatus, slotsLeft, deadl
   // Recruiting, authenticated, no application yet
   return (
     <Link
-      href={`/experiments/${experimentId}/apply`}
+      href={applyHref}
       style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         width: '100%', height: 48, textDecoration: 'none',

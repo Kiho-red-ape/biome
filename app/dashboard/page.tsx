@@ -598,6 +598,20 @@ export default function DashboardPage() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <Link href="/experiments"
+              style={{
+                fontFamily:     'var(--font-body)',
+                fontSize:       13,
+                fontWeight:     600,
+                color:          'var(--teal-dark)',
+                background:     'var(--surface)',
+                border:         '1px solid var(--border-mid)',
+                borderRadius:   'var(--radius-sm)',
+                padding:        '8px 16px',
+                textDecoration: 'none',
+              }}>
+              Browse Studies →
+            </Link>
             <Link href={`/profile/${profile.participant_id}`}
               style={{
                 fontFamily:     'var(--font-body)',

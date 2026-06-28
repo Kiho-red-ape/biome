@@ -110,11 +110,11 @@ export default function ExperimenterOnboardingPage() {
             Status: Pending review — check back in 48 hours.
           </div>
           <div className="flex gap-3 flex-wrap">
-            <button onClick={() => router.push(`/org/${submitted.id}`)} className="btn-primary">
-              View my org profile →
+            <button onClick={() => router.push('/dashboard/experiments')} className="btn-primary">
+              Go to researcher dashboard →
             </button>
-            <button onClick={() => router.push('/')} className="btn-secondary">
-              Go to dashboard
+            <button onClick={() => router.push(`/org/${submitted.id}`)} className="btn-secondary">
+              View my org profile
             </button>
           </div>
         </div>
