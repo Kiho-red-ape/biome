@@ -63,7 +63,8 @@ export async function POST(request: NextRequest) {
 
   const invited = !!invite;
 
-  // Upsert — update if already exists
+  // Upsert — update if already exists. The invite only gates WHO can fill this
+  // form (and prefills/links it); ops still reviews + approves the submitted org.
   const { data, error } = await supabase
     .from('experimenter_profiles')
     .upsert(
@@ -74,10 +75,8 @@ export async function POST(request: NextRequest) {
         org_description: org_description ?? null,
         role_title:      role_title ?? null,
         expertise_areas: expertise_areas ?? null,
-        // Invited researchers are already vetted in the pipeline → approve + activate.
-        review_status:    invited ? 'active' : 'pending_review',
-        screening_status: invited ? 'approved' : 'pending',
-        ...(invited ? { screened_at: new Date().toISOString(), screened_by: 'Ops invite' } : {}),
+        review_status:   'pending_review',
+        screening_status: 'pending',
       },
       { onConflict: 'user_id' }
     )
