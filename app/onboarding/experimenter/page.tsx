@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 
 const EXPERTISE_OPTIONS = [
@@ -32,6 +32,8 @@ function FieldLabel({ children, hint }: { children: React.ReactNode; hint?: stri
 
 export default function ExperimenterOnboardingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams.get('invite');
   const { user, ready, authenticated } = usePrivy();
 
   const [orgName,      setOrgName]      = useState('');
@@ -54,6 +56,17 @@ export default function ExperimenterOnboardingPage() {
     );
   }
 
+  // Prefill the org name from the invite (ops captured it in the intake).
+  useEffect(() => {
+    if (!inviteToken) return;
+    fetch(`/api/invites/${inviteToken}`)
+      .then((r) => r.json())
+      .then((d: { valid?: boolean; orgName?: string | null }) => {
+        if (d.valid && d.orgName) setOrgName((cur) => cur || d.orgName!);
+      })
+      .catch(() => {});
+  }, [inviteToken]);
+
   function toggleExpertise(opt: string) {
     setExpertise((prev) => prev.includes(opt) ? prev.filter((x) => x !== opt) : [...prev, opt]);
   }
@@ -73,6 +86,7 @@ export default function ExperimenterOnboardingPage() {
         org_description: orgDesc.trim() || null,
         role_title: roleTitle.trim() || null,
         expertise_areas: expertise.length ? expertise : null,
+        inviteToken: inviteToken ?? null,
       }),
     });
 

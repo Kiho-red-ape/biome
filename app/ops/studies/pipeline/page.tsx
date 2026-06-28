@@ -1,7 +1,7 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import { OpsPageHeader, OpsCard, OpsBadge } from '../../_components/ui';
 import { IntakeTriage } from './intake-triage';
-import { IntakeActivate } from './intake-activate';
+import { IntakeInvite } from './intake-invite';
 
 type BadgeTone = 'teal' | 'green' | 'amber' | 'red' | 'slate' | 'blue';
 
@@ -69,9 +69,11 @@ export default async function OpsPipeline() {
             )}
 
             <div style={{ marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid var(--border-soft)' }}>
-              <IntakeActivate
+              <IntakeInvite
                 intakeId={intake.id as string}
-                convertedExperimentId={(intake.converted_experiment_id as string | null) ?? null}
+                email={(intake.email as string | null) ?? null}
+                invited={!!intake.org_invite_id}
+                converted={(intake.triage_status as string) === 'converted'}
               />
             </div>
 
