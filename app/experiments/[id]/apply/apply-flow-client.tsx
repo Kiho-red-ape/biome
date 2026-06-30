@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import Link from 'next/link';
+import { ReimbursementReveal } from '@/components/study/reimbursement-reveal';
 import type { ApplyExperiment, ApplyMilestone } from './page';
 export type QuizQuestion = {
   id: string;
@@ -240,7 +241,7 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
           {exp.title}
         </h1>
         <p className="mono text-xs mb-8" style={{ color: 'var(--slate)' }}>
-          Compensation: <span style={{ color: 'var(--teal-dark)', fontWeight: 600 }}>${exp.bounty_per_participant.toFixed(0)}</span>
+          Reimbursement available on request
           {exp.application_deadline && deadlineDays(exp.application_deadline) > 0 && (
             <> · Closes in {deadlineDays(exp.application_deadline)}d</>
           )}
@@ -433,10 +434,14 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
               </p>
               <p className="text-xs" style={{ color: 'var(--slate)', fontFamily: 'var(--font-body)' }}>
                 You must complete at least <strong style={{ color: 'var(--ink)' }}>{exp.compliance_threshold}%</strong> of
-                required milestones to be eligible for the{' '}
-                <strong style={{ color: 'var(--teal-dark)' }}>${exp.bounty_per_participant.toFixed(0)} compensation</strong>.
-                Partial completion may result in a prorated payout at the researcher&apos;s discretion.
+                required milestones to be eligible for reimbursement.
+                Partial completion may result in a prorated reimbursement at the researcher&apos;s discretion.
               </p>
+            </div>
+
+            {/* Reimbursement — shown only if the participant explicitly asks */}
+            <div style={{ marginTop: 16, padding: '14px 16px', background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)' }}>
+              <ReimbursementReveal amount={exp.bounty_per_participant} />
             </div>
 
             {/* Research partner agreement checkbox */}

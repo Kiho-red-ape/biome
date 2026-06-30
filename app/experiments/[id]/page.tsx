@@ -1,5 +1,6 @@
 import { createAnonClient } from '@/lib/supabase/anon';
 import { createServiceClient } from '@/lib/supabase/server';
+import { ReimbursementReveal } from '@/components/study/reimbursement-reveal';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Experiment, ExperimentStatus, AmendmentEntry } from '@/lib/types';
@@ -421,24 +422,18 @@ export default async function ExperimentPage({ params }: Props) {
 
         {/* ── Reward row ── */}
         <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: 0, padding: '20px 0' }}>
-          {/* Reward per participant */}
+          {/* Reimbursement — not disclosed until the participant asks */}
           <div style={{ paddingRight: 24, borderRight: '1px solid var(--border-soft)' }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
-              REWARD
-            </p>
-            <p style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--teal)', margin: 0, lineHeight: 1 }}>
-              ${exp.bounty_per_participant.toFixed(0)}
-            </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--muted)', marginTop: 4 }}>per participant</p>
+            <ReimbursementReveal amount={exp.bounty_per_participant} />
           </div>
 
-          {/* Pool */}
+          {/* Duration (replaces the bounty-pool money disclosure) */}
           <div style={{ paddingLeft: 24, paddingRight: 24, borderRight: '1px solid var(--border-soft)' }}>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
-              POOL
+              DURATION
             </p>
             <p style={{ fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 600, color: 'var(--slate)', margin: 0, lineHeight: 1 }}>
-              ${exp.total_bounty_pool.toLocaleString()}
+              {exp.duration_weeks ? `${exp.duration_weeks} wks` : '—'}
             </p>
           </div>
 

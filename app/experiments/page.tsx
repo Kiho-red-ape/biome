@@ -25,8 +25,8 @@ export default async function ExperimentsPage() {
   }
 
   const stats = {
-    totalBountyPool:    experiments.reduce((s, e) => s + e.total_bounty_pool, 0),
-    totalEarned:        experiments.filter((e) => e.status === 'active' || e.status === 'completed').reduce((s, e) => s + e.bounty_per_participant * e.slots_filled, 0),
+    totalStudies:       experiments.length,
+    recruitingCount:    experiments.filter((e) => e.status === 'recruiting').length,
     activeCount:        experiments.filter((e) => e.status === 'recruiting' || e.status === 'active').length,
     totalParticipants:  experiments.reduce((s, e) => s + e.slots_filled, 0),
   };

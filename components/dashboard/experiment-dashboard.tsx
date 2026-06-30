@@ -8,12 +8,12 @@ import type { OrgMap } from '@/lib/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type SortField = 'title' | 'bounty_per_participant' | 'total_bounty_pool' | 'slots_filled' | 'status' | 'created_at';
+type SortField = 'title' | 'slots_filled' | 'status' | 'created_at';
 type SortDir = 'asc' | 'desc';
 
 interface Stats {
-  totalBountyPool: number;
-  totalEarned: number;
+  totalStudies: number;
+  recruitingCount: number;
   activeCount: number;
   totalParticipants: number;
 }
@@ -26,20 +26,10 @@ interface Props {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function fmt(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(2)}`;
-}
-
-function fmtFull(n: number): string {
-  return `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
 const STATUS_CONFIG: Record<ExperimentStatus, { label: string; color: string }> = {
   recruiting: { label: 'Recruiting', color: 'var(--teal)'      },
   active:     { label: 'Active',     color: 'var(--teal-dark)' },
-  draft:      { label: 'Draft',      color: 'var(--muted)'     },
+  draft:      { label: 'Draft',      color: 'var(--slate)'     },
   completed:  { label: 'Completed',  color: 'var(--muted)'     },
   cancelled:  { label: 'Cancelled',  color: '#dc2626'          },
 };
@@ -47,7 +37,7 @@ const STATUS_CONFIG: Record<ExperimentStatus, { label: string; color: string }> 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function SortIcon({ field, current, dir }: { field: SortField; current: SortField | null; dir: SortDir }) {
-  if (field !== current) return <span style={{ color: 'var(--muted)', opacity: 0.4 }}>⇅</span>;
+  if (field !== current) return <span style={{ color: 'var(--muted)', opacity: 0.4 }}>↕</span>;
   return <span style={{ color: 'var(--teal-dark)' }}>{dir === 'asc' ? '↑' : '↓'}</span>;
 }
 
@@ -56,13 +46,37 @@ function SlotBar({ filled, total }: { filled: number; total: number }) {
   const barColor = pct >= 0.9 ? 'var(--teal-dark)' : 'var(--teal)';
   return (
     <div className="flex items-center gap-2">
-      <div className="h-1 rounded overflow-hidden flex-shrink-0" style={{ width: 56, background: 'var(--bg-page)' }}>
-        <div className="h-1 rounded" style={{ width: `${pct * 100}%`, background: barColor, transition: 'width 0.3s' }} />
+      <div className="h-1.5 rounded overflow-hidden flex-shrink-0" style={{ width: 56, background: 'var(--border-soft)' }}>
+        <div className="h-1.5 rounded" style={{ width: `${pct * 100}%`, background: barColor, transition: 'width 0.3s' }} />
       </div>
       <span className="tabular-nums" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
         {filled}/{total}
       </span>
     </div>
+  );
+}
+
+function StatusPill({ status }: { status: ExperimentStatus }) {
+  const st = STATUS_CONFIG[status] ?? STATUS_CONFIG.draft;
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 whitespace-nowrap"
+      style={{
+        fontFamily: 'var(--font-mono)',
+        fontSize: 10,
+        fontWeight: 600,
+        letterSpacing: '0.5px',
+        textTransform: 'uppercase',
+        color: st.color,
+        background: 'var(--bg-page)',
+        border: '1px solid var(--border-soft)',
+        borderRadius: 999,
+        padding: '3px 9px',
+      }}
+    >
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: st.color, flexShrink: 0 }} />
+      {st.label}
+    </span>
   );
 }
 
@@ -84,7 +98,6 @@ function prioritySort(exps: Experiment[]): Experiment[] {
 export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
   const router = useRouter();
 
-  const [expandedId,  setExpandedId]  = useState<string | null>(null);
   const [search,      setSearch]      = useState('');
   const [catFilter,   setCatFilter]   = useState('all');
   const [statFilter,  setStatFilter]  = useState('all');
@@ -144,7 +157,7 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
     return (
       <th
         onClick={() => toggleSort(field)}
-        className={`cursor-pointer select-none px-3 py-3 whitespace-nowrap ${className}`}
+        className={`cursor-pointer select-none px-4 py-3 whitespace-nowrap ${className}`}
         style={{
           fontFamily:    'var(--font-mono)',
           fontSize:      10,
@@ -156,18 +169,27 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
         }}
       >
         <span className="inline-flex items-center gap-1">
-          {align === 'right' && <SortIcon field={field} current={sortField} dir={sortDir} />}
           {label}
-          {align !== 'right' && <SortIcon field={field} current={sortField} dir={sortDir} />}
+          <SortIcon field={field} current={sortField} dir={sortDir} />
         </span>
       </th>
     );
   }
 
-  const filterControlStyle: React.CSSProperties = {
+  const headCellStyle: React.CSSProperties = {
+    fontFamily: 'var(--font-mono)',
+    fontSize: 10,
+    fontWeight: 600,
+    letterSpacing: '1px',
+    textTransform: 'uppercase',
+    color: 'var(--muted)',
+  };
+
+  const controlStyle: React.CSSProperties = {
     fontFamily:   'var(--font-body)',
     fontSize:     13,
-    padding:      '8px 12px',
+    height:       40,
+    padding:      '0 12px',
     borderRadius: 'var(--radius-sm)',
     background:   'var(--surface)',
     border:       '1px solid var(--border-mid)',
@@ -177,22 +199,22 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
   return (
     <div className="px-4 md:px-8 pb-16">
 
-      {/* ── Hero stats ──────────────────────────────────────────── */}
+      {/* ── Stat tiles ──────────────────────────────────────────── */}
       <section className="py-8" style={{ borderBottom: '1px solid var(--border-soft)' }}>
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 20 }}>
           Live data from the Biome network
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Total Pool',       value: fmt(stats.totalBountyPool),       sub: 'compensation committed' },
-            { label: 'Disbursed',        value: fmt(stats.totalEarned),           sub: 'paid to research partners' },
-            { label: 'Active',           value: String(stats.activeCount),        sub: 'studies open' },
-            { label: 'Research Partners', value: String(stats.totalParticipants), sub: 'slots filled' },
+            { label: 'Studies',           value: String(stats.totalStudies),       sub: 'listed on Biome'    },
+            { label: 'Recruiting',        value: String(stats.recruitingCount),    sub: 'open to applicants' },
+            { label: 'Active',            value: String(stats.activeCount),         sub: 'studies open'       },
+            { label: 'Research Partners', value: String(stats.totalParticipants),   sub: 'slots filled'       },
           ].map((s) => (
-            <div key={s.label} className="p-4"
+            <div key={s.label} className="p-5 flex flex-col"
               style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>{s.label}</p>
-              <p style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.1 }}>{s.value}</p>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>{s.label}</p>
+              <p style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.1 }}>{s.value}</p>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>{s.sub}</p>
             </div>
           ))}
@@ -208,37 +230,37 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
           </span>
         </p>
         <p className="hidden md:block" style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)' }}>
-          Click a row to preview — open for full details
+          Click a row to open the study
         </p>
       </div>
 
-      {/* ── Filter bar ──────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="relative flex-1 min-w-0" style={{ minWidth: 120 }}>
+      {/* ── Filter toolbar ──────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-3 mb-5">
+        <div className="relative flex-1" style={{ minWidth: 180 }}>
           <span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--muted)' }}>⌕</span>
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search studies..."
-            className="w-full pl-8 pr-3 py-2 outline-none rounded"
-            style={{ fontFamily: 'var(--font-body)', fontSize: 13, background: 'var(--surface)', border: '1px solid var(--border-mid)', color: 'var(--ink)', borderRadius: 'var(--radius-sm)' }}
+            className="w-full outline-none"
+            style={{ ...controlStyle, paddingLeft: 32, color: 'var(--ink)' }}
           />
         </div>
         <select value={catFilter} onChange={(e) => setCatFilter(e.target.value)}
           className="cursor-pointer"
-          style={{ ...filterControlStyle, color: catFilter !== 'all' ? 'var(--ink)' : 'var(--muted)' }}>
+          style={{ ...controlStyle, color: catFilter !== 'all' ? 'var(--ink)' : 'var(--muted)' }}>
           <option value="all">All categories</option>
           {categories.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
         <select value={statFilter} onChange={(e) => setStatFilter(e.target.value)}
           className="cursor-pointer"
-          style={{ ...filterControlStyle, color: statFilter !== 'all' ? 'var(--ink)' : 'var(--muted)' }}>
+          style={{ ...controlStyle, color: statFilter !== 'all' ? 'var(--ink)' : 'var(--muted)' }}>
           <option value="all">All status</option>
           <option value="recruiting">Recruiting</option>
           <option value="active">Active</option>
           <option value="completed">Completed</option>
-          <option value="draft">Draft</option>
+          <option value="cancelled">Cancelled</option>
         </select>
         <button onClick={() => setVerified((v) => !v)}
           className="flex items-center gap-2 transition-all"
@@ -246,12 +268,14 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
             fontFamily:   'var(--font-body)',
             fontSize:     13,
             fontWeight:   600,
-            padding:      '8px 14px',
+            height:       40,
+            padding:      '0 14px',
             borderRadius: 'var(--radius-sm)',
             background:   verified ? 'var(--teal)' : 'var(--surface)',
             border:       `1px solid ${verified ? 'var(--teal)' : 'var(--border-mid)'}`,
             color:        verified ? '#ffffff' : 'var(--slate)',
             cursor:       'pointer',
+            whiteSpace:   'nowrap',
           }}>
           {verified ? '✓' : '○'} Verified only
         </button>
@@ -260,25 +284,24 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
       {/* ── Table ───────────────────────────────────────────────── */}
       <div className="overflow-x-auto"
         style={{ border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)', background: 'var(--surface)' }}>
-        <table className="w-full border-collapse" style={{ minWidth: '860px' }}>
+        <table className="w-full border-collapse" style={{ minWidth: '780px' }}>
 
           <thead>
             <tr style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}>
-              <th className="px-3 py-3 w-10" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, color: 'var(--muted)' }}>#</th>
-              <ColHead field="title"                  label="Study"         className="text-left" />
-              <th className="px-3 py-3 w-28 text-center whitespace-nowrap" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)' }}>Verified</th>
-              <ColHead field="bounty_per_participant" label="Reward"        align="right" className="w-28" />
-              <ColHead field="total_bounty_pool"      label="Pool"          align="right" className="w-24" />
-              <th className="px-3 py-3 w-40 whitespace-nowrap" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)' }}>Slots</th>
-              <ColHead field="status"                 label="Status"        className="w-32" />
-              <th className="px-3 py-3 w-24 whitespace-nowrap" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)' }}>Region</th>
+              <th className="px-4 py-3 w-10 text-center" style={headCellStyle}>#</th>
+              <ColHead field="title" label="Study" className="text-left" />
+              <th className="px-4 py-3 w-32 text-center" style={headCellStyle}>Verified</th>
+              <th className="px-4 py-3 w-28 text-left" style={headCellStyle}>Access</th>
+              <th className="px-4 py-3 w-44 text-left" style={headCellStyle}>Slots</th>
+              <ColHead field="status" label="Status" className="w-32 text-left" />
+              <th className="px-4 py-3 w-24 text-left" style={headCellStyle}>Region</th>
             </tr>
           </thead>
 
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={8} className="py-16 text-center" style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>
+                <td colSpan={7} className="py-16 text-center" style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>
                   No studies match — try adjusting your filters
                 </td>
               </tr>
@@ -286,167 +309,87 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
 
             {paginated.map((exp, i) => {
               const i_global = page * PAGE_SIZE + i;
-              const st = STATUS_CONFIG[exp.status] ?? STATUS_CONFIG.draft;
-              const isOpen = expandedId === exp.id;
+              const compensated = exp.bounty_per_participant > 0;
 
               return (
-                <>
-                  {/* ── Main row ── */}
-                  <tr
-                    key={exp.id}
-                    onClick={() => setExpandedId(isOpen ? null : exp.id)}
-                    className="cursor-pointer transition-colors group"
-                    style={{
-                      borderBottom: isOpen ? 'none' : '1px solid var(--border-soft)',
-                      background: isOpen ? 'var(--bg-page)' : 'transparent',
-                    }}
-                    onMouseEnter={(e) => { if (!isOpen) e.currentTarget.style.background = 'var(--bg-page)'; }}
-                    onMouseLeave={(e) => { if (!isOpen) e.currentTarget.style.background = 'transparent'; }}
-                  >
-                    {/* Row number */}
-                    <td className="px-3 py-4 text-center tabular-nums" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
-                      {String(i_global + 1).padStart(2, '0')}
-                    </td>
+                <tr
+                  key={exp.id}
+                  onClick={() => router.push(`/experiments/${exp.id}`)}
+                  className="cursor-pointer transition-colors"
+                  style={{ borderBottom: '1px solid var(--border-soft)', background: 'transparent' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-page)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                >
+                  {/* Row number */}
+                  <td className="px-4 py-4 text-center tabular-nums" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
+                    {String(i_global + 1).padStart(2, '0')}
+                  </td>
 
-                    {/* Study name + category + expand chevron */}
-                    <td className="px-3 py-4">
-                      <div className="flex items-start gap-2">
-                        <span className="mt-0.5 flex-shrink-0 transition-transform"
-                          style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', display: 'inline-block', transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
-                          ▶
-                        </span>
-                        <div className="flex flex-col gap-1">
-                          <span className="leading-tight"
-                            style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600, color: 'var(--ink)', maxWidth: '300px' }}>
-                            {exp.title}
-                          </span>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="inline-flex items-center gap-1 self-start"
-                              style={{
-                                fontFamily:   'var(--font-mono)',
-                                fontSize:     9,
-                                fontWeight:   600,
-                                letterSpacing:'1px',
-                                textTransform:'uppercase',
-                                color:        'var(--teal-dark)',
-                                background:   'var(--teal-faint)',
-                                borderRadius: '4px',
-                                padding:      '2px 6px',
-                              }}>
-                              {exp.category}
-                            </span>
-                            {orgMap[exp.experimenter_id] && (
-                              <Link
-                                href={`/org/${orgMap[exp.experimenter_id].id}`}
-                                onClick={(e) => e.stopPropagation()}
-                                className="no-underline transition-opacity hover:opacity-80"
-                                style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)' }}
-                              >
-                                {orgMap[exp.experimenter_id].org_name} ↗
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Verified */}
-                    <td className="px-3 py-4 text-center">
-                      {exp.is_verified
-                        ? <span className="badge-verified">✓ BIOME VERIFIED</span>
-                        : <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', opacity: 0.5 }}>—</span>}
-                    </td>
-
-                    {/* Reward */}
-                    <td className="px-3 py-4 text-right tabular-nums" style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 600, color: 'var(--teal-dark)' }}>
-                      {fmtFull(exp.bounty_per_participant)}
-                    </td>
-
-                    {/* Pool */}
-                    <td className="px-3 py-4 text-right tabular-nums" style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--slate)' }}>
-                      {fmt(exp.total_bounty_pool)}
-                    </td>
-
-                    {/* Slots */}
-                    <td className="px-3 py-4">
-                      <SlotBar filled={exp.slots_filled} total={exp.slots_total} />
-                    </td>
-
-                    {/* Status */}
-                    <td className="px-3 py-4">
-                      <span className="flex items-center gap-1.5 whitespace-nowrap" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', color: st.color }}>
-                        <span>●</span>
-                        {st.label}
+                  {/* Study name + category + org */}
+                  <td className="px-4 py-4">
+                    <div className="flex flex-col gap-1.5">
+                      <span className="leading-tight"
+                        style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600, color: 'var(--ink)', maxWidth: '340px' }}>
+                        {exp.title}
                       </span>
-                    </td>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="inline-flex items-center self-start"
+                          style={{
+                            fontFamily:   'var(--font-mono)',
+                            fontSize:     9,
+                            fontWeight:   600,
+                            letterSpacing:'1px',
+                            textTransform:'uppercase',
+                            color:        'var(--teal-dark)',
+                            background:   'var(--teal-faint)',
+                            borderRadius: '4px',
+                            padding:      '2px 6px',
+                          }}>
+                          {exp.category}
+                        </span>
+                        {orgMap[exp.experimenter_id] && (
+                          <Link
+                            href={`/org/${orgMap[exp.experimenter_id].id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="no-underline transition-opacity hover:opacity-80"
+                            style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)' }}
+                          >
+                            {orgMap[exp.experimenter_id].org_name} →
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </td>
 
-                    {/* Region */}
-                    <td className="px-3 py-4 whitespace-nowrap" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
-                      {exp.is_remote ? 'Remote' : (exp.region ?? '—')}
-                    </td>
-                  </tr>
+                  {/* Verified */}
+                  <td className="px-4 py-4 text-center">
+                    {exp.is_verified
+                      ? <span className="badge-verified">✓ BIOME VERIFIED</span>
+                      : <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', opacity: 0.5 }}>—</span>}
+                  </td>
 
-                  {/* ── Accordion row ── */}
-                  {isOpen && (
-                    <tr key={`${exp.id}-accordion`} style={{ borderBottom: '1px solid var(--border-mid)', background: 'var(--bg-page)' }}>
-                      <td colSpan={8}>
-                        <div className="px-4 sm:px-8 pt-3 pb-6 flex flex-col md:flex-row md:items-start gap-6">
+                  {/* Access / compensated tag (no amount) */}
+                  <td className="px-4 py-4">
+                    {compensated
+                      ? <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase', color: 'var(--teal-dark)' }}>Compensated</span>
+                      : <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', opacity: 0.5 }}>—</span>}
+                  </td>
 
-                          {/* Description + tests */}
-                          <div className="flex-1 min-w-0">
-                            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>Overview</p>
-                            <p className="mb-3" style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.65, color: 'var(--slate)', maxWidth: '500px' }}>
-                              {exp.short_description ?? exp.description.slice(0, 160) + '…'}
-                            </p>
-                            {exp.tests_needed && (
-                              <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, lineHeight: 1.6, color: 'var(--muted)', maxWidth: '500px' }}>
-                                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, color: 'var(--teal-dark)' }}>Tests required: </span>
-                                {exp.tests_needed}
-                              </p>
-                            )}
-                          </div>
+                  {/* Slots */}
+                  <td className="px-4 py-4">
+                    <SlotBar filled={exp.slots_filled} total={exp.slots_total} />
+                  </td>
 
-                          {/* Stats strip */}
-                          <div className="flex items-start gap-6 flex-wrap">
-                            <div>
-                              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Slots open</p>
-                              <p className="tabular-nums" style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: exp.slots_filled >= exp.slots_total ? '#d97706' : 'var(--ink)' }}>
-                                {exp.slots_total - exp.slots_filled}
-                              </p>
-                              <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--muted)' }}>{exp.slots_filled}/{exp.slots_total} filled</p>
-                            </div>
-                            <div>
-                              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Reward</p>
-                              <p className="tabular-nums" style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--teal-dark)' }}>
-                                ${exp.bounty_per_participant}
-                              </p>
-                              <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--muted)' }}>per person</p>
-                            </div>
-                            {exp.duration_weeks && (
-                              <div>
-                                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Duration</p>
-                                <p className="tabular-nums" style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--ink)' }}>
-                                  {exp.duration_weeks}
-                                </p>
-                                <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--muted)' }}>weeks</p>
-                              </div>
-                            )}
-                            <div className="self-center">
-                              <button
-                                onClick={(e) => { e.stopPropagation(); router.push(`/experiments/${exp.id}`); }}
-                                className="transition-all hover:opacity-90 whitespace-nowrap"
-                                style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '10px 20px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff', border: 'none', cursor: 'pointer' }}
-                              >
-                                Read more →
-                              </button>
-                            </div>
-                          </div>
+                  {/* Status */}
+                  <td className="px-4 py-4">
+                    <StatusPill status={exp.status} />
+                  </td>
 
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </>
+                  {/* Region */}
+                  <td className="px-4 py-4 whitespace-nowrap" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
+                    {exp.is_remote ? 'Remote' : (exp.region ?? '—')}
+                  </td>
+                </tr>
               );
             })}
           </tbody>
@@ -497,7 +440,7 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
           </button>
         </div>
         <p className="hidden md:block" style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)' }}>
-          Biome — 2.5% platform fee
+          Biome — operations layer for human studies
         </p>
       </div>
 
