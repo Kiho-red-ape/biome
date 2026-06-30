@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 
@@ -30,7 +30,7 @@ function FieldLabel({ children, hint }: { children: React.ReactNode; hint?: stri
   );
 }
 
-export default function ExperimenterOnboardingPage() {
+function ExperimenterOnboardingInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const inviteToken = searchParams.get('invite');
@@ -237,5 +237,14 @@ export default function ExperimenterOnboardingPage() {
         </form>
       </div>
     </main>
+  );
+}
+
+// useSearchParams must be inside a Suspense boundary for prerendering.
+export default function ExperimenterOnboardingPage() {
+  return (
+    <Suspense fallback={null}>
+      <ExperimenterOnboardingInner />
+    </Suspense>
   );
 }
