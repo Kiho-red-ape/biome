@@ -15,6 +15,7 @@ const GROUPS: NavGroup[] = [
     items: [
       { label: 'Client intakes',  href: '/ops/intakes',        badge: 'newIntakes'        },
       { label: 'Estimate leads',  href: '/ops/estimate-leads', badge: 'uncontactedLeads'  },
+      { label: 'Invites',         href: '/ops/invites'                                    },
       { label: 'Partner apps',    href: '/ops/partners',       badge: 'pendingPartners'   },
     ],
   },
@@ -71,6 +72,7 @@ const BC: Record<string, [string, string]> = {
   '/ops':                  ['', 'Dashboard'],
   '/ops/intakes':          ['Pipeline', 'Client intakes'],
   '/ops/estimate-leads':   ['Pipeline', 'Estimate leads'],
+  '/ops/invites':          ['Pipeline', 'Invites'],
   '/ops/partners':         ['Pipeline', 'Partner apps'],
   '/ops/studies':          ['Studies', 'All studies'],
   '/ops/studies/pipeline': ['Studies', 'Study pipeline'],

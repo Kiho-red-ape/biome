@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePrivy } from '@privy-io/react-auth';
 import { OpsCard, OpsBadge } from '../_components/ui';
 
 interface Props { lead: Record<string, unknown> }
@@ -21,10 +23,29 @@ const TA: React.CSSProperties = {
 };
 
 export function EstimateLeadRow({ lead }: Props) {
+  const { user } = usePrivy();
   const [contacted, setContacted] = useState(!!lead.contacted);
   const [notes,     setNotes]     = useState((lead.notes as string) ?? '');
   const [saving,    setSaving]    = useState(false);
   const [open,      setOpen]      = useState(false);
+  const [intakeId,  setIntakeId]  = useState<string | null>((lead.converted_intake_id as string | null) ?? null);
+  const [moving,    setMoving]    = useState(false);
+
+  async function moveToPipeline() {
+    if (!user) return;
+    setMoving(true);
+    try {
+      const res = await fetch('/api/ops/estimate-leads/to-pipeline', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ id: lead.id, operatorPrivyDid: user.id }),
+      });
+      const data = (await res.json()) as { intakeId?: string };
+      if (data.intakeId) { setIntakeId(data.intakeId); setContacted(true); }
+    } finally {
+      setMoving(false);
+    }
+  }
 
   const rawBd    = lead.estimate_breakdown as Record<string, unknown> | null;
   const internal = (rawBd?.internal ?? null) as {
@@ -88,7 +109,9 @@ export function EstimateLeadRow({ lead }: Props) {
               ${(lead.estimated_total as number).toLocaleString()}
             </span>
           )}
-          <OpsBadge tone={contacted ? 'slate' : 'teal'}>{contacted ? 'contacted' : 'new'}</OpsBadge>
+          <OpsBadge tone={intakeId ? 'green' : contacted ? 'slate' : 'teal'}>
+            {intakeId ? 'in pipeline' : contacted ? 'contacted' : 'new'}
+          </OpsBadge>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)' }}>
             {new Date(lead.created_at as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
           </span>
@@ -221,7 +244,32 @@ export function EstimateLeadRow({ lead }: Props) {
           />
 
           {/* Actions */}
-          <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {intakeId ? (
+              <Link
+                href="/ops/studies/pipeline"
+                style={{
+                  fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.5px',
+                  padding: '7px 16px', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.3)',
+                  color: '#15803d', borderRadius: 'var(--radius-sm)', textDecoration: 'none',
+                }}
+              >
+                ✓ In pipeline — open →
+              </Link>
+            ) : (
+              <button
+                onClick={() => void moveToPipeline()}
+                disabled={moving}
+                style={{
+                  fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.5px',
+                  padding: '7px 16px', background: 'var(--teal)', border: '1px solid var(--teal)',
+                  color: '#fff', borderRadius: 'var(--radius-sm)', cursor: moving ? 'default' : 'pointer',
+                  opacity: moving ? 0.6 : 1,
+                }}
+              >
+                {moving ? 'Moving…' : 'Move to pipeline →'}
+              </button>
+            )}
             {!contacted && (
               <button
                 onClick={() => void markContacted()}
