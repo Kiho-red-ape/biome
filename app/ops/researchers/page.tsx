@@ -1,5 +1,6 @@
+import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/server';
-import { OpsPageHeader, OpsCard, OpsBadge, OpsButton } from '../_components/ui';
+import { OpsPageHeader, OpsCard, OpsBadge } from '../_components/ui';
 
 type ResearcherRow = {
   id: string;
@@ -143,10 +144,18 @@ function ApprovalActions({ userId }: { userId: string }) {
         'use server';
         const action = formData.get('action') as 'active' | 'rejected';
         const db = createServiceClient();
+        // Keep both status fields consistent: review_status drives the ops UI,
+        // screening_status gates posting studies. Approve must set BOTH.
         await db
           .from('experimenter_profiles')
-          .update({ review_status: action })
+          .update({
+            review_status:    action,
+            screening_status: action === 'active' ? 'approved' : 'rejected',
+            screened_at:      new Date().toISOString(),
+            screened_by:      'Ops',
+          })
           .eq('user_id', userId);
+        revalidatePath('/ops/researchers');
       }}
       style={{ display: 'flex', gap: 10, marginTop: 16 }}
     >

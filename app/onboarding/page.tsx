@@ -17,31 +17,30 @@ function OnboardingInner() {
   const [region, setRegion] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(true);
 
   const preselectedRole = roleParam === 'participant' ? 'participant' :
                           roleParam === 'researcher'  ? 'experimenter' : null;
 
-  const checkExistingProfile = useCallback(async (privyDid: string) => {
+  // If the user already has a completed profile, send them to the right home —
+  // never back into an onboarding form. Runs even with a ?role= preselect.
+  const routeExisting = useCallback(async (privyDid: string): Promise<boolean> => {
     try {
-      const res = await fetch(`/api/profile?privyDid=${encodeURIComponent(privyDid)}`);
-      if (res.ok) {
-        const data = await res.json() as { profile?: { role?: string } | null };
-        if (data.profile) {
-          // Profile already exists — route based on existing role
-          const role = data.profile.role;
-          if (role === 'participant') { router.replace('/onboarding/participant'); return; }
-          if (role === 'experimenter') { router.replace('/onboarding/experimenter'); return; }
-          router.replace('/dashboard');
-        }
-      }
-    } catch { /* let user proceed */ }
+      const [pRes, eRes] = await Promise.all([
+        fetch(`/api/participant-profile?privyDid=${encodeURIComponent(privyDid)}`).then(r => r.json()).catch(() => ({})),
+        fetch(`/api/experimenter-profile?privyDid=${encodeURIComponent(privyDid)}`).then(r => r.json()).catch(() => ({})),
+      ]);
+      if (pRes?.profile) { router.replace('/dashboard'); return true; }
+      if (eRes?.profile) { router.replace('/dashboard/experiments'); return true; }
+    } catch { /* fall through to onboarding */ }
+    return false;
   }, [router]);
 
   useEffect(() => {
-    if (!ready || !authenticated || !user) return;
-    if (preselectedRole) return; // user has explicit role intent — don't override with existing profile
-    void checkExistingProfile(user.id);
-  }, [ready, authenticated, user, preselectedRole, checkExistingProfile]);
+    if (!ready) return;
+    if (!authenticated || !user) { setChecking(false); return; }
+    void routeExisting(user.id).then((routed) => { if (!routed) setChecking(false); });
+  }, [ready, authenticated, user, routeExisting]);
 
   async function handleSubmit(role: 'participant' | 'experimenter') {
     if (!user) return;
@@ -82,7 +81,7 @@ function OnboardingInner() {
     }
   }
 
-  if (!ready) {
+  if (!ready || (authenticated && checking)) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-page)' }}>
         <span className="text-sm" style={{ color: 'var(--muted)' }}>Loading…</span>

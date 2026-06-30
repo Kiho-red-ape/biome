@@ -30,9 +30,15 @@ export async function PATCH(req: NextRequest) {
 
   const db = createServiceClient();
 
+  // Keep review_status (ops UI) and screening_status (post-study gate) in sync.
+  const screening_status =
+    review_status === 'active' ? 'approved'
+    : review_status === 'rejected' ? 'rejected'
+    : 'pending';
+
   const { error } = await db
     .from('experimenter_profiles')
-    .update({ review_status })
+    .update({ review_status, screening_status, screened_at: new Date().toISOString(), screened_by: 'Ops' })
     .eq('user_id', userId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

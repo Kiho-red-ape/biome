@@ -8,7 +8,12 @@ import { resolveOrgForUser } from '@/lib/org/resolve';
 import { generateToken } from '@/lib/org/invites';
 import { sendEmail } from '@/lib/email';
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://biome.to';
+function siteFromReq(req: NextRequest): string {
+  const host = req.headers.get('host');
+  const proto = req.headers.get('x-forwarded-proto') ?? 'https';
+  if (host) return `${proto}://${host}`;
+  return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://biome.to';
+}
 const ROLES = ['clinical_operator', 'researcher', 'sponsor'] as const;
 
 const postSchema = z.object({
@@ -42,7 +47,7 @@ export async function POST(req: NextRequest) {
   const { data: orgRow } = await db
     .from('experimenter_profiles').select('org_name').eq('id', org.orgId).maybeSingle();
   const orgName = (orgRow as { org_name: string } | null)?.org_name ?? 'a BIOME organization';
-  const link = `${SITE}/team-invite/${token}`;
+  const link = `${siteFromReq(req)}/team-invite/${token}`;
   const roleLabel = parsed.role.replace('_', ' ');
 
   await sendEmail(

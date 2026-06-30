@@ -14,9 +14,17 @@ const schema = z.object({
   operatorPrivyDid: z.string().min(1),
 });
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://biome.to';
+// Build the base URL from the request origin so invite links work on whatever
+// deploy generated them (preview/staging/prod), not a hardcoded domain.
+function siteFromReq(req: NextRequest): string {
+  const host = req.headers.get('host');
+  const proto = req.headers.get('x-forwarded-proto') ?? 'https';
+  if (host) return `${proto}://${host}`;
+  return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://biome.to';
+}
 
 export async function POST(req: NextRequest) {
+  const SITE = siteFromReq(req);
   let parsed: z.infer<typeof schema>;
   try {
     parsed = schema.parse(await req.json());
