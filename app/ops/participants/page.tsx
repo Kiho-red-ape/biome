@@ -19,6 +19,7 @@ interface User {
   country: string | null;
   in_supabase: boolean;
   onboarded: boolean;
+  flagged: boolean;
 }
 
 function verBadge(u: User): { label: string; tone: 'teal' | 'green' | 'amber' | 'red' | 'slate' | 'blue' } {
@@ -35,9 +36,16 @@ export default function OpsParticipants() {
   const [users,   setUsers]   = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState<string | null>(null);
-  const [filter,  setFilter]  = useState<'all' | 'onboarded' | 'not_synced' | 'verified'>('all');
+  const [filter,  setFilter]  = useState<'all' | 'onboarded' | 'not_synced' | 'verified' | 'flagged'>('all');
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState<string | null>(null);
+
+  // Honor ?filter=flagged deep links from the sidebar (window read avoids
+  // the useSearchParams Suspense/prerender requirement).
+  useEffect(() => {
+    const f = new URLSearchParams(window.location.search).get('filter');
+    if (f === 'flagged' || f === 'onboarded' || f === 'not_synced' || f === 'verified') setFilter(f);
+  }, []);
 
   function load() {
     setLoading(true);
@@ -78,6 +86,7 @@ export default function OpsParticipants() {
     if (filter === 'onboarded')  return u.onboarded;
     if (filter === 'not_synced') return !u.in_supabase;
     if (filter === 'verified')   return u.verification_status === 'fully_verified';
+    if (filter === 'flagged')    return u.flagged;
     return true;
   });
 
@@ -119,6 +128,7 @@ export default function OpsParticipants() {
           { key: 'all',        label: 'All',        count: users.length },
           { key: 'onboarded',  label: 'Onboarded',  count: onboardedCount },
           { key: 'verified',   label: 'Verified',   count: users.filter(u => u.verification_status === 'fully_verified').length },
+          { key: 'flagged',    label: 'Flagged',    count: users.filter(u => u.flagged).length },
           { key: 'not_synced', label: 'Not synced', count: notSynced },
         ]}
       />
@@ -141,7 +151,12 @@ export default function OpsParticipants() {
               <tr key={u.privy_id} style={{ opacity: u.in_supabase ? 1 : 0.62 }}>
                 <OpsTd>{u.email ?? <span style={{ color: 'var(--muted)' }}>—</span>}</OpsTd>
                 <OpsTd mono dim nowrap>{u.participant_id ?? '—'}</OpsTd>
-                <OpsTd nowrap><OpsBadge tone={badge.tone}>{badge.label}</OpsBadge></OpsTd>
+                <OpsTd nowrap>
+                  <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
+                    <OpsBadge tone={badge.tone}>{badge.label}</OpsBadge>
+                    {u.flagged && <OpsBadge tone="red">Flagged</OpsBadge>}
+                  </span>
+                </OpsTd>
                 <OpsTd dim>{u.supabase_role ?? '—'}</OpsTd>
                 <OpsTd dim nowrap>{u.country ?? u.supabase_region ?? '—'}</OpsTd>
                 <OpsTd dim>{u.previous_study_count ?? '—'}</OpsTd>

@@ -55,7 +55,7 @@ export async function GET() {
   // Pull participant_profiles
   const { data: ppRows } = await db
     .from('participant_profiles')
-    .select('user_id, participant_id, verification_status, previous_study_count, country');
+    .select('user_id, participant_id, verification_status, previous_study_count, country, flagged');
 
   const ppMap: Record<string, ParticipantProfile> = {};
   (ppRows ?? []).forEach((p: ParticipantProfile) => {
@@ -86,6 +86,7 @@ export async function GET() {
       country:             pp?.country ?? null,
       in_supabase:         !!sp,
       onboarded:           !!pp,
+      flagged:             pp?.flagged ?? false,
     };
   });
 
@@ -112,4 +113,5 @@ interface ParticipantProfile {
   verification_status: string | null;
   previous_study_count: number | null;
   country: string | null;
+  flagged: boolean | null;
 }
