@@ -22,3 +22,17 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
+
+// DELETE /api/ops/estimate-leads — remove a lead (spam/test entries).
+export async function DELETE(req: NextRequest) {
+  try {
+    const { id } = await req.json() as { id?: string };
+    if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
+    const db = createServiceClient();
+    const { error } = await db.from('estimate_leads').delete().eq('id', id);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
+  }
+}

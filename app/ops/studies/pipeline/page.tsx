@@ -2,6 +2,7 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { OpsPageHeader, OpsCard, OpsBadge } from '../../_components/ui';
 import { IntakeTriage } from './intake-triage';
 import { IntakeInvite } from './intake-invite';
+import { OpsDeleteButton } from '../../_components/delete-button';
 
 type BadgeTone = 'teal' | 'green' | 'amber' | 'red' | 'slate' | 'blue';
 
@@ -68,13 +69,14 @@ export default async function OpsPipeline() {
               </p>
             )}
 
-            <div style={{ marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid var(--border-soft)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid var(--border-soft)' }}>
               <IntakeInvite
                 intakeId={intake.id as string}
                 email={(intake.email as string | null) ?? null}
                 invited={!!intake.org_invite_id}
                 converted={(intake.triage_status as string) === 'converted'}
               />
+              <OpsDeleteButton endpoint="/api/ops/intakes" payload={{ id: intake.id }} label="Remove lead" />
             </div>
 
             <IntakeTriage

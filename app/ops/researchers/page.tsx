@@ -1,6 +1,7 @@
 import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/server';
 import { OpsPageHeader, OpsCard, OpsBadge } from '../_components/ui';
+import { OpsDeleteButton } from '../_components/delete-button';
 
 type ResearcherRow = {
   id: string;
@@ -113,6 +114,7 @@ function ResearcherCard({ row, compact = false }: { row: ResearcherRow; compact?
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
             {new Date(row.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
           </span>
+          <OpsDeleteButton endpoint="/api/ops/researchers" payload={{ userId: row.user_id }} label="Remove org" />
         </div>
       </div>
 

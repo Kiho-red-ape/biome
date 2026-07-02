@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { OpsCard, OpsBadge } from '../_components/ui';
+import { OpsDeleteButton } from '../_components/delete-button';
 
 interface Props { lead: Record<string, unknown> }
 
@@ -310,6 +311,9 @@ export function EstimateLeadRow({ lead }: Props) {
             >
               Save notes
             </button>
+            <span style={{ marginLeft: 'auto' }}>
+              <OpsDeleteButton endpoint="/api/ops/estimate-leads" payload={{ id: lead.id }} label="Delete lead" />
+            </span>
           </div>
         </div>
       )}
