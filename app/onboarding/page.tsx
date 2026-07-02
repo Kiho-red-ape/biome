@@ -125,6 +125,27 @@ function OnboardingInner() {
     );
   }
 
+  // ── Researcher/org path is invitation-only ─────────────────────────────────
+  if (preselectedRole === 'experimenter') {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: 'var(--bg-page)' }}>
+        <div className="w-full text-center" style={{ maxWidth: 460, background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)', padding: '40px 32px' }}>
+          <span className="section-label">Organizations</span>
+          <h1 style={{ fontSize: 22, marginBottom: 12 }}>Organization access is by invitation</h1>
+          <p className="text-sm" style={{ color: 'var(--slate)', lineHeight: 1.65, marginBottom: 24 }}>
+            Running studies on BIOME is set up by our team. Tell us about your study and we&apos;ll send you a private link to create your organization.
+          </p>
+          <button onClick={() => router.replace('/run-a-study')} className="btn-primary w-full">
+            Talk to our team →
+          </button>
+          <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 16 }}>
+            Already invited? Open the link from your email to get started.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   // ── Role pre-selected via URL param — show region input + confirm ──────────
   if (preselectedRole) {
     return (
@@ -225,34 +246,30 @@ function OnboardingInner() {
             </p>
           </button>
 
-          {/* Researcher card */}
-          <button
-            type="button"
-            onClick={() => void handleSubmit('experimenter')}
-            disabled={loading}
-            className="text-left w-full disabled:opacity-40"
+          {/* Running a study is invitation-only — point them to the intake, not self-serve */}
+          <div
             style={{
-              background:   'var(--surface)',
-              border:       '1px solid var(--border-soft)',
+              background:   'var(--bg-page)',
+              border:       '1px dashed var(--border-mid)',
               borderRadius: 'var(--radius)',
-              boxShadow:    'var(--shadow-sm)',
               padding:      24,
-              cursor:       'pointer',
-              transition:   'border-color 150ms ease, box-shadow 150ms ease',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--teal)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-soft)'; e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; }}
           >
             <p className="text-base font-semibold mb-1" style={{ color: 'var(--ink)' }}>
-              Run a study
+              Running a study?
             </p>
             <p className="text-sm" style={{ color: 'var(--slate)' }}>
-              Post a study bounty. BIOME handles recruitment, logistics, and payouts.
+              Organizations are onboarded by our team. Tell us about your study and we&apos;ll send you a private setup link.
             </p>
-            <p className="text-sm font-semibold mt-3" style={{ color: 'var(--teal)' }}>
-              Researcher →
-            </p>
-          </button>
+            <button
+              type="button"
+              onClick={() => router.push('/run-a-study')}
+              className="text-sm font-semibold mt-3"
+              style={{ color: 'var(--teal)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+            >
+              Talk to our team →
+            </button>
+          </div>
         </div>
 
         {error && (

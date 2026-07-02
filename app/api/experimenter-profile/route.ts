@@ -44,27 +44,44 @@ export async function POST(request: NextRequest) {
   const { privyDid, org_name, org_website, org_description, role_title, expertise_areas, inviteToken } = parsed.data;
   const supabase = createServiceClient();
 
-  // Verify profiles row exists
-  const { data: profile } = await supabase.from('profiles').select('id, email').eq('id', privyDid).single();
-  if (!profile) return NextResponse.json({ error: 'Profile not found. Complete basic onboarding first.' }, { status: 404 });
-
-  // Validate an ops invite, if supplied → org is pre-approved + active.
-  let invite: { id: string; intake_id: string | null } | null = null;
+  // Validate an ops invite, if supplied.
+  let invite: { id: string; intake_id: string | null; email: string | null } | null = null;
   if (inviteToken) {
     const { data: inv } = await supabase
       .from('org_invites')
-      .select('id, intake_id, status, expires_at')
+      .select('id, intake_id, email, status, expires_at')
       .eq('invite_token', inviteToken)
       .maybeSingle();
-    const row = inv as { id: string; intake_id: string | null; status: string; expires_at: string | null } | null;
+    const row = inv as { id: string; intake_id: string | null; email: string | null; status: string; expires_at: string | null } | null;
     const expired = row?.expires_at ? new Date(row.expires_at).getTime() < Date.now() : false;
-    if (row && row.status === 'sent' && !expired) invite = { id: row.id, intake_id: row.intake_id };
+    if (row && row.status === 'sent' && !expired) invite = { id: row.id, intake_id: row.intake_id, email: row.email };
   }
 
-  const invited = !!invite;
+  // Existing base profile + org (if any).
+  const { data: existingProfile } = await supabase.from('profiles').select('id, email').eq('id', privyDid).maybeSingle();
+  const { data: existingOrg } = await supabase.from('experimenter_profiles').select('id').eq('user_id', privyDid).maybeSingle();
 
-  // Upsert — update if already exists. The invite only gates WHO can fill this
-  // form (and prefills/links it); ops still reviews + approves the submitted org.
+  // Organization access is INVITATION-ONLY: creating a new org requires a valid
+  // ops invite. (Existing orgs may keep editing their own profile.)
+  if (!existingOrg && !invite) {
+    return NextResponse.json(
+      { error: 'Organization access on BIOME is by invitation only. Ask our team for an invite link.' },
+      { status: 403 },
+    );
+  }
+
+  // Invited users arrive straight from the link with no base profile — create one.
+  let profileEmail = (existingProfile as { email?: string | null } | null)?.email ?? null;
+  if (!existingProfile) {
+    profileEmail = invite?.email ?? null;
+    const { error: pErr } = await supabase.from('profiles').insert({
+      id: privyDid, auth_type: 'email', role: 'experimenter', email: profileEmail,
+    });
+    if (pErr) return NextResponse.json({ error: `profile: ${pErr.message}` }, { status: 500 });
+  }
+
+  // Upsert the org — the invite only gates WHO can fill this form (and prefills/
+  // links it); ops still reviews + approves the submitted org.
   const { data, error } = await supabase
     .from('experimenter_profiles')
     .upsert(
@@ -88,7 +105,7 @@ export async function POST(request: NextRequest) {
   const orgId = (data as { id: string }).id;
 
   // Founding user becomes the org admin.
-  await ensureAdminMember(orgId, privyDid, (profile as { email?: string }).email ?? `${privyDid}@biome.local`, supabase)
+  await ensureAdminMember(orgId, privyDid, profileEmail ?? `${privyDid}@biome.local`, supabase)
     .catch((e) => console.error('[experimenter-profile] admin member', e));
 
   // Fulfil the invite: mark accepted, link org, convert the intake.

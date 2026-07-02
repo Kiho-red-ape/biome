@@ -54,7 +54,8 @@ export default function MyExperimentsPage() {
         const epRes  = await fetch(`/api/experimenter-profile?privyDid=${encodeURIComponent(user!.id)}`);
         const epData = (await epRes.json()) as { profile?: { id: string; screening_status: string } | null };
 
-        if (!epData.profile) { router.replace('/onboarding/experimenter'); return; }
+        // Org access is invitation-only — a non-org account can't self-onboard here.
+        if (!epData.profile) { router.replace('/dashboard'); return; }
         setOrgId(epData.profile.id);
 
         const exRes  = await fetch(`/api/experiments/mine?privyDid=${encodeURIComponent(user!.id)}`);

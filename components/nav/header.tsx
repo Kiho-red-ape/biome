@@ -48,11 +48,12 @@ export function SiteHeader() {
 
   useEffect(() => {
     if (!authenticated || !user) { setNavProfile(null); return; }
-    const cacheKey = `biome_navprofile_v2_${user.id}`;
+    const cacheKey = `biome_navprofile_v3_${user.id}`;
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) { setNavProfile(JSON.parse(cached) as NavProfile); return; }
 
-    // Fetch both roles in parallel — a user may hold both.
+    // An account is EITHER an org (researcher) OR a participant — never both.
+    // Org is the deliberate, invite-only role, so it takes precedence.
     Promise.all([
       fetch(`/api/participant-profile?privyDid=${encodeURIComponent(user.id)}`).then(r => r.json()).catch(() => ({})),
       fetch(`/api/experimenter-profile?privyDid=${encodeURIComponent(user.id)}`).then(r => r.json()).catch(() => ({})),
@@ -60,23 +61,24 @@ export function SiteHeader() {
       { profile?: { participant_id: string; pseudonym: string } | null },
       { profile?: { id: string; org_name: string } | null },
     ]) => {
-      const np: NonNullable<NavProfile> = {};
-      if (pData?.profile?.participant_id) np.participant  = { pseudonym: pData.profile.pseudonym, participantId: pData.profile.participant_id };
-      if (eData?.profile?.id)             np.experimenter = { orgName: eData.profile.org_name, orgId: eData.profile.id };
-      const result = (np.participant || np.experimenter) ? np : null;
+      let result: NavProfile = null;
+      if (eData?.profile?.id) {
+        result = { experimenter: { orgName: eData.profile.org_name, orgId: eData.profile.id } };
+      } else if (pData?.profile?.participant_id) {
+        result = { participant: { pseudonym: pData.profile.pseudonym, participantId: pData.profile.participant_id } };
+      }
       setNavProfile(result);
       if (result) sessionStorage.setItem(cacheKey, JSON.stringify(result));
     }).catch(() => {});
   }, [authenticated, user]);
 
-  // Prefer the personal pseudonym for the chip; fall back to org name.
-  const displayName = navProfile?.participant?.pseudonym ?? navProfile?.experimenter?.orgName ?? null;
+  const displayName = navProfile?.experimenter?.orgName ?? navProfile?.participant?.pseudonym ?? null;
 
   const truncated = displayName ? displayName.slice(0, 14) + (displayName.length > 14 ? '…' : '') : null;
 
   const profileHref =
-    navProfile?.participant  ? `/profile/${navProfile.participant.participantId}`
-    : navProfile?.experimenter ? `/org/${navProfile.experimenter.orgId}`
+    navProfile?.experimenter ? `/org/${navProfile.experimenter.orgId}`
+    : navProfile?.participant ? `/profile/${navProfile.participant.participantId}`
     : null;
 
   return (
