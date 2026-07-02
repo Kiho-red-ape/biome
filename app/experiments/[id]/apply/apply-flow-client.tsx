@@ -37,10 +37,10 @@ function evaluateQuiz(
 
 // ─── Section label ────────────────────────────────────────────────────────────
 
-function SectionLabel({ text, color = 'var(--teal)' }: { text: string; color?: string }) {
+function SectionLabel({ text, color = 'var(--muted)' }: { text: string; color?: string }) {
   return (
-    <p className="mono text-xs mb-5"
-      style={{ color, letterSpacing: '2px', textTransform: 'uppercase' }}>
+    <p className="mono mb-5"
+      style={{ color, fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' }}>
       {text}
     </p>
   );
@@ -59,8 +59,8 @@ function CollectionSummary({ exp }: { exp: ApplyExperiment }) {
     { label: 'Compliance min.', value: `${exp.compliance_threshold}%` },
   ];
   return (
-    <div className="rounded p-4 mb-5"
-      style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-sm)' }}>
+    <div className="p-4 mb-5"
+      style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-sm)' }}>
       <p className="mono text-xs mb-3" style={{ color: 'var(--muted)', letterSpacing: '1.5px', textTransform: 'uppercase' }}>What you are signing up for</p>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 24px' }}>
         {fields.map(({ label, value }) => (
@@ -92,8 +92,8 @@ function MilestonesPreview({ milestones }: { milestones: ApplyMilestone[] }) {
     }
   }
   return (
-    <div className="rounded p-4 mb-5"
-      style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-sm)' }}>
+    <div className="p-4 mb-5"
+      style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-sm)' }}>
       <p className="mono text-xs mb-3" style={{ color: 'var(--muted)', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Milestones preview</p>
       <div className="flex flex-col gap-2">
         {preview.map((m, i) => (
@@ -254,8 +254,8 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
 
         {/* Step: closed */}
         {step === 'closed' && (
-          <div className="rounded p-8 text-center"
-            style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-sm)' }}>
+          <div className="p-8 text-center"
+            style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}>
             <p className="mono text-xl mb-3" style={{ color: 'var(--muted)' }}>⊘</p>
             <p className="text-sm mb-2" style={{ fontFamily: 'var(--font-display)', fontWeight: 600, color: 'var(--ink)' }}>
               Applications closed
@@ -273,8 +273,8 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
         {step === 'auth' && (
           <div>
             <SectionLabel text="SIGN IN REQUIRED" />
-            <div className="rounded p-6"
-              style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-sm)' }}>
+            <div className="p-6"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--slate)', lineHeight: 1.7, marginBottom: 20 }}>
                 You need to sign in to apply to this study. Your research partner profile is used
                 for eligibility screening and to match you with the right studies.
@@ -295,9 +295,9 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
         {step === 'profile' && (
           <div>
             <SectionLabel text="COMPLETE YOUR PROFILE" />
-            <div className="rounded p-6"
-              style={{ background: 'var(--surface)', border: '1px solid #d97706', boxShadow: 'var(--shadow-sm)' }}>
-              <p className="mono text-xs mb-3" style={{ color: '#d97706' }}>
+            <div className="p-6"
+              style={{ background: 'var(--surface)', border: '1px solid rgba(180,83,9,0.35)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}>
+              <p className="mono text-xs mb-3" style={{ color: 'var(--warning)' }}>
                 ⚠ Profile incomplete
               </p>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--slate)', lineHeight: 1.7, marginBottom: 20 }}>
@@ -326,10 +326,11 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
               {quiz.map((q, i) => {
                 const ans = answers[q.id];
                 return (
-                  <div key={q.id} className="rounded p-4"
+                  <div key={q.id} className="p-4"
                     style={{
                       background: 'var(--surface)',
                       border: `1px solid ${ans !== null ? 'var(--teal)' : 'var(--border-soft)'}`,
+                      borderRadius: 'var(--radius-sm)',
                       boxShadow: 'var(--shadow-sm)',
                     }}>
                     <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--ink)', marginBottom: 12 }}>
@@ -343,11 +344,12 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
                         <button
                           key={String(val)}
                           onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: val }))}
-                          className="mono text-xs px-4 py-1.5 rounded transition-all"
+                          className="mono text-xs px-4 py-1.5 transition-all"
                           style={{
-                            background: ans === val ? (val ? 'var(--teal-soft)' : 'rgba(217,119,6,0.08)') : 'transparent',
-                            border:     `1px solid ${ans === val ? (val ? 'var(--teal)' : '#d97706') : 'var(--border-mid)'}`,
-                            color:      ans === val ? (val ? 'var(--teal-dark)' : '#d97706') : 'var(--slate)',
+                            borderRadius: 'var(--radius-sm)',
+                            background: ans === val ? (val ? 'var(--teal-soft)' : 'var(--warning-soft)') : 'transparent',
+                            border:     `1px solid ${ans === val ? (val ? 'var(--teal)' : 'var(--warning)') : 'var(--border-mid)'}`,
+                            color:      ans === val ? (val ? 'var(--teal-dark)' : 'var(--warning)') : 'var(--slate)',
                           }}
                         >
                           {val ? 'Yes' : 'No'}
@@ -366,9 +368,9 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
               return (
                 <div>
                   {allAnswered && result === 'not_eligible' && (
-                    <div className="rounded p-4 mb-4"
-                      style={{ background: 'rgba(217,119,6,0.06)', border: '1px solid #d97706' }}>
-                      <p className="mono text-xs mb-1" style={{ color: '#d97706' }}>
+                    <div className="p-4 mb-4"
+                      style={{ background: 'var(--warning-soft)', border: '1px solid rgba(180,83,9,0.35)', borderRadius: 'var(--radius-sm)' }}>
+                      <p className="mono text-xs mb-1" style={{ color: 'var(--warning)' }}>
                         ⚠ Based on your answers, you may not meet the eligibility criteria.
                       </p>
                       <p className="mono text-xs" style={{ color: 'var(--slate)' }}>
@@ -377,8 +379,8 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
                     </div>
                   )}
                   {allAnswered && result === 'eligible' && (
-                    <div className="rounded p-4 mb-4"
-                      style={{ background: 'var(--teal-faint)', border: '1px solid var(--teal)' }}>
+                    <div className="p-4 mb-4"
+                      style={{ background: 'var(--teal-faint)', border: '1px solid var(--teal)', borderRadius: 'var(--radius-sm)' }}>
                       <p className="mono text-xs" style={{ color: 'var(--success)' }}>
                         ✓ You appear to meet the eligibility criteria for this study.
                       </p>
@@ -409,12 +411,13 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
             <SectionLabel text="REVIEW AND SUBMIT" />
 
             {quizResult && (
-              <div className="rounded px-4 py-2 mb-5 flex items-center gap-2"
+              <div className="px-4 py-2 mb-5 flex items-center gap-2"
                 style={{
-                  background: quizResult === 'eligible' ? 'var(--teal-faint)' : 'rgba(217,119,6,0.05)',
-                  border: `1px solid ${quizResult === 'eligible' ? 'var(--teal)' : '#d97706'}`,
+                  borderRadius: 'var(--radius-sm)',
+                  background: quizResult === 'eligible' ? 'var(--teal-faint)' : 'var(--warning-soft)',
+                  border: `1px solid ${quizResult === 'eligible' ? 'var(--teal)' : 'rgba(180,83,9,0.35)'}`,
                 }}>
-                <span className="mono text-xs" style={{ color: quizResult === 'eligible' ? 'var(--success)' : '#d97706' }}>
+                <span className="mono text-xs" style={{ color: quizResult === 'eligible' ? 'var(--success)' : 'var(--warning)' }}>
                   {quizResult === 'eligible' ? '✓ Eligible' : '⚠ Not eligible'}
                 </span>
                 <span className="mono text-xs" style={{ color: 'var(--slate)' }}>
@@ -427,8 +430,8 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
             <MilestonesPreview milestones={milestones} />
 
             {/* Compliance note */}
-            <div className="rounded p-4 mb-5"
-              style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-sm)' }}>
+            <div className="p-4 mb-5"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-sm)' }}>
               <p className="mono text-xs mb-1.5" style={{ color: 'var(--muted)', letterSpacing: '1px', textTransform: 'uppercase', fontSize: 10 }}>
                 Compliance requirement
               </p>
@@ -445,8 +448,8 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
             </div>
 
             {/* Research partner agreement checkbox */}
-            <div className="rounded p-4 mb-5"
-              style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-sm)' }}>
+            <div className="p-4 mb-5"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-sm)', marginTop: 16 }}>
               <label className="flex items-start gap-3 cursor-pointer select-none">
                 <div
                   onClick={() => setAgreed((a) => !a)}
@@ -482,8 +485,8 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
             </div>
 
             {submitError && (
-              <p className="text-xs py-2 px-3 rounded mb-2"
-                style={{ color: 'var(--error)', background: 'rgba(220,38,38,0.04)', border: '1px solid var(--error)', fontFamily: 'var(--font-body)' }}>
+              <p className="text-xs py-2 px-3 mb-2"
+                style={{ color: 'var(--error)', background: 'var(--error-soft)', border: '1px solid rgba(185,28,28,0.35)', borderRadius: 'var(--radius-sm)', fontFamily: 'var(--font-body)' }}>
                 {submitError}
               </p>
             )}
@@ -502,8 +505,8 @@ export function ApplyFlowClient({ experiment: exp, milestones, quiz }: Props) {
 
         {/* Step: submitted */}
         {step === 'submitted' && (
-          <div className="rounded p-8"
-            style={{ background: 'var(--surface)', border: '1px solid var(--teal)', boxShadow: 'var(--shadow-sm)' }}>
+          <div className="p-8"
+            style={{ background: 'var(--surface)', border: '1px solid var(--teal)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}>
             <p className="mono text-2xl mb-3" style={{ color: 'var(--success)' }}>✓</p>
             <p style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--ink)', marginBottom: 12 }}>
               Application received.
