@@ -39,10 +39,10 @@ export function DraftBanner({
     return (
       <div
         className="px-6 py-3 flex items-center gap-3"
-        style={{ background: 'rgba(255,179,0,0.07)', borderBottom: '1px solid rgba(255,179,0,0.2)' }}
+        style={{ background: 'var(--warning-soft)', borderBottom: '1px solid rgba(180,83,9,0.2)' }}
       >
-        <span className="mono text-xs font-bold" style={{ color: 'var(--amber)' }}>● DRAFT</span>
-        <span className="text-sm" style={{ color: 'var(--text-dim)' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--warning)' }}>● Draft</span>
+        <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)' }}>
           This study is saved as a draft and not publicly listed.
         </span>
       </div>
@@ -53,18 +53,28 @@ export function DraftBanner({
     <>
       <div
         className="px-6 py-3 flex items-center justify-between gap-4 flex-wrap"
-        style={{ background: 'rgba(255,179,0,0.07)', borderBottom: '1px solid rgba(255,179,0,0.2)' }}
+        style={{ background: 'var(--warning-soft)', borderBottom: '1px solid rgba(180,83,9,0.2)' }}
       >
         <div className="flex items-center gap-3">
-          <span className="mono text-xs font-bold" style={{ color: 'var(--amber)' }}>● DRAFT</span>
-          <span className="text-sm" style={{ color: 'var(--text-dim)' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--warning)' }}>● Draft</span>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--slate)' }}>
             This study is saved as a draft. Publish it to start recruiting participants.
           </span>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90"
-          style={{ background: 'var(--green)', color: '#060a14' }}
+          className="transition-all hover:opacity-90"
+          style={{
+            fontFamily:   'var(--font-body)',
+            fontSize:     13,
+            fontWeight:   600,
+            padding:      '8px 16px',
+            borderRadius: 'var(--radius-sm)',
+            background:   'var(--teal)',
+            border:       '1px solid var(--teal)',
+            color:        '#ffffff',
+            cursor:       'pointer',
+          }}
         >
           Publish study →
         </button>
