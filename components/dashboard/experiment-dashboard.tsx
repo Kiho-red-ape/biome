@@ -199,22 +199,22 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
   };
 
   return (
-    <div className="px-4 md:px-8 pb-16">
+    <div style={{ padding: '0 24px 64px' }}>
 
       {/* ── Stat tiles ──────────────────────────────────────────── */}
-      <section className="py-8" style={{ borderBottom: '1px solid var(--border-soft)' }}>
+      <section style={{ padding: '32px 0', borderBottom: '1px solid var(--border-soft)' }}>
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 20 }}>
           Live data from the Biome network
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
           {[
             { label: 'Studies',           value: String(stats.totalStudies),       sub: 'listed on Biome'    },
             { label: 'Recruiting',        value: String(stats.recruitingCount),    sub: 'open to applicants' },
             { label: 'Active',            value: String(stats.activeCount),         sub: 'studies open'       },
             { label: 'Research Partners', value: String(stats.totalParticipants),   sub: 'slots filled'       },
           ].map((s) => (
-            <div key={s.label} className="p-5 flex flex-col"
-              style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}>
+            <div key={s.label}
+              style={{ padding: 20, display: 'flex', flexDirection: 'column', background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}>
               <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>{s.label}</p>
               <p style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.1 }}>{s.value}</p>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>{s.sub}</p>
@@ -224,7 +224,7 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
       </section>
 
       {/* ── Section header ──────────────────────────────────────── */}
-      <div className="flex items-center justify-between pt-8 pb-5">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '32px 0 20px' }}>
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>
           Studies{' '}
           <span style={{ fontFamily: 'var(--font-mono)', color: filtered.length > 0 ? 'var(--teal-dark)' : 'var(--muted)' }}>
@@ -237,27 +237,26 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
       </div>
 
       {/* ── Filter toolbar ──────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <div className="relative flex-1" style={{ minWidth: 180 }}>
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--muted)' }}>⌕</span>
+      {/* Inline layout + explicit select widths: globals.css forces select/input
+          to width:100%, which stacked the toolbar. Inline styles win. */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ position: 'relative', flex: '1 1 220px', minWidth: 180 }}>
+          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--muted)' }}>⌕</span>
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search studies..."
-            className="w-full outline-none"
-            style={{ ...controlStyle, paddingLeft: 32, color: 'var(--ink)' }}
+            style={{ ...controlStyle, width: '100%', paddingLeft: 32, color: 'var(--ink)' }}
           />
         </div>
         <select value={catFilter} onChange={(e) => setCatFilter(e.target.value)}
-          className="cursor-pointer"
-          style={{ ...controlStyle, color: catFilter !== 'all' ? 'var(--ink)' : 'var(--muted)' }}>
+          style={{ ...controlStyle, width: 'auto', minWidth: 170, cursor: 'pointer', color: catFilter !== 'all' ? 'var(--ink)' : 'var(--muted)' }}>
           <option value="all">All categories</option>
           {categories.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
         <select value={statFilter} onChange={(e) => setStatFilter(e.target.value)}
-          className="cursor-pointer"
-          style={{ ...controlStyle, color: statFilter !== 'all' ? 'var(--ink)' : 'var(--muted)' }}>
+          style={{ ...controlStyle, width: 'auto', minWidth: 150, cursor: 'pointer', color: statFilter !== 'all' ? 'var(--ink)' : 'var(--muted)' }}>
           <option value="all">All status</option>
           <option value="recruiting">Recruiting</option>
           <option value="active">Active</option>
@@ -265,8 +264,10 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
           <option value="cancelled">Cancelled</option>
         </select>
         <button onClick={() => setVerified((v) => !v)}
-          className="flex items-center gap-2 transition-all"
           style={{
+            display:      'inline-flex',
+            alignItems:   'center',
+            gap:          8,
             fontFamily:   'var(--font-body)',
             fontSize:     13,
             fontWeight:   600,
@@ -284,9 +285,9 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
       </div>
 
       {/* ── Table ───────────────────────────────────────────────── */}
-      <div className="overflow-x-auto"
-        style={{ border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)', background: 'var(--surface)' }}>
-        <table className="w-full border-collapse" style={{ minWidth: '780px' }}>
+      <div
+        style={{ overflowX: 'auto', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)', background: 'var(--surface)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '780px' }}>
 
           <thead>
             <tr style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}>

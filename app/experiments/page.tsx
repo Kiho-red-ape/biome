@@ -34,8 +34,8 @@ export default async function ExperimentsPage() {
   return (
     <main className="min-h-screen flex flex-col" style={{ background: 'var(--bg-page)' }}>
       <SiteHeader />
-      <div className="flex-1 w-full mx-auto" style={{ maxWidth: 1200 }}>
-        <div className="px-4 md:px-8 pt-8 pb-2">
+      <div style={{ flex: 1, width: '100%', maxWidth: 1200, marginLeft: 'auto', marginRight: 'auto' }}>
+        <div style={{ padding: '32px 24px 8px' }}>
           <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>
             All studies
           </p>
