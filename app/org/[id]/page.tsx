@@ -9,21 +9,45 @@ type OrgExp = {
   id: string;
   title: string;
   status: ExperimentStatus;
-  bounty_per_participant: number;
   slots_total: number;
   slots_filled: number;
   category: string;
 };
 
-// Status pills consistent with the dashboard: draft=slate, recruiting=blue,
-// active=teal, completed=green, cancelled=red.
-const STATUS_PILLS: Record<ExperimentStatus, { label: string; bg: string; color: string }> = {
-  draft:      { label: 'Draft',      bg: 'var(--bg-page)',     color: 'var(--slate)'     },
-  recruiting: { label: 'Recruiting', bg: '#e0edff',            color: '#1d4ed8'          },
-  active:     { label: 'Active',     bg: 'var(--teal-soft)',   color: 'var(--teal-dark)' },
-  completed:  { label: 'Completed',  bg: 'var(--success-soft)', color: 'var(--success)'  },
-  cancelled:  { label: 'Cancelled',  bg: 'var(--error-soft)',  color: 'var(--error)'     },
+// Canonical clinical status pill palette — identical to the browse table and
+// study detail page: recruiting=teal, active=teal-dark, completed=green,
+// draft=slate, cancelled=red. Rendered as a dot pill on bg-page.
+const STATUS_CONFIG: Record<ExperimentStatus, { label: string; color: string }> = {
+  recruiting: { label: 'Recruiting', color: 'var(--teal)'      },
+  active:     { label: 'Active',     color: 'var(--teal-dark)' },
+  draft:      { label: 'Draft',      color: 'var(--slate)'     },
+  completed:  { label: 'Completed',  color: '#15803d'          },
+  cancelled:  { label: 'Cancelled',  color: '#dc2626'          },
 };
+
+function StatusPill({ status }: { status: ExperimentStatus }) {
+  const st = STATUS_CONFIG[status] ?? STATUS_CONFIG.draft;
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 whitespace-nowrap"
+      style={{
+        fontFamily:    'var(--font-mono)',
+        fontSize:      10,
+        fontWeight:    600,
+        letterSpacing: '0.5px',
+        textTransform: 'uppercase',
+        color:         st.color,
+        background:    'var(--bg-page)',
+        border:        '1px solid var(--border-soft)',
+        borderRadius:  999,
+        padding:       '3px 9px',
+      }}
+    >
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: st.color, flexShrink: 0 }} />
+      {st.label}
+    </span>
+  );
+}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -41,7 +65,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
 
   const { data: exps } = await supabase
     .from('experiments')
-    .select('id, title, status, bounty_per_participant, slots_total, slots_filled, category')
+    .select('id, title, status, slots_total, slots_filled, category')
     .eq('experimenter_id', org.user_id)
     .order('created_at', { ascending: false });
 
@@ -84,9 +108,9 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
                 textTransform:'uppercase',
                 padding:      '4px 10px',
                 borderRadius: '4px',
-                color:        approved ? '#ffffff' : '#d97706',
-                background:   approved ? 'var(--teal)' : '#fef3c7',
-                border:       approved ? 'none' : '1px solid #fde68a',
+                color:        approved ? '#ffffff' : 'var(--warning)',
+                background:   approved ? 'var(--teal)' : 'var(--warning-soft)',
+                border:       approved ? '1px solid var(--teal)' : '1px solid rgba(180,83,9,0.25)',
               }}
             >
               <span>●</span>
@@ -142,19 +166,20 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
           )}
         </div>
 
-        {/* ── Stats row ────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 gap-0 mb-4"
-          style={{ border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)', background: 'var(--surface)', overflow: 'hidden' }}>
+        {/* ── Stat tiles (same shape as the browse dashboard's) ───── */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
           {[
-            { label: 'Studies Posted',  value: String(org.experiments_posted)   },
-            { label: 'BIOME Verified',  value: String(org.verified_experiments) },
-          ].map((s, i) => (
+            { label: 'Studies Posted',  value: String(org.experiments_posted),   sub: 'listed on Biome'   },
+            { label: 'BIOME Verified',  value: String(org.verified_experiments), sub: 'vetted end-to-end' },
+          ].map((s) => (
             <div
               key={s.label}
-              style={{ padding: '20px', borderRight: i === 0 ? '1px solid var(--border-soft)' : 'none' }}
+              className="p-5 flex flex-col"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)' }}
             >
               <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>{s.label}</p>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: 24, fontWeight: 700, color: 'var(--ink)', lineHeight: 1 }}>{s.value}</p>
+              <p style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.1 }}>{s.value}</p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>{s.sub}</p>
             </div>
           ))}
         </div>
@@ -167,7 +192,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
             className="flex items-center gap-2"
             style={{ padding: '14px 24px', background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}
           >
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--slate)' }}>Studies</p>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>Studies</p>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, color: 'var(--teal-dark)' }}>{experiments.length}</span>
           </div>
 
@@ -182,7 +207,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
               <table className="w-full border-collapse" style={{ minWidth: 500 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border-soft)', background: 'var(--bg-page)' }}>
-                    {['Study', 'Status', 'Reward', 'Slots'].map((h) => (
+                    {['Study', 'Status', 'Slots'].map((h) => (
                       <th key={h} className="text-left" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', padding: '12px 16px' }}>
                         {h}
                       </th>
@@ -191,13 +216,12 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
                 </thead>
                 <tbody>
                   {experiments.map((e, idx) => {
-                    const pill = STATUS_PILLS[e.status] ?? STATUS_PILLS.draft;
-                    const pct  = e.slots_total > 0 ? (e.slots_filled / e.slots_total) * 100 : 0;
+                    const pct = e.slots_total > 0 ? e.slots_filled / e.slots_total : 0;
                     return (
                       <tr key={e.id} style={{ borderBottom: idx < experiments.length - 1 ? '1px solid var(--border-soft)' : 'none' }}>
                         <td style={{ padding: '16px' }}>
                           <Link href={`/experiments/${e.id}`} className="flex flex-col gap-1.5 no-underline">
-                            <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>
+                            <span className="leading-tight" style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>
                               {e.title}
                             </span>
                             <span
@@ -209,30 +233,12 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
                           </Link>
                         </td>
                         <td style={{ padding: '16px' }}>
-                          <span
-                            className="inline-flex items-center"
-                            style={{
-                              fontFamily:    'var(--font-mono)',
-                              fontSize:      10,
-                              fontWeight:    600,
-                              letterSpacing: '1px',
-                              textTransform: 'uppercase',
-                              padding:       '3px 8px',
-                              borderRadius:  '4px',
-                              background:    pill.bg,
-                              color:         pill.color,
-                            }}
-                          >
-                            {pill.label}
-                          </span>
-                        </td>
-                        <td className="tabular-nums" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600, color: 'var(--teal-dark)', padding: '16px' }}>
-                          ${e.bounty_per_participant.toFixed(2)}
+                          <StatusPill status={e.status} />
                         </td>
                         <td style={{ padding: '16px' }}>
                           <div className="flex items-center gap-2">
-                            <div className="overflow-hidden" style={{ width: 48, height: 4, borderRadius: 4, background: 'var(--bg-page)' }}>
-                              <div style={{ height: 4, borderRadius: 4, width: `${pct}%`, background: 'var(--teal)' }} />
+                            <div className="overflow-hidden flex-shrink-0" style={{ width: 56, height: 6, borderRadius: 4, background: 'var(--border-soft)' }}>
+                              <div style={{ height: 6, borderRadius: 4, width: `${pct * 100}%`, background: pct >= 0.9 ? 'var(--teal-dark)' : 'var(--teal)' }} />
                             </div>
                             <span className="tabular-nums" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
                               {e.slots_filled}/{e.slots_total}
