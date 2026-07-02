@@ -13,6 +13,8 @@ import { DashCard, CardLabel } from '@/components/dashboard/card';
 import { NeedsAttention } from '@/components/dashboard/needs-attention';
 import { InboxPreview } from '@/components/dashboard/inbox-preview';
 import { DocumentsCenter } from '@/components/dashboard/documents-center';
+import { NudgeBanner } from '@/components/dashboard/nudge-banner';
+import { DataHub } from '@/components/dashboard/data-hub';
 import { ReferralCard } from '@/components/agent/referral-card';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -667,6 +669,9 @@ export default function DashboardPage() {
           ))}
         </div>
 
+        {/* Sign-in engagement nudge */}
+        <NudgeBanner privyDid={user!.id} />
+
         {/* Verified-contributor nudge */}
         <AwarenessNudge privyDid={user!.id} />
 
@@ -721,6 +726,9 @@ export default function DashboardPage() {
         {/* Documents center */}
         <DocumentsCenter privyDid={user!.id} />
 
+        {/* Your health record — consents, metadata sync, reports */}
+        <DataHub privyDid={user!.id} />
+
         {/* Compensation */}
         {payoutApps.length > 0 && (
           <DashCard style={{ scrollMarginTop: 80 }}>
@@ -755,7 +763,9 @@ export default function DashboardPage() {
         )}
 
         {/* Grow the research community */}
-        <ReferralCard privyDid={user!.id} />
+        <div id="referrals" style={{ scrollMarginTop: 80 }}>
+          <ReferralCard privyDid={user!.id} />
+        </div>
 
         {/* Applications */}
         <DashCard>
