@@ -26,11 +26,13 @@ interface Props {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+// Canonical clinical status pill palette — keep in sync with the study detail
+// page and org profile.
 const STATUS_CONFIG: Record<ExperimentStatus, { label: string; color: string }> = {
   recruiting: { label: 'Recruiting', color: 'var(--teal)'      },
   active:     { label: 'Active',     color: 'var(--teal-dark)' },
   draft:      { label: 'Draft',      color: 'var(--slate)'     },
-  completed:  { label: 'Completed',  color: 'var(--muted)'     },
+  completed:  { label: 'Completed',  color: '#15803d'          },
   cancelled:  { label: 'Cancelled',  color: '#dc2626'          },
 };
 
@@ -223,7 +225,7 @@ export function ExperimentDashboard({ experiments, stats, orgMap }: Props) {
 
       {/* ── Section header ──────────────────────────────────────── */}
       <div className="flex items-center justify-between pt-8 pb-5">
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--slate)' }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>
           Studies{' '}
           <span style={{ fontFamily: 'var(--font-mono)', color: filtered.length > 0 ? 'var(--teal-dark)' : 'var(--muted)' }}>
             {filtered.length}

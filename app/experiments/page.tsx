@@ -36,7 +36,7 @@ export default async function ExperimentsPage() {
       <SiteHeader />
       <div className="flex-1 w-full mx-auto" style={{ maxWidth: 1200 }}>
         <div className="px-4 md:px-8 pt-8 pb-2">
-          <p className="section-label" style={{ marginBottom: 4 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>
             All studies
           </p>
           <h1
@@ -48,7 +48,7 @@ export default async function ExperimentsPage() {
 
         {experiments.length === 0 ? (
           <div className="px-4 md:px-8 py-16 text-center">
-            <p style={{ fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 600, letterSpacing: '1.5px', color: 'var(--teal)', textTransform: 'uppercase', marginBottom: 16 }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '2px', color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 16 }}>
               Active studies
             </p>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--slate)', lineHeight: 1.8, marginBottom: 24 }}>
