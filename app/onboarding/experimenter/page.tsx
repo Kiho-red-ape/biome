@@ -44,6 +44,45 @@ function ExperimenterOnboardingInner() {
   const [loading,      setLoading]      = useState(false);
   const [error,        setError]        = useState<string | null>(null);
   const [submitted,    setSubmitted]    = useState<{ id: string; org_name: string } | null>(null);
+  // Access: form is INVITE-ONLY for new orgs. null = checking.
+  const [allowed,      setAllowed]      = useState<boolean | null>(null);
+
+  // All hooks must run before any early return (rules of hooks).
+  // Prefill the org name from the invite (ops captured it in the intake).
+  useEffect(() => {
+    if (!inviteToken) return;
+    fetch(`/api/invites/${inviteToken}`)
+      .then((r) => r.json())
+      .then((d: { valid?: boolean; orgName?: string | null }) => {
+        if (d.valid && d.orgName) setOrgName((cur) => cur || d.orgName!);
+      })
+      .catch(() => {});
+  }, [inviteToken]);
+
+  // Gate: allow the form only with a valid invite, or for an account that
+  // already owns an org (editing). Everyone else sees the invitation notice.
+  useEffect(() => {
+    if (!ready || !authenticated || !user) return;
+    let active = true;
+    async function check() {
+      try {
+        const [invRes, orgRes] = await Promise.all([
+          inviteToken
+            ? fetch(`/api/invites/${inviteToken}`).then((r) => r.json()).catch(() => ({ valid: false }))
+            : Promise.resolve({ valid: false }),
+          fetch(`/api/experimenter-profile?privyDid=${encodeURIComponent(user!.id)}`).then((r) => r.json()).catch(() => ({})),
+        ]);
+        if (!active) return;
+        const invited  = (invRes as { valid?: boolean }).valid === true;
+        const hasOrg   = !!(orgRes as { profile?: unknown }).profile;
+        setAllowed(invited || hasOrg);
+      } catch {
+        if (active) setAllowed(false);
+      }
+    }
+    void check();
+    return () => { active = false; };
+  }, [ready, authenticated, user, inviteToken]);
 
   if (!ready) return null;
   if (!authenticated || !user) {
@@ -56,16 +95,34 @@ function ExperimenterOnboardingInner() {
     );
   }
 
-  // Prefill the org name from the invite (ops captured it in the intake).
-  useEffect(() => {
-    if (!inviteToken) return;
-    fetch(`/api/invites/${inviteToken}`)
-      .then((r) => r.json())
-      .then((d: { valid?: boolean; orgName?: string | null }) => {
-        if (d.valid && d.orgName) setOrgName((cur) => cur || d.orgName!);
-      })
-      .catch(() => {});
-  }, [inviteToken]);
+  if (allowed === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--bg-page)' }}>
+        <span className="text-sm" style={{ color: 'var(--muted)' }}>Checking access…</span>
+      </div>
+    );
+  }
+
+  if (!allowed) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: 'var(--bg-page)' }}>
+        <div className="w-full text-center" style={{ maxWidth: 460, background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)', padding: '40px 32px' }}>
+          <span className="section-label">Organizations</span>
+          <h1 style={{ fontSize: 22, marginBottom: 12 }}>Organization access is by invitation</h1>
+          <p className="text-sm" style={{ color: 'var(--slate)', lineHeight: 1.65, marginBottom: 24 }}>
+            Running studies on BIOME is set up by our team. Tell us about your study and we&apos;ll
+            send you a private link to create your organization.
+          </p>
+          <button onClick={() => router.replace('/run-a-study')} className="btn-primary w-full">
+            Talk to our team →
+          </button>
+          <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 16 }}>
+            Already invited? Open the link from your email — it unlocks this form.
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   function toggleExpertise(opt: string) {
     setExpertise((prev) => prev.includes(opt) ? prev.filter((x) => x !== opt) : [...prev, opt]);
