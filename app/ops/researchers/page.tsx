@@ -1,5 +1,7 @@
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
 import { createServiceClient } from '@/lib/supabase/server';
+import { notifyOrgReview } from '@/lib/org/review-notify';
 import { OpsPageHeader, OpsCard, OpsBadge } from '../_components/ui';
 import { OpsDeleteButton } from '../_components/delete-button';
 
@@ -157,6 +159,12 @@ function ApprovalActions({ userId }: { userId: string }) {
             screened_by:      'Ops',
           })
           .eq('user_id', userId);
+        // Tell the researcher: in-app notification + email with dashboard link.
+        const h = await headers();
+        const host  = h.get('host');
+        const proto = h.get('x-forwarded-proto') ?? 'https';
+        const base  = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://biome.to');
+        await notifyOrgReview(db, userId, action, base).catch((e) => console.error('[researchers] notify', e));
         revalidatePath('/ops/researchers');
       }}
       style={{ display: 'flex', gap: 10, marginTop: 16 }}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { notifyOrgReview } from '@/lib/org/review-notify';
 
 // GET /api/ops/researchers — list all experimenter profiles
 export async function GET(_req: NextRequest) {
@@ -42,6 +43,14 @@ export async function PATCH(req: NextRequest) {
     .eq('user_id', userId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Approval/rejection notice: in-app + email with dashboard link.
+  if (review_status === 'active' || review_status === 'rejected') {
+    const host  = req.headers.get('host');
+    const proto = req.headers.get('x-forwarded-proto') ?? 'https';
+    const base  = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://biome.to');
+    await notifyOrgReview(db, userId, review_status, base).catch((e) => console.error('[researchers] notify', e));
+  }
 
   return NextResponse.json({ ok: true });
 }

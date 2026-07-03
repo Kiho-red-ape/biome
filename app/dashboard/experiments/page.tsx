@@ -41,6 +41,7 @@ export default function MyExperimentsPage() {
   const { user, ready, authenticated } = usePrivy();
 
   const [orgId,        setOrgId]        = useState<string | null>(null);
+  const [orgStatus,    setOrgStatus]    = useState<string | null>(null);
   const [experiments,  setExperiments]  = useState<ExpRow[]>([]);
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState<string | null>(null);
@@ -57,6 +58,7 @@ export default function MyExperimentsPage() {
         // Org access is invitation-only — a non-org account can't self-onboard here.
         if (!epData.profile) { router.replace('/dashboard'); return; }
         setOrgId(epData.profile.id);
+        setOrgStatus(epData.profile.screening_status ?? null);
 
         const exRes  = await fetch(`/api/experiments/mine?privyDid=${encodeURIComponent(user!.id)}`);
         const exData = (await exRes.json()) as { experiments?: ExpRow[] };
@@ -98,6 +100,31 @@ export default function MyExperimentsPage() {
     <main style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
       <SiteHeader />
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '40px 24px 80px' }}>
+
+        {/* Review-status banner — the dashboard must reflect where the org stands */}
+        {orgStatus === 'pending' && (
+          <div style={{
+            marginBottom: 20, padding: '14px 18px', borderRadius: 'var(--radius-sm)',
+            background: 'rgba(217,119,6,0.06)', border: '1px solid rgba(217,119,6,0.25)',
+          }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: '#92400e', margin: 0, lineHeight: 1.5 }}>
+              <strong>Your organization is under review.</strong> You can prepare drafts, but
+              posting studies unlocks once the BIOME team approves your profile — you&apos;ll
+              get an email and an in-app notification the moment that happens.
+            </p>
+          </div>
+        )}
+        {orgStatus === 'rejected' && (
+          <div style={{
+            marginBottom: 20, padding: '14px 18px', borderRadius: 'var(--radius-sm)',
+            background: 'rgba(220,38,38,0.05)', border: '1px solid rgba(220,38,38,0.25)',
+          }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: '#991b1b', margin: 0, lineHeight: 1.5 }}>
+              <strong>Your organization was not approved.</strong> If you believe this is a
+              mistake, contact <a href="mailto:hello@biome.to" style={{ color: '#991b1b' }}>hello@biome.to</a>.
+            </p>
+          </div>
+        )}
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
