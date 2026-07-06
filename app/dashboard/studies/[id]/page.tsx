@@ -11,6 +11,7 @@ import { DocumentsCenter } from '@/components/dashboard/documents-center';
 import { MilestonesTimeline } from '@/components/study-workspace/milestones-timeline';
 import { ChatThread } from '@/components/study-workspace/chat-thread';
 import { AskBiome } from '@/components/agent/ask-biome';
+import { TranslateBar, useTranslation } from '@/components/translate/translate-bar';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -122,6 +123,57 @@ function buildKitSteps(kit: SampleKit): KitStep[] {
   }
 
   return steps;
+}
+
+// ── About this study (translatable title + description) ──────────────────────
+
+function AboutStudy({ title, description }: { title: string; description: string }) {
+  // Title and description travel together so the API translates them as one
+  // document; the first paragraph of the result is the translated title.
+  const t = useTranslation(`${title}\n\n${description}`, 'study');
+
+  let shownTitle = title;
+  let shownBody = description;
+  if (t.active !== 'en' && t.translated) {
+    const idx = t.translated.indexOf('\n\n');
+    if (idx > 0) {
+      shownTitle = t.translated.slice(0, idx).trim();
+      shownBody = t.translated.slice(idx + 2).trim();
+    } else {
+      shownBody = t.translated;
+    }
+  }
+
+  return (
+    <DashCard>
+      <CardLabel>About This Study</CardLabel>
+      <div style={{ padding: '20px 24px' }}>
+        <div style={{ marginBottom: 14 }}>
+          <TranslateBar active={t.active} loading={t.loading} error={t.error} onSelect={t.select} />
+        </div>
+        <div style={{
+          fontFamily:   'var(--font-body)',
+          fontSize:     15,
+          fontWeight:   600,
+          color:        'var(--ink)',
+          marginBottom: 8,
+        }}>
+          {shownTitle}
+        </div>
+        {shownBody.split(/\n\s*\n/).map((para, i) => (
+          <p key={i} style={{
+            fontFamily: 'var(--font-body)',
+            fontSize:   14,
+            color:      'var(--slate)',
+            lineHeight: 1.6,
+            margin:     i === 0 ? 0 : '10px 0 0',
+          }}>
+            {para}
+          </p>
+        ))}
+      </div>
+    </DashCard>
+  );
 }
 
 // ── Page component ────────────────────────────────────────────────────────────
@@ -434,6 +486,11 @@ export default function StudyWorkspacePage() {
             }} />
           </div>
         </DashCard>
+
+        {/* ── About this study (translatable) ── */}
+        {exp.description && (
+          <AboutStudy title={exp.title} description={exp.description} />
+        )}
 
         {/* ── Needs attention (filtered to this study) ── */}
         {user && (
