@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AgentChat } from '@/components/agent/agent-chat';
+import { TranslateBar, useTranslation } from '@/components/translate/translate-bar';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -107,6 +108,20 @@ export function ConsentFlow({
   const [enrolledResult, setEnrolledResult] = useState<AffirmResult | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Translation of the ICF document itself (quiz + affirmation stay English —
+  // the English document is the authoritative version participants agree to).
+  const icfSource = data && data.ready && data.icf ? data.icf.html : '';
+  const t = useTranslation(icfSource, 'icf');
+
+  // When the displayed language changes the rendered document changes height;
+  // re-check the scroll position so the read-to-end gate behaves identically
+  // in every language (scrolledToEnd stays sticky once reached).
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 24) setScrolledToEnd(true);
+  }, [t.active, t.translated]);
 
   const load = useCallback(async () => {
     try {
@@ -257,6 +272,16 @@ export function ConsentFlow({
               </div>
             </div>
 
+            <div style={{ marginTop: 14 }}>
+              <TranslateBar
+                active={t.active}
+                loading={t.loading}
+                error={t.error}
+                onSelect={t.select}
+                showFidelityNote
+              />
+            </div>
+
             <div
               ref={scrollRef}
               onScroll={handleScroll}
@@ -273,7 +298,7 @@ export function ConsentFlow({
                 lineHeight: 1.6,
                 color: 'var(--slate)',
               }}
-              dangerouslySetInnerHTML={{ __html: icf.html }}
+              dangerouslySetInnerHTML={{ __html: t.active !== 'en' && t.translated ? t.translated : icf.html }}
             />
 
             {!scrolledToEnd && (
