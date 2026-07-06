@@ -150,13 +150,22 @@ export default function MyExperimentsPage() {
               </Link>
             </div>
           </div>
-          <Link
-            href="/post"
-            className="no-underline transition-opacity hover:opacity-90"
-            style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '10px 18px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff' }}
-          >
-            + Post new study
-          </Link>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <Link
+              href="/ome"
+              className="no-underline transition-opacity hover:opacity-90"
+              style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '10px 18px', borderRadius: 'var(--radius-sm)', background: 'var(--teal-faint)', border: '1px solid var(--teal-soft)', color: 'var(--teal-dark)' }}
+            >
+              Ask OME →
+            </Link>
+            <Link
+              href="/post"
+              className="no-underline transition-opacity hover:opacity-90"
+              style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, padding: '10px 18px', borderRadius: 'var(--radius-sm)', background: 'var(--teal)', color: '#ffffff' }}
+            >
+              + Post new study
+            </Link>
+          </div>
         </div>
 
         {/* Stats strip */}
