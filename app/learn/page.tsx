@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { SiteHeader } from '@/components/nav/header';
+import { TranslateBar, useTranslation } from '@/components/translate/translate-bar';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -135,6 +136,9 @@ function ModuleView({
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SubmitResponse | null>(null);
 
+  // Lesson translation — the comprehension check below stays English.
+  const t = useTranslation(mod.lesson, 'lesson');
+
   const allAnswered = answers.every((a) => a !== null);
 
   async function submit() {
@@ -160,7 +164,11 @@ function ModuleView({
 
   return (
     <div style={{ padding: '4px 0 4px' }}>
-      <Markdown text={mod.lesson} />
+      <div style={{ marginBottom: 14 }}>
+        <TranslateBar active={t.active} loading={t.loading} error={t.error} onSelect={t.select} />
+      </div>
+
+      <Markdown text={t.active !== 'en' && t.translated ? t.translated : mod.lesson} />
 
       <div
         style={{
