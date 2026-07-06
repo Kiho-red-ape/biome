@@ -9,6 +9,7 @@ import type { Question, QAComment } from '@/components/qa/qa-section';
 import { DraftBanner } from '@/components/experiments/draft-banner';
 import { ExperimentIdenticon } from '@/components/ui/experiment-identicon';
 import { ExperimentCTA } from './experiment-cta';
+import { AskBiome } from '@/components/agent/ask-biome';
 
 // ─── Collection summary helpers ───────────────────────────────────────────────
 
@@ -498,6 +499,11 @@ export default async function ExperimentPage({ params }: Props) {
             )}
           </div>
         </SectionCard>
+
+        {/* ── Ask BIOME (study agent room — plain-language explainer) ── */}
+        <div style={{ margin: '0 0 16px' }}>
+          <AskBiome experimentId={exp.id} studyTitle={exp.title} />
+        </div>
 
         {/* ── Protocol ── */}
         {milestones.length > 0 && (

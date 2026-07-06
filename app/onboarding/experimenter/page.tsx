@@ -155,6 +155,13 @@ function ExperimenterOnboardingInner() {
       return;
     }
 
+    // The account just became an org — clear the header's cached role so the
+    // researcher menu appears immediately, not after the cache expires.
+    try {
+      Object.keys(window.sessionStorage)
+        .filter((k) => k.startsWith('biome_navprofile_'))
+        .forEach((k) => window.sessionStorage.removeItem(k));
+    } catch { /* no-op */ }
     setSubmitted(data.profile!);
     setLoading(false);
   }

@@ -37,6 +37,40 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `${stage} mode requires experimentId` }, { status: 400 });
   }
 
+  // Study room: in screen/consent/support with a study, load the study's actual
+  // contents so the agent can explain them in plain language.
+  let extraSystemContext: string | undefined;
+  if (experimentId && (stage === 'support' || stage === 'screen' || stage === 'consent')) {
+    const db = createServiceClient();
+    const [{ data: exp }, { data: ms }] = await Promise.all([
+      db.from('experiments')
+        .select('title, description, category, duration_weeks, is_remote, region, inclusion_criteria, exclusion_criteria, tests_needed, compliance_threshold')
+        .eq('id', experimentId).maybeSingle(),
+      db.from('study_milestones')
+        .select('week_number, title, milestone_type')
+        .eq('experiment_id', experimentId)
+        .order('week_number').limit(30),
+    ]);
+    if (exp) {
+      const e = exp as Record<string, unknown>;
+      const milestones = ((ms ?? []) as Array<{ week_number: number; title: string; milestone_type: string }>)
+        .map((m) => `wk${m.week_number}: ${m.title} (${m.milestone_type === 'self_report' ? 'you report' : 'researcher confirms'})`)
+        .join('; ');
+      extraSystemContext =
+        `This conversation is about the study "${e.title}" (${e.category}). Your job is to help the ` +
+        `participant genuinely UNDERSTAND it — explain anything below in warm, simple, everyday ` +
+        `language (short sentences, no jargon; define any technical term you must use).\n` +
+        `Duration: ${e.duration_weeks ?? '—'} weeks · ${e.is_remote ? 'Remote' : (e.region ?? 'In-person')}\n` +
+        `Description: ${e.description ?? '—'}\n` +
+        (e.inclusion_criteria ? `Who can join: ${e.inclusion_criteria}\n` : '') +
+        (e.exclusion_criteria ? `Who cannot join: ${e.exclusion_criteria}\n` : '') +
+        (e.tests_needed ? `Samples/tests involved: ${e.tests_needed}\n` : '') +
+        (milestones ? `Milestones: ${milestones}\n` : '') +
+        `Compliance threshold: ${e.compliance_threshold ?? 80}% of milestones. ` +
+        `Only discuss THIS study's contents and general participation questions; anything medical or personal → flag for a human.`;
+    }
+  }
+
   let result;
   try {
     result = await runAgentTurn({
@@ -44,6 +78,7 @@ export async function POST(req: NextRequest) {
       mode:          stage,
       userMessage:   message,
       experimentId:  experimentId ?? null,
+      extraSystemContext,
     });
   } catch (err) {
     console.error('[agent/converse]', err);

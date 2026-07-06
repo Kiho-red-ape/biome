@@ -48,9 +48,16 @@ export function SiteHeader() {
 
   useEffect(() => {
     if (!authenticated || !user) { setNavProfile(null); return; }
-    const cacheKey = `biome_navprofile_v3_${user.id}`;
-    const cached = sessionStorage.getItem(cacheKey);
-    if (cached) { setNavProfile(JSON.parse(cached) as NavProfile); return; }
+    // Short-TTL cache: a role can appear mid-session (org created via invite);
+    // a stale cache used to hide the researcher menu until a new browser session.
+    const cacheKey = `biome_navprofile_v4_${user.id}`;
+    try {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        const { at, value } = JSON.parse(cached) as { at: number; value: NavProfile };
+        if (value && Date.now() - at < 120_000) { setNavProfile(value); return; }
+      }
+    } catch { /* fall through to fetch */ }
 
     // An account is EITHER an org (researcher) OR a participant — never both.
     // Org is the deliberate, invite-only role, so it takes precedence.
@@ -68,7 +75,7 @@ export function SiteHeader() {
         result = { participant: { pseudonym: pData.profile.pseudonym, participantId: pData.profile.participant_id } };
       }
       setNavProfile(result);
-      if (result) sessionStorage.setItem(cacheKey, JSON.stringify(result));
+      if (result) sessionStorage.setItem(cacheKey, JSON.stringify({ at: Date.now(), value: result }));
     }).catch(() => {});
   }, [authenticated, user]);
 

@@ -10,6 +10,7 @@ import { NeedsAttention } from '@/components/dashboard/needs-attention';
 import { DocumentsCenter } from '@/components/dashboard/documents-center';
 import { MilestonesTimeline } from '@/components/study-workspace/milestones-timeline';
 import { ChatThread } from '@/components/study-workspace/chat-thread';
+import { AskBiome } from '@/components/agent/ask-biome';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -438,6 +439,11 @@ export default function StudyWorkspacePage() {
         {user && (
           <NeedsAttention privyDid={user.id} filterStudyId={experimentId} />
         )}
+
+        {/* ── Ask BIOME — plain-language study explainer ── */}
+        <div style={{ margin: '0 0 16px' }}>
+          <AskBiome experimentId={experimentId} studyTitle={data?.experiment.title} />
+        </div>
 
         {/* ── Milestones ── */}
         <DashCard>
