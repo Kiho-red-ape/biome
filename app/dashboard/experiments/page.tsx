@@ -53,8 +53,15 @@ export default function MyExperimentsPage() {
     async function load() {
       try {
         const epRes  = await fetch(`/api/experimenter-profile?privyDid=${encodeURIComponent(user!.id)}`);
-        const epData = (await epRes.json()) as { profile?: { id: string; screening_status: string } | null };
+        const epData = (await epRes.json()) as { profile?: { id: string; screening_status: string } | null; error?: string };
 
+        // A server error is NOT "no org" — surface it instead of silently
+        // bouncing the user away (this masked schema-drift failures).
+        if (!epRes.ok || epData.error) {
+          setError(`Could not load your organization: ${epData.error ?? `HTTP ${epRes.status}`}`);
+          setLoading(false);
+          return;
+        }
         // Org access is invitation-only — a non-org account can't self-onboard here.
         if (!epData.profile) { router.replace('/dashboard'); return; }
         setOrgId(epData.profile.id);

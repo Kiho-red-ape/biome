@@ -23,9 +23,12 @@ export async function GET(request: NextRequest) {
   if (!privyDid) return NextResponse.json({ error: 'privyDid required' }, { status: 400 });
 
   const supabase = createServiceClient();
+  // select('*') on purpose: naming columns makes this read fail entirely when
+  // the live DB is missing one (schema drift) — which cascaded into "no org
+  // anywhere" for accounts whose org row existed.
   const { data, error } = await supabase
     .from('experimenter_profiles')
-    .select('id, user_id, org_name, org_website, org_description, role_title, expertise_areas, screening_status, screened_at, screened_by, experiments_posted, verified_experiments, free_study_used, created_at, updated_at')
+    .select('*')
     .eq('user_id', privyDid)
     .single();
 

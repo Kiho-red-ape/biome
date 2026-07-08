@@ -13,8 +13,9 @@ export async function GET(req: NextRequest) {
   if (!resolved) return NextResponse.json({ org: null });
 
   const [{ data: org }, { data: members }, { count: studyCount }] = await Promise.all([
+    // select('*'): drift-proof — a missing optional column must not kill the read.
     db.from('experimenter_profiles')
-      .select('id, org_name, org_website, org_description, screening_status, review_status, experiments_posted')
+      .select('*')
       .eq('id', resolved.orgId).maybeSingle(),
     db.from('org_members')
       .select('id, email, role, status, user_id, invited_at, accepted_at')
