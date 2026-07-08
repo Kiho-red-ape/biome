@@ -54,8 +54,10 @@ export async function BlogPreview() {
               href={`/blog/${post.slug}`}
               style={{ display: 'block', textDecoration: 'none' }}
             >
+              {/* CSS hover (blog-preview-card): server components cannot pass
+                  event handlers — JS hover here broke the "/" prerender. */}
               <div
-                className="brutalist-card"
+                className="brutalist-card blog-preview-card"
                 style={{
                   display:    'flex',
                   justifyContent: 'space-between',
@@ -63,14 +65,6 @@ export async function BlogPreview() {
                   gap:        24,
                   flexWrap:   'wrap',
                   transition: 'box-shadow 150ms ease, transform 150ms ease',
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow-md)';
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLDivElement).style.transform = 'none';
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow-sm)';
                 }}
               >
                 <div style={{ flex: 1 }}>
