@@ -776,7 +776,7 @@ export default function DashboardPage() {
               <div style={{ fontFamily: 'var(--font-body)', fontSize: 16, fontWeight: 600, color: 'var(--ink)', marginBottom: 12 }}>
                 No applications yet
               </div>
-              <Link href="/" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-flex' }}>
+              <Link href="/experiments" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-flex' }}>
                 Browse Open Studies →
               </Link>
             </div>

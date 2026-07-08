@@ -37,10 +37,21 @@ export async function GET(req: NextRequest) {
   }
 
   const filePath = `${privyDid}/${crypto.randomUUID()}.${ext}`;
-  const { data, error } = await db.storage.from(BUCKET).createSignedUploadUrl(filePath, { upsert: false });
+  let { data, error } = await db.storage.from(BUCKET).createSignedUploadUrl(filePath, { upsert: false });
+
+  // Self-heal: create the private bucket on first use if it doesn't exist yet.
+  if (error) {
+    await db.storage.createBucket(BUCKET, {
+      public: false,
+      fileSizeLimit: 26_214_400, // 25 MB
+      allowedMimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
+    }).catch(() => undefined);
+    ({ data, error } = await db.storage.from(BUCKET).createSignedUploadUrl(filePath, { upsert: false }));
+  }
+
   if (error || !data) {
     console.error('[data-hub/upload-url]', error);
-    return NextResponse.json({ error: 'Could not generate upload URL' }, { status: 500 });
+    return NextResponse.json({ error: `Could not generate upload URL${error?.message ? ` — ${error.message}` : ''}` }, { status: 500 });
   }
 
   return NextResponse.json({ signedUrl: data.signedUrl, filePath, token: data.token });

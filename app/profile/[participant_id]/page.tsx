@@ -243,7 +243,7 @@ export default async function PublicProfilePage({
                 <p style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, color: 'var(--ink)', marginBottom: 16 }}>
                   No studies yet.
                 </p>
-                <Link href="/" className="btn-primary">
+                <Link href="/experiments" className="btn-primary">
                   Browse open studies →
                 </Link>
               </div>
