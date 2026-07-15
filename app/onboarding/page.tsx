@@ -1,241 +1,296 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+export const dynamic = 'force-dynamic';
+
+import { useState, useCallback, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
+import { Suspense } from 'react';
 
-type Role = 'experimenter' | 'participant' | 'both';
-
-const ROLES: { value: Role; label: string; description: string }[] = [
-  {
-    value: 'participant',
-    label: 'Participant',
-    description: 'I want to join experiments and earn bounties.',
-  },
-  {
-    value: 'experimenter',
-    label: 'Experimenter',
-    description: 'I run experiments and need participants.',
-  },
-  {
-    value: 'both',
-    label: 'Both',
-    description: 'I do both — participate and run experiments.',
-  },
-];
-
-export default function OnboardingPage() {
+function OnboardingInner() {
   const router = useRouter();
-  const { user, ready, authenticated } = usePrivy();
+  const searchParams = useSearchParams();
+  const { user, ready, authenticated, login } = usePrivy();
 
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const roleParam = searchParams.get('role'); // 'participant' | 'researcher'
+
   const [region, setRegion] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<Role | null>(null); // role after success
+  const [checking, setChecking] = useState(true);
 
-  if (!ready) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <span className="mono text-sm" style={{ color: 'var(--text-dim)' }}>
-          // LOADING...
-        </span>
-      </div>
-    );
-  }
+  const preselectedRole = roleParam === 'participant' ? 'participant' :
+                          roleParam === 'researcher'  ? 'experimenter' : null;
 
-  if (!authenticated || !user) {
-    router.replace('/');
-    return null;
-  }
+  // If the user already has a completed profile, send them to the right home —
+  // never back into an onboarding form. Runs even with a ?role= preselect.
+  const routeExisting = useCallback(async (privyDid: string): Promise<boolean> => {
+    try {
+      const [pRes, eRes] = await Promise.all([
+        fetch(`/api/participant-profile?privyDid=${encodeURIComponent(privyDid)}`).then(r => r.json()).catch(() => ({})),
+        fetch(`/api/experimenter-profile?privyDid=${encodeURIComponent(privyDid)}`).then(r => r.json()).catch(() => ({})),
+      ]);
+      if (pRes?.profile) { router.replace('/dashboard'); return true; }
+      if (eRes?.profile) { router.replace('/dashboard/experiments'); return true; }
+    } catch { /* fall through to onboarding */ }
+    return false;
+  }, [router]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!selectedRole || !user) return;
+  useEffect(() => {
+    if (!ready) return;
+    if (!authenticated || !user) { setChecking(false); return; }
+    void routeExisting(user.id).then((routed) => { if (!routed) setChecking(false); });
+  }, [ready, authenticated, user, routeExisting]);
 
+  async function handleSubmit(role: 'participant' | 'experimenter') {
+    if (!user) return;
     setLoading(true);
     setError(null);
 
-    const walletAddress =
-      user.wallet?.address ?? null;
-    const authType = user.wallet ? 'wallet' : 'email';
-    const email = user.email?.address ?? null;
+    const walletAddress = user.wallet?.address ?? null;
+    const authType      = user.wallet ? 'wallet' : 'email';
+    const email         = user.email?.address ?? null;
 
     try {
       const res = await fetch('/api/profile', {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           privyDid: user.id,
           authType,
           walletAddress,
-          role: selectedRole,
+          role,
           region: region.trim() || null,
           email,
         }),
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await res.json() as { error?: string };
         throw new Error(data.error ?? 'Failed to create profile');
       }
 
-      // Show success panel — user picks their next step
-      setDone(selectedRole);
+      if (role === 'participant') {
+        router.replace('/onboarding/participant');
+      } else {
+        router.replace('/onboarding/experimenter');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
-    } finally {
       setLoading(false);
     }
   }
 
-  // ── Success panel ───────────────────────────────────────────────────────────
-  if (done) {
+  if (!ready || (authenticated && checking)) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4 py-16">
-        <div className="w-full max-w-lg rounded p-px" style={{ background: 'var(--green-dim)' }}>
-          <div className="rounded p-8 flex flex-col gap-5" style={{ background: 'var(--bg2)' }}>
-            <p className="mono text-xs" style={{ color: 'var(--green)' }}>// PROFILE_CREATED</p>
-            <h2 className="text-xl font-black" style={{ color: 'var(--text-white)', fontFamily: 'var(--font-heading)' }}>
-              Basic profile created. Complete your setup.
-            </h2>
-            <p className="text-sm" style={{ color: 'var(--text-dim)' }}>
-              Choose what to set up next. You can do both if you selected &ldquo;Both&rdquo;.
-            </p>
-            <div className="flex flex-col gap-3 pt-1">
-              {(done === 'participant' || done === 'both') && (
-                <Link
-                  href="/onboarding/participant"
-                  className="w-full py-3 rounded font-semibold text-sm text-center mono no-underline transition-all hover:opacity-90"
-                  style={{ background: 'var(--green)', color: '#050709' }}
-                >
-                  Set up participant identity →
-                </Link>
-              )}
-              {(done === 'experimenter' || done === 'both') && (
-                <Link
-                  href="/onboarding/experimenter"
-                  className="w-full py-3 rounded font-semibold text-sm text-center mono no-underline transition-all hover:opacity-90"
-                  style={{ background: done === 'experimenter' ? 'var(--green)' : 'transparent', color: done === 'experimenter' ? '#050709' : 'var(--green)', border: done === 'both' ? '1px solid var(--green-dim)' : 'none' }}
-                >
-                  Set up organization profile →
-                </Link>
-              )}
-              <button
-                onClick={() => router.push('/')}
-                className="w-full py-2.5 rounded text-sm mono transition-all hover:opacity-70"
-                style={{ color: 'var(--text-dim)', border: '1px solid rgba(77,255,128,0.1)' }}
-              >
-                Skip — explore BIOME first
-              </button>
-            </div>
-          </div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-page)' }}>
+        <span className="text-sm" style={{ color: 'var(--muted)' }}>Loading…</span>
+      </div>
+    );
+  }
+
+  // ── Not authenticated — show sign-in prompt ────────────────────────────────
+  if (!authenticated) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: 'var(--bg-page)' }}>
+        <div
+          className="w-full text-center"
+          style={{
+            maxWidth:     420,
+            background:   'var(--surface)',
+            border:       '1px solid var(--border-soft)',
+            borderRadius: 'var(--radius)',
+            boxShadow:    'var(--shadow-sm)',
+            padding:      '40px 32px',
+          }}
+        >
+          <span className="section-label">Sign in required</span>
+          <h1 style={{ fontSize: 24, marginBottom: 12 }}>
+            {preselectedRole === 'participant' ? 'Join as a research partner' :
+             preselectedRole === 'experimenter' ? 'Register as a researcher' :
+             'Sign in to continue'}
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--slate)', lineHeight: 1.65, marginBottom: 28 }}>
+            {preselectedRole === 'participant'
+              ? 'Create your account to join research studies and receive compensation.'
+              : preselectedRole === 'experimenter'
+              ? 'Create your account to start running studies on Biome.'
+              : 'Sign in or create an account to get started.'}
+          </p>
+          <button onClick={login} className="btn-primary w-full">
+            Sign in / Create account →
+          </button>
         </div>
       </main>
     );
   }
 
-  return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-16">
-      <div className="w-full max-w-lg corner-bracket p-px rounded" style={{ background: 'var(--green-dim)' }}>
-        <div className="rounded p-8" style={{ background: 'var(--bg2)' }}>
-
-          {/* Header */}
-          <p className="mono text-xs mb-6" style={{ color: 'var(--text-dim)' }}>
-            // ONBOARDING
+  // ── Researcher/org path is invitation-only ─────────────────────────────────
+  if (preselectedRole === 'experimenter') {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: 'var(--bg-page)' }}>
+        <div className="w-full text-center" style={{ maxWidth: 460, background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)', padding: '40px 32px' }}>
+          <span className="section-label">Organizations</span>
+          <h1 style={{ fontSize: 22, marginBottom: 12 }}>Organization access is by invitation</h1>
+          <p className="text-sm" style={{ color: 'var(--slate)', lineHeight: 1.65, marginBottom: 24 }}>
+            Running studies on BIOME is set up by our team. Tell us about your study and we&apos;ll send you a private link to create your organization.
           </p>
-          <h1 className="text-2xl mb-2" style={{ color: 'var(--text-white)' }}>
-            Welcome to BIOME
-          </h1>
-          <p className="text-sm mb-8" style={{ color: 'var(--text-dim)' }}>
-            Set up your profile to get started.
+          <button onClick={() => router.replace('/run-a-study')} className="btn-primary w-full">
+            Talk to our team →
+          </button>
+          <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 16 }}>
+            Already invited? Open the link from your email to get started.
           </p>
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-
-            {/* Region */}
-            <div>
-              <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>
-                REGION (optional)
-              </label>
-              <input
-                type="text"
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                placeholder="e.g. United States, Remote"
-                maxLength={64}
-                className="w-full px-4 py-2 rounded text-sm outline-none"
-                style={{
-                  background: 'var(--bg3)',
-                  border: '1px solid rgba(77,255,128,0.15)',
-                  color: 'var(--text-bright)',
-                }}
-              />
-            </div>
-
-            {/* Role selection */}
-            <div>
-              <label className="mono text-xs block mb-3" style={{ color: 'var(--text-dim)' }}>
-                I AM A... *
-              </label>
-              <div className="flex flex-col gap-3">
-                {ROLES.map((r) => (
-                  <button
-                    key={r.value}
-                    type="button"
-                    onClick={() => setSelectedRole(r.value)}
-                    className="biome-card rounded p-4 text-left transition-all"
-                    style={{
-                      borderTopColor: selectedRole === r.value ? 'var(--green)' : undefined,
-                      background: selectedRole === r.value ? 'var(--bg3)' : undefined,
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className="w-3 h-3 rounded-full border-2 flex-shrink-0"
-                        style={{
-                          borderColor: selectedRole === r.value ? 'var(--green)' : 'var(--text-dim)',
-                          background: selectedRole === r.value ? 'var(--green)' : 'transparent',
-                        }}
-                      />
-                      <div>
-                        <p className="text-sm font-semibold" style={{ color: 'var(--text-white)' }}>
-                          {r.label}
-                        </p>
-                        <p className="text-xs mt-0.5" style={{ color: 'var(--text-dim)' }}>
-                          {r.description}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Error */}
-            {error && (
-              <p className="text-xs mono" style={{ color: 'var(--amber)' }}>
-                // ERROR: {error}
-              </p>
-            )}
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={!selectedRole || loading}
-              className="w-full py-3 rounded font-semibold text-sm transition-all disabled:opacity-40"
-              style={{
-                background: 'var(--green)',
-                color: '#050709',
-              }}
-            >
-              {loading ? 'Creating profile...' : 'Enter BIOME →'}
-            </button>
-
-          </form>
         </div>
+      </main>
+    );
+  }
+
+  // ── Role pre-selected via URL param — show region input + confirm ──────────
+  if (preselectedRole) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: 'var(--bg-page)' }}>
+        <div
+          className="w-full max-w-md flex flex-col gap-6"
+          style={{
+            background:   'var(--surface)',
+            border:       '1px solid var(--border-soft)',
+            borderRadius: 'var(--radius)',
+            boxShadow:    'var(--shadow-sm)',
+            padding:      36,
+          }}
+        >
+          <div>
+            <span className="section-label">Onboarding</span>
+            <h1 style={{ fontSize: 22 }}>
+              {preselectedRole === 'participant' ? 'Join as a research partner' : 'Register as a researcher'}
+            </h1>
+            <p className="text-sm mt-2" style={{ color: 'var(--slate)' }}>
+              {preselectedRole === 'participant'
+                ? 'Contribute to real studies. Receive fair compensation.'
+                : 'Run self-directed studies with our recruitment and logistics platform.'}
+            </p>
+          </div>
+
+          <div>
+            <label
+              className="text-sm font-medium block mb-2"
+              style={{ color: 'var(--ink)' }}
+            >
+              Region <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(optional)</span>
+            </label>
+            <input
+              type="text"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              placeholder="e.g. United States"
+              maxLength={64}
+            />
+          </div>
+
+          {error && (
+            <p className="text-sm" style={{ color: 'var(--error)' }}>{error}</p>
+          )}
+
+          <button
+            onClick={() => void handleSubmit(preselectedRole)}
+            disabled={loading}
+            className="btn-primary w-full disabled:opacity-40"
+          >
+            {loading ? 'Setting up…' : 'Continue →'}
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  // ── No role param — two-card selection ────────────────────────────────────
+  return (
+    <main className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: 'var(--bg-page)' }}>
+      <div className="w-full max-w-lg">
+        <div className="text-center mb-10">
+          <span className="section-label">Onboarding</span>
+          <h1 style={{ fontSize: 28, marginBottom: 8 }}>Welcome to BIOME</h1>
+          <p className="text-sm" style={{ color: 'var(--slate)' }}>
+            How do you want to use BIOME?
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          {/* Research partner card */}
+          <button
+            type="button"
+            onClick={() => void handleSubmit('participant')}
+            disabled={loading}
+            className="text-left w-full disabled:opacity-40"
+            style={{
+              background:   'var(--surface)',
+              border:       '1px solid var(--border-soft)',
+              borderRadius: 'var(--radius)',
+              boxShadow:    'var(--shadow-sm)',
+              padding:      24,
+              cursor:       'pointer',
+              transition:   'border-color 150ms ease, box-shadow 150ms ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--teal)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-soft)'; e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; }}
+          >
+            <p className="text-base font-semibold mb-1" style={{ color: 'var(--ink)' }}>
+              Join as a research partner
+            </p>
+            <p className="text-sm" style={{ color: 'var(--slate)' }}>
+              Contribute to real studies from home. Receive fair compensation.
+            </p>
+            <p className="text-sm font-semibold mt-3" style={{ color: 'var(--teal)' }}>
+              Research partner →
+            </p>
+          </button>
+
+          {/* Running a study is invitation-only — point them to the intake, not self-serve */}
+          <div
+            style={{
+              background:   'var(--bg-page)',
+              border:       '1px dashed var(--border-mid)',
+              borderRadius: 'var(--radius)',
+              padding:      24,
+            }}
+          >
+            <p className="text-base font-semibold mb-1" style={{ color: 'var(--ink)' }}>
+              Running a study?
+            </p>
+            <p className="text-sm" style={{ color: 'var(--slate)' }}>
+              Organizations are onboarded by our team. Tell us about your study and we&apos;ll send you a private setup link.
+            </p>
+            <button
+              type="button"
+              onClick={() => router.push('/run-a-study')}
+              className="text-sm font-semibold mt-3"
+              style={{ color: 'var(--teal)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+            >
+              Talk to our team →
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <p className="text-sm mt-6 text-center" style={{ color: 'var(--error)' }}>{error}</p>
+        )}
+        {loading && (
+          <p className="text-sm mt-6 text-center" style={{ color: 'var(--muted)' }}>Creating profile…</p>
+        )}
       </div>
     </main>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-page)' }}>
+        <span className="text-sm" style={{ color: 'var(--muted)' }}>Loading…</span>
+      </div>
+    }>
+      <OnboardingInner />
+    </Suspense>
   );
 }

@@ -200,7 +200,7 @@ export function ExperimenterPayoutPanel({
                 onClick={handleProcessPayouts}
                 disabled={processing}
                 className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-50"
-                style={{ background: 'var(--green)', color: '#050709' }}
+                style={{ background: 'var(--green)', color: '#060a14' }}
               >
                 {processing ? 'Processing...' : `Process ${pend} payout${pend !== 1 ? 's' : ''} →`}
               </button>

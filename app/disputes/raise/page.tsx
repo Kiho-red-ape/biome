@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
@@ -94,8 +96,8 @@ function RaiseDisputeForm() {
         <div
           className="rounded p-3 mb-5 flex items-center gap-2"
           style={{
-            background: daysLeft <= 2 ? 'rgba(255,179,0,0.06)' : 'rgba(183,255,97,0.04)',
-            border: `1px solid ${daysLeft <= 2 ? 'rgba(255,179,0,0.25)' : 'rgba(183,255,97,0.15)'}`,
+            background: daysLeft <= 2 ? 'rgba(255,179,0,0.06)' : 'rgba(245,158,11,0.04)',
+            border: `1px solid ${daysLeft <= 2 ? 'rgba(255,179,0,0.25)' : 'rgba(245,158,11,0.15)'}`,
           }}
         >
           <span className="mono text-xs" style={{ color: daysLeft <= 2 ? 'var(--amber)' : 'var(--green)' }}>
@@ -112,8 +114,8 @@ function RaiseDisputeForm() {
         <div
           className="rounded p-3 mb-5"
           style={{
-            background: freeLeft > 0 ? 'rgba(183,255,97,0.03)' : 'rgba(255,179,0,0.04)',
-            border: `1px solid ${freeLeft > 0 ? 'rgba(183,255,97,0.12)' : 'rgba(255,179,0,0.2)'}`,
+            background: freeLeft > 0 ? 'rgba(245,158,11,0.03)' : 'rgba(255,179,0,0.04)',
+            border: `1px solid ${freeLeft > 0 ? 'rgba(245,158,11,0.12)' : 'rgba(255,179,0,0.2)'}`,
           }}
         >
           <p className="mono text-xs" style={{ color: freeLeft > 0 ? 'var(--text-dim)' : 'var(--amber)' }}>
@@ -145,7 +147,7 @@ function RaiseDisputeForm() {
           <select
             value={category} onChange={(e) => setCategory(e.target.value)}
             className="w-full rounded px-3 py-2 mono text-xs outline-none"
-            style={{ background: 'var(--bg2)', border: '1px solid rgba(183,255,97,0.12)', color: 'var(--text-bright)' }}
+            style={{ background: 'var(--bg2)', border: '1px solid rgba(245,158,11,0.12)', color: 'var(--text-bright)' }}
           >
             {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
@@ -161,7 +163,7 @@ function RaiseDisputeForm() {
             required minLength={5} maxLength={200}
             placeholder="Brief summary of the dispute..."
             className="w-full rounded px-3 py-2 mono text-xs outline-none"
-            style={{ background: 'var(--bg2)', border: '1px solid rgba(183,255,97,0.12)', color: 'var(--text-bright)' }}
+            style={{ background: 'var(--bg2)', border: '1px solid rgba(245,158,11,0.12)', color: 'var(--text-bright)' }}
           />
         </div>
 
@@ -175,7 +177,7 @@ function RaiseDisputeForm() {
             required minLength={50} maxLength={2000} rows={6}
             placeholder="Explain your dispute in detail. Include relevant dates, evidence, and context..."
             className="w-full rounded px-3 py-2 mono text-xs outline-none resize-none"
-            style={{ background: 'var(--bg2)', border: '1px solid rgba(183,255,97,0.12)', color: 'var(--text-bright)' }}
+            style={{ background: 'var(--bg2)', border: '1px solid rgba(245,158,11,0.12)', color: 'var(--text-bright)' }}
           />
           <p className="mono text-xs mt-1" style={{ color: description.length >= 50 ? 'var(--green)' : 'var(--text-dim)' }}>
             {description.length}/2000 {description.length < 50 && `(${50 - description.length} more to go)`}
@@ -208,7 +210,7 @@ export default function RaiseDisputePage() {
           <RaiseDisputeForm />
         </Suspense>
       </div>
-      <footer className="text-center py-4 mono text-xs" style={{ color: 'var(--text-dim)', borderTop: '1px solid rgba(183,255,97,0.06)' }}>
+      <footer className="text-center py-4 mono text-xs" style={{ color: 'var(--text-dim)', borderTop: '1px solid rgba(245,158,11,0.06)' }}>
         // BIOME_PROTOCOL — disputes governed by platform ToS
       </footer>
     </main>

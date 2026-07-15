@@ -2,8 +2,8 @@
 // Server-compatible — no hooks, pure computation → SVG.
 // Same participant_id always produces the same visual.
 
-const ACCENTS = ['#4dff80', '#00e5ff', '#ffb300', '#1f8c3b'] as const;
-const BG = '#0b120b'; // --bg2
+const ACCENTS = ['#0e7490', '#155e75', '#0284c7', '#475569'] as const;
+const BG = '#e0f2f7'; // teal-soft
 
 function hash(s: string): number[] {
   let h = 5381;
@@ -55,10 +55,10 @@ export function Identicon({ participantId, size = 48, className }: IdenticonProp
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       className={className}
-      style={{ display: 'block', flexShrink: 0, borderRadius: 4 }}
+      style={{ display: 'block', flexShrink: 0 }}
       aria-hidden="true"
     >
-      <rect width={size} height={size} fill={BG} rx="4" />
+      <rect width={size} height={size} fill={BG} />
       {cells.map(([r, c]) => (
         <rect
           key={`${r}-${c}`}
@@ -67,7 +67,6 @@ export function Identicon({ participantId, size = 48, className }: IdenticonProp
           width={cell - 1}
           height={cell - 1}
           fill={color}
-          rx="1"
         />
       ))}
     </svg>

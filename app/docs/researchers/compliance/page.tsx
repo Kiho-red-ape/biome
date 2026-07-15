@@ -6,72 +6,93 @@ import {
 export default function ResearcherCompliancePage() {
   return (
     <article>
-      <DocLabel text="RESEARCHERS" />
-      <DocH1>Compliance and verification</DocH1>
+      <DocLabel text="Researchers" />
+      <DocH1>Compliance and reporting</DocH1>
       <DocLead>
-        Once your study is active, you track participant progress, verify milestone submissions, and
-        manage payout eligibility from your compliance view.
+        Once your study is active, you track progress, verify milestone submissions, and manage
+        compensation eligibility from your compliance view. At study close, you release payouts and
+        export the complete compliance record.
       </DocLead>
 
-      <DocH2>Tracking participant compliance</DocH2>
+      <DocH2>Tracking compliance</DocH2>
       <DocP>
-        Once your study is active, the compliance view shows each enrolled participant&apos;s progress:
+        The compliance view shows each enrolled research partner&apos;s progress:
       </DocP>
       <DocUL items={[
-        'Compliance percentage (verified milestones / total milestones)',
+        'Compliance score (verified milestones out of total milestones)',
         'Milestone breakdown (completed, pending, submitted, overdue, missed)',
+        'Sample-kit status and chain-of-custody position, where applicable',
         'Current study week',
+        'Dropout-risk flag, if engagement signals suggest someone may not complete',
       ]} />
 
       <DocH2>Verifying milestones</DocH2>
       <DocP>
-        The pending verifications queue shows all milestones that participants have submitted and are
-        awaiting your review. For each submission:
+        The pending verifications queue shows all milestones that research partners have submitted
+        and are awaiting your review. For each submission:
       </DocP>
       <DocUL items={[
-        'Review the participant\'s submission',
+        'Review the submission',
         'Click "Verify" to confirm the milestone is complete',
-        'Click "Reject" to return it to the participant with a reason',
+        'Click "Reject" to return it with a reason',
       ]} />
       <DocP>
         You are expected to process milestone verifications within 5 business days of submission, as
-        specified in the Experimenter Study Agreement.
+        specified in the service agreement.
       </DocP>
 
       <DocH2>Flagging violations</DocH2>
       <DocP>
-        If a participant violates the study protocol, you can flag a violation from the compliance
-        view. This:
+        If a research partner violates the study protocol, you can flag a violation from the
+        compliance view. This:
       </DocP>
       <DocUL items={[
         'Records the violation reason',
-        'Disqualifies the participant from payout regardless of compliance score',
-        'Notifies the participant',
+        'Removes compensation eligibility regardless of compliance score',
+        'Notifies the research partner',
       ]} />
       <DocP>
-        The participant has 7 days to raise a dispute if they believe the flag is unfair.
+        The research partner has 7 days to raise a dispute if they believe the flag is unfair.
       </DocP>
 
-      <DocH2>Payout summary</DocH2>
+      <DocH2>Releasing compensation payouts</DocH2>
       <DocP>After study completion, the payout summary shows:</DocP>
       <DocTable
         headers={['Column', 'Description']}
         rows={[
-          ['Participant',  'Pseudonym'],
-          ['Compliance',   'Final percentage'],
-          ['Eligible',     'Whether they met the compliance threshold'],
-          ['Amount',       'Payout amount'],
-          ['Status',       'Pending, processing, paid, or forfeited'],
+          ['Research partner', 'Pseudonym and Participant ID'],
+          ['Compliance',       'Final score against the threshold'],
+          ['Eligible',         'Whether they met the compliance threshold'],
+          ['Amount',           'Compensation amount per the study\'s schedule'],
+          ['Status',           'Pending, processing, processed, or not eligible'],
         ]}
       />
       <DocP>
-        The &quot;Export CSV&quot; button downloads a payout-ready file with participant IDs,
-        compliance scores, eligibility status, and amounts. This file is used to process payouts.
+        You confirm the eligibility list, and Biome releases payouts from the compensation budget
+        held on deposit. Every payout carries a full audit trail: eligibility determination,
+        approval, initiation, and delivery, each timestamped and attributable.
       </DocP>
 
+      <DocH2>Compliance export and final report</DocH2>
+      <DocP>
+        At study close, you can export the complete operational record of the study from the
+        document vault:
+      </DocP>
+      <DocUL items={[
+        'Signed consent records for every enrolled research partner',
+        'Milestone logs with verification timestamps',
+        'Chain-of-custody records for every sample kit',
+        'Messaging logs (pseudonymised)',
+        'Compensation payout audit trail',
+      ]} />
+      <DocP>
+        Biome also prepares a final report summarising recruitment, screening outcomes, compliance,
+        retention, and payouts — ready to file alongside your study documentation or share with your
+        institution.
+      </DocP>
 
       <DocNav
-        prev={{ label: 'Launching a study', href: '/docs/researchers/launching' }}
+        prev={{ label: 'Live operations', href: '/docs/researchers/launching' }}
         next={{ label: 'How screening works', href: '/docs/screening' }}
       />
     </article>

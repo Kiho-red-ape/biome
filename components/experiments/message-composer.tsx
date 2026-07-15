@@ -199,7 +199,7 @@ export function MessageComposer({ experimentId, privyDid, recipientCount }: Prop
                 onClick={handleSend}
                 disabled={sending || !subject.trim() || !body.trim() || !urlValid || recipientCount === 0}
                 className="mono text-xs px-5 py-2.5 rounded font-bold transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ background: 'var(--cyan)', color: '#050709' }}
+                style={{ background: 'var(--cyan)', color: '#060a14' }}
               >
                 {sending ? 'Sending...' : `Send to ${recipientCount} participant${recipientCount !== 1 ? 's' : ''} →`}
               </button>

@@ -1,0 +1,143 @@
+// POST /api/agent/converse
+// The single conversational endpoint for all four agent modes. Loads persistent
+// memory, runs one turn, persists it, and (onboarding) folds captured signals
+// into the participant's reusable_eligibility under the hood.
+
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { createServiceClient } from '@/lib/supabase/server';
+import { runAgentTurn } from '@/lib/agent/engine';
+import type { ReusableEligibility } from '@/lib/agent/types';
+
+const schema = z.object({
+  privyDid:     z.string().min(1),
+  stage:        z.enum(['onboard', 'screen', 'consent', 'support']),
+  message:      z.string().min(1).max(4000),
+  experimentId: z.string().uuid().nullable().optional(),
+});
+
+// Keys we lift from onboarding `extracted` into participant_profiles.reusable_eligibility.
+const ELIGIBILITY_KEYS: (keyof ReusableEligibility)[] = [
+  'age_range', 'location', 'general_health_context', 'samples_comfortable_with',
+  'conditions_disclosed', 'interests', 'languages', 'devices_owned',
+];
+
+export async function POST(req: NextRequest) {
+  let parsed: z.infer<typeof schema>;
+  try {
+    parsed = schema.parse(await req.json());
+  } catch {
+    return NextResponse.json({ error: 'privyDid, stage and message required' }, { status: 400 });
+  }
+
+  const { privyDid, stage, message, experimentId } = parsed;
+
+  // Consent mode requires a study context.
+  if ((stage === 'screen' || stage === 'consent') && !experimentId) {
+    return NextResponse.json({ error: `${stage} mode requires experimentId` }, { status: 400 });
+  }
+
+  // Study room: in screen/consent/support with a study, load the study's actual
+  // contents so the agent can explain them in plain language.
+  let extraSystemContext: string | undefined;
+  if (experimentId && (stage === 'support' || stage === 'screen' || stage === 'consent')) {
+    const db = createServiceClient();
+    const [{ data: exp }, { data: ms }] = await Promise.all([
+      db.from('experiments')
+        .select('title, description, category, duration_weeks, is_remote, region, inclusion_criteria, exclusion_criteria, tests_needed, compliance_threshold')
+        .eq('id', experimentId).maybeSingle(),
+      db.from('study_milestones')
+        .select('week_number, title, milestone_type')
+        .eq('experiment_id', experimentId)
+        .order('week_number').limit(30),
+    ]);
+    if (exp) {
+      const e = exp as Record<string, unknown>;
+      const milestones = ((ms ?? []) as Array<{ week_number: number; title: string; milestone_type: string }>)
+        .map((m) => `wk${m.week_number}: ${m.title} (${m.milestone_type === 'self_report' ? 'you report' : 'researcher confirms'})`)
+        .join('; ');
+      extraSystemContext =
+        `This conversation is about the study "${e.title}" (${e.category}). Your job is to help the ` +
+        `participant genuinely UNDERSTAND it — explain anything below in warm, simple, everyday ` +
+        `language (short sentences, no jargon; define any technical term you must use).\n` +
+        `Duration: ${e.duration_weeks ?? '—'} weeks · ${e.is_remote ? 'Remote' : (e.region ?? 'In-person')}\n` +
+        `Description: ${e.description ?? '—'}\n` +
+        (e.inclusion_criteria ? `Who can join: ${e.inclusion_criteria}\n` : '') +
+        (e.exclusion_criteria ? `Who cannot join: ${e.exclusion_criteria}\n` : '') +
+        (e.tests_needed ? `Samples/tests involved: ${e.tests_needed}\n` : '') +
+        (milestones ? `Milestones: ${milestones}\n` : '') +
+        `Compliance threshold: ${e.compliance_threshold ?? 80}% of milestones. ` +
+        `Only discuss THIS study's contents and general participation questions; anything medical or personal → flag for a human.`;
+    }
+  }
+
+  let result;
+  try {
+    result = await runAgentTurn({
+      participantId: privyDid,
+      mode:          stage,
+      userMessage:   message,
+      experimentId:  experimentId ?? null,
+      extraSystemContext,
+    });
+  } catch (err) {
+    console.error('[agent/converse]', err);
+    return NextResponse.json({ error: 'Agent unavailable — please try again' }, { status: 502 });
+  }
+
+  // ── Onboarding side-effect: merge captured signals into reusable_eligibility ──
+  if (stage === 'onboard' && Object.keys(result.extracted).length > 0) {
+    const db = createServiceClient();
+    const { data: prof } = await db
+      .from('participant_profiles')
+      .select('reusable_eligibility, language_fluency')
+      .eq('user_id', privyDid)
+      .maybeSingle();
+
+    const current = (prof?.reusable_eligibility ?? {}) as ReusableEligibility;
+    const merged: ReusableEligibility = { ...current };
+    for (const key of ELIGIBILITY_KEYS) {
+      const v = (result.extracted as Record<string, unknown>)[key];
+      if (v !== undefined && v !== null && !(Array.isArray(v) && v.length === 0)) {
+        // @ts-expect-error — key/value types align by construction
+        merged[key] = v;
+      }
+    }
+
+    const update: Record<string, unknown> = { reusable_eligibility: merged };
+    // Mirror languages into the existing structured column when present.
+    if (Array.isArray(merged.languages) && merged.languages.length > 0 && !prof?.language_fluency) {
+      update.language_fluency = merged.languages;
+    }
+
+    await db.from('participant_profiles').update(update).eq('user_id', privyDid);
+  }
+
+  // ── Screening side-effect: record eligibility outcome; keep non-fits in the pool ──
+  if (stage === 'screen' && experimentId) {
+    const outcome = (result.extracted as Record<string, unknown>).eligibility_outcome;
+    if (outcome === 'eligible' || outcome === 'not_eligible') {
+      const db = createServiceClient();
+      const { data: app } = await db
+        .from('applications')
+        .select('id')
+        .eq('experiment_id', experimentId)
+        .eq('participant_id', privyDid)
+        .maybeSingle();
+
+      if (app) {
+        await db.from('applications')
+          .update({ eligibility_status: outcome })
+          .eq('id', (app as { id: string }).id);
+      } else if (outcome === 'eligible') {
+        // Create an application only for fits; non-fits simply stay in the pool.
+        await db.from('applications').insert({
+          experiment_id: experimentId, participant_id: privyDid, status: 'applied',
+          applied_at: new Date().toISOString(), payout_status: 'pending', eligibility_status: 'eligible',
+        });
+      }
+    }
+  }
+
+  return NextResponse.json(result);
+}

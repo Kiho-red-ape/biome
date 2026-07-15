@@ -124,7 +124,7 @@ export function LegalAcceptance({ docKey, title, content, onAccept, onDecline, l
         {/* Translation note */}
         <div
           className="rounded p-2.5"
-          style={{ background: 'rgba(183,255,97,0.03)', border: '1px solid rgba(183,255,97,0.08)' }}
+          style={{ background: 'rgba(245,158,11,0.03)', border: '1px solid rgba(245,158,11,0.08)' }}
         >
           <p className="mono text-xs leading-relaxed" style={{ color: 'var(--text-dim)', fontSize: 10 }}>
             ⚠ These terms are in English. If English is not your primary language, please translate and review the full text before accepting. By checking the box, you confirm you have understood the terms regardless of language.
@@ -145,7 +145,7 @@ export function LegalAcceptance({ docKey, title, content, onAccept, onDecline, l
               cursor: scrolled ? 'pointer' : 'not-allowed',
             }}
           >
-            {checked && <span style={{ color: '#050709', fontSize: 10, fontWeight: 900 }}>✓</span>}
+            {checked && <span style={{ color: '#060a14', fontSize: 10, fontWeight: 900 }}>✓</span>}
           </div>
           <span className="mono text-xs leading-relaxed" style={{ color: 'var(--text-bright)' }}>
             I have read and agree to the {title}. I understand this is a legally binding agreement
@@ -159,7 +159,7 @@ export function LegalAcceptance({ docKey, title, content, onAccept, onDecline, l
             onClick={onAccept}
             disabled={!canAccept || loading}
             className="flex-1 mono text-xs py-2.5 rounded font-bold transition-all hover:opacity-90 disabled:opacity-40"
-            style={{ background: 'var(--green)', color: '#050709' }}
+            style={{ background: 'var(--green)', color: '#060a14' }}
           >
             {loading ? 'SAVING…' : 'I ACCEPT →'}
           </button>

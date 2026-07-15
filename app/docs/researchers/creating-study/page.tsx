@@ -1,22 +1,44 @@
 import {
   DocLabel, DocH1, DocH2, DocH3, DocP, DocLead,
-  DocUL, DocNav,
+  DocUL, Callout, DocNav,
 } from '../../docs-components';
 
 export default function CreatingStudyPage() {
   return (
     <article>
-      <DocLabel text="RESEARCHERS" />
-      <DocH1>Creating a study</DocH1>
+      <DocLabel text="Researchers" />
+      <DocH1>Setting up your study</DocH1>
       <DocLead>
-        All studies begin in draft mode. While in draft, everything is editable. The study is not
-        visible on the marketplace until you publish it.
+        Once your operations plan is agreed, study setup happens in two parts: the document vault,
+        and the study configuration. Everything stays in draft — and fully editable — until launch.
       </DocLead>
 
-      <DocH2>Draft mode</DocH2>
+      <DocH2>Document vault setup</DocH2>
       <DocP>
-        To create a study, navigate to &quot;Post a Study&quot; from the navigation bar. The study
-        creation form includes the following sections:
+        Every study on Biome has a document vault: a secure store for the study&apos;s governing
+        documents with clearance-based access. Before your study can launch, the vault must contain:
+      </DocP>
+      <DocUL items={[
+        'Your IRB or ethics approval — uploaded by you; Biome verifies it is on file before launch',
+        'Your study protocol',
+        'The Biome service agreement and data processing agreement — e-signed directly in the vault',
+        'Consent forms — uploaded and version-managed by you; research partners e-sign them during application',
+      ]} />
+      <Callout>
+        Biome does not provide or obtain IRB or ethics approval, and listing a study on Biome does
+        not constitute ethical review. The approval you upload comes from your institution or an
+        independent board. Biome&apos;s role is to store it securely and confirm it is on file.
+      </Callout>
+      <DocP>
+        Vault access is clearance-based: you control which team members can view or manage each
+        document. Signed consent records are retained with the study and included in the final
+        compliance export.
+      </DocP>
+
+      <DocH2>Study configuration</DocH2>
+      <DocP>
+        With the vault in place, configure the study itself. The setup form includes the following
+        sections:
       </DocP>
 
       <DocH3>Study basics</DocH3>
@@ -27,22 +49,22 @@ export default function CreatingStudyPage() {
         'Description',
         'Duration in weeks',
         'Region (or "Remote / Global")',
-        'Task summary (one-line description of what participants do, max 80 characters)',
+        'Task summary (one-line description of what research partners do, max 80 characters)',
       ]} />
 
-      <DocH3>Bounty</DocH3>
+      <DocH3>Compensation schedule</DocH3>
       <DocUL items={[
-        'Reward per participant (USD)',
-        'Number of participant slots',
-        'Total bounty pool (auto-calculated)',
+        'Compensation per research partner, paid on completion or staged across milestones',
+        'Number of cohort slots',
+        'Total compensation budget (auto-calculated) — deposited upfront and held by Biome before launch',
       ]} />
 
-      <DocH3>Eligibility</DocH3>
+      <DocH3>Screening criteria</DocH3>
       <DocUL items={[
         'Inclusion criteria',
         'Exclusion criteria',
         'Age range (minimum and maximum)',
-        'Optional eligibility quiz (up to 10 yes/no screening questions)',
+        'Optional screening questionnaire (up to 10 yes/no questions)',
       ]} />
 
       <DocH3>Weekly milestones</DocH3>
@@ -52,46 +74,28 @@ export default function CreatingStudyPage() {
       </DocP>
       <DocUL items={[
         'Milestone title (e.g., "Complete baseline survey")',
-        'Type: participant reports or you confirm',
+        'Type: research partner self-reports, or your team confirms',
         'Optional description',
+        'Linked sample kit, if the milestone involves a sample (kit dispatch and return are tracked automatically)',
       ]} />
       <DocP>
         You should define 3–8 milestones total depending on study length.
       </DocP>
 
-      <DocH3>Dropout prevention (optional)</DocH3>
-      <DocUL items={[
-        'Toggle to require a participant deposit',
-        'Deposit amount defaults to 1/5th of the reward, editable',
-        'Participants are informed that deposits improve completion but may slow recruitment',
-      ]} />
-
       <DocH3>Compliance threshold</DocH3>
       <DocUL items={[
-        'Default: 80%',
-        'Participants must verify this percentage of milestones to be eligible for payout',
-      ]} />
-
-      <DocH3>Approval status</DocH3>
-      <DocUL items={[
-        'Informational field: Ethics approved, IRB pending, Self-governed, or Not required',
-      ]} />
-
-      <DocH3>BIOME Verified (optional)</DocH3>
-      <DocUL items={[
-        'Checkbox to apply for the BIOME Verified badge',
-        'Review by BIOME\'s science team at additional cost',
+        'The share of milestones a research partner must have verified to be eligible for compensation',
+        'Set during study setup, shown to applicants before they apply',
       ]} />
 
       <DocP>
-        Draft studies are saved but not visible on the marketplace. You can return to edit them at
-        any time from your experimenter dashboard.
+        Draft studies are saved but not visible to research partners. You can return to edit them at
+        any time from your researcher dashboard.
       </DocP>
 
-
       <DocNav
-        prev={{ label: 'Getting started as a researcher', href: '/docs/researchers' }}
-        next={{ label: 'Publishing & recruitment', href: '/docs/researchers/publishing' }}
+        prev={{ label: 'For researchers', href: '/docs/researchers' }}
+        next={{ label: 'Launch & recruitment', href: '/docs/researchers/publishing' }}
       />
     </article>
   );

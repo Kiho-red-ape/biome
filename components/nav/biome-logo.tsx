@@ -1,4 +1,4 @@
-// BiomeLogo — Familjen Grotesk text wordmark (replaces SVG)
+// BiomeLogo — Space Grotesk text wordmark (replaces SVG)
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function BiomeLogo({ width = 120, className }: { width?: number; className?: string }) {
@@ -6,11 +6,11 @@ export function BiomeLogo({ width = 120, className }: { width?: number; classNam
     <span
       className={className}
       style={{
-        fontFamily: 'var(--font-heading), sans-serif',
+        fontFamily: 'var(--font-logo), sans-serif',
         fontWeight: 700,
         fontSize: '24px',
-        letterSpacing: '5px',
-        color: '#b7ff61',
+        letterSpacing: '3px',
+        color: 'var(--teal-dark)',
         textTransform: 'uppercase',
         lineHeight: 1,
       }}

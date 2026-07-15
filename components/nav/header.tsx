@@ -5,66 +5,20 @@ import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 import { NotificationBell } from '@/components/nav/notification-bell';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// A user can be BOTH a participant and an experimenter — carry both so the
+// account menu always exposes researcher entries to researchers.
+type NavProfile = {
+  participant?:  { pseudonym: string; participantId: string };
+  experimenter?: { orgName: string; orgId: string };
+} | null;
 
-type NavProfile =
-  | { kind: 'participant'; pseudonym: string; participantId: string }
-  | { kind: 'experimenter'; orgName: string; orgId: string }
-  | null;
-
-// ─── Nav link (desktop) ───────────────────────────────────────────────────────
-
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
-  const [hover, setHover] = useState(false);
-  return (
-    <Link
-      href={href}
-      style={{
-        fontFamily:     'var(--font-mono)',
-        fontSize:       11,
-        textTransform:  'uppercase',
-        letterSpacing:  '2px',
-        color:          hover ? '#b7ff61' : '#7f8e87',
-        textDecoration: 'none',
-        paddingBottom:  2,
-        borderBottom:   `2px solid ${hover ? '#b7ff61' : 'transparent'}`,
-        transition:     'color 150ms ease, border-color 150ms ease',
-      }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      {children}
-    </Link>
-  );
-}
-
-// ─── Overlay nav link ─────────────────────────────────────────────────────────
-
-function OverlayLink({ href, onClick, children }: { href: string; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      style={{
-        display:        'flex',
-        alignItems:     'center',
-        minHeight:      48,
-        padding:        '0 24px',
-        fontFamily:     'var(--font-mono)',
-        fontSize:       14,
-        textTransform:  'uppercase',
-        letterSpacing:  '2px',
-        color:          '#c0d4c4',
-        textDecoration: 'none',
-        borderBottom:   '1px solid rgba(77,255,128,0.06)',
-      }}
-    >
-      {children}
-    </Link>
-  );
-}
-
-// ─── Component ────────────────────────────────────────────────────────────────
+const NAV_LINKS = [
+  { href: '/run-a-study',  label: 'Run a Study'  },
+  { href: '/participate',  label: 'Participate'  },
+  { href: '/partners/join', label: 'Partners'   },
+  { href: '/blog',         label: 'Blog'         },
+  { href: '/docs',         label: 'Docs'         },
+];
 
 export function SiteHeader() {
   const { ready, authenticated, login, logout, user } = usePrivy();
@@ -73,7 +27,6 @@ export function SiteHeader() {
   const [menuOpen,   setMenuOpen]   = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
 
-  // Close desktop dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropRef.current && !dropRef.current.contains(e.target as Node)) setDropOpen(false);
@@ -82,290 +35,188 @@ export function SiteHeader() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  // Lock body scroll when overlay is open
   useEffect(() => {
-    if (menuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
-  // Close overlay on Escape
   useEffect(() => {
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setMenuOpen(false);
-    }
+    function handleKey(e: KeyboardEvent) { if (e.key === 'Escape') setMenuOpen(false); }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, []);
 
   useEffect(() => {
     if (!authenticated || !user) { setNavProfile(null); return; }
+    // Short-TTL cache: a role can appear mid-session (org created via invite);
+    // a stale cache used to hide the researcher menu until a new browser session.
+    const cacheKey = `biome_navprofile_v4_${user.id}`;
+    try {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        const { at, value } = JSON.parse(cached) as { at: number; value: NavProfile };
+        if (value && Date.now() - at < 120_000) { setNavProfile(value); return; }
+      }
+    } catch { /* fall through to fetch */ }
 
-    const cacheKey = `biome_navprofile_${user.id}`;
-    const cached = sessionStorage.getItem(cacheKey);
-    if (cached) { setNavProfile(JSON.parse(cached) as NavProfile); return; }
-
-    fetch(`/api/participant-profile?privyDid=${encodeURIComponent(user.id)}`)
-      .then((r) => r.json())
-      .then((data: { profile?: { participant_id: string; pseudonym: string } | null }) => {
-        if (data.profile?.participant_id) {
-          const np: NavProfile = {
-            kind:          'participant',
-            pseudonym:     data.profile.pseudonym,
-            participantId: data.profile.participant_id,
-          };
-          setNavProfile(np);
-          sessionStorage.setItem(cacheKey, JSON.stringify(np));
-          return;
-        }
-        return fetch(`/api/experimenter-profile?privyDid=${encodeURIComponent(user.id)}`)
-          .then((r) => r.json())
-          .then((d: { profile?: { id: string; org_name: string } | null }) => {
-            if (d.profile?.id) {
-              const np: NavProfile = { kind: 'experimenter', orgName: d.profile.org_name, orgId: d.profile.id };
-              setNavProfile(np);
-              sessionStorage.setItem(cacheKey, JSON.stringify(np));
-            }
-          });
-      })
-      .catch(() => {});
+    // An account is EITHER an org (researcher) OR a participant — never both.
+    // Org is the deliberate, invite-only role, so it takes precedence.
+    Promise.all([
+      fetch(`/api/participant-profile?privyDid=${encodeURIComponent(user.id)}`).then(r => r.json()).catch(() => ({})),
+      fetch(`/api/experimenter-profile?privyDid=${encodeURIComponent(user.id)}`).then(r => r.json()).catch(() => ({})),
+    ]).then(([pData, eData]: [
+      { profile?: { participant_id: string; pseudonym: string } | null },
+      { profile?: { id: string; org_name: string } | null },
+    ]) => {
+      let result: NavProfile = null;
+      if (eData?.profile?.id) {
+        result = { experimenter: { orgName: eData.profile.org_name, orgId: eData.profile.id } };
+      } else if (pData?.profile?.participant_id) {
+        result = { participant: { pseudonym: pData.profile.pseudonym, participantId: pData.profile.participant_id } };
+      }
+      setNavProfile(result);
+      if (result) sessionStorage.setItem(cacheKey, JSON.stringify({ at: Date.now(), value: result }));
+    }).catch(() => {});
   }, [authenticated, user]);
 
-  const displayName =
-    navProfile?.kind === 'participant' ? navProfile.pseudonym
-    : navProfile?.kind === 'experimenter' ? navProfile.orgName
-    : null;
+  const displayName = navProfile?.experimenter?.orgName ?? navProfile?.participant?.pseudonym ?? null;
 
-  const truncatedName = displayName ? displayName.slice(0, 12) + (displayName.length > 12 ? '…' : '') : null;
+  const truncated = displayName ? displayName.slice(0, 14) + (displayName.length > 14 ? '…' : '') : null;
 
   const profileHref =
-    navProfile?.kind === 'participant' ? `/profile/${navProfile.participantId}`
-    : navProfile?.kind === 'experimenter' ? `/org/${navProfile.orgId}`
+    navProfile?.experimenter ? `/org/${navProfile.experimenter.orgId}`
+    : navProfile?.participant ? `/profile/${navProfile.participant.participantId}`
     : null;
 
   return (
     <>
-      <header
-        style={{
-          position:       'sticky',
-          top:            0,
-          zIndex:         200,
-          height:         52,
-          display:        'flex',
-          alignItems:     'center',
-          justifyContent: 'space-between',
-          background:     'rgba(5,7,9,0.95)',
-          backdropFilter: 'blur(16px)',
-          borderBottom:   '1px solid rgba(183,255,97,0.12)',
-          flexShrink:     0,
-        }}
-        className="px-4 sm:px-6 lg:px-10"
-      >
-        {/* Left — wordmark + version */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+      <header style={{
+        position:       'sticky',
+        top:            0,
+        zIndex:         200,
+        height:         64,
+        display:        'flex',
+        alignItems:     'center',
+        justifyContent: 'space-between',
+        background:     'rgba(255,255,255,0.92)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        borderBottom:   '1px solid var(--border-soft)',
+        flexShrink:     0,
+        paddingLeft:    'clamp(16px, 3vw, 40px)',
+        paddingRight:   'clamp(16px, 3vw, 40px)',
+      }}>
+        {/* Logo */}
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 9 }}>
+          <span aria-hidden="true" style={{
+            width: 10, height: 10, background: 'var(--teal)',
+            borderRadius: '50%', display: 'inline-block', flexShrink: 0,
+          }} />
           <span style={{
-            fontFamily:    'var(--font-heading), sans-serif',
+            fontFamily:    'var(--font-logo)',
             fontWeight:    700,
-            letterSpacing: '5px',
-            color:         '#b7ff61',
+            fontSize:      19,
+            letterSpacing: '2px',
             textTransform: 'uppercase',
-            lineHeight:    1,
-          }} className="text-xl sm:text-2xl">
-            BIOME
-          </span>
-          <span className="hidden sm:inline" style={{
-            fontFamily:    'var(--font-mono)',
-            fontSize:      10,
-            letterSpacing: '1px',
-            color:         '#7f8e87',
-            border:        '1px solid rgba(255,255,255,0.09)',
-            padding:       '2px 6px',
+            color:         'var(--ink)',
           }}>
-            v0.1
+            BIO<span style={{ color: 'var(--teal)' }}>ME</span>
           </span>
         </Link>
 
-        {/* Center — nav links (desktop only) */}
-        <nav className="hidden sm:flex" style={{ alignItems: 'center', gap: 32 }}>
-          <NavLink href="/experiments">EXPLORE</NavLink>
-          <NavLink href="/docs">DOCS</NavLink>
-          <NavLink href="/post">POST STUDY</NavLink>
-          <Link href="/demo/biome" className="mono text-xs transition-colors" style={{ color: 'var(--cyan)', textDecoration: 'none', letterSpacing: '2px' }}>
-            DEMO
-          </Link>
+        {/* Desktop nav */}
+        <nav className="hidden sm:flex" style={{ alignItems: 'center', gap: 28 }}>
+          {NAV_LINKS.map(({ href, label }) => (
+            <NavItem key={href} href={href}>{label}</NavItem>
+          ))}
         </nav>
 
         {/* Right */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Notification bell — always visible when logged in */}
-          {ready && authenticated && user && (
-            <NotificationBell privyDid={user.id} />
-          )}
+          {ready && authenticated && user && <NotificationBell privyDid={user.id} />}
 
-          {/* Mobile: pseudonym chip + hamburger */}
-          <div className="flex sm:hidden items-center gap-3">
-            {truncatedName && (
-              <span style={{
-                fontFamily:    'var(--font-mono)',
-                fontSize:      10,
-                color:         '#7f8e87',
-                letterSpacing: '0.5px',
-              }}>
-                <span className="blink" style={{ color: '#b7ff61', fontSize: 8, marginRight: 4 }}>●</span>
-                {truncatedName}
-              </span>
-            )}
-            {ready && !authenticated && (
-              <button
-                onClick={login}
-                style={{
-                  fontFamily:    'var(--font-mono)',
-                  fontSize:      11,
-                  letterSpacing: '1px',
-                  textTransform: 'uppercase',
-                  color:         '#b7ff61',
-                  background:    'rgba(183,255,97,0.06)',
-                  border:        '1px solid rgba(183,255,97,0.2)',
-                  padding:       '6px 12px',
-                  cursor:        'pointer',
-                  minHeight:     36,
-                }}
-              >
-                SIGN IN
-              </button>
-            )}
-            {/* Hamburger button */}
+          {/* Mobile hamburger */}
+          <div className="flex sm:hidden items-center gap-2">
             <button
               onClick={() => setMenuOpen(true)}
               aria-label="Open menu"
-              style={{
-                background: 'none',
-                border:     'none',
-                cursor:     'pointer',
-                padding:    '8px 4px',
-                display:    'flex',
-                flexDirection: 'column',
-                gap:        5,
-                minHeight:  44,
-                minWidth:   44,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 5, padding: 8, minHeight: 44, minWidth: 44, alignItems: 'center', justifyContent: 'center' }}
             >
-              {[0, 1, 2].map((i) => (
-                <span key={i} style={{ display: 'block', width: 22, height: 2, background: '#aab8b1', borderRadius: 1 }} />
+              {[0,1,2].map(i => (
+                <span key={i} style={{ display: 'block', width: 20, height: 2, background: 'var(--ink)', borderRadius: 2 }} />
               ))}
             </button>
           </div>
 
-          {/* Desktop auth area */}
-          <div className="hidden sm:flex items-center" style={{ gap: 16 }}>
-            {!ready && (
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#4a7055' }}>…</span>
-            )}
+          {/* Desktop auth */}
+          <div className="hidden sm:flex items-center" style={{ gap: 12 }}>
+            {!ready && <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>…</span>}
             {ready && !authenticated && (
-              <button
-                onClick={login}
-                style={{
-                  fontFamily:    'var(--font-mono)',
-                  fontSize:      11,
-                  letterSpacing: '2px',
-                  textTransform: 'uppercase',
-                  color:         '#b7ff61',
-                  background:    'rgba(183,255,97,0.06)',
-                  border:        '1px solid rgba(183,255,97,0.2)',
-                  padding:       '6px 14px',
-                  cursor:        'pointer',
-                  transition:    'opacity 150ms ease',
-                  minHeight:     36,
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-              >
-                SIGN IN
+              <button onClick={login} className="btn-primary" style={{ minHeight: 38, padding: '8px 18px', fontSize: 14 }}>
+                Sign in
               </button>
             )}
             {ready && authenticated && (
               <div className="relative" ref={dropRef}>
                 <button
-                  onClick={() => setDropOpen((o) => !o)}
+                  onClick={() => setDropOpen(o => !o)}
                   style={{
-                    display:    'flex',
-                    alignItems: 'center',
-                    gap:        8,
-                    fontFamily: 'var(--font-mono)',
-                    fontSize:   11,
-                    letterSpacing: '1px',
-                    color:      displayName ? '#eef4f0' : '#7f8e87',
-                    background: 'none',
-                    border:     '1px solid rgba(255,255,255,0.07)',
-                    padding:    '5px 10px',
-                    cursor:     'pointer',
-                    transition: 'border-color 150ms ease',
-                    minHeight:  36,
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 600,
+                    color: 'var(--ink)',
+                    background: 'var(--bg-page)',
+                    border: '1px solid var(--border-soft)',
+                    borderRadius: 999,
+                    padding: '8px 14px', cursor: 'pointer',
+                    transition: 'border-color 150ms',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(183,255,97,0.2)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--teal)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-soft)'; }}
                 >
-                  <span className="blink" style={{ color: '#b7ff61', fontSize: 8 }}>●</span>
-                  {displayName ?? 'CONNECTED'}
-                  <span style={{ opacity: 0.4, fontSize: 9 }}>▾</span>
+                  <span style={{ width: 7, height: 7, background: 'var(--teal)', borderRadius: '50%', display: 'inline-block' }} />
+                  {truncated ?? 'Account'}
+                  <span style={{ opacity: 0.45, fontSize: 10 }}>▾</span>
                 </button>
 
                 {dropOpen && (
-                  <div
-                    className="absolute right-0 top-full"
-                    style={{
-                      marginTop:      4,
-                      background:     'rgba(11,16,20,0.98)',
-                      border:         '1px solid rgba(255,255,255,0.1)',
-                      backdropFilter: 'blur(16px)',
-                      minWidth:       180,
-                      zIndex:         300,
-                      boxShadow:      '0 8px 32px rgba(0,0,0,0.6)',
-                    }}
-                  >
-                    {profileHref && (
-                      <DropLink href={profileHref} onClick={() => setDropOpen(false)}>MY PROFILE →</DropLink>
-                    )}
-                    {navProfile?.kind === 'participant' && (
+                  <div style={{
+                    position: 'absolute', right: 0, top: 'calc(100% + 6px)',
+                    background: 'var(--surface)', border: '1px solid var(--border-soft)',
+                    borderRadius: 10,
+                    boxShadow: 'var(--shadow-lg)',
+                    minWidth: 200, zIndex: 300, overflow: 'hidden',
+                  }}>
+                    {profileHref && <DropItem href={profileHref} onClick={() => setDropOpen(false)}>My Profile</DropItem>}
+                    {navProfile?.participant && (
                       <>
-                        <DropLink href="/dashboard" onClick={() => setDropOpen(false)}>DASHBOARD</DropLink>
-                        <DropLink href="/dashboard/preferences" onClick={() => setDropOpen(false)}>PREFERENCES</DropLink>
+                        <DropItem href="/dashboard" onClick={() => setDropOpen(false)}>Dashboard</DropItem>
+                        <DropItem href="/experiments" onClick={() => setDropOpen(false)}>Browse Studies</DropItem>
+                        <DropItem href="/dashboard/preferences" onClick={() => setDropOpen(false)}>Preferences</DropItem>
                       </>
                     )}
-                    {navProfile?.kind === 'experimenter' && (
-                      <DropLink href="/dashboard/experiments" onClick={() => setDropOpen(false)}>MY STUDIES</DropLink>
+                    {navProfile?.experimenter && (
+                      <>
+                        {navProfile?.participant && <div style={{ borderTop: '1px solid var(--border-soft)' }} />}
+                        <DropItem href="/dashboard/experiments" onClick={() => setDropOpen(false)}>Researcher Dashboard</DropItem>
+                        <DropItem href="/dashboard/org" onClick={() => setDropOpen(false)}>Organization</DropItem>
+                        <DropItem href="/post" onClick={() => setDropOpen(false)}>Post a Study</DropItem>
+                        <DropItem href="/ome" onClick={() => setDropOpen(false)}>OME — Recruitment AI</DropItem>
+                      </>
                     )}
-                    {!navProfile && (
-                      <DropLink href="/onboarding" onClick={() => setDropOpen(false)}>COMPLETE SETUP</DropLink>
-                    )}
-                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    {!navProfile && <DropItem href="/onboarding" onClick={() => setDropOpen(false)}>Complete Setup</DropItem>}
+                    <div style={{ borderTop: '1px solid var(--border-soft)' }}>
                       <button
                         onClick={() => { setDropOpen(false); logout(); }}
                         style={{
-                          width:      '100%',
-                          textAlign:  'left',
-                          display:    'flex',
-                          alignItems: 'center',
-                          padding:    '10px 16px',
-                          fontFamily: 'var(--font-mono)',
-                          fontSize:   11,
-                          letterSpacing: '1px',
-                          color:      '#4a7055',
-                          background: 'none',
-                          border:     'none',
-                          cursor:     'pointer',
-                          transition: 'color 150ms ease',
-                          minHeight:  44,
+                          width: '100%', textAlign: 'left', padding: '12px 16px',
+                          fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 500,
+                          color: 'var(--muted)', background: 'none', border: 'none',
+                          cursor: 'pointer', transition: 'color 150ms', minHeight: 44,
                         }}
-                        onMouseEnter={(e) => { e.currentTarget.style.color = '#7f8e87'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.color = '#4a7055'; }}
+                        onMouseEnter={e => { e.currentTarget.style.color = 'var(--error)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.color = 'var(--muted)'; }}
                       >
-                        SIGN OUT
+                        Sign out
                       </button>
                     </div>
                   </div>
@@ -376,135 +227,73 @@ export function SiteHeader() {
         </div>
       </header>
 
-      {/* ── Mobile full-screen overlay menu ── */}
+      {/* Mobile overlay */}
       {menuOpen && (
-        <div
-          style={{
-            position:   'fixed',
-            inset:      0,
-            zIndex:     500,
-            background: '#050709',
-            display:    'flex',
-            flexDirection: 'column',
-            overflowY:  'auto',
-          }}
-        >
-          {/* Overlay header */}
+        <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'var(--surface)', display: 'flex', flexDirection: 'column' }}>
           <div style={{
-            display:        'flex',
-            alignItems:     'center',
-            justifyContent: 'space-between',
-            padding:        '0 16px',
-            height:         52,
-            borderBottom:   '1px solid rgba(77,255,128,0.08)',
-            flexShrink:     0,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            height: 64, padding: '0 20px',
+            borderBottom: '1px solid var(--border-soft)', flexShrink: 0,
           }}>
-            <span style={{
-              fontFamily:    'var(--font-heading)',
-              fontWeight:    700,
-              fontSize:      20,
-              letterSpacing: '5px',
-              color:         '#b7ff61',
-              textTransform: 'uppercase',
-            }}>
-              BIOME
+            <span style={{ fontFamily: 'var(--font-logo)', fontWeight: 700, fontSize: 18, letterSpacing: '2px', color: 'var(--ink)' }}>
+              BIO<span style={{ color: 'var(--teal)' }}>ME</span>
             </span>
-            <button
-              onClick={() => setMenuOpen(false)}
-              aria-label="Close menu"
-              style={{
-                background: 'none',
-                border:     'none',
-                cursor:     'pointer',
-                color:      '#aab8b1',
-                fontSize:   22,
-                minHeight:  44,
-                minWidth:   44,
-                display:    'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+            <button onClick={() => setMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)', fontSize: 22, minHeight: 44, minWidth: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               ✕
             </button>
           </div>
-
-          {/* Nav links */}
-          <div style={{ flex: 1 }}>
-            <OverlayLink href="/experiments"   onClick={() => setMenuOpen(false)}>Explore</OverlayLink>
-            <OverlayLink href="/post"           onClick={() => setMenuOpen(false)}>Post Study</OverlayLink>
-            <OverlayLink href="/docs"           onClick={() => setMenuOpen(false)}>Docs</OverlayLink>
-            <OverlayLink href="/demo/biome"     onClick={() => setMenuOpen(false)}>Demo</OverlayLink>
-
-            {/* Divider */}
-            <div style={{ height: 1, background: 'rgba(77,255,128,0.08)', margin: '8px 0' }} />
-
-            {/* User section */}
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {NAV_LINKS.map(({ href, label }) => (
+              <Link key={href} href={href} onClick={() => setMenuOpen(false)}
+                style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
+                {label}
+              </Link>
+            ))}
+            {ready && !authenticated && (
+              <div style={{ padding: '20px 24px' }}>
+                <button onClick={() => { setMenuOpen(false); login(); }} className="btn-primary" style={{ width: '100%' }}>
+                  Sign in
+                </button>
+              </div>
+            )}
             {ready && authenticated && (
               <>
                 {profileHref && (
-                  <OverlayLink href={profileHref} onClick={() => setMenuOpen(false)}>My Profile</OverlayLink>
+                  <Link href={profileHref} onClick={() => setMenuOpen(false)}
+                    style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
+                    My Profile
+                  </Link>
                 )}
-                {navProfile?.kind === 'participant' && (
+                {navProfile?.participant && (
                   <>
-                    <OverlayLink href="/dashboard"             onClick={() => setMenuOpen(false)}>Dashboard</OverlayLink>
-                    <OverlayLink href="/dashboard/preferences" onClick={() => setMenuOpen(false)}>Preferences</OverlayLink>
+                    <Link href="/dashboard" onClick={() => setMenuOpen(false)}
+                      style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
+                      Dashboard
+                    </Link>
+                    <Link href="/experiments" onClick={() => setMenuOpen(false)}
+                      style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
+                      Browse Studies
+                    </Link>
                   </>
                 )}
-                {navProfile?.kind === 'experimenter' && (
-                  <OverlayLink href="/dashboard/experiments" onClick={() => setMenuOpen(false)}>My Studies</OverlayLink>
+                {navProfile?.experimenter && (
+                  <>
+                    <Link href="/dashboard/experiments" onClick={() => setMenuOpen(false)}
+                      style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
+                      Researcher Dashboard
+                    </Link>
+                    <Link href="/dashboard/org" onClick={() => setMenuOpen(false)}
+                      style={{ display: 'flex', alignItems: 'center', minHeight: 56, padding: '0 24px', fontFamily: 'var(--font-display)', fontSize: 15, color: 'var(--ink)', textDecoration: 'none', borderBottom: '1px solid var(--border-soft)' }}>
+                      Organization
+                    </Link>
+                  </>
                 )}
-                {!navProfile && (
-                  <OverlayLink href="/onboarding" onClick={() => setMenuOpen(false)}>Complete Setup</OverlayLink>
-                )}
-                <button
-                  onClick={() => { setMenuOpen(false); logout(); }}
-                  style={{
-                    display:       'flex',
-                    alignItems:    'center',
-                    minHeight:     48,
-                    width:         '100%',
-                    padding:       '0 24px',
-                    fontFamily:    'var(--font-mono)',
-                    fontSize:      14,
-                    textTransform: 'uppercase',
-                    letterSpacing: '2px',
-                    color:         '#4a7055',
-                    background:    'none',
-                    border:        'none',
-                    borderBottom:  '1px solid rgba(77,255,128,0.06)',
-                    cursor:        'pointer',
-                    textAlign:     'left',
-                  }}
-                >
-                  Sign Out
-                </button>
+                <div style={{ padding: '20px 24px' }}>
+                  <button onClick={() => { setMenuOpen(false); logout(); }} className="btn-secondary" style={{ width: '100%' }}>
+                    Sign out
+                  </button>
+                </div>
               </>
-            )}
-
-            {ready && !authenticated && (
-              <button
-                onClick={() => { setMenuOpen(false); login(); }}
-                style={{
-                  display:       'flex',
-                  alignItems:    'center',
-                  minHeight:     48,
-                  width:         '100%',
-                  padding:       '0 24px',
-                  fontFamily:    'var(--font-mono)',
-                  fontSize:      14,
-                  textTransform: 'uppercase',
-                  letterSpacing: '2px',
-                  color:         '#b7ff61',
-                  background:    'none',
-                  border:        'none',
-                  borderBottom:  '1px solid rgba(77,255,128,0.06)',
-                  cursor:        'pointer',
-                  textAlign:     'left',
-                }}
-              >
-                Sign In →
-              </button>
             )}
           </div>
         </div>
@@ -513,27 +302,35 @@ export function SiteHeader() {
   );
 }
 
-// ─── Desktop dropdown link ────────────────────────────────────────────────────
-
-function DropLink({ href, onClick, children }: { href: string; onClick: () => void; children: React.ReactNode }) {
+function NavItem({ href, children }: { href: string; children: React.ReactNode }) {
   const [hover, setHover] = useState(false);
   return (
-    <Link
-      href={href}
-      onClick={onClick}
-      style={{
-        display:        'flex',
-        alignItems:     'center',
-        padding:        '10px 16px',
-        fontFamily:     'var(--font-mono)',
-        fontSize:       11,
-        letterSpacing:  '1px',
-        color:          hover ? '#b7ff61' : '#7f8e87',
-        background:     hover ? 'rgba(183,255,97,0.04)' : 'transparent',
-        textDecoration: 'none',
-        transition:     'color 150ms ease, background 150ms ease',
-        minHeight:      44,
-      }}
+    <Link href={href} className="link-slide" style={{
+      fontFamily:    'var(--font-display)',
+      fontSize:      14,
+      fontWeight:    500,
+      color:         hover ? 'var(--teal-dark)' : 'var(--slate)',
+      textDecoration: 'none',
+      transition:    'color 150ms',
+    }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {children}
+    </Link>
+  );
+}
+
+function DropItem({ href, onClick, children }: { href: string; onClick: () => void; children: React.ReactNode }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <Link href={href} onClick={onClick} style={{
+      display: 'flex', alignItems: 'center', padding: '12px 16px', minHeight: 44,
+      fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 500,
+      color: hover ? 'var(--teal-dark)' : 'var(--slate)',
+      background: hover ? 'var(--teal-faint)' : 'transparent',
+      textDecoration: 'none', transition: 'color 150ms, background 150ms',
+    }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >

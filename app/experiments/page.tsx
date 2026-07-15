@@ -1,89 +1,77 @@
 import { createAnonClient } from '@/lib/supabase/anon';
 import { SiteHeader } from '@/components/nav/header';
-import { TickerBar } from '@/components/dashboard/ticker-bar';
 import { ExperimentDashboard } from '@/components/dashboard/experiment-dashboard';
-import { ParticipantLeaderboard } from '@/components/experiments/participant-leaderboard';
-import type { LeaderboardRow } from '@/components/experiments/participant-leaderboard';
 import type { Experiment } from '@/lib/types';
-import type { OrgMap } from '@/app/page';
 
-function computeStats(experiments: Experiment[]) {
-  const totalBountyPool = experiments.reduce((s, e) => s + e.total_bounty_pool, 0);
-  const totalEarned = experiments
-    .filter((e) => e.status === 'active' || e.status === 'completed')
-    .reduce((s, e) => s + e.bounty_per_participant * e.slots_filled, 0);
-  const activeCount = experiments.filter(
-    (e) => e.status === 'recruiting' || e.status === 'active'
-  ).length;
-  const totalParticipants = experiments.reduce((s, e) => s + e.slots_filled, 0);
-  return { totalBountyPool, totalEarned, activeCount, totalParticipants };
-}
+type OrgEntry = { id: string; org_name: string };
+export type OrgMap = Record<string, OrgEntry>;
 
 export default async function ExperimentsPage() {
   const supabase = createAnonClient();
 
-  const [expResult, orgResult, lbResult] = await Promise.all([
+  const [expResult, orgResult] = await Promise.all([
     supabase.from('experiments').select('*').neq('status', 'draft').order('created_at', { ascending: false }),
     supabase
       .from('experimenter_profiles')
       .select('id, user_id, org_name')
       .eq('screening_status', 'approved'),
-    supabase
-      .from('participant_profiles')
-      .select('participant_id, pseudonym, country, previous_study_count, completion_rate, reliability_score')
-      .gt('previous_study_count', 0)
-      .order('previous_study_count', { ascending: false })
-      .order('completion_rate', { ascending: false })
-      .limit(50),
   ]);
 
   const experiments = (expResult.data ?? []) as Experiment[];
-  const stats       = computeStats(experiments);
 
   const orgMap: OrgMap = {};
   for (const o of (orgResult.data ?? []) as { id: string; user_id: string; org_name: string }[]) {
     orgMap[o.user_id] = { id: o.id, org_name: o.org_name };
   }
 
-  const leaderboard = (lbResult.data ?? []) as LeaderboardRow[];
+  const stats = {
+    totalStudies:       experiments.length,
+    recruitingCount:    experiments.filter((e) => e.status === 'recruiting').length,
+    activeCount:        experiments.filter((e) => e.status === 'recruiting' || e.status === 'active').length,
+    totalParticipants:  experiments.reduce((s, e) => s + e.slots_filled, 0),
+  };
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="min-h-screen flex flex-col" style={{ background: 'var(--bg-page)' }}>
       <SiteHeader />
-      <TickerBar
-        experiments={experiments}
-        totalPool={stats.totalBountyPool}
-        activeCount={stats.activeCount}
-        totalParticipants={stats.totalParticipants}
-      />
-
-      <div className="flex-1 max-w-screen-xl mx-auto w-full">
-        <div className="px-4 md:px-8 pt-8 pb-2">
-          <p className="mono text-xs mb-1" style={{ color: 'var(--text-dim)' }}>
-            // ALL_STUDIES
+      <div style={{ flex: 1, width: '100%', maxWidth: 1200, marginLeft: 'auto', marginRight: 'auto' }}>
+        <div style={{ padding: '32px 24px 8px' }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>
+            All studies
           </p>
           <h1
-            className="text-2xl font-black"
-            style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-white)' }}
+            style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 700, color: 'var(--ink)' }}
           >
             Study Database
           </h1>
         </div>
-        <ExperimentDashboard experiments={experiments} stats={stats} orgMap={orgMap} />
 
-        {/* Participant leaderboard — explore page only */}
-        {leaderboard.length > 0 && (
-          <div className="px-4 md:px-6 pb-8">
-            <ParticipantLeaderboard rows={leaderboard} currentUserParticipantId={null} />
+        {experiments.length === 0 ? (
+          <div className="px-4 md:px-8 py-16 text-center">
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '2px', color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 16 }}>
+              Active studies
+            </p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--slate)', lineHeight: 1.8, marginBottom: 24 }}>
+              No studies currently active.<br />
+              Biome is onboarding its first sponsor studies.
+            </p>
+            <a
+              href="/run-a-study"
+              style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 600, color: 'var(--teal)', textDecoration: 'none' }}
+            >
+              Run a study with Biome →
+            </a>
           </div>
+        ) : (
+          <ExperimentDashboard experiments={experiments} stats={stats} orgMap={orgMap} />
         )}
       </div>
 
       <footer
-        className="text-center py-4 mono text-xs"
-        style={{ color: 'var(--text-dim)', borderTop: '1px solid rgba(77,255,128,0.06)' }}
+        className="text-center py-4"
+        style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--muted)', borderTop: '1px solid var(--border-soft)' }}
       >
-        // BIOME_PROTOCOL — study aggregator
+        BIOME — operations layer for human studies
       </footer>
     </main>
   );

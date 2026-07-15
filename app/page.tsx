@@ -1,89 +1,68 @@
 import { createAnonClient } from '@/lib/supabase/anon';
 import { SiteHeader } from '@/components/nav/header';
-import { TickerBar } from '@/components/dashboard/ticker-bar';
-import { HeroCompact } from '@/components/hero/hero-compact';
-import { ExperimentGrid } from '@/components/home/experiment-grid';
-import { Leaderboard } from '@/components/dashboard/leaderboard';
-import { CtaBlock } from '@/components/home/cta-block';
-import type { Experiment } from '@/lib/types';
+import { HomeHero } from '@/components/home/hero';
+import { StatsBar } from '@/components/home/stats-bar';
+import { HowItWorks } from '@/components/home/how-it-works';
+import { EstimateCta } from '@/components/home/estimate-cta';
+import { BlogPreview } from '@/components/home/blog-preview';
+import { PartnersStrip } from '@/components/home/partners-strip';
+import { ClosingCta } from '@/components/home/closing-cta';
 
-export type OrgEntry = { id: string; org_name: string };
-export type OrgMap = Record<string, OrgEntry>; // keyed by user_id (= experiments.experimenter_id)
-
-function computeStats(experiments: Experiment[]) {
-  const totalBountyPool = experiments.reduce((s, e) => s + e.total_bounty_pool, 0);
-  const totalEarned = experiments
-    .filter((e) => e.status === 'active' || e.status === 'completed')
-    .reduce((s, e) => s + e.bounty_per_participant * e.slots_filled, 0);
-  const activeCount = experiments.filter(
-    (e) => e.status === 'recruiting' || e.status === 'active'
-  ).length;
-  const totalParticipants = experiments.reduce((s, e) => s + e.slots_filled, 0);
-  return { totalBountyPool, totalEarned, activeCount, totalParticipants };
+interface Partner {
+  id: string;
+  name: string;
+  logo_url: string;
 }
 
 export default async function HomePage() {
   const supabase = createAnonClient();
 
-  const [expResult, orgResult] = await Promise.all([
-    supabase.from('experiments').select('*').neq('status', 'draft').order('created_at', { ascending: false }),
-    supabase
-      .from('experimenter_profiles')
-      .select('id, user_id, org_name')
-      .eq('screening_status', 'approved'),
-  ]);
-
-  const experiments = (expResult.data ?? []) as Experiment[];
-  const stats       = computeStats(experiments);
-
-  const orgMap: OrgMap = {};
-  for (const o of (orgResult.data ?? []) as { id: string; user_id: string; org_name: string }[]) {
-    orgMap[o.user_id] = { id: o.id, org_name: o.org_name };
+  let partners: Partner[] = [];
+  try {
+    const { data } = await supabase
+      .from('partner_applications')
+      .select('id, name, logo_url')
+      .eq('status', 'approved')
+      .eq('display_on_homepage', true);
+    partners = (data ?? []) as Partner[];
+  } catch {
+    // table not yet migrated — fail silently
   }
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main style={{ minHeight: '100vh' }}>
       <SiteHeader />
-      <HeroCompact stats={stats} experimentCount={experiments.length} />
-      <div className="flex-1 max-w-screen-xl mx-auto w-full">
-        <ExperimentGrid experiments={experiments} orgMap={orgMap} />
-        <TickerBar
-          experiments={experiments}
-          totalPool={stats.totalBountyPool}
-          activeCount={stats.activeCount}
-          totalParticipants={stats.totalParticipants}
-        />
-        <Leaderboard />
-        <CtaBlock />
-      </div>
-      <footer
-        className="px-4 sm:px-10"
-        style={{
-          paddingTop: 16, paddingBottom: 16,
-          display: 'flex', flexWrap: 'wrap', alignItems: 'center',
-          justifyContent: 'space-between', gap: 16,
-          borderTop: '1px solid rgba(255,255,255,0.05)',
-        }}
-      >
-        <span style={{
-          fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 16,
-          letterSpacing: '4px', color: '#b7ff61', textTransform: 'uppercase',
+      <HomeHero />
+      <StatsBar />
+      <HowItWorks />
+      <EstimateCta />
+      <BlogPreview />
+      {partners.length > 0 && <PartnersStrip partners={partners} />}
+      <ClosingCta />
+
+      {/* Footer */}
+      <footer style={{ background: 'var(--bg-page)', borderTop: '1px solid var(--border-soft)' }}>
+        <div style={{
+          maxWidth:       1140,
+          margin:         '0 auto',
+          padding:        '40px 24px',
+          display:        'flex',
+          alignItems:     'center',
+          justifyContent: 'space-between',
+          flexWrap:       'wrap',
+          gap:            20,
         }}>
-          BIOME
-          <span style={{
-            fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '1px',
-            color: '#4a7055', border: '1px solid rgba(255,255,255,0.07)',
-            padding: '1px 5px', marginLeft: 8, verticalAlign: 'middle',
-          }}>v0.1</span>
-        </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-          <a href="/legal/tos"                              style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Terms</a>
-          <a href="/privacy"                                style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Privacy</a>
-          <a href="/legal/participant-agreement/view"       style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Participant Agreement</a>
-          <a href="/legal/experimenter-agreement/view"     style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Experimenter Agreement</a>
-          <a href="/payout-policy"                          style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Payout Policy</a>
-          <a href="/docs"                                    style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Docs</a>
-          <a href="/disputes/raise"                           style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#4a7055', textDecoration: 'none' }}>Report an Issue</a>
+          <span style={{ fontFamily: 'var(--font-logo)', fontWeight: 700, fontSize: 17, letterSpacing: '2px', color: 'var(--ink)' }}>
+            BIO<span style={{ color: 'var(--teal)' }}>ME</span>
+          </span>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--muted)' }}>
+            Biome Inc
+          </span>
+          <nav style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+            {[['Blog', '/blog'], ['Docs', '/docs'], ['Terms', '/legal/tos'], ['Privacy', '/privacy']].map(([label, href]) => (
+              <a key={href} href={href} className="footer-link">{label}</a>
+            ))}
+          </nav>
         </div>
       </footer>
     </main>

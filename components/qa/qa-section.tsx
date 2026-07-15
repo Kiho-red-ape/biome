@@ -42,6 +42,41 @@ function relativeTime(dateStr: string): string {
   return `${Math.floor(diffDays / 30)}mo ago`;
 }
 
+// ─── Shared clinical styles ───────────────────────────────────────────────────
+
+const TEXTAREA_STYLE: React.CSSProperties = {
+  fontFamily:   'var(--font-body)',
+  fontSize:     13,
+  background:   'var(--surface)',
+  border:       '1px solid var(--border-mid)',
+  borderRadius: 'var(--radius-sm)',
+  color:        'var(--ink)',
+};
+
+const BTN_PRIMARY: React.CSSProperties = {
+  fontFamily:   'var(--font-body)',
+  fontSize:     13,
+  fontWeight:   600,
+  padding:      '8px 16px',
+  borderRadius: 'var(--radius-sm)',
+  background:   'var(--teal)',
+  border:       '1px solid var(--teal)',
+  color:        '#ffffff',
+  cursor:       'pointer',
+};
+
+const BTN_GHOST: React.CSSProperties = {
+  fontFamily:   'var(--font-body)',
+  fontSize:     13,
+  fontWeight:   500,
+  padding:      '8px 14px',
+  borderRadius: 'var(--radius-sm)',
+  background:   'var(--surface)',
+  border:       '1px solid var(--border-mid)',
+  color:        'var(--slate)',
+  cursor:       'pointer',
+};
+
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export function QASection({ experimentId, experimenterUserId, orgName, initialQuestions }: Props) {
@@ -98,67 +133,60 @@ export function QASection({ experimentId, experimenterUserId, orgName, initialQu
   }
 
   return (
-    <div className="rounded overflow-hidden" style={{ border: '1px solid rgba(77,255,128,0.06)' }}>
+    <div className="flex flex-col gap-4">
 
-      {/* Header */}
-      <div
-        className="px-4 py-3 flex items-center gap-2"
-        style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.06)' }}
-      >
-        <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-          // QUESTIONS
-        </p>
-        <span className="mono text-xs" style={{ color: 'var(--green)' }}>
-          [{questions.length}]
-        </span>
-      </div>
+      {/* Count */}
+      <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)' }}>
+        {questions.length} question{questions.length !== 1 ? 's' : ''}
+      </p>
 
       {/* Empty state */}
       {questions.length === 0 && (
-        <div className="px-4 py-8 text-center" style={{ background: 'var(--bg)' }}>
-          <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
-            {'>'}_{'  '}No questions yet. Ask something about this study.
+        <div
+          className="px-4 py-8 text-center rounded"
+          style={{ background: 'var(--bg-page)', border: '1px dashed var(--border-mid)', borderRadius: 'var(--radius-sm)' }}
+        >
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>
+            No questions yet. Ask something about this study.
           </p>
         </div>
       )}
 
       {/* Questions */}
       {questions.length > 0 && (
-        <div className="flex flex-col" style={{ background: 'var(--bg)' }}>
-          {questions.map((q) => {
+        <div className="flex flex-col">
+          {questions.map((q, qi) => {
             const pp           = q.profiles?.participant_profiles?.[0] ?? null;
             const name         = pp?.pseudonym ?? q.profiles?.display_name ?? 'anon';
             const profileHref  = pp ? `/profile/${pp.participant_id}` : null;
-            const isExpReply   = false; // questions are from participants, not experimenters
 
             return (
               <div
                 key={q.id}
-                className="border-b"
-                style={{ borderColor: 'rgba(77,255,128,0.05)' }}
+                style={{ borderBottom: qi < questions.length - 1 ? '1px solid var(--border-soft)' : 'none' }}
               >
                 {/* Question */}
-                <div className="px-4 py-3">
+                <div className="py-3">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     {pp && <Identicon participantId={pp.participant_id} size={20} />}
                     {profileHref ? (
                       <Link
                         href={profileHref}
-                        className="mono text-xs font-bold no-underline hover:underline"
-                        style={{ color: 'var(--green)' }}
+                        className="no-underline hover:underline"
+                        style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, color: 'var(--teal-dark)' }}
                       >
                         {name}
                       </Link>
                     ) : (
-                      <span className="mono text-xs font-bold" style={{ color: 'var(--green)' }}>
+                      <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
                         {name}
                       </span>
                     )}
-                    <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
                       · {relativeTime(q.created_at)}
                     </span>
                   </div>
-                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-bright)', fontSize: '0.82rem' }}>
+                  <p className="leading-relaxed" style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--slate)' }}>
                     {q.content}
                   </p>
 
@@ -166,10 +194,10 @@ export function QASection({ experimentId, experimenterUserId, orgName, initialQu
                   {isExperimenter && q.replies.length === 0 && replyingTo !== q.id && (
                     <button
                       onClick={() => setReplyingTo(q.id)}
-                      className="mono mt-2 transition-opacity hover:opacity-80"
-                      style={{ color: 'var(--cyan)', fontSize: '0.7rem' }}
+                      className="mt-2 transition-opacity hover:opacity-80"
+                      style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 600, color: 'var(--teal-dark)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                     >
-                      reply ↩
+                      Reply →
                     </button>
                   )}
                 </div>
@@ -177,10 +205,10 @@ export function QASection({ experimentId, experimenterUserId, orgName, initialQu
                 {/* Experimenter reply form */}
                 {isExperimenter && replyingTo === q.id && q.replies.length === 0 && (
                   <div
-                    className="px-4 pb-3"
-                    style={{ borderLeft: '2px solid rgba(0,229,255,0.2)', marginLeft: 12 }}
+                    className="pb-3 pl-4"
+                    style={{ borderLeft: '2px solid var(--teal)', marginLeft: 8, marginBottom: 12 }}
                   >
-                    <p className="mono text-xs mb-2" style={{ color: 'var(--cyan)' }}>
+                    <p className="mb-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--teal-dark)' }}>
                       {orgName ?? 'Experimenter'} — reply
                     </p>
                     <textarea
@@ -190,26 +218,22 @@ export function QASection({ experimentId, experimenterUserId, orgName, initialQu
                       }
                       placeholder="Type your reply..."
                       rows={3}
-                      className="w-full px-3 py-2 rounded mono text-sm outline-none resize-none"
-                      style={{
-                        background: 'var(--bg3)',
-                        border: '1px solid rgba(0,229,255,0.2)',
-                        color: 'var(--text-bright)',
-                      }}
+                      className="w-full px-3 py-2 outline-none resize-none"
+                      style={TEXTAREA_STYLE}
                     />
                     <div className="flex gap-2 mt-2">
                       <button
                         onClick={() => submitReply(q.id)}
                         disabled={!replyTexts[q.id]?.trim() || replyLoading === q.id}
-                        className="mono text-xs px-4 py-1.5 rounded font-bold disabled:opacity-40 hover:opacity-90"
-                        style={{ background: 'var(--cyan)', color: '#050709' }}
+                        className="disabled:opacity-40 hover:opacity-90 transition-opacity"
+                        style={BTN_PRIMARY}
                       >
                         {replyLoading === q.id ? 'Posting...' : 'Post reply →'}
                       </button>
                       <button
                         onClick={() => setReplyingTo(null)}
-                        className="mono text-xs px-3 py-1.5 rounded hover:opacity-80"
-                        style={{ color: 'var(--text-dim)', border: '1px solid rgba(77,255,128,0.1)' }}
+                        className="hover:opacity-80 transition-opacity"
+                        style={BTN_GHOST}
                       >
                         Cancel
                       </button>
@@ -231,9 +255,11 @@ export function QASection({ experimentId, experimenterUserId, orgName, initialQu
                       key={reply.id}
                       className="px-4 py-3"
                       style={{
-                        borderLeft: `2px solid ${isExpReplyRow ? 'rgba(0,229,255,0.25)' : 'rgba(77,255,128,0.12)'}`,
-                        marginLeft: 12,
-                        background: isExpReplyRow ? 'rgba(0,229,255,0.03)' : 'rgba(77,255,128,0.015)',
+                        borderLeft:   `2px solid ${isExpReplyRow ? 'var(--teal)' : 'var(--border-mid)'}`,
+                        marginLeft:   8,
+                        marginBottom: 12,
+                        background:   isExpReplyRow ? 'var(--teal-faint)' : 'var(--bg-page)',
+                        borderRadius: '0 var(--radius-sm) var(--radius-sm) 0',
                       }}
                     >
                       <div className="flex items-center gap-2 mb-1.5 flex-wrap">
@@ -241,33 +267,32 @@ export function QASection({ experimentId, experimenterUserId, orgName, initialQu
                           <Identicon participantId={replyPp.participant_id} size={18} />
                         )}
                         {isExpReplyRow && (
-                          <span className="mono text-xs" style={{ color: 'var(--cyan)', fontSize: '0.65rem' }}>
-                            ORG
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--teal-dark)', background: 'var(--teal-soft)', padding: '1px 5px', borderRadius: 4 }}>
+                            Org
                           </span>
                         )}
                         {replyHref ? (
                           <Link
                             href={replyHref}
-                            className="mono text-xs font-bold no-underline hover:underline"
-                            style={{ color: isExpReplyRow ? 'var(--cyan)' : 'var(--text-bright)' }}
+                            className="no-underline hover:underline"
+                            style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, color: isExpReplyRow ? 'var(--teal-dark)' : 'var(--ink)' }}
                           >
                             {replyName}
                           </Link>
                         ) : (
                           <span
-                            className="mono text-xs font-bold"
-                            style={{ color: isExpReplyRow ? 'var(--cyan)' : 'var(--text-bright)' }}
+                            style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, color: isExpReplyRow ? 'var(--teal-dark)' : 'var(--ink)' }}
                           >
                             {replyName}
                           </span>
                         )}
-                        <span className="mono text-xs" style={{ color: 'var(--text-dim)' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
                           · {relativeTime(reply.created_at)}
                         </span>
                       </div>
                       <p
-                        className="text-sm leading-relaxed"
-                        style={{ color: 'var(--text-bright)', fontSize: '0.82rem' }}
+                        className="leading-relaxed"
+                        style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--slate)' }}
                       >
                         {reply.content}
                       </p>
@@ -284,36 +309,32 @@ export function QASection({ experimentId, experimenterUserId, orgName, initialQu
       {/* Ask question form */}
       <div
         className="p-4"
-        style={{ background: 'var(--bg2)', borderTop: '1px solid rgba(77,255,128,0.06)' }}
+        style={{ background: 'var(--bg-page)', border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-sm)' }}
       >
         {authenticated ? (
           <>
-            <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>
-              ASK A QUESTION
+            <label className="block mb-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)' }}>
+              Ask a question
             </label>
             <textarea
               value={questionText}
               onChange={(e) => setQuestionText(e.target.value)}
               placeholder="Type your question about this study..."
               rows={3}
-              className="w-full px-3 py-2 rounded mono text-sm outline-none resize-none"
-              style={{
-                background: 'var(--bg3)',
-                border: '1px solid rgba(77,255,128,0.15)',
-                color: 'var(--text-bright)',
-              }}
+              className="w-full px-3 py-2 outline-none resize-none"
+              style={TEXTAREA_STYLE}
             />
             <button
               onClick={submitQuestion}
               disabled={!questionText.trim() || submitting}
-              className="mono text-xs px-4 py-2 rounded font-bold mt-2 transition-all disabled:opacity-40 hover:opacity-90"
-              style={{ background: 'var(--green)', color: '#050709' }}
+              className="mt-2 transition-all disabled:opacity-40 hover:opacity-90"
+              style={BTN_PRIMARY}
             >
               {submitting ? 'Posting...' : 'Post question →'}
             </button>
           </>
         ) : (
-          <p className="mono text-xs text-center" style={{ color: 'var(--text-dim)' }}>
+          <p className="text-center" style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>
             Sign in to ask a question.
           </p>
         )}

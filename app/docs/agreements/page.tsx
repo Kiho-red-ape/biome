@@ -7,20 +7,20 @@ import {
 export default function AgreementsPage() {
   return (
     <article>
-      <DocLabel text="AGREEMENTS" />
+      <DocLabel text="Agreements" />
       <DocH1>Agreements and policies</DocH1>
       <DocLead>
-        BIOME uses three agreements and two policy documents to establish the legal framework between
-        the platform, participants, and researchers.
+        Biome uses three agreements and two policy documents to establish the legal framework between
+        the platform, research partners, and researchers.
       </DocLead>
 
       <DocH2>When agreements are required</DocH2>
       <DocTable
         headers={['Document', 'When shown', 'Acceptance required']}
         rows={[
-          ['Platform Terms of Service',    'During account registration',                       'Yes — scroll-to-accept with checkbox'],
-          ['Participant Study Agreement',   'When applying to a specific study',                 'Yes — scroll-to-accept with checkbox'],
-          ['Experimenter Study Agreement',  'When publishing / launching a study',               'Yes — scroll-to-accept with checkbox'],
+          ['Platform Terms of Service',       'During account registration',     'Yes — scroll-to-accept with checkbox'],
+          ['Research Partner Study Agreement', 'When applying to a specific study', 'Yes — scroll-to-accept with checkbox'],
+          ['Researcher Study Agreement',       'When launching a study',          'Yes — scroll-to-accept with checkbox'],
         ]}
       />
       <DocP>
@@ -43,8 +43,8 @@ export default function AgreementsPage() {
           { label: 'Payout Policy',           href: '/payout-policy' },
         ].map((link) => (
           <Link key={link.href} href={link.href} style={{
-            fontFamily: 'var(--font-heading)', fontSize: 14,
-            color: 'var(--green)', textDecoration: 'none',
+            fontFamily: 'var(--font-body)', fontSize: 14,
+            color: 'var(--teal-dark)', textDecoration: 'none',
           }}>
             {link.label} →
           </Link>
@@ -73,12 +73,12 @@ export default function AgreementsPage() {
         'Any supporting evidence (file upload, max 5MB)',
       ]} />
       <DocP>
-        BIOME reviews disputes and responds within 72 hours. Both parties can communicate through
+        Biome reviews disputes and responds within 72 hours. Both parties can communicate through
         the dispute thread. Resolutions are final unless escalated.
       </DocP>
       <DocP>
         For the full dispute resolution process, see the{' '}
-        <Link href="/legal/tos" style={{ color: 'var(--green)' }}>
+        <Link href="/legal/tos" style={{ color: 'var(--teal-dark)' }}>
           Platform Terms of Service
         </Link>.
       </DocP>

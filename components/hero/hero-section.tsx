@@ -194,7 +194,7 @@ export function HeroSection({ stats }: Props) {
           <Link
             href="#experiments"
             className="mono text-xs px-6 py-2.5 rounded font-bold no-underline transition-all hover:opacity-90"
-            style={{ background: 'var(--green)', color: '#050709' }}
+            style={{ background: 'var(--green)', color: '#060a14' }}
           >
             BROWSE EXPERIMENTS →
           </Link>

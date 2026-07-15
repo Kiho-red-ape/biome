@@ -257,7 +257,7 @@ export default function DisputeThreadPage({ params }: { params: Promise<{ id: st
               onClick={sendReply}
               disabled={sending || !reply.trim()}
               className="mono text-xs px-4 py-2 rounded transition-all hover:opacity-90 disabled:opacity-40"
-              style={{ background: 'var(--green)', color: '#050709', fontWeight: 700 }}
+              style={{ background: 'var(--green)', color: '#060a14', fontWeight: 700 }}
             >
               {sending ? 'SENDING…' : 'SEND MESSAGE →'}
             </button>

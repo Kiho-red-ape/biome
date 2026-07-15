@@ -1,16 +1,16 @@
 import {
   DocLabel, DocH1, DocH2, DocH3, DocP, DocLead,
-  DocUL, DocNav,
+  DocUL, Code, DocNav,
 } from '../../docs-components';
 
 export default function DashboardPage() {
   return (
     <article>
-      <DocLabel text="PARTICIPANTS" />
+      <DocLabel text="Research partners" />
       <DocH1>Your dashboard</DocH1>
       <DocLead>
-        The participant dashboard at <code style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--green)' }}>/dashboard</code> is
-        your control center. It shows all your study activity, compliance progress, and payout status.
+        The dashboard at <Code>/dashboard</Code> is your control center. It shows all your study
+        activity, milestone progress, sample-kit status, and compensation status.
       </DocLead>
 
       <DocH2>Dashboard sections</DocH2>
@@ -21,14 +21,16 @@ export default function DashboardPage() {
         'Study title and category',
         'Current week of the study (e.g., Week 3 of 8)',
         'Compliance progress bar and percentage',
-        'Payout eligibility status: "On track," "At risk," or "Not eligible"',
-        'Milestone checklist organized by week (see Milestones & Compliance)',
+        'Compensation eligibility status: "On track," "At risk," or "Not eligible"',
+        'Milestone checklist organized by week (see Milestones & sample kits)',
+        'Sample-kit status for any kits assigned to you (dispatched, delivered, returned, received by lab)',
+        'Messages from the research team, delivered under your pseudonym',
       ]} />
 
       <DocH3>Applications</DocH3>
       <DocP>All studies you have applied to, with current status:</DocP>
       <DocUL items={[
-        'Under review — awaiting researcher decision',
+        'Under review — awaiting the research team’s decision',
         'Accepted — you have been selected, awaiting enrollment or study launch',
         'Waitlisted — you may be accepted if a spot opens',
         'Not selected — application was not approved',
@@ -38,8 +40,8 @@ export default function DashboardPage() {
       <DocP>Studies you have finished, showing:</DocP>
       <DocUL items={[
         'Final compliance score',
-        'Payout status (eligible, pending, paid, or not eligible)',
-        'Payout amount if applicable',
+        'Compensation status (eligible, pending, processed, or not eligible)',
+        'Compensation amount if applicable',
       ]} />
 
       <DocH3>Profile completeness</DocH3>
@@ -48,10 +50,9 @@ export default function DashboardPage() {
         in remaining sections.
       </DocP>
 
-
       <DocNav
         prev={{ label: 'Applying to a study', href: '/docs/participants/applying' }}
-        next={{ label: 'Milestones & compliance', href: '/docs/participants/milestones' }}
+        next={{ label: 'Milestones & sample kits', href: '/docs/participants/milestones' }}
       />
     </article>
   );

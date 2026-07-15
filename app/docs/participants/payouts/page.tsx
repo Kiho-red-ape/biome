@@ -6,76 +6,75 @@ import {
 export default function ParticipantPayoutsPage() {
   return (
     <article>
-      <DocLabel text="PARTICIPANTS" />
-      <DocH1>Payouts</DocH1>
+      <DocLabel text="Research partners" />
+      <DocH1>Compensation</DocH1>
       <DocLead>
-        Participants receive payment upon completing a study above the compliance threshold. Payouts
-        are coordinated through BIOME after the researcher confirms study completion.
+        Research partners receive compensation for completing a study above its compliance
+        threshold. Compensation is processed through Biome after the research team confirms study
+        completion, and every step is recorded in an audit trail.
       </DocLead>
 
-      <DocH2>Payout eligibility</DocH2>
-      <DocP>You become eligible for payout when all three conditions are met:</DocP>
+      <DocH2>Compensation eligibility</DocH2>
+      <DocP>You become eligible for compensation when all three conditions are met:</DocP>
       <DocUL items={[
         'You are enrolled in the study and the study has been completed',
         'Your compliance score meets or exceeds the study\'s compliance threshold',
         'No protocol violations have been flagged against your participation',
       ]} />
       <DocP>
-        If any of these conditions are not met, you will not be eligible for payout for that study.
+        If any of these conditions are not met, you will not be eligible for compensation for that
+        study.
       </DocP>
 
-      <DocH2>Payout amount</DocH2>
+      <DocH2>Compensation amount</DocH2>
       <DocP>
-        The payout amount is the per-participant reward listed on the study page. BIOME&apos;s platform
-        fee is charged to the researcher, not deducted from your reward. However, third-party fees may
-        apply depending on your payout method.
+        Your compensation follows the schedule listed on the study page — either a single amount on
+        completion or staged amounts tied to specific milestones, depending on how the research team
+        configured the study.
       </DocP>
       <DocP>
-        A participant payout processing fee of 0.5% of the total payout amount applies.
-      </DocP>
-
-      <DocH2>Payout methods</DocH2>
-      <DocP>
-        BIOME supports payout methods that may include bank transfer, supported digital payout methods,
-        and, where available, cryptocurrency payouts. Availability depends on your country, provider
-        support, and compliance checks.
-      </DocP>
-      <DocP>
-        Payout timing is not guaranteed. Processing time may vary depending on the payout method,
-        banking systems, currency conversion, compliance review, and recipient account status. If
-        currency conversion is required, the payout provider may apply its own exchange rate and fees.
-        BIOME does not guarantee mid-market exchange rates.
+        The research team deposits the full compensation budget with Biome before the study
+        launches, so the funds for your compensation are committed and held before you begin the
+        protocol. Third-party processing fees may apply depending on your compensation method.
       </DocP>
 
-      <DocH2>Payout status</DocH2>
-      <DocP>You can track your payout status in your dashboard:</DocP>
+      <DocH2>Compensation methods</DocH2>
+      <DocP>
+        Biome supports compensation methods that may include bank transfer and supported digital
+        payout methods. Availability depends on your country, provider support, and compliance
+        checks.
+      </DocP>
+      <DocP>
+        Timing is not guaranteed. Processing time may vary depending on the method, banking systems,
+        currency conversion, compliance review, and recipient account status. If currency conversion
+        is required, the provider may apply its own exchange rate and fees. Biome does not guarantee
+        mid-market exchange rates.
+      </DocP>
+
+      <DocH2>Compensation status</DocH2>
+      <DocP>You can track your compensation status in your dashboard:</DocP>
       <DocTable
         headers={['Status', 'Meaning']}
         rows={[
           ['Not applicable', 'Study is still in progress'],
-          ['Pending',        'Study is complete, payout is being processed'],
-          ['Processing',     'Payout has been initiated'],
-          ['Paid',           'Payout has been delivered'],
+          ['Pending',        'Study is complete, compensation is being prepared'],
+          ['Processing',     'Compensation has been initiated'],
+          ['Processed',      'Compensation has been delivered'],
           ['Not eligible',   'Compliance below threshold or violation flagged'],
         ]}
       />
 
-      <DocH2>Deposits</DocH2>
+      <DocH2>Audit trail</DocH2>
       <DocP>
-        Some studies may require a participation deposit. This is a small amount (typically 1/5th of
-        the reward) that you commit when enrolling. The deposit is returned to you upon successful
-        completion above the compliance threshold. If you withdraw after the first 7 days or fail to
-        meet the compliance threshold, the deposit may be forfeited.
+        Every compensation event — eligibility determination, initiation, delivery, and any
+        adjustment — is recorded with a timestamp and is visible in your dashboard. If you believe a
+        decision was made unfairly, you can raise a dispute (see Agreements &amp; policies) or
+        contact <a href="mailto:contact@biome.to" style={{ color: 'var(--teal-dark)', fontWeight: 550 }}>contact@biome.to</a>.
       </DocP>
-      <DocP>
-        Withdrawal within the first 7 days of study commencement returns your deposit in full
-        regardless of compliance status.
-      </DocP>
-
 
       <DocNav
-        prev={{ label: 'Milestones & compliance', href: '/docs/participants/milestones' }}
-        next={{ label: 'Getting started as a researcher', href: '/docs/researchers' }}
+        prev={{ label: 'Milestones & sample kits', href: '/docs/participants/milestones' }}
+        next={{ label: 'For researchers', href: '/docs/researchers' }}
       />
     </article>
   );

@@ -5,10 +5,11 @@ import Link from 'next/link';
 export function DocLabel({ text }: { text: string }) {
   return (
     <p style={{
-      fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '3px',
-      textTransform: 'uppercase', color: 'var(--green)', marginBottom: 8,
+      fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '2px',
+      textTransform: 'uppercase', color: 'var(--teal)', fontWeight: 500,
+      marginBottom: 10,
     }}>
-      // {text}
+      {text}
     </p>
   );
 }
@@ -16,8 +17,9 @@ export function DocLabel({ text }: { text: string }) {
 export function DocH1({ children }: { children: React.ReactNode }) {
   return (
     <h1 style={{
-      fontFamily: 'var(--font-heading)', fontSize: 30, fontWeight: 800,
-      color: 'var(--text-white)', marginBottom: 8, lineHeight: 1.2,
+      fontFamily: 'var(--font-display)', fontSize: 30, fontWeight: 700,
+      color: 'var(--ink)', marginBottom: 10, lineHeight: 1.25,
+      letterSpacing: '-0.02em',
     }}>
       {children}
     </h1>
@@ -27,10 +29,10 @@ export function DocH1({ children }: { children: React.ReactNode }) {
 export function DocH2({ id, children }: { id?: string; children: React.ReactNode }) {
   return (
     <h2 id={id} style={{
-      fontFamily: 'var(--font-heading)', fontSize: 20, fontWeight: 700,
-      color: 'var(--text-white)', marginTop: 44, marginBottom: 12,
-      paddingTop: 4,
-      borderTop: '1px solid rgba(77,255,128,0.07)',
+      fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 650,
+      color: 'var(--ink)', marginTop: 44, marginBottom: 12,
+      paddingTop: 24, letterSpacing: '-0.01em',
+      borderTop: '1px solid var(--border-soft)',
     }}>
       {children}
     </h2>
@@ -40,8 +42,8 @@ export function DocH2({ id, children }: { id?: string; children: React.ReactNode
 export function DocH3({ children }: { children: React.ReactNode }) {
   return (
     <h3 style={{
-      fontFamily: 'var(--font-heading)', fontSize: 15, fontWeight: 700,
-      color: 'var(--text-bright)', marginTop: 28, marginBottom: 8,
+      fontFamily: 'var(--font-display)', fontSize: 15.5, fontWeight: 600,
+      color: 'var(--ink)', marginTop: 28, marginBottom: 8,
     }}>
       {children}
     </h3>
@@ -51,7 +53,7 @@ export function DocH3({ children }: { children: React.ReactNode }) {
 export function DocP({ children }: { children: React.ReactNode }) {
   return (
     <p style={{
-      fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1',
+      fontFamily: 'var(--font-body)', fontSize: 14.5, color: 'var(--slate)',
       lineHeight: 1.8, marginBottom: 14,
     }}>
       {children}
@@ -62,7 +64,7 @@ export function DocP({ children }: { children: React.ReactNode }) {
 export function DocLead({ children }: { children: React.ReactNode }) {
   return (
     <p style={{
-      fontFamily: 'var(--font-heading)', fontSize: 16, color: '#c0d4c4',
+      fontFamily: 'var(--font-body)', fontSize: 16.5, color: 'var(--slate)',
       lineHeight: 1.7, marginBottom: 28,
     }}>
       {children}
@@ -73,12 +75,28 @@ export function DocLead({ children }: { children: React.ReactNode }) {
 export function Code({ children }: { children: React.ReactNode }) {
   return (
     <code style={{
-      fontFamily: 'var(--font-mono)', fontSize: 11,
-      color: 'var(--green)', background: 'rgba(77,255,128,0.07)',
-      padding: '1px 5px', borderRadius: 2,
+      fontFamily: 'var(--font-mono)', fontSize: 12.5,
+      color: 'var(--teal-dark)', background: 'var(--teal-faint)',
+      border: '1px solid var(--border-soft)',
+      padding: '1px 6px', borderRadius: 'var(--radius-xs, 6px)',
     }}>
       {children}
     </code>
+  );
+}
+
+export function DocCodeBlock({ children }: { children: React.ReactNode }) {
+  return (
+    <pre style={{
+      fontFamily: 'var(--font-mono)', fontSize: 13,
+      color: 'var(--teal-dark)', background: 'var(--teal-faint)',
+      border: '1px solid var(--border-soft)',
+      padding: '14px 18px', borderRadius: 'var(--radius-sm)',
+      marginBottom: 14, overflowX: 'auto', whiteSpace: 'pre-wrap',
+      lineHeight: 1.6,
+    }}>
+      {children}
+    </pre>
   );
 }
 
@@ -86,11 +104,14 @@ export function Code({ children }: { children: React.ReactNode }) {
 
 export function DocUL({ items }: { items: string[] }) {
   return (
-    <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 14px', display: 'flex', flexDirection: 'column', gap: 7 }}>
       {items.map((item, i) => (
-        <li key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-          <span style={{ color: 'var(--green-dim)', marginTop: 3, flexShrink: 0, fontFamily: 'var(--font-mono)', fontSize: 10 }}>—</span>
-          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1', lineHeight: 1.7 }}>{item}</span>
+        <li key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+          <span aria-hidden style={{
+            width: 6, height: 6, borderRadius: '50%', background: 'var(--teal)',
+            marginTop: 9, flexShrink: 0,
+          }} />
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 14.5, color: 'var(--slate)', lineHeight: 1.7 }}>{item}</span>
         </li>
       ))}
     </ul>
@@ -99,16 +120,19 @@ export function DocUL({ items }: { items: string[] }) {
 
 export function DocOL({ items }: { items: React.ReactNode[] }) {
   return (
-    <ol style={{ listStyle: 'none', padding: 0, margin: '0 0 14px', display: 'flex', flexDirection: 'column', gap: 8, counterReset: 'ol' }}>
+    <ol style={{ listStyle: 'none', padding: 0, margin: '0 0 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
       {items.map((item, i) => (
         <li key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
           <span style={{
-            fontFamily: 'var(--font-mono)', fontSize: 11, flexShrink: 0,
-            color: 'var(--green)', minWidth: 18, marginTop: 2,
+            fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 500, flexShrink: 0,
+            color: 'var(--teal)', background: 'var(--teal-faint)',
+            border: '1px solid var(--border-soft)', borderRadius: 'var(--radius-xs, 6px)',
+            minWidth: 24, height: 24, display: 'flex', alignItems: 'center',
+            justifyContent: 'center', marginTop: 1,
           }}>
-            {i + 1}.
+            {i + 1}
           </span>
-          <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1', lineHeight: 1.7 }}>{item}</span>
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 14.5, color: 'var(--slate)', lineHeight: 1.7 }}>{item}</span>
         </li>
       ))}
     </ol>
@@ -119,15 +143,19 @@ export function DocOL({ items }: { items: React.ReactNode[] }) {
 
 export function DocTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
   return (
-    <div style={{ overflowX: 'auto', marginBottom: 20, borderRadius: 3, border: '1px solid rgba(77,255,128,0.10)' }}>
+    <div style={{
+      overflowX: 'auto', marginBottom: 20,
+      borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-soft)',
+      background: 'var(--surface)', boxShadow: 'var(--shadow-sm)',
+    }}>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
-          <tr style={{ background: 'var(--bg2)', borderBottom: '1px solid rgba(77,255,128,0.10)' }}>
+          <tr style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-soft)' }}>
             {headers.map((h) => (
               <th key={h} style={{
-                fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '2px',
-                textTransform: 'uppercase', color: '#4a7055',
-                padding: '10px 16px', textAlign: 'left', fontWeight: 400,
+                fontFamily: 'var(--font-body)', fontSize: 11.5, letterSpacing: '1px',
+                textTransform: 'uppercase', color: 'var(--muted)',
+                padding: '10px 16px', textAlign: 'left', fontWeight: 600,
               }}>
                 {h}
               </th>
@@ -136,13 +164,14 @@ export function DocTable({ headers, rows }: { headers: string[]; rows: string[][
         </thead>
         <tbody>
           {rows.map((row, ri) => (
-            <tr key={ri} style={{ borderBottom: '1px solid rgba(77,255,128,0.05)', background: ri % 2 === 0 ? 'var(--bg)' : 'var(--bg2)' }}>
+            <tr key={ri} style={{ borderBottom: ri < rows.length - 1 ? '1px solid var(--border-soft)' : 'none' }}>
               {row.map((cell, ci) => (
                 <td key={ci} style={{
-                  fontFamily: ci === 0 ? 'var(--font-mono)' : 'var(--font-heading)',
-                  fontSize: ci === 0 ? 11 : 13,
-                  color: ci === 0 ? 'var(--text-bright)' : '#aab8b1',
-                  padding: '10px 16px', verticalAlign: 'top', lineHeight: 1.6,
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 13.5,
+                  fontWeight: ci === 0 ? 550 : 400,
+                  color: ci === 0 ? 'var(--ink)' : 'var(--slate)',
+                  padding: '11px 16px', verticalAlign: 'top', lineHeight: 1.6,
                 }}>
                   {cell}
                 </td>
@@ -161,12 +190,12 @@ export function Callout({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       margin: '16px 0', padding: '14px 18px',
-      background: 'rgba(77,255,128,0.04)',
-      border: '1px solid rgba(77,255,128,0.12)',
-      borderLeft: '3px solid var(--green)',
-      borderRadius: 2,
+      background: 'var(--teal-faint)',
+      border: '1px solid var(--border-soft)',
+      borderLeft: '3px solid var(--teal)',
+      borderRadius: 'var(--radius-sm)',
     }}>
-      <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: '#c0d4c4', lineHeight: 1.7, margin: 0 }}>
+      <p style={{ fontFamily: 'var(--font-body)', fontSize: 13.5, color: 'var(--slate)', lineHeight: 1.7, margin: 0 }}>
         {children}
       </p>
     </div>
@@ -179,7 +208,7 @@ export function Term({ term, def }: { term: string; def: string }) {
   return (
     <div style={{ marginBottom: 12 }}>
       <Code>{term}</Code>
-      <span style={{ fontFamily: 'var(--font-heading)', fontSize: 14, color: '#aab8b1', marginLeft: 8 }}>
+      <span style={{ fontFamily: 'var(--font-body)', fontSize: 14.5, color: 'var(--slate)', marginLeft: 8, lineHeight: 1.7 }}>
         — {def}
       </span>
     </div>
@@ -196,24 +225,37 @@ export function DocNav({ prev, next }: {
     <div style={{
       display: 'flex', justifyContent: 'space-between', gap: 16,
       marginTop: 56, paddingTop: 24,
-      borderTop: '1px solid rgba(77,255,128,0.08)',
+      borderTop: '1px solid var(--border-soft)',
     }}>
       <div>
         {prev && (
           <Link href={prev.href} style={{ textDecoration: 'none' }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055', marginBottom: 4, letterSpacing: '1px' }}>PREVIOUS</p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: 'var(--text-bright)' }}>← {prev.label}</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, fontWeight: 600, color: 'var(--muted)', marginBottom: 4, letterSpacing: '1px', textTransform: 'uppercase' }}>Previous</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 550, color: 'var(--teal-dark)' }}>← {prev.label}</p>
           </Link>
         )}
       </div>
       <div style={{ textAlign: 'right' }}>
         {next && (
           <Link href={next.href} style={{ textDecoration: 'none' }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#4a7055', marginBottom: 4, letterSpacing: '1px' }}>NEXT</p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontSize: 13, color: 'var(--text-bright)' }}>{next.label} →</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, fontWeight: 600, color: 'var(--muted)', marginBottom: 4, letterSpacing: '1px', textTransform: 'uppercase' }}>Next</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 550, color: 'var(--teal-dark)' }}>{next.label} →</p>
           </Link>
         )}
       </div>
     </div>
+  );
+}
+
+// ─── Inline doc link ──────────────────────────────────────────────────────────
+
+export function DocLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link href={href} style={{
+      color: 'var(--teal-dark)', fontWeight: 550, textDecoration: 'underline',
+      textDecorationColor: 'rgba(14,116,144,0.3)', textUnderlineOffset: 3,
+    }}>
+      {children}
+    </Link>
   );
 }

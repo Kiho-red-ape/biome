@@ -6,23 +6,79 @@ import type { ParticipantProfile } from '@/lib/types';
 
 // ─── Shared field components ─────────────────────────────────────────────────
 
-function FieldRow({ label, value, locked }: { label: string; value: string | number | boolean | null | undefined; locked?: boolean }) {
+function LockTag() {
+  return (
+    <span
+      className="inline-flex items-center gap-1"
+      title="Permanent field — cannot be changed after submission"
+      style={{
+        fontFamily:    'var(--font-mono)',
+        fontSize:      9,
+        fontWeight:    600,
+        letterSpacing: '0.5px',
+        color:         'var(--slate)',
+        background:    'var(--surface)',
+        border:        '1px solid var(--border-soft)',
+        borderRadius:  4,
+        padding:       '1px 5px',
+      }}
+    >
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <rect x="5" y="11" width="14" height="9" rx="2" />
+        <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+      </svg>
+      PERMANENT
+    </span>
+  );
+}
+
+function FieldRow({ label, value, locked, zebra }: {
+  label: string;
+  value: string | number | boolean | null | undefined;
+  locked?: boolean;
+  zebra?: boolean;
+}) {
   const display = value === null || value === undefined || value === '' ? '—' : String(value);
   return (
-    <div className="flex items-start justify-between gap-4 py-2" style={{ borderBottom: '1px solid rgba(77,255,128,0.05)' }}>
-      <span className="mono text-xs flex items-center gap-1.5" style={{ color: 'var(--text-dim)', flexShrink: 0 }}>
-        {locked && <span title="Permanent field">🔒</span>}
+    <div
+      className="grid items-center gap-4"
+      style={{
+        gridTemplateColumns: '40% 1fr',
+        padding:             '12px 16px',
+        background:          zebra ? 'var(--bg-page)' : 'transparent',
+        borderRadius:        'var(--radius-sm)',
+      }}
+    >
+      <span className="text-sm flex items-center gap-2" style={{ color: 'var(--muted)' }}>
         {label}
+        {locked && <LockTag />}
       </span>
-      <span className="text-sm text-right" style={{ color: 'var(--text-bright)' }}>{display}</span>
+      <span className="text-sm" style={{ color: 'var(--ink)', fontWeight: 500 }}>{display}</span>
     </div>
   );
 }
 
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+function SectionCard({ title, done, children }: { title: string; done?: boolean; children: React.ReactNode }) {
   return (
-    <div className="rounded p-5 mb-4" style={{ background: 'var(--bg2)', border: '1px solid rgba(77,255,128,0.08)' }}>
-      <p className="mono text-xs mb-4" style={{ color: 'var(--text-dim)' }}>{title}</p>
+    <div
+      className="p-6 mb-4"
+      style={{
+        background:   'var(--surface)',
+        border:       '1px solid var(--border-soft)',
+        borderRadius: 'var(--radius)',
+        boxShadow:    'var(--shadow-sm)',
+      }}
+    >
+      <div className="flex items-center gap-2 mb-4">
+        <p
+          className="text-xs font-semibold uppercase"
+          style={{ color: 'var(--teal)', letterSpacing: '1px' }}
+        >
+          {title}
+        </p>
+        {done && <span className="chip chip-success">✓ Complete</span>}
+      </div>
       {children}
     </div>
   );
@@ -34,14 +90,12 @@ function InputField({ label, name, type = 'text', value, onChange, placeholder, 
 }) {
   return (
     <div>
-      <label className="mono text-xs block mb-1.5" style={{ color: 'var(--text-dim)' }}>
+      <label className="text-sm font-medium block mb-1.5" style={{ color: 'var(--ink)' }}>
         {label}{required && ' *'}
       </label>
       <input
         type={type} name={name} value={value} onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder} required={required}
-        className="w-full px-3 py-2 rounded mono text-sm outline-none"
-        style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.15)', color: 'var(--text-bright)' }}
       />
     </div>
   );
@@ -53,10 +107,11 @@ function SelectField({ label, name, value, onChange, options, placeholder }: {
 }) {
   return (
     <div>
-      <label className="mono text-xs block mb-1.5" style={{ color: 'var(--text-dim)' }}>{label}</label>
-      <select value={value} name={name} onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2 rounded mono text-sm outline-none cursor-pointer"
-        style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.15)', color: value ? 'var(--text-bright)' : 'var(--text-dim)' }}
+      <label className="text-sm font-medium block mb-1.5" style={{ color: 'var(--ink)' }}>{label}</label>
+      <select
+        value={value} name={name} onChange={(e) => onChange(e.target.value)}
+        className="cursor-pointer"
+        style={{ color: value ? 'var(--ink)' : 'var(--muted)' }}
       >
         <option value="">{placeholder ?? 'Select…'}</option>
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -73,20 +128,25 @@ function MultiCheck({ label, options, selected, onChange }: {
   }
   return (
     <div>
-      <label className="mono text-xs block mb-2" style={{ color: 'var(--text-dim)' }}>{label}</label>
+      <label className="text-sm font-medium block mb-2" style={{ color: 'var(--ink)' }}>{label}</label>
       <div className="flex flex-wrap gap-2">
-        {options.map((opt) => (
-          <button key={opt} type="button" onClick={() => toggle(opt)}
-            className="mono text-xs px-2.5 py-1 rounded transition-all"
-            style={{
-              background: selected.includes(opt) ? 'rgba(77,255,128,0.12)' : 'var(--bg3)',
-              border: `1px solid ${selected.includes(opt) ? 'var(--green-dim)' : 'rgba(77,255,128,0.12)'}`,
-              color: selected.includes(opt) ? 'var(--green)' : 'var(--text-dim)',
-            }}
-          >
-            {opt}
-          </button>
-        ))}
+        {options.map((opt) => {
+          const active = selected.includes(opt);
+          return (
+            <button key={opt} type="button" onClick={() => toggle(opt)}
+              className="text-sm font-medium px-3.5 py-1.5 transition-colors"
+              style={{
+                background:   active ? 'var(--teal-faint)' : 'var(--surface)',
+                border:       `1px solid ${active ? 'var(--teal)' : 'var(--border-mid)'}`,
+                color:        active ? 'var(--teal-dark)' : 'var(--slate)',
+                borderRadius: 999,
+                cursor:       'pointer',
+              }}
+            >
+              {opt}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -95,10 +155,9 @@ function MultiCheck({ label, options, selected, onChange }: {
 function SaveButton({ loading, disabled }: { loading: boolean; disabled?: boolean }) {
   return (
     <button type="submit" disabled={loading || disabled}
-      className="mono text-xs px-5 py-2 rounded font-bold transition-all disabled:opacity-40 hover:opacity-90"
-      style={{ background: 'var(--green)', color: '#050709' }}
+      className="btn-primary self-start disabled:opacity-40"
     >
-      {loading ? '/ SAVING...' : 'Save & continue →'}
+      {loading ? 'Saving…' : 'Save & continue →'}
     </button>
   );
 }
@@ -140,21 +199,30 @@ function Step2Form({ profile, onSaved }: { profile: ParticipantProfile; onSaved:
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
-      <div className="p-3 rounded mono text-xs" style={{ background: 'rgba(255,179,0,0.06)', border: '1px solid rgba(255,179,0,0.2)', color: 'var(--amber)' }}>
-        ⚠ Year of birth, sex, ethnicity and nationality are permanent and cannot be changed after submission.
+      <div
+        className="p-3 text-sm flex items-start gap-2"
+        style={{
+          background:   'var(--warning-soft)',
+          border:       '1px solid rgba(180,83,9,0.2)',
+          borderRadius: 'var(--radius-sm)',
+          color:        'var(--warning)',
+        }}
+      >
+        <span aria-hidden>⚠</span>
+        <span>Year of birth, sex, ethnicity and nationality are permanent and cannot be changed after submission.</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <InputField label="YEAR OF BIRTH" name="yob" type="number" value={yob} onChange={setYob} placeholder="e.g. 1995" />
-        <SelectField label="SEX ASSIGNED AT BIRTH" name="sex" value={sex} onChange={setSex}
+        <InputField label="Year of birth" name="yob" type="number" value={yob} onChange={setYob} placeholder="e.g. 1995" />
+        <SelectField label="Sex assigned at birth" name="sex" value={sex} onChange={setSex}
           options={[{value:'male',label:'Male'},{value:'female',label:'Female'},{value:'intersex',label:'Intersex'},{value:'prefer_not_to_say',label:'Prefer not to say'}]} />
-        <InputField label="GENDER IDENTITY (optional)" name="gender" value={gender} onChange={setGender} placeholder="e.g. Non-binary" />
-        <InputField label="ETHNICITY" name="ethnicity" value={ethnicity} onChange={setEthnicity} placeholder="e.g. South Asian" />
-        <InputField label="NATIONALITY" name="nationality" value={nationality} onChange={setNationality} placeholder="e.g. Indian" />
-        <InputField label="STATE / REGION" name="state_region" value={stateReg} onChange={setStateReg} placeholder="e.g. Maharashtra" />
-        <SelectField label="URBANICITY" name="urbanicity" value={urbanicity} onChange={setUrbanicity}
+        <InputField label="Gender identity (optional)" name="gender" value={gender} onChange={setGender} placeholder="e.g. Non-binary" />
+        <InputField label="Ethnicity" name="ethnicity" value={ethnicity} onChange={setEthnicity} placeholder="e.g. South Asian" />
+        <InputField label="Nationality" name="nationality" value={nationality} onChange={setNationality} placeholder="e.g. Indian" />
+        <InputField label="State / region" name="state_region" value={stateReg} onChange={setStateReg} placeholder="e.g. Maharashtra" />
+        <SelectField label="Urbanicity" name="urbanicity" value={urbanicity} onChange={setUrbanicity}
           options={[{value:'urban',label:'Urban'},{value:'suburban',label:'Suburban'},{value:'rural',label:'Rural'}]} />
       </div>
-      {err && <p className="mono text-xs" style={{ color: 'var(--amber)' }}>{err}</p>}
+      {err && <p className="text-sm" style={{ color: 'var(--error)' }}>{err}</p>}
       <SaveButton loading={loading} />
     </form>
   );
@@ -163,13 +231,13 @@ function Step2Form({ profile, onSaved }: { profile: ParticipantProfile; onSaved:
 function Step2ReadOnly({ profile }: { profile: ParticipantProfile }) {
   return (
     <div className="flex flex-col">
-      <FieldRow label="Year of birth"  value={profile.year_of_birth}          locked />
+      <FieldRow label="Year of birth"  value={profile.year_of_birth}          locked zebra />
       <FieldRow label="Sex"            value={profile.sex_assigned_at_birth}   locked />
-      <FieldRow label="Gender"         value={profile.gender_identity} />
+      <FieldRow label="Gender"         value={profile.gender_identity}                zebra />
       <FieldRow label="Ethnicity"      value={profile.ethnicity}               locked />
-      <FieldRow label="Nationality"    value={profile.nationality}             locked />
+      <FieldRow label="Nationality"    value={profile.nationality}             locked zebra />
       <FieldRow label="Region"         value={profile.state_region} />
-      <FieldRow label="Urbanicity"     value={profile.urbanicity} />
+      <FieldRow label="Urbanicity"     value={profile.urbanicity}                     zebra />
     </div>
   );
 }
@@ -216,18 +284,18 @@ function Step3Form({ profile, onSaved }: { profile: ParticipantProfile; onSaved:
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <SelectField label="SMARTPHONE OS" name="os" value={os} onChange={setOs}
+        <SelectField label="Smartphone OS" name="os" value={os} onChange={setOs}
           options={[{value:'ios',label:'iOS'},{value:'android',label:'Android'},{value:'both',label:'Both'},{value:'none',label:'None'}]} />
-        <SelectField label="INTERNET RELIABILITY" name="internet" value={internet} onChange={setInternet}
+        <SelectField label="Internet reliability" name="internet" value={internet} onChange={setInternet}
           options={[{value:'stable',label:'Stable / Broadband'},{value:'intermittent',label:'Intermittent'},{value:'limited',label:'Limited / Mobile only'}]} />
-        <SelectField label="CAN RECEIVE KITS BY MAIL?" name="kits" value={kits} onChange={setKits}
+        <SelectField label="Can receive kits by mail?" name="kits" value={kits} onChange={setKits}
           options={[{value:'yes',label:'Yes'},{value:'no',label:'No'}]} />
-        <InputField label="WEEKLY AVAILABILITY (hours)" name="hours" type="number" value={hours} onChange={setHours} placeholder="e.g. 5" />
+        <InputField label="Weekly availability (hours)" name="hours" type="number" value={hours} onChange={setHours} placeholder="e.g. 5" />
       </div>
-      <MultiCheck label="WEARABLE DEVICES" options={WEARABLE_OPTIONS} selected={wearables} onChange={setWearables} />
-      <MultiCheck label="SAMPLE COMFORT" options={SAMPLE_OPTIONS} selected={comfort} onChange={setComfort} />
-      <MultiCheck label="LANGUAGE FLUENCY" options={LANGUAGE_OPTIONS} selected={languages} onChange={setLanguages} />
-      {err && <p className="mono text-xs" style={{ color: 'var(--amber)' }}>{err}</p>}
+      <MultiCheck label="Wearable devices" options={WEARABLE_OPTIONS} selected={wearables} onChange={setWearables} />
+      <MultiCheck label="Sample comfort" options={SAMPLE_OPTIONS} selected={comfort} onChange={setComfort} />
+      <MultiCheck label="Language fluency" options={LANGUAGE_OPTIONS} selected={languages} onChange={setLanguages} />
+      {err && <p className="text-sm" style={{ color: 'var(--error)' }}>{err}</p>}
       <SaveButton loading={loading} />
     </form>
   );
@@ -236,13 +304,13 @@ function Step3Form({ profile, onSaved }: { profile: ParticipantProfile; onSaved:
 function Step3ReadOnly({ profile }: { profile: ParticipantProfile }) {
   return (
     <div className="flex flex-col">
-      <FieldRow label="Smartphone OS"      value={profile.smartphone_os} />
+      <FieldRow label="Smartphone OS"      value={profile.smartphone_os}                                                              zebra />
       <FieldRow label="Internet"           value={profile.internet_reliability} />
-      <FieldRow label="Can receive kits"   value={profile.can_receive_kits === null ? null : profile.can_receive_kits ? 'Yes' : 'No'} />
+      <FieldRow label="Can receive kits"   value={profile.can_receive_kits === null ? null : profile.can_receive_kits ? 'Yes' : 'No'} zebra />
       <FieldRow label="Wearables"          value={(profile.wearable_devices ?? []).join(', ')} />
-      <FieldRow label="Sample comfort"     value={(profile.sample_comfort ?? []).join(', ')} />
+      <FieldRow label="Sample comfort"     value={(profile.sample_comfort ?? []).join(', ')}                                          zebra />
       <FieldRow label="Languages"          value={(profile.language_fluency ?? []).join(', ')} />
-      <FieldRow label="Weekly hours"       value={profile.weekly_availability_hours} />
+      <FieldRow label="Weekly hours"       value={profile.weekly_availability_hours}                                                  zebra />
     </div>
   );
 }
@@ -277,26 +345,27 @@ function Step4Form({ profile, onSaved }: { profile: ParticipantProfile; onSaved:
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <InputField label="PREVIOUS STUDY COUNT" name="count" type="number" value={count} onChange={setCount} placeholder="0" />
+        <InputField label="Previous study count" name="count" type="number" value={count} onChange={setCount} placeholder="0" />
       </div>
       <div>
-        <label className="mono text-xs block mb-1.5" style={{ color: 'var(--text-dim)' }}>RECENT INTERVENTIONS (optional)</label>
+        <label className="text-sm font-medium block mb-1.5" style={{ color: 'var(--ink)' }}>
+          Recent interventions <span className="font-normal" style={{ color: 'var(--muted)' }}>(optional)</span>
+        </label>
         <textarea
           value={recent} onChange={(e) => setRecent(e.target.value)}
           placeholder="List any supplements, medications, or dietary changes you're currently doing..."
           rows={3}
-          className="w-full px-3 py-2 rounded mono text-sm outline-none resize-none"
-          style={{ background: 'var(--bg3)', border: '1px solid rgba(77,255,128,0.15)', color: 'var(--text-bright)' }}
+          className="resize-none"
         />
       </div>
       <label className="flex items-center gap-3 cursor-pointer">
         <input type="checkbox" checked={washout} onChange={(e) => setWashout(e.target.checked)}
-          className="w-4 h-4 rounded" />
-        <span className="text-sm" style={{ color: 'var(--text-dim)' }}>
+          className="w-4 h-4 rounded" style={{ accentColor: 'var(--teal)' }} />
+        <span className="text-sm" style={{ color: 'var(--slate)' }}>
           I am sensitive to washout periods and need at least 4 weeks between studies
         </span>
       </label>
-      {err && <p className="mono text-xs" style={{ color: 'var(--amber)' }}>{err}</p>}
+      {err && <p className="text-sm" style={{ color: 'var(--error)' }}>{err}</p>}
       <SaveButton loading={loading} />
     </form>
   );
@@ -305,9 +374,9 @@ function Step4Form({ profile, onSaved }: { profile: ParticipantProfile; onSaved:
 function Step4ReadOnly({ profile }: { profile: ParticipantProfile }) {
   return (
     <div className="flex flex-col">
-      <FieldRow label="Prior studies"      value={profile.previous_study_count} />
+      <FieldRow label="Prior studies"        value={profile.previous_study_count}             zebra />
       <FieldRow label="Recent interventions" value={profile.recent_interventions} />
-      <FieldRow label="Washout sensitive"  value={profile.washout_sensitive ? 'Yes' : 'No'} />
+      <FieldRow label="Washout sensitive"    value={profile.washout_sensitive ? 'Yes' : 'No'} zebra />
     </div>
   );
 }
@@ -340,23 +409,28 @@ export function ProfileEditSections({ participantId }: { participantId: string }
 
   const step = profile.onboarding_step ?? 1;
   const pct  = step >= 4 ? 100 : step >= 3 ? 75 : step >= 2 ? 50 : 25;
-  const pctColor = pct === 100 ? 'var(--green)' : pct >= 50 ? 'var(--cyan)' : 'var(--amber)';
+  const pctColor = pct === 100 ? 'var(--success)' : 'var(--teal)';
 
   return (
-    <div className="mt-6 pt-6" style={{ borderTop: '1px solid rgba(77,255,128,0.06)' }}>
+    <div className="mt-6 pt-6" style={{ borderTop: '1px solid var(--border-soft)' }}>
 
       {/* Progress header */}
       <div className="flex items-center justify-between mb-2">
-        <p className="mono text-xs" style={{ color: 'var(--text-dim)' }}>// PROFILE_COMPLETENESS</p>
-        <span className="mono text-xs font-bold" style={{ color: pctColor }}>{pct}%</span>
+        <p
+          className="text-xs font-semibold uppercase"
+          style={{ color: 'var(--teal)', letterSpacing: '1px' }}
+        >
+          Profile completeness
+        </p>
+        <span className="text-xs font-bold" style={{ color: pctColor }}>{pct}%</span>
       </div>
-      <div className="w-full h-1.5 rounded overflow-hidden mb-6" style={{ background: 'rgba(77,255,128,0.08)' }}>
-        <div className="h-1.5 rounded transition-all duration-500"
-          style={{ width: `${pct}%`, background: pct === 100 ? 'var(--green)' : 'var(--green-dim)' }} />
+      <div className="w-full h-1.5 rounded-full overflow-hidden mb-6" style={{ background: 'var(--teal-soft)' }}>
+        <div className="h-1.5 rounded-full transition-all duration-500"
+          style={{ width: `${pct}%`, background: pct === 100 ? 'var(--success)' : 'var(--teal)' }} />
       </div>
 
       {/* Section 2: Demographics */}
-      <SectionCard title={`// SECTION_2 — DEMOGRAPHICS${step >= 2 ? ' ✓' : ''}`}>
+      <SectionCard title="Section 2 — Demographics" done={step >= 2}>
         {step >= 2
           ? <Step2ReadOnly profile={profile} />
           : <Step2Form profile={profile} onSaved={setProfile} />}
@@ -364,7 +438,7 @@ export function ProfileEditSections({ participantId }: { participantId: string }
 
       {/* Section 3: Capability — only visible once step 2 is done */}
       {step >= 2 && (
-        <SectionCard title={`// SECTION_3 — CAPABILITY${step >= 3 ? ' ✓' : ''}`}>
+        <SectionCard title="Section 3 — Capability" done={step >= 3}>
           {step >= 3
             ? <Step3ReadOnly profile={profile} />
             : <Step3Form profile={profile} onSaved={setProfile} />}
@@ -373,7 +447,7 @@ export function ProfileEditSections({ participantId }: { participantId: string }
 
       {/* Section 4: Research History — only visible once step 3 is done */}
       {step >= 3 && (
-        <SectionCard title={`// SECTION_4 — RESEARCH_HISTORY${step >= 4 ? ' ✓' : ''}`}>
+        <SectionCard title="Section 4 — Research History" done={step >= 4}>
           {step >= 4
             ? <Step4ReadOnly profile={profile} />
             : <Step4Form profile={profile} onSaved={setProfile} />}
@@ -381,8 +455,8 @@ export function ProfileEditSections({ participantId }: { participantId: string }
       )}
 
       {pct === 100 && (
-        <p className="mono text-xs text-center mt-2" style={{ color: 'var(--green)' }}>
-          ✓ Profile complete. You are eligible for all experiments.
+        <p className="text-sm text-center mt-2 font-medium" style={{ color: 'var(--success)' }}>
+          ✓ Profile complete. You are eligible for all studies.
         </p>
       )}
     </div>

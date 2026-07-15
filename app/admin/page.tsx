@@ -258,7 +258,7 @@ export default function AdminPage() {
                   onClick={loadPayouts}
                   disabled={payoutLoad || !expIdInput.trim()}
                   className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-40"
-                  style={{ background: 'var(--green)', color: '#050709' }}
+                  style={{ background: 'var(--green)', color: '#060a14' }}
                 >
                   {payoutLoad ? '...' : 'Load →'}
                 </button>
@@ -298,7 +298,7 @@ export default function AdminPage() {
                           onClick={() => confirmDeposit(pExp.id)}
                           disabled={actioning === `deposit-${pExp.id}`}
                           className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-40"
-                          style={{ background: 'var(--amber)', color: '#050709' }}
+                          style={{ background: 'var(--amber)', color: '#060a14' }}
                         >
                           {actioning === `deposit-${pExp.id}` ? '...' : 'Confirm Deposit ✓'}
                         </button>
@@ -505,7 +505,7 @@ export default function AdminPage() {
                       onClick={() => act(p.id, 'approve')}
                       disabled={acting === p.id}
                       className="mono text-xs px-4 py-2 rounded font-bold transition-all hover:opacity-90 disabled:opacity-40"
-                      style={{ background: 'var(--green)', color: '#050709' }}
+                      style={{ background: 'var(--green)', color: '#060a14' }}
                     >
                       {acting === p.id ? '...' : 'Approve ✓'}
                     </button>
