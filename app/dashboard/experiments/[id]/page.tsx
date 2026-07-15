@@ -406,7 +406,7 @@ export default function ExperimentManagePage() {
 
   return (
     <main className="min-h-screen px-4 py-8" style={{ background: 'var(--bg-page)' }}>
-      <div className="max-w-5xl mx-auto">
+      <div style={{ maxWidth: 1024, width: '100%', marginLeft: 'auto', marginRight: 'auto', padding: '0 20px' }}>
 
         {/* ── Nav ── */}
         <div className="flex items-center justify-between mb-8">

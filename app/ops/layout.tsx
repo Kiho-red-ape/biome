@@ -172,14 +172,14 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
   // Close drawer on route change
   useEffect(() => { setDrawerOpen(false); }, [pathname]);
 
-  // Badge counts — fetch once after auth
+  // Badge counts — refetch on every navigation so they never go stale.
   useEffect(() => {
     if (!adminChecked) return;
-    fetch('/api/ops/dashboard-stats')
+    fetch('/api/ops/dashboard-stats', { cache: 'no-store' })
       .then(r => r.json())
       .then((d: Record<string, number>) => setBadges(d))
       .catch(() => {});
-  }, [adminChecked]);
+  }, [adminChecked, pathname]);
 
   function toggleGroup(id: string) {
     setExpanded(prev => ({ ...prev, [id]: !prev[id] }));

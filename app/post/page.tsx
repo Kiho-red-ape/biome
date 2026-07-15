@@ -478,7 +478,7 @@ export default function PostStudyPage() {
   return (
     <main className="min-h-screen px-4 py-8">
       {legalDoc && <LegalModal docKey={legalDoc} onClose={() => setLegalDoc(null)} />}
-      <div className="max-w-2xl mx-auto">
+      <div style={{ maxWidth: 672, marginLeft: 'auto', marginRight: 'auto', width: '100%', padding: '0 20px' }}>
 
         <div className="flex items-center justify-between mb-8">
           <button onClick={() => router.back()} className="mono text-xs" style={{ color: 'var(--text-dim)' }}>

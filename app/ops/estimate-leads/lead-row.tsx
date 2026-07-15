@@ -31,18 +31,23 @@ export function EstimateLeadRow({ lead }: Props) {
   const [open,      setOpen]      = useState(false);
   const [intakeId,  setIntakeId]  = useState<string | null>((lead.converted_intake_id as string | null) ?? null);
   const [moving,    setMoving]    = useState(false);
+  const [moveErr,   setMoveErr]   = useState<string | null>(null);
 
   async function moveToPipeline() {
-    if (!user) return;
+    if (!user) { setMoveErr('Not signed in'); return; }
     setMoving(true);
+    setMoveErr(null);
     try {
       const res = await fetch('/api/ops/estimate-leads/to-pipeline', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ id: lead.id, operatorPrivyDid: user.id }),
       });
-      const data = (await res.json()) as { intakeId?: string };
+      const data = (await res.json()) as { intakeId?: string; error?: string };
       if (data.intakeId) { setIntakeId(data.intakeId); setContacted(true); }
+      else setMoveErr(data.error ?? `Failed (HTTP ${res.status})`);
+    } catch {
+      setMoveErr('Network error — try again');
     } finally {
       setMoving(false);
     }
@@ -270,6 +275,9 @@ export function EstimateLeadRow({ lead }: Props) {
               >
                 {moving ? 'Moving…' : 'Move to pipeline →'}
               </button>
+            )}
+            {moveErr && (
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#b91c1c' }}>{moveErr}</span>
             )}
             {!contacted && (
               <button

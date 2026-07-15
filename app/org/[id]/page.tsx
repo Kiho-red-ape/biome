@@ -74,7 +74,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ id:
 
   return (
     <main className="min-h-screen px-4 py-10" style={{ background: 'var(--bg-page)' }}>
-      <div className="mx-auto w-full" style={{ maxWidth: 960 }}>
+      <div style={{ maxWidth: 960, width: '100%', marginLeft: 'auto', marginRight: 'auto', padding: '0 20px' }}>
 
         {/* Nav */}
         <div className="flex items-center justify-between mb-8">

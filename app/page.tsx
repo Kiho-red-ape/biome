@@ -4,7 +4,6 @@ import { HomeHero } from '@/components/home/hero';
 import { StatsBar } from '@/components/home/stats-bar';
 import { HowItWorks } from '@/components/home/how-it-works';
 import { EstimateCta } from '@/components/home/estimate-cta';
-import { TestimonialsMarquee } from '@/components/home/testimonials-marquee';
 import { BlogPreview } from '@/components/home/blog-preview';
 import { PartnersStrip } from '@/components/home/partners-strip';
 import { ClosingCta } from '@/components/home/closing-cta';
@@ -37,7 +36,6 @@ export default async function HomePage() {
       <StatsBar />
       <HowItWorks />
       <EstimateCta />
-      <TestimonialsMarquee />
       <BlogPreview />
       {partners.length > 0 && <PartnersStrip partners={partners} />}
       <ClosingCta />
